@@ -2,12 +2,14 @@ name: Deploy — Staging
 
 # Triggers on push to dev branch.
 # Deploys a Vercel Preview deployment (acts as staging).
+# Also supports manual runs via workflow_dispatch.
 # CI quality gate (ci.yml) runs in parallel and must also pass.
 
 on:
   push:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
   deploy_staging:
