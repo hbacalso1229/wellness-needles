@@ -76,6 +76,20 @@ export function useBookingFeatures() {
     [patchFeatures]
   )
 
+  const setCalendlyInitialUrl = useCallback(
+    (url: string) => {
+      patchFeatures({ calendlyInitialUrl: url.trim() })
+    },
+    [patchFeatures]
+  )
+
+  const setCalendlyFollowUpUrl = useCallback(
+    (url: string) => {
+      patchFeatures({ calendlyFollowUpUrl: url.trim() })
+    },
+    [patchFeatures]
+  )
+
   const setBookingEmailEnabled = useCallback(
     (enabled: boolean) => {
       patchFeatures({ bookingEmailEnabled: enabled })
@@ -108,6 +122,8 @@ export function useBookingFeatures() {
     setCalendlyEnabled,
     setBookingFormEnabled,
     setCalendlySchedulingUrl,
+    setCalendlyInitialUrl,
+    setCalendlyFollowUpUrl,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,

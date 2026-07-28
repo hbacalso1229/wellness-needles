@@ -28,19 +28,33 @@ const STEPS: BookingStepperStep[] = [
 
 const TIME_SLOTS = [
   '9:00 AM',
+  '9:15 AM',
   '9:30 AM',
+  '9:45 AM',
   '10:00 AM',
+  '10:15 AM',
   '10:30 AM',
+  '10:45 AM',
   '11:00 AM',
+  '11:15 AM',
   '11:30 AM',
+  '11:45 AM',
   '2:00 PM',
+  '2:15 PM',
   '2:30 PM',
+  '2:45 PM',
   '3:00 PM',
+  '3:15 PM',
   '3:30 PM',
+  '3:45 PM',
   '4:00 PM',
+  '4:15 PM',
   '4:30 PM',
+  '4:45 PM',
   '5:00 PM',
+  '5:15 PM',
   '5:30 PM',
+  '5:45 PM',
   '6:00 PM',
 ]
 
@@ -74,7 +88,7 @@ const inClinicServices: BookingService[] = [
   {
     id: 'initial-consultation',
     name: 'Initial Consultation & First Treatment',
-    duration: '60–75 minutes',
+    duration: contactConfig.calendly.durations.initialLabel,
     price: '€75',
     description:
       'Comprehensive health assessment with personalized treatment plan and first acupuncture session',
@@ -82,7 +96,7 @@ const inClinicServices: BookingService[] = [
   {
     id: 'follow-up',
     name: 'Follow-up Sessions',
-    duration: '45–60 minutes',
+    duration: contactConfig.calendly.durations.followUpLabel,
     price: '€60',
     description: 'Tailored acupuncture treatment based on your progress and ongoing needs',
   },
@@ -108,7 +122,7 @@ const homeVisitServices: BookingService[] = [
   {
     id: 'home-initial-consultation',
     name: 'Initial Consultation & First Treatment',
-    duration: '60–75 minutes',
+    duration: contactConfig.calendly.durations.initialLabel,
     price: '€90',
     description:
       'Comprehensive health assessment with personalized treatment plan and first acupuncture session at your home',
@@ -116,7 +130,7 @@ const homeVisitServices: BookingService[] = [
   {
     id: 'home-follow-up',
     name: 'Follow-up Sessions',
-    duration: '45–60 minutes',
+    duration: contactConfig.calendly.durations.followUpLabel,
     price: '€75',
     description: 'Tailored acupuncture treatment in the comfort of your home',
   },

@@ -8,6 +8,7 @@ import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
+import { resolveCalendlyUrlForService } from '@/lib/booking-features'
 
 type BookingService = {
   id: string
@@ -22,7 +23,7 @@ export default function Bookings() {
   const { features } = useBookingFeatures()
   const bookingFormEnabled = features.bookingFormEnabled
   const calendlyEnabled = features.calendlyEnabled
-  const calendlySchedulingUrl = features.calendlySchedulingUrl
+  const { initialLabel, followUpLabel } = contactConfig.calendly.durations
 
   const [activeTab, setActiveTab] = useState('in-clinic')
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -35,14 +36,14 @@ export default function Bookings() {
     {
       id: 'initial-consultation',
       name: 'Initial Consultation & First Treatment',
-      duration: '60–75 minutes',
+      duration: initialLabel,
       price: '€75',
       description: 'Comprehensive health assessment with personalized treatment plan and first acupuncture session'
     },
     {
       id: 'follow-up',
       name: 'Follow-up Sessions',
-      duration: '45–60 minutes',
+      duration: followUpLabel,
       price: '€60',
       description: 'Tailored acupuncture treatment based on your progress and ongoing needs'
     },
@@ -68,14 +69,14 @@ export default function Bookings() {
     {
       id: 'home-initial-consultation',
       name: 'Initial Consultation & First Treatment',
-      duration: '60–75 minutes',
+      duration: initialLabel,
       price: '€90',
       description: 'Comprehensive health assessment with personalized treatment plan and first acupuncture session at your home'
     },
     {
       id: 'home-follow-up',
       name: 'Follow-up Sessions',
-      duration: '45–60 minutes',
+      duration: followUpLabel,
       price: '€75',
       description: 'Tailored acupuncture treatment in the comfort of your home'
     },
@@ -437,17 +438,20 @@ export default function Bookings() {
                     </p>
                   ) : (
                     <CalendlyEmbed
-                      url={buildCalendlyUrl(calendlySchedulingUrl, {
-                        bookingSource: activeTab === 'call-out' ? 'home-visit' : 'in-clinic',
-                        locationId: selectedLocation,
-                        locationLabel: selectedLocationDetails
-                          ? `${selectedLocationDetails.label} — ${selectedLocationDetails.full}`
-                          : undefined,
-                        serviceId: selectedService,
-                        serviceLabel: selectedServiceDetails?.name,
-                        addOnIds: selectedAddOns,
-                        addOnLabels: selectedAddOnLabels,
-                      })}
+                      url={buildCalendlyUrl(
+                        resolveCalendlyUrlForService(features, selectedService),
+                        {
+                          bookingSource: activeTab === 'call-out' ? 'home-visit' : 'in-clinic',
+                          locationId: selectedLocation,
+                          locationLabel: selectedLocationDetails
+                            ? `${selectedLocationDetails.label} — ${selectedLocationDetails.full}`
+                            : undefined,
+                          serviceId: selectedService,
+                          serviceLabel: selectedServiceDetails?.name,
+                          addOnIds: selectedAddOns,
+                          addOnLabels: selectedAddOnLabels,
+                        }
+                      )}
                     />
                   )}
                   <div className="mt-6 text-center">

@@ -30,8 +30,11 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - Emergency appointments note
 
 - **Calendly**:
-  - `calendly.schedulingUrl`: `https://calendly.com/hbacalso1229/scheduled-booking`
-  - Overridable on `/admin` when Calendly mode is on
+  - `calendly.initialConsultationUrl` — Initial (1h 45m / 105 min, 15-min starts)
+  - `calendly.followUpUrl` — Follow-up (1h 15m / 75 min, 15-min starts)
+  - `calendly.schedulingUrl` — fallback / packages default
+  - `calendly.durations` — labels + minute constants
+  - Overridable on `/admin` when Calendly mode is on (Initial + Follow-up URLs)
 
 - **Feature flags** (defaults; booking pair overridable on `/admin`):
 
@@ -49,6 +52,7 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
 - Reads/writes `wellness-needles-booking-features` in localStorage
 - Defaults from `contactConfig` + `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`
 - Env access key always wins; when set, booking email is forced on
+- `resolveCalendlyUrlForService()` picks Initial vs Follow-up Calendly URL from the selected service id
 
 ### 3. Reusable components
 
@@ -70,7 +74,9 @@ import { contactConfig } from '@/lib/contact-config'
 
 contactConfig.phone.displayText
 contactConfig.email.address
-contactConfig.calendly.schedulingUrl
+contactConfig.calendly.initialConsultationUrl
+contactConfig.calendly.followUpUrl
+contactConfig.calendly.durations.initialLabel
 contactConfig.address.locations.map((location) => location.full)
 ```
 

@@ -70,14 +70,16 @@ export default function AdminPage() {
     hydrated,
     setCalendlyEnabled,
     setBookingFormEnabled,
-    setCalendlySchedulingUrl,
+    setCalendlyInitialUrl,
+    setCalendlyFollowUpUrl,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
     resetToDefaults,
   } = useBookingFeatures()
 
-  const [urlDraft, setUrlDraft] = useState(features.calendlySchedulingUrl)
+  const [initialUrlDraft, setInitialUrlDraft] = useState(features.calendlyInitialUrl)
+  const [followUpUrlDraft, setFollowUpUrlDraft] = useState(features.calendlyFollowUpUrl)
   const [urlSaved, setUrlSaved] = useState(false)
   const [accessKeyDraft, setAccessKeyDraft] = useState(features.bookingEmailAccessKey)
   const [emailToDraft, setEmailToDraft] = useState(features.bookingEmailTo)
@@ -85,13 +87,15 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (hydrated) {
-      setUrlDraft(features.calendlySchedulingUrl)
+      setInitialUrlDraft(features.calendlyInitialUrl)
+      setFollowUpUrlDraft(features.calendlyFollowUpUrl)
       setAccessKeyDraft(features.bookingEmailAccessKey)
       setEmailToDraft(features.bookingEmailTo)
     }
   }, [
     hydrated,
-    features.calendlySchedulingUrl,
+    features.calendlyInitialUrl,
+    features.calendlyFollowUpUrl,
     features.bookingEmailAccessKey,
     features.bookingEmailTo,
   ])
@@ -99,8 +103,12 @@ export default function AdminPage() {
   const envAccessKey = getEnvWeb3FormsAccessKey()
   const usingEnvAccessKey = Boolean(envAccessKey)
 
-  const urlIsValid = isValidCalendlySchedulingUrl(urlDraft)
-  const urlDirty = urlDraft.trim() !== features.calendlySchedulingUrl
+  const initialUrlValid = isValidCalendlySchedulingUrl(initialUrlDraft)
+  const followUpUrlValid = isValidCalendlySchedulingUrl(followUpUrlDraft)
+  const urlsValid = initialUrlValid && followUpUrlValid
+  const urlDirty =
+    initialUrlDraft.trim() !== features.calendlyInitialUrl ||
+    followUpUrlDraft.trim() !== features.calendlyFollowUpUrl
   const emailToValid = isValidEmailAddress(emailToDraft)
   const emailDirty =
     (!usingEnvAccessKey &&
@@ -113,9 +121,10 @@ export default function AdminPage() {
       ? 'Calendly embed'
       : 'Call / contact only (both off)'
 
-  const saveCalendlyUrl = () => {
-    if (!urlIsValid) return
-    setCalendlySchedulingUrl(urlDraft)
+  const saveCalendlyUrls = () => {
+    if (!urlsValid) return
+    setCalendlyInitialUrl(initialUrlDraft)
+    setCalendlyFollowUpUrl(followUpUrlDraft)
     setUrlSaved(true)
     window.setTimeout(() => setUrlSaved(false), 2000)
   }
@@ -179,61 +188,108 @@ export default function AdminPage() {
             <div className="space-y-4">
               <h2 className="font-serif text-2xl font-bold text-primary">Calendly setup</h2>
 
-              <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-4">
+              <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-5">
+                <p className="text-sm text-secondary">
+                  Use two event types so Initial blocks{' '}
+                  <span className="font-medium text-primary">1 hour 45 minutes</span> and Follow-up
+                  blocks <span className="font-medium text-primary">1 hour 15 minutes</span> (15-minute
+                  start times). See README for the full checklist.
+                </p>
+
                 <div>
                   <label
-                    htmlFor="calendly-scheduling-url"
+                    htmlFor="calendly-initial-url"
                     className="block font-semibold text-primary mb-1"
                   >
-                    Scheduling URL
+                    Initial Consultation URL
                   </label>
-                  <p className="text-sm text-secondary mb-3">
-                    Paste the public event link from Calendly → Event type → Share. Example:{' '}
-                    <code className="text-xs break-all">
-                      https://calendly.com/your-user/scheduled-booking
-                    </code>
-                  </p>
                   <input
-                    id="calendly-scheduling-url"
+                    id="calendly-initial-url"
                     type="url"
-                    value={urlDraft}
+                    value={initialUrlDraft}
                     onChange={(e) => {
-                      setUrlDraft(e.target.value)
+                      setInitialUrlDraft(e.target.value)
                       setUrlSaved(false)
                     }}
-                    placeholder="https://calendly.com/username/event-slug"
+                    placeholder="https://calendly.com/username/initial-consultation"
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
-                      urlDraft && !urlIsValid
+                      initialUrlDraft && !initialUrlValid
                         ? 'border-red-500 bg-red-50/40'
                         : 'border-accent/30'
                     }`}
                   />
-                  {urlDraft && !urlIsValid && (
+                  {initialUrlDraft && !initialUrlValid && (
                     <p className="mt-2 text-sm text-red-700" role="alert">
                       Enter a valid Calendly URL (https://calendly.com/username/event-slug).
                     </p>
                   )}
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={saveCalendlyUrl}
-                      disabled={!urlDirty || !urlIsValid}
-                      className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      Save URL
-                    </button>
-                    {urlSaved && (
-                      <span className="text-sm text-primary font-medium">Saved</span>
-                    )}
-                    <a
-                      href={urlIsValid ? urlDraft.trim() : features.calendlySchedulingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-accent hover:text-primary transition-colors"
-                    >
-                      Open link
-                    </a>
-                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="calendly-follow-up-url"
+                    className="block font-semibold text-primary mb-1"
+                  >
+                    Follow-up URL
+                  </label>
+                  <input
+                    id="calendly-follow-up-url"
+                    type="url"
+                    value={followUpUrlDraft}
+                    onChange={(e) => {
+                      setFollowUpUrlDraft(e.target.value)
+                      setUrlSaved(false)
+                    }}
+                    placeholder="https://calendly.com/username/follow-up"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                      followUpUrlDraft && !followUpUrlValid
+                        ? 'border-red-500 bg-red-50/40'
+                        : 'border-accent/30'
+                    }`}
+                  />
+                  {followUpUrlDraft && !followUpUrlValid && (
+                    <p className="mt-2 text-sm text-red-700" role="alert">
+                      Enter a valid Calendly URL (https://calendly.com/username/event-slug).
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={saveCalendlyUrls}
+                    disabled={!urlDirty || !urlsValid}
+                    className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Save URLs
+                  </button>
+                  {urlSaved && (
+                    <span className="text-sm text-primary font-medium">Saved</span>
+                  )}
+                  <a
+                    href={
+                      initialUrlValid
+                        ? initialUrlDraft.trim()
+                        : features.calendlyInitialUrl
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                  >
+                    Open Initial
+                  </a>
+                  <a
+                    href={
+                      followUpUrlValid
+                        ? followUpUrlDraft.trim()
+                        : features.calendlyFollowUpUrl
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                  >
+                    Open Follow-up
+                  </a>
                 </div>
               </div>
             </div>

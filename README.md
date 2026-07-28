@@ -119,14 +119,21 @@ Static export (`output: 'export'`). Typical flow: push `dev` for Preview / stagi
 
 ### Calendly setup checklist
 
-Use when **Calendly booking embed** is enabled on `/admin` (Scheduling URL from Calendly → Event type → Share).
+Use when **Calendly booking embed** is enabled on `/admin`. Create **two** event types so the calendar blocks the correct length after a booking:
 
-1. Event type exists and the Share link matches the Admin Scheduling URL (slug is case-sensitive).
-2. Calendar connected (Google/Outlook) with weekly availability set.
-3. Location set to **Ask invitee** so clinic selection appears on the meeting.
-4. Keep at least one invitee question (default “Please share anything…” works) for visit type / service / add-ons.
+| Service | Event duration (blocks availability) | Start-time increments | Default Share URL slug |
+|---------|--------------------------------------|------------------------|-------------------------|
+| Initial Consultation | **1 hour 45 minutes** (105 min) | **15 minutes** | `/initial-consultation` |
+| Follow-up | **1 hour 15 minutes** (75 min) | **15 minutes** | `/follow-up` |
 
-Default URL: `src/lib/contact-config.ts` → `calendly.schedulingUrl`.
+1. Create both event types in Calendly → Event types → New Event Type (One-on-One).
+2. Set duration and start-time increments as in the table above (slug is case-sensitive).
+3. Calendar connected (Google/Outlook) with weekly availability set.
+4. Location set to **Ask invitee** so clinic selection appears on the meeting.
+5. Keep at least one invitee question (default “Please share anything…” works) for visit type / service / add-ons.
+6. Paste each Share link into `/admin` → **Initial Consultation URL** and **Follow-up URL**.
+
+Defaults live in `src/lib/contact-config.ts` (`calendly.initialConsultationUrl`, `calendly.followUpUrl`). The bookings page picks the URL from the selected service so the right duration is blocked. Packages use the Follow-up event URL.
 
 ### Vercel environment variables
 

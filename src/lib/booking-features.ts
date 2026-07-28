@@ -3,7 +3,12 @@ import { contactConfig } from '@/lib/contact-config'
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
+  /** Fallback Calendly URL (packages / unknown service). */
   calendlySchedulingUrl: string
+  /** Initial Consultation event (1h 45m). */
+  calendlyInitialUrl: string
+  /** Follow-up event (1h 15m). */
+  calendlyFollowUpUrl: string
   /** Send legacy form submissions by email (Web3Forms). */
   bookingEmailEnabled: boolean
   /** Web3Forms access key from https://web3forms.com */
@@ -31,6 +36,8 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyEnabled: contactConfig.features.calendlyEnabled,
     bookingFormEnabled: contactConfig.features.bookingFormEnabled,
     calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
+    calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
+    calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
     // Shared deploys: env key alone is enough — email is on by default for all visitors.
     bookingEmailEnabled: Boolean(envAccessKey),
     bookingEmailAccessKey: envAccessKey,
@@ -55,6 +62,35 @@ export function isValidEmailAddress(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
 
+function readCalendlyUrl(
+  value: unknown,
+  fallback: string
+): string {
+  if (typeof value === 'string' && value.trim().length > 0 && isValidCalendlySchedulingUrl(value)) {
+    return value.trim()
+  }
+  return fallback
+}
+
+/**
+ * Pick the Calendly event URL for the selected service so Initial/Follow-up
+ * block the correct calendar duration (105 vs 75 minutes).
+ */
+export function resolveCalendlyUrlForService(
+  features: Pick<
+    BookingFeatureFlags,
+    'calendlySchedulingUrl' | 'calendlyInitialUrl' | 'calendlyFollowUpUrl'
+  >,
+  serviceId?: string
+): string {
+  if (!serviceId) return features.calendlySchedulingUrl
+  if (serviceId.includes('initial')) return features.calendlyInitialUrl
+  if (serviceId.includes('follow') || serviceId.includes('package')) {
+    return features.calendlyFollowUpUrl
+  }
+  return features.calendlySchedulingUrl
+}
+
 export function readBookingFeatures(): BookingFeatureFlags {
   const defaults = getDefaultBookingFeatures()
   if (typeof window === 'undefined') return defaults
@@ -63,11 +99,23 @@ export function readBookingFeatures(): BookingFeatureFlags {
     const raw = window.localStorage.getItem(BOOKING_FEATURES_STORAGE_KEY)
     if (!raw) return defaults
     const parsed = JSON.parse(raw) as Partial<BookingFeatureFlags>
-    const url =
-      typeof parsed.calendlySchedulingUrl === 'string' &&
-      parsed.calendlySchedulingUrl.trim().length > 0
-        ? parsed.calendlySchedulingUrl.trim()
-        : defaults.calendlySchedulingUrl
+    const fallbackUrl = readCalendlyUrl(
+      parsed.calendlySchedulingUrl,
+      defaults.calendlySchedulingUrl
+    )
+    // Migrate older Admin saves that only had one URL.
+    const initialUrl = readCalendlyUrl(
+      parsed.calendlyInitialUrl,
+      fallbackUrl === defaults.calendlySchedulingUrl
+        ? defaults.calendlyInitialUrl
+        : fallbackUrl
+    )
+    const followUpUrl = readCalendlyUrl(
+      parsed.calendlyFollowUpUrl,
+      fallbackUrl === defaults.calendlySchedulingUrl
+        ? defaults.calendlyFollowUpUrl
+        : fallbackUrl
+    )
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
         ? parsed.bookingEmailAccessKey.trim()
@@ -91,7 +139,9 @@ export function readBookingFeatures(): BookingFeatureFlags {
     return {
       calendlyEnabled: Boolean(parsed.calendlyEnabled),
       bookingFormEnabled: Boolean(parsed.bookingFormEnabled),
-      calendlySchedulingUrl: url,
+      calendlySchedulingUrl: fallbackUrl,
+      calendlyInitialUrl: initialUrl,
+      calendlyFollowUpUrl: followUpUrl,
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKey,
       bookingEmailTo: emailTo,
