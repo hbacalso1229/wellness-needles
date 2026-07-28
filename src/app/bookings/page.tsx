@@ -6,6 +6,15 @@ import Image from 'next/image'
 import { CTAButton } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 
+type BookingService = {
+  id: string
+  name: string
+  duration: string
+  price: string
+  description: string
+  savings?: string
+}
+
 export default function Bookings() {
   // TODO: Set to true when booking form is ready to go live
   const BOOKING_FORM_ENABLED = false
@@ -29,7 +38,7 @@ export default function Bookings() {
     emergencyPhone: ''
   })
 
-  const inClinicServices = [
+  const inClinicServices: BookingService[] = [
     {
       id: 'initial-consultation',
       name: 'Initial Consultation & First Treatment',
@@ -62,7 +71,7 @@ export default function Bookings() {
     }
   ]
 
-  const homeVisitServices = [
+  const homeVisitServices: BookingService[] = [
     {
       id: 'home-initial-consultation',
       name: 'Initial Consultation & First Treatment',
