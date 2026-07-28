@@ -53,7 +53,7 @@ export function FeaturesSection() {
               gradientFrom="from-accent/5"
               gradientTo="to-gold/5"
               leafColors={{
-                topRight: 'text-accent/80/60 group-hover:text-accent',
+                topRight: 'text-accent/60 group-hover:text-accent',
                 bottomLeft: 'text-gold/70 group-hover:text-gold'
               }}
             />

@@ -17,6 +17,14 @@ interface DecorativeImageCardProps {
   className?: string
 }
 
+const borderClasses: Record<string, string> = {
+  'from-primary/5': 'border-primary/20 group-hover:border-primary/40',
+  'from-secondary/5': 'border-secondary/20 group-hover:border-secondary/40',
+  'from-accent/5': 'border-accent/20 group-hover:border-accent/40',
+  'from-primary/10': 'border-primary/20 group-hover:border-primary/40',
+  'from-secondary/10': 'border-secondary/20 group-hover:border-secondary/40',
+}
+
 export function DecorativeImageCard({
   src,
   alt,
@@ -30,6 +38,8 @@ export function DecorativeImageCard({
   },
   className = ''
 }: DecorativeImageCardProps) {
+  const borderClass = borderClasses[gradientFrom] ?? 'border-accent/20 group-hover:border-accent/40'
+
   return (
     <div className={`group ${className}`}>
       <div className={`relative h-72 rounded-xl overflow-visible shadow-lg bg-gradient-to-br ${gradientFrom} ${gradientTo} p-2`}>
@@ -41,7 +51,7 @@ export function DecorativeImageCard({
             className="object-contain group-hover:scale-105 transition-transform duration-500"
           />
         </div>
-        <div className={`absolute inset-0 rounded-xl border-2 border-gradient-to-br ${gradientFrom.replace('/5', '/20')} ${gradientTo.replace('/5', '/20')} group-hover:${gradientFrom.replace('/5', '/40')} group-hover:${gradientTo.replace('/5', '/40')} transition-all duration-300`}></div>
+        <div className={`absolute inset-0 rounded-xl border-2 ${borderClass} transition-all duration-300 pointer-events-none`}></div>
         
         {/* Floating leaf decorations */}
         <div className="absolute -top-1 -right-1 z-20">

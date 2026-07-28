@@ -67,11 +67,6 @@ export default function Footer() {
                   Testimonials
                 </Link>
               </li>
-              <li>
-                <Link href="/blog" className="text-cream/80 hover:text-cream transition-colors">
-                  Blog
-                </Link>
-              </li>
             </ul>
           </div>
 

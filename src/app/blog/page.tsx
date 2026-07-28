@@ -1,5 +1,4 @@
-import { Calendar, User, ArrowRight, Leaf, Heart, Brain } from 'lucide-react'
-import Link from 'next/link'
+import { Calendar, User, Leaf, Heart, Brain } from 'lucide-react'
 import { CTAButton } from '../../features'
 
 export default function Blog() {
@@ -138,12 +137,9 @@ export default function Blog() {
                         {post.date}
                       </div>
                     </div>
-                    <Link
-                      href={`/blog/${post.id}`}
-                      className="text-accent hover:text-primary font-medium inline-flex items-center"
-                    >
-                      Read More <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
+                    <span className="text-secondary text-sm font-medium">
+                      Full article coming soon
+                    </span>
                   </div>
                 </div>
               </div>
@@ -228,12 +224,9 @@ export default function Blog() {
                   </div>
                   
                   <div className="mt-4 pt-4 border-t border-accent/20">
-                    <Link
-                      href={`/blog/${post.id}`}
-                      className="text-accent hover:text-primary font-medium text-sm inline-flex items-center"
-                    >
-                      Read Full Article <ArrowRight className="ml-2 w-3 h-3" />
-                    </Link>
+                    <span className="text-secondary text-sm font-medium">
+                      Full article coming soon
+                    </span>
                   </div>
                 </div>
               </article>
