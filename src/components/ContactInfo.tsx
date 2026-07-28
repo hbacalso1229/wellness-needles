@@ -57,14 +57,22 @@ export default function ContactInfo({
         <div className={addressItemStyles}>
           <contactConfig.address.icon className="w-4 h-4 text-current opacity-80 mt-1 flex-shrink-0" />
           {variant === 'inline' || variant === 'compact' ? (
-            <span className="text-current opacity-80">
-              {contactConfig.address.formatted.street}, {contactConfig.address.formatted.city}, {contactConfig.address.formatted.county} {contactConfig.address.formatted.postcode}
-            </span>
+            <div className="text-current opacity-80 space-y-1">
+              {contactConfig.address.locations.map((location) => (
+                <div key={location.full}>
+                  {location.formatted.street}, {location.formatted.city}, {location.formatted.county} {location.formatted.postcode}
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="text-current opacity-80">
-              <div>{contactConfig.address.formatted.street}</div>
-              <div>{contactConfig.address.formatted.city}</div>
-              <div>{contactConfig.address.formatted.county} {contactConfig.address.formatted.postcode}</div>
+            <div className="text-current opacity-80 space-y-3">
+              {contactConfig.address.locations.map((location) => (
+                <div key={location.full}>
+                  <div>{location.formatted.street}</div>
+                  <div>{location.formatted.city}</div>
+                  <div>{location.formatted.county} {location.formatted.postcode}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -107,14 +115,22 @@ export function AddressContact({ className = '', compact = false }) {
     <div className={`flex items-start space-x-2 ${className}`}>
       <contactConfig.address.icon className="w-4 h-4 mt-1 flex-shrink-0" />
       {compact ? (
-        <span>
-          {contactConfig.address.formatted.street}, {contactConfig.address.formatted.city}, {contactConfig.address.formatted.county} {contactConfig.address.formatted.postcode}
-        </span>
+        <div className="space-y-1">
+          {contactConfig.address.locations.map((location) => (
+            <div key={location.full}>
+              {location.formatted.street}, {location.formatted.city}, {location.formatted.county} {location.formatted.postcode}
+            </div>
+          ))}
+        </div>
       ) : (
-        <div>
-          <div>{contactConfig.address.formatted.street}</div>
-          <div>{contactConfig.address.formatted.city}</div>
-          <div>{contactConfig.address.formatted.county} {contactConfig.address.formatted.postcode}</div>
+        <div className="space-y-3">
+          {contactConfig.address.locations.map((location) => (
+            <div key={location.full}>
+              <div>{location.formatted.street}</div>
+              <div>{location.formatted.city}</div>
+              <div>{location.formatted.county} {location.formatted.postcode}</div>
+            </div>
+          ))}
         </div>
       )}
     </div>

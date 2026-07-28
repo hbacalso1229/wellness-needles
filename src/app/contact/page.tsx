@@ -201,10 +201,14 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-primary mb-2">Location</h3>
-                    <div className="text-secondary mb-2">
-                      <div>{contactConfig.address.formatted.street}</div>
-                      <div>{contactConfig.address.formatted.city}</div>
-                      <div>{contactConfig.address.formatted.county} {contactConfig.address.formatted.postcode}</div>
+                    <div className="text-secondary mb-2 space-y-3">
+                      {contactConfig.address.locations.map((location) => (
+                        <div key={location.full}>
+                          <div>{location.formatted.street}</div>
+                          <div>{location.formatted.city}</div>
+                          <div>{location.formatted.county} {location.formatted.postcode}</div>
+                        </div>
+                      ))}
                     </div>
                     <p className="text-secondary text-sm">
                       Convenient parking available

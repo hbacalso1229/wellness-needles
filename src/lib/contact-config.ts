@@ -2,14 +2,27 @@ import { Phone, MapPin, Mail } from 'lucide-react'
 
 export const contactConfig = {
   address: {
-    full: "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603",
-    formatted: {
-      street: "56 The Orchard Oldtown Mill",
-      city: "Celbridge",
-      county: "Co.Kildare", 
-      postcode: "W23 K603"
-    },
-    icon: MapPin
+    icon: MapPin,
+    locations: [
+      {
+        full: "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603",
+        formatted: {
+          street: "56 The Orchard Oldtown Mill",
+          city: "Celbridge",
+          county: "Co.Kildare",
+          postcode: "W23 K603"
+        }
+      },
+      {
+        full: "16 Kennedy St, Graigue, Carlow, R93 H2X8",
+        formatted: {
+          street: "16 Kennedy St",
+          city: "Graigue",
+          county: "Carlow",
+          postcode: "R93 H2X8"
+        }
+      }
+    ]
   },
   phone: {
     number: "0860543085",

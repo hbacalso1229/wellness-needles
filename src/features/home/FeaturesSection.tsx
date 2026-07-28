@@ -80,7 +80,7 @@ export function FeaturesSection() {
           <FeatureCard
             icon={Award}
             title="Proven Results"
-            description="Thousands of satisfied patients have experienced relief from chronic conditions and improved their quality of life through our treatments."
+            description="Patients have experienced relief from chronic conditions and improvements in thier quality of life through our personalised treatments."
             gradientFrom="from-accent/10"
             gradientTo="to-blue-primary/10"
           />
