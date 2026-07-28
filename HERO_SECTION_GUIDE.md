@@ -1,8 +1,11 @@
 # Reusable Hero Section Component
 
+> **Historical / reference guide.** For current site architecture and booking/deploy setup, see [README.md](README.md) and [WORKFLOW.md](WORKFLOW.md).
+
 ## Overview
 
 The `ReusableHeroSection` component provides a consistent, flexible hero section that can be used across all pages while maintaining design consistency and allowing for customization.
+
 
 ## Location
 

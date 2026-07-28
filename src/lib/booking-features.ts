@@ -1,0 +1,125 @@
+import { contactConfig } from '@/lib/contact-config'
+
+export type BookingFeatureFlags = {
+  calendlyEnabled: boolean
+  bookingFormEnabled: boolean
+  calendlySchedulingUrl: string
+  /** Send legacy form submissions by email (Web3Forms). */
+  bookingEmailEnabled: boolean
+  /** Web3Forms access key from https://web3forms.com */
+  bookingEmailAccessKey: string
+  /** Inbox that should receive booking requests */
+  bookingEmailTo: string
+}
+
+export const BOOKING_FEATURES_STORAGE_KEY = 'wellness-needles-booking-features'
+export const BOOKING_FEATURES_EVENT = 'wellness-needles-booking-features-changed'
+
+/**
+ * Prefer this for shared deploys (`dev` Preview + `main` Production).
+ * Local: `.env.local`. Host: set for both Preview and Production, then redeploy.
+ */
+export function getEnvWeb3FormsAccessKey(): string {
+  if (typeof process === 'undefined') return ''
+  return process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY?.trim() || ''
+}
+
+export function getDefaultBookingFeatures(): BookingFeatureFlags {
+  const envAccessKey = getEnvWeb3FormsAccessKey()
+
+  return {
+    calendlyEnabled: contactConfig.features.calendlyEnabled,
+    bookingFormEnabled: contactConfig.features.bookingFormEnabled,
+    calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
+    // Shared deploys: env key alone is enough — email is on by default for all visitors.
+    bookingEmailEnabled: Boolean(envAccessKey),
+    bookingEmailAccessKey: envAccessKey,
+    bookingEmailTo: contactConfig.email.address,
+  }
+}
+
+export function isValidCalendlySchedulingUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.trim())
+    return (
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
+      parsed.hostname === 'calendly.com' &&
+      parsed.pathname.split('/').filter(Boolean).length >= 2
+    )
+  } catch {
+    return false
+  }
+}
+
+export function isValidEmailAddress(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+}
+
+export function readBookingFeatures(): BookingFeatureFlags {
+  const defaults = getDefaultBookingFeatures()
+  if (typeof window === 'undefined') return defaults
+
+  try {
+    const raw = window.localStorage.getItem(BOOKING_FEATURES_STORAGE_KEY)
+    if (!raw) return defaults
+    const parsed = JSON.parse(raw) as Partial<BookingFeatureFlags>
+    const url =
+      typeof parsed.calendlySchedulingUrl === 'string' &&
+      parsed.calendlySchedulingUrl.trim().length > 0
+        ? parsed.calendlySchedulingUrl.trim()
+        : defaults.calendlySchedulingUrl
+    const parsedKey =
+      typeof parsed.bookingEmailAccessKey === 'string'
+        ? parsed.bookingEmailAccessKey.trim()
+        : ''
+    // Shared deploys: env key always wins when set. Otherwise use Admin/localStorage.
+    const accessKey = getEnvWeb3FormsAccessKey() || parsedKey || defaults.bookingEmailAccessKey
+    const emailTo =
+      typeof parsed.bookingEmailTo === 'string' &&
+      isValidEmailAddress(parsed.bookingEmailTo)
+        ? parsed.bookingEmailTo.trim()
+        : defaults.bookingEmailTo
+
+    // Shared deploys: env key means email is always on for every visitor.
+    // Without env, use Admin/localStorage (default false).
+    const bookingEmailEnabled = getEnvWeb3FormsAccessKey()
+      ? true
+      : typeof parsed.bookingEmailEnabled === 'boolean'
+        ? parsed.bookingEmailEnabled
+        : defaults.bookingEmailEnabled
+
+    return {
+      calendlyEnabled: Boolean(parsed.calendlyEnabled),
+      bookingFormEnabled: Boolean(parsed.bookingFormEnabled),
+      calendlySchedulingUrl: url,
+      bookingEmailEnabled,
+      bookingEmailAccessKey: accessKey,
+      bookingEmailTo: emailTo,
+    }
+  } catch {
+    return defaults
+  }
+}
+
+export function writeBookingFeatures(features: BookingFeatureFlags): void {
+  if (typeof window === 'undefined') return
+  // Never persist the env access key into localStorage (shared-deploy source of truth is env).
+  const toStore: BookingFeatureFlags = {
+    ...features,
+    bookingEmailAccessKey: getEnvWeb3FormsAccessKey()
+      ? ''
+      : features.bookingEmailAccessKey,
+  }
+  window.localStorage.setItem(BOOKING_FEATURES_STORAGE_KEY, JSON.stringify(toStore))
+  window.dispatchEvent(
+    new CustomEvent(BOOKING_FEATURES_EVENT, { detail: features })
+  )
+}
+
+export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean {
+  return (
+    features.bookingEmailEnabled &&
+    features.bookingEmailAccessKey.trim().length > 0 &&
+    isValidEmailAddress(features.bookingEmailTo)
+  )
+}

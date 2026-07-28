@@ -1,5 +1,7 @@
 # Hero Section Refactoring Summary
 
+> **Historical snapshot** of a past hero refactor. Not a living status doc — see [README.md](README.md) and [WORKFLOW.md](WORKFLOW.md) for current behavior.
+
 ## ✅ Completed Tasks
 
 ### 1. Created Reusable Hero Section Component

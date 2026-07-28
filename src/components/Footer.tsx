@@ -86,7 +86,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-cream/20 mt-8 pt-8 text-center text-cream/60">
-          <p>&copy; 2025 Wellness Needles. All rights reserved. | Privacy Policy | Terms of Service</p>
+          <p>&copy; {new Date().getFullYear()} Wellness Needles. All rights reserved. | Privacy Policy | Terms of Service</p>
         </div>
       </div>
     </footer>

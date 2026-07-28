@@ -1,10 +1,13 @@
 'use client'
 
-import { Calendar, Clock, User, CheckCircle, Phone, Mail } from 'lucide-react'
+import { Clock, CheckCircle, Phone, Mail, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import Image from 'next/image'
 import { CTAButton } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
+import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
+import BookingForm from '@/components/BookingForm'
+import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 
 type BookingService = {
   id: string
@@ -16,27 +19,17 @@ type BookingService = {
 }
 
 export default function Bookings() {
-  // TODO: Set to true when booking form is ready to go live
-  const BOOKING_FORM_ENABLED = false
-  
+  const { features } = useBookingFeatures()
+  const bookingFormEnabled = features.bookingFormEnabled
+  const calendlyEnabled = features.calendlyEnabled
+  const calendlySchedulingUrl = features.calendlySchedulingUrl
+
   const [activeTab, setActiveTab] = useState('in-clinic')
+  const [selectedLocation, setSelectedLocation] = useState('')
   const [selectedService, setSelectedService] = useState('')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
-  const [selectedDate, setSelectedDate] = useState('')
-  const [selectedTime, setSelectedTime] = useState('')
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    dateOfBirth: '',
-    chiefComplaint: '',
-    previousTreatment: '',
-    medications: '',
-    allergies: '',
-    emergencyContact: '',
-    emergencyPhone: ''
-  })
+  const clinicLocations = contactConfig.address.locations
+  const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
 
   const inClinicServices: BookingService[] = [
     {
@@ -140,24 +133,16 @@ export default function Bookings() {
       !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
-
-  const timeSlots = [
-    '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-    '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
-    '5:00 PM', '5:30 PM', '6:00 PM'
-  ]
+  const selectedServiceDetails = services.find((s) => s.id === selectedService)
+  const selectedAddOnLabels = selectedAddOns
+    .map((id) => addOns.find((a) => a.id === id)?.name)
+    .filter((name): name is string => Boolean(name))
+  const canOpenScheduler = Boolean(selectedLocation && selectedService)
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
     setSelectedService('')
     setSelectedAddOns([])
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
   }
 
   const handleAddOnToggle = (addOnId: string) => {
@@ -166,20 +151,6 @@ export default function Bookings() {
         ? prev.filter(id => id !== addOnId)
         : [...prev, addOnId]
     )
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Booking submitted:', {
-      serviceType: activeTab,
-      service: selectedService,
-      addOns: selectedAddOns,
-      practitioner: 'arkinth-garcia',
-      date: selectedDate,
-      time: selectedTime,
-      ...formData
-    })
-    alert('Thank you! Your appointment request has been submitted. We will contact you within 24 hours to confirm your booking.')
   }
 
   return (
@@ -215,406 +186,8 @@ export default function Bookings() {
       {/* Booking Form or Pricing Display */}
       <section className="py-20 bg-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {BOOKING_FORM_ENABLED ? (
-            // Full Booking Form (hidden when disabled)
-            <form onSubmit={handleSubmit} className="space-y-12">
-            {/* Service Selection */}
-            <div className="bg-accent/5 rounded-lg p-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center">
-                <CheckCircle className="w-6 h-6 mr-3" />
-                Step 1: Choose Your Service
-              </h2>
-              
-              {/* Tab Navigation */}
-              <div className="flex border-b border-accent/20 mb-6">
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('in-clinic')}
-                  className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                    activeTab === 'in-clinic'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-secondary hover:text-primary'
-                  }`}
-                >
-                  In Clinic
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('call-out')}
-                  className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                    activeTab === 'call-out'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-secondary hover:text-primary'
-                  }`}
-                >
-                  Call Out (Home Visits)
-                </button>
-              </div>
-
-              {/* Tab Content */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {services.map((service) => (
-                  <label
-                    key={service.id}
-                    className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                      selectedService === service.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-accent/20 hover:border-accent/40'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="service"
-                      value={service.id}
-                      checked={selectedService === service.id}
-                      onChange={(e) => setSelectedService(e.target.value)}
-                      className="sr-only"
-                    />
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-primary">{service.name}</h3>
-                      <div className="text-right">
-                        <span className="text-gold font-bold">{service.price}</span>
-                        {service.savings && (
-                          <div className="text-green-600 text-sm font-medium">{service.savings}</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center text-sm text-secondary mb-2">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {service.duration}
-                    </div>
-                    <p className="text-sm text-secondary">{service.description}</p>
-                  </label>
-                ))}
-              </div>
-
-              {/* Travel Policy for Home Visits */}
-              {activeTab === 'call-out' && (
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-semibold text-primary mb-2">Travel Policy:</h4>
-                  <div className="text-sm text-secondary space-y-1">
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      Within 10 km included
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      Beyond 10 km: +€0.50/km or flat €15 travel fee
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Add-ons Section */}
-              <div className="mt-8">
-                <h3 className="font-serif text-xl font-bold text-primary mb-4">
-                  Optional Add-ons
-                </h3>
-                <div className="grid grid-cols-1 gap-3">
-                  {addOns.map((addOn) => (
-                    <label
-                      key={addOn.id}
-                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                        selectedAddOns.includes(addOn.id)
-                          ? 'border-primary bg-primary/5'
-                          : 'border-accent/20 hover:border-accent/40'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedAddOns.includes(addOn.id)}
-                        onChange={() => handleAddOnToggle(addOn.id)}
-                        className="sr-only"
-                      />
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-primary">{addOn.name}</h4>
-                        <span className="text-gold font-bold">+{addOn.price}</span>
-                      </div>
-                      <p className="text-sm text-secondary">{addOn.description}</p>
-                    </label>
-                  ))}
-                </div>
-                <p className="text-xs text-secondary mt-2">
-                  * Add-ons can only be booked in combination with an acupuncture session
-                </p>
-              </div>
-            </div>
-
-            {/* Practitioner Selection */}
-            <div className="bg-accent/5 rounded-lg p-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center">
-                <User className="w-6 h-6 mr-3" />
-                Step 2: Your Practitioner
-              </h2>
-              
-              <div className="bg-primary/5 border-2 border-primary rounded-lg p-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
-                    <Image
-                      src="/Arkinth_clinic_founder.jpeg"
-                      alt="Arkinth Garcia - Naturopath & Acupuncturist"
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
-                  <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
-                  <p className="text-secondary text-sm">
-                    Qualified from the College of Naturopathic Medicine, Dublin. Specializing in 
-                    pain management, mental health conditions, digestive issues, and fertility support.
-                  </p>
-                </div>
-                <input
-                  type="hidden"
-                  name="practitioner"
-                  value="arkinth-garcia"
-                />
-              </div>
-            </div>
-
-            {/* Date & Time Selection */}
-            <div className="bg-accent/5 rounded-lg p-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center">
-                <Calendar className="w-6 h-6 mr-3" />
-                Step 3: Select Date & Time
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-primary mb-2">
-                    Preferred Date
-                  </label>
-                  <input
-                    type="date"
-                    id="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="time" className="block text-sm font-medium text-primary mb-2">
-                    Preferred Time
-                  </label>
-                  <select
-                    id="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                    required
-                  >
-                    <option value="">Select a time</option>
-                    {timeSlots.map((slot) => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Personal Information */}
-            <div className="bg-accent/5 rounded-lg p-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center">
-                <User className="w-6 h-6 mr-3" />
-                Step 4: Personal Information
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-2">
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-2">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-primary mb-2">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Health Information */}
-            <div className="bg-accent/5 rounded-lg p-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-6">
-                Health Information
-              </h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="chiefComplaint" className="block text-sm font-medium text-primary mb-2">
-                    What brings you in today? (Main concern or condition) *
-                  </label>
-                  <textarea
-                    id="chiefComplaint"
-                    name="chiefComplaint"
-                    value={formData.chiefComplaint}
-                    onChange={handleChange}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-                    placeholder="Please describe your symptoms or reason for seeking treatment..."
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="previousTreatment" className="block text-sm font-medium text-primary mb-2">
-                    Have you had acupuncture before?
-                  </label>
-                  <textarea
-                    id="previousTreatment"
-                    name="previousTreatment"
-                    value={formData.previousTreatment}
-                    onChange={handleChange}
-                    rows={2}
-                    className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-                    placeholder="Please describe any previous acupuncture or alternative treatments..."
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="medications" className="block text-sm font-medium text-primary mb-2">
-                      Current Medications
-                    </label>
-                    <textarea
-                      id="medications"
-                      name="medications"
-                      value={formData.medications}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-                      placeholder="List all medications, supplements, and dosages..."
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="allergies" className="block text-sm font-medium text-primary mb-2">
-                      Allergies
-                    </label>
-                    <textarea
-                      id="allergies"
-                      name="allergies"
-                      value={formData.allergies}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-                      placeholder="List any known allergies or sensitivities..."
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="emergencyContact" className="block text-sm font-medium text-primary mb-2">
-                      Emergency Contact Name
-                    </label>
-                    <input
-                      type="text"
-                      id="emergencyContact"
-                      name="emergencyContact"
-                      value={formData.emergencyContact}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="emergencyPhone" className="block text-sm font-medium text-primary mb-2">
-                      Emergency Contact Phone
-                    </label>
-                    <input
-                      type="tel"
-                      id="emergencyPhone"
-                      name="emergencyPhone"
-                      value={formData.emergencyPhone}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="text-center">
-              <button
-                type="submit"
-                className="bg-primary text-cream px-12 py-4 rounded-full text-lg font-semibold hover:bg-secondary transition-colors duration-200"
-              >
-                Submit Appointment Request
-              </button>
-              <p className="text-sm text-secondary mt-4">
-                We will contact you within 24 hours to confirm your appointment
-              </p>
-            </div>
-          </form>
+          {bookingFormEnabled ? (
+            <BookingForm />
           ) : (
             // Pricing Display Only (when booking form is disabled)
             <div className="space-y-12">
@@ -625,22 +198,24 @@ export default function Bookings() {
                 <p className="text-lg text-secondary mb-6">
                   Professional acupuncture treatments to support your health and wellness journey
                 </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
-                  <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
-                    <Phone className="w-5 h-5 mr-2" />
-                    Ready to Book Your Appointment?
-                  </h3>
-                  <p className="text-secondary text-sm mb-4">
-                    Call us directly to schedule your consultation and begin your path to better health
-                  </p>
-                  <a
-                    href={contactConfig.phone.href}
-                    className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
-                  >
-                    <Phone className="w-5 h-5 mr-2" />
-                    Call {contactConfig.phone.displayText}
-                  </a>
-                </div>
+                {!calendlyEnabled && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+                    <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
+                      <Phone className="w-5 h-5 mr-2" />
+                      Ready to Book Your Appointment?
+                    </h3>
+                    <p className="text-secondary text-sm mb-4">
+                      Call us directly to schedule your consultation and begin your path to better health
+                    </p>
+                    <a
+                      href={contactConfig.phone.href}
+                      className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
+                    >
+                      <Phone className="w-5 h-5 mr-2" />
+                      Call {contactConfig.phone.displayText}
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Tab Navigation for Pricing */}
@@ -670,13 +245,67 @@ export default function Bookings() {
                   </button>
                 </div>
 
+                {/* Clinic location */}
+                <div className="mb-8">
+                  <h3 className="font-serif text-xl font-bold text-primary mb-2 flex items-center">
+                    <MapPin className="w-5 h-5 mr-2" />
+                    {activeTab === 'call-out' ? 'Nearest Clinic / Service Area' : 'Clinic Location'}
+                  </h3>
+                  <p className="text-sm text-secondary mb-4">
+                    {activeTab === 'call-out'
+                      ? 'Choose which clinic area this home visit is booked under — it is tagged on your Calendly booking.'
+                      : 'Select which clinic you will attend — it is tagged on your Calendly booking.'}
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {clinicLocations.map((location) => (
+                      <label
+                        key={location.id}
+                        className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          selectedLocation === location.id
+                            ? 'border-primary bg-primary/5'
+                            : 'border-accent/20 hover:border-accent/40'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="pricing-location"
+                          value={location.id}
+                          checked={selectedLocation === location.id}
+                          onChange={(e) => setSelectedLocation(e.target.value)}
+                          className="sr-only"
+                        />
+                        <h4 className="font-semibold text-primary mb-1">{location.label}</h4>
+                        <p className="text-sm text-secondary">
+                          {location.formatted.street}
+                        </p>
+                        <p className="text-sm text-secondary">
+                          {location.formatted.city}, {location.formatted.county}{' '}
+                          {location.formatted.postcode}
+                        </p>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Services Pricing Display */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   {services.map((service) => (
-                    <div
+                    <label
                       key={service.id}
-                      className="p-4 border-2 border-accent/20 rounded-lg"
+                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                        selectedService === service.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-accent/20 hover:border-accent/40'
+                      }`}
                     >
+                      <input
+                        type="radio"
+                        name="pricing-service"
+                        value={service.id}
+                        checked={selectedService === service.id}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                        className="sr-only"
+                      />
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold text-primary">{service.name}</h3>
                         <div className="text-right">
@@ -691,7 +320,7 @@ export default function Bookings() {
                         {service.duration}
                       </div>
                       <p className="text-sm text-secondary">{service.description}</p>
-                    </div>
+                    </label>
                   ))}
                 </div>
 
@@ -702,16 +331,26 @@ export default function Bookings() {
                   </h3>
                   <div className="grid grid-cols-1 gap-3">
                     {addOns.map((addOn) => (
-                      <div
+                      <label
                         key={addOn.id}
-                        className="p-4 border-2 border-accent/20 rounded-lg"
+                        className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          selectedAddOns.includes(addOn.id)
+                            ? 'border-primary bg-primary/5'
+                            : 'border-accent/20 hover:border-accent/40'
+                        }`}
                       >
+                        <input
+                          type="checkbox"
+                          checked={selectedAddOns.includes(addOn.id)}
+                          onChange={() => handleAddOnToggle(addOn.id)}
+                          className="sr-only"
+                        />
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-semibold text-primary">{addOn.name}</h4>
                           <span className="text-gold font-bold">+{addOn.price}</span>
                         </div>
                         <p className="text-sm text-secondary">{addOn.description}</p>
-                      </div>
+                      </label>
                     ))}
                   </div>
                   <p className="text-xs text-secondary mt-2">
@@ -757,19 +396,85 @@ export default function Bookings() {
                   </div>
                 </div>
               </div>
+
+              {calendlyEnabled && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
+                  <h3 className="font-semibold text-primary mb-2 text-center text-xl">
+                    Schedule a Booking
+                  </h3>
+                  <div className="mb-4 rounded-lg border border-blue-200 bg-white/70 p-4 text-sm text-secondary max-w-xl mx-auto">
+                    <p className="font-semibold text-primary mb-2 text-center">
+                      Details sent with this booking
+                    </p>
+                    <ul className="space-y-1">
+                      <li>
+                        <span className="font-medium text-primary">Visit type:</span>{' '}
+                        {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
+                      </li>
+                      <li>
+                        <span className="font-medium text-primary">Location:</span>{' '}
+                        {selectedLocationDetails
+                          ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
+                          : 'Not selected'}
+                      </li>
+                      <li>
+                        <span className="font-medium text-primary">Service / package:</span>{' '}
+                        {selectedServiceDetails?.name ?? 'Not selected'}
+                      </li>
+                      <li>
+                        <span className="font-medium text-primary">Add-ons:</span>{' '}
+                        {selectedAddOnLabels.length > 0
+                          ? selectedAddOnLabels.join(', ')
+                          : 'None'}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {!canOpenScheduler ? (
+                    <p className="text-center text-sm text-secondary mb-4">
+                      Select a location and a service/package above to load the scheduling
+                      calendar. Those choices are prefilled into the Calendly booking.
+                    </p>
+                  ) : (
+                    <CalendlyEmbed
+                      url={buildCalendlyUrl(calendlySchedulingUrl, {
+                        bookingSource: activeTab === 'call-out' ? 'home-visit' : 'in-clinic',
+                        locationId: selectedLocation,
+                        locationLabel: selectedLocationDetails
+                          ? `${selectedLocationDetails.label} — ${selectedLocationDetails.full}`
+                          : undefined,
+                        serviceId: selectedService,
+                        serviceLabel: selectedServiceDetails?.name,
+                        addOnIds: selectedAddOns,
+                        addOnLabels: selectedAddOnLabels,
+                      })}
+                    />
+                  )}
+                  <div className="mt-6 text-center">
+                    <p className="text-secondary text-sm mb-3">Prefer to call?</p>
+                    <a
+                      href={contactConfig.phone.href}
+                      className="inline-flex items-center justify-center text-primary font-semibold hover:text-secondary transition-colors"
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call {contactConfig.phone.displayText}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
       </section>
 
       {/* Contact Alternative */}
-      <section className={`py-20 ${BOOKING_FORM_ENABLED ? 'bg-secondary/10' : 'bg-primary/5'}`}>
+      <section className={`py-20 ${bookingFormEnabled ? 'bg-secondary/10' : 'bg-primary/5'}`}>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-3xl font-bold text-primary mb-6">
-            {BOOKING_FORM_ENABLED ? 'Prefer to Book by Phone?' : 'Ready to Schedule Your Appointment?'}
+            {bookingFormEnabled ? 'Prefer to Book by Phone?' : 'Ready to Schedule Your Appointment?'}
           </h2>
           <p className="text-lg text-secondary mb-8">
-            {BOOKING_FORM_ENABLED 
+            {bookingFormEnabled 
               ? 'Call us directly to speak with our friendly staff and schedule your appointment'
               : 'Contact us today to book your consultation and take the first step towards better health'
             }

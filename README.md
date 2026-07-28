@@ -2,193 +2,160 @@
 
 A modern, professional website for an acupuncture and Traditional Chinese Medicine practice, featuring a calming jungle/tropical theme that reflects Southeast Asian origins.
 
-## 🌿 Features
+## Features
 
-- **Modern Design**: Clean, professional layout with a tropical/jungle color palette
-- **Responsive**: Fully responsive design that works on all devices
-- **Navigation**: Easy-to-use navigation with all key sections
-- **Professional Imagery**: Placeholders for high-quality photos and media
-- **Contact Forms**: Interactive contact and booking forms
-- **SEO Ready**: Proper meta tags and semantic HTML structure
-
-## 🎨 Design Theme
-
-The website uses a carefully crafted color palette inspired by tropical and jungle environments:
-
-- **Primary Green**: Deep Forest Green (#2d5016)
-- **Secondary Green**: Medium Forest Green (#4a7c2a)
-- **Accent Green**: Sage Green (#7fb069)
-- **Light Green**: Light Bamboo Green (#a7c957)
-- **Warm Cream**: Background color (#f9f7f4)
-- **Gold Accent**: Call-to-action color (#d4af37)
-- **Earth Brown**: Supporting color (#8b4513)
-
-## 📱 Pages
-
-### 1. Landing Page (`/`)
-- Hero section with compelling call-to-action
-- Features highlighting the benefits of acupuncture
-- Quick links to all services
-- Professional and calming design
-
-### 2. About (`/about`)
-- Practice story and philosophy
-- Team member profiles
-- Mission, vision, and values
-- Why choose this practice
-
-### 3. Why Acupuncture (`/acupuncture`)
-- Science behind acupuncture
-- Benefits and conditions treated
-- Traditional vs. modern perspectives
-- Research validation
-
-### 4. Testimonials (`/testimonials`)
-- Illustrative healing journey examples (disclaimed)
-- Before/after treatment imagery
-- Video testimonials (placeholder)
-
-### 5. Chinese Medicine (`/chinese-medicine`)
-- TCM philosophy and principles
-- Treatment methods offered
-- Diagnostic approaches
-- Integration with modern medicine
-
-### 6. Blog (`/blog`)
-- Wellness article listing and categories
-- Detail articles not yet implemented
-- Newsletter signup (UI only)
-
-### 7. Contact (`/contact`)
+- Modern tropical/jungle design system (CSS variables + Tailwind)
+- Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
-- Contact details and hours
-- FAQ section
-- Contact form gated by feature flag
+- Bookings via **Calendly embed** (default) or **legacy stepper form** (Admin toggle)
+- Legacy form emails via **Web3Forms** (`NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys)
+- Feature flags in `contact-config.ts`, overridable on `/admin` (browser localStorage)
+- SEO-ready meta tags and semantic HTML
 
-### 8. Bookings (`/bookings`)
-- In-clinic and home-visit pricing
-- Practitioner information
-- Booking form gated by feature flag (call-to-book when off)
+## Design theme
 
-## 🛠 Technology Stack
+| Token | Role | Hex |
+|-------|------|-----|
+| Primary green | Deep forest | `#2d5016` |
+| Secondary green | Medium forest | `#4a7c2a` |
+| Accent green | Sage | `#7fb069` |
+| Light green | Bamboo | `#a7c957` |
+| Cream | Background | `#f9f7f4` |
+| Gold | CTA accent | `#d4af37` |
+| Earth brown | Supporting | `#8b4513` |
 
-- **Framework**: Next.js 15.5.22 with App Router (static export)
+## Pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Home — hero, features, quick links, CTA |
+| `/about` | Practice story, Arkinth Garcia, mission/values |
+| `/acupuncture` | How acupuncture works, benefits, conditions |
+| `/chinese-medicine` | TCM philosophy and methods |
+| `/testimonials` | Illustrative stories + before/after imagery |
+| `/blog` | Article listing only (no detail routes yet) |
+| `/contact` | Dual locations, maps, FAQ (contact form gated) |
+| `/bookings` | Pricing + Calendly **or** legacy stepper (Admin) |
+| `/admin` | Booking feature toggles, Calendly URL, email settings |
+
+## Technology stack
+
+- **Framework**: Next.js 15.5.22 (App Router, static export)
+- **UI**: React 19 + TypeScript 5
 - **Styling**: Tailwind CSS 3.4
 - **Icons**: Lucide React
-- **Fonts**: Inter & Playfair Display (Google Fonts)
-- **Language**: TypeScript
-- **Deployment**: GitHub Actions → Vercel (staging on `dev`, production on `main`)
+- **Fonts**: Inter & Playfair Display
+- **Hosting**: Vercel — Preview from `dev`, Production from `main`
 
-## 🚀 Getting Started
+## Getting started
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+cp .env.example .env.local   # optional: set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY
+npm run dev
+```
 
-2. **Run Development Server**:
-   ```bash
-   npm run dev
-   ```
+Open [http://localhost:3000](http://localhost:3000).
 
-3. **Open Browser**:
-   Navigate to [http://localhost:3000](http://localhost:3000)
+For legacy booking emails locally, add your Web3Forms key to `.env.local` and restart the dev server. See [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md).
 
-## 📁 Project Structure
+## Project structure
 
 ```
 src/
-├── app/                    # Next.js App Router pages
+├── app/                      # App Router pages (+ /admin)
 │   ├── about/
 │   ├── acupuncture/
-│   ├── blog/               # Listing only (no [id] routes yet)
+│   ├── admin/                # Feature toggles (no auth)
+│   ├── blog/                 # Listing only
 │   ├── bookings/
 │   ├── chinese-medicine/
-│   ├── contact/            # Includes Google Maps Find Us
+│   ├── contact/
 │   ├── testimonials/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
-├── components/             # Shared UI chrome
-│   ├── Header.tsx
+├── components/               # Shared UI
+│   ├── Header.tsx            # Nav includes Admin + Book Now
 │   ├── Footer.tsx
+│   ├── BookingForm.tsx       # Legacy stepper
+│   ├── BookingStepper.tsx
+│   ├── CalendlyEmbed.tsx
 │   ├── ContactInfo.tsx
 │   ├── BusinessHours.tsx
 │   ├── LocationMap.tsx
+│   ├── Toast.tsx
 │   └── LoadingComponent.tsx
-├── features/               # Domain UI (home + shared cards)
+├── features/                 # Home sections + reusable UI
 │   ├── home/
 │   └── ui/
+├── hooks/
+│   └── useBookingFeatures.ts
 └── lib/
-    └── contact-config.ts   # Contact details + feature flags
+    ├── contact-config.ts     # Contact details + default feature flags
+    ├── booking-features.ts   # Admin flags + Web3Forms env key
+    ├── send-booking-email.ts # Web3Forms POST
+    └── loading-utils.ts
 ```
 
-## 🎯 Key Features
-
-### Professional Design
-- Calming color scheme reflecting Southeast Asian heritage
-- Clean typography with Inter and Playfair Display fonts
-- Consistent spacing and layout principles
-- Accessibility-focused design
-
-### User Experience
-- Intuitive navigation with mobile-friendly menu
-- Progressive form design for bookings
-- Clear call-to-action buttons throughout
-- Smooth transitions and hover effects
-
-### Content Strategy
-- Educational content about acupuncture and TCM
-- Patient-focused messaging
-- Trust-building elements (testimonials, credentials)
-- Clear service descriptions and pricing
-
-### Technical Excellence
-- Fast loading with Next.js optimization
-- SEO-ready structure
-- Mobile-first responsive design
-- Modern development practices
-
-## 📝 Customization
+## Customization
 
 ### Colors
-Update the CSS custom properties in `globals.css` to change the color scheme:
 
-```css
-:root {
-  --primary-green: #2d5016;
-  --secondary-green: #4a7c2a;
-  --accent-green: #7fb069;
-  /* ... other colors */
-}
-```
+Update CSS custom properties in `src/app/globals.css`.
 
-### Content
-- Update practitioner information in relevant pages
-- Replace placeholder content with actual practice details
-- Add real testimonials and success stories
-- Include actual service prices and descriptions
+### Content & contact
+
+- Clinic details, hours, and default booking flags: `src/lib/contact-config.ts`
+- Runtime booking mode / Calendly URL / email recipient: `/admin` (per browser)
 
 ### Images
-- Replace icon placeholders with actual photos
-- Add professional headshots of practitioners
-- Include treatment room and facility photos
-- Add relevant acupuncture and wellness imagery
 
-## 🔧 Production Deployment
+Replace placeholders under `public/` with practice photos and headshots.
 
-1. **Build the application**:
-   ```bash
-   npm run build
-   ```
+## Production deployment
 
-2. **Start production server**:
-   ```bash
-   npm start
-   ```
+Static export (`output: 'export'`). Typical flow: push `dev` for Preview / staging, merge to `main` for Production.
 
-The application is ready for deployment to platforms like Vercel, Netlify, or any Node.js hosting service.
+### Calendly setup checklist
 
-## 📞 Support
+Use when **Calendly booking embed** is enabled on `/admin` (Scheduling URL from Calendly → Event type → Share).
 
-This website template provides a solid foundation for an acupuncture practice's online presence. The design emphasizes trust, professionalism, and the healing nature of traditional Chinese medicine while maintaining modern web standards and user experience best practices.
+1. Event type exists and the Share link matches the Admin Scheduling URL (slug is case-sensitive).
+2. Calendar connected (Google/Outlook) with weekly availability set.
+3. Location set to **Ask invitee** so clinic selection appears on the meeting.
+4. Keep at least one invitee question (default “Please share anything…” works) for visit type / service / add-ons.
+
+Default URL: `src/lib/contact-config.ts` → `calendly.schedulingUrl`.
+
+### Vercel environment variables
+
+Set in **Vercel → Project → Settings → Environment Variables** (not GitHub Secrets, unless a GitHub Action builds the site):
+
+| Variable | Environments | Purpose |
+|----------|--------------|---------|
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | **Production** (`main`) and **Preview** (`dev`) | Web3Forms key for legacy booking-form emails |
+
+Redeploy Preview and Production after adding or changing the variable — `NEXT_PUBLIC_*` is baked into the client at build time.
+
+Local: copy [`.env.example`](.env.example) → `.env.local`, set the same variable, restart `npm run dev`.
+
+When this env var is set: email is always on for that build, the Admin access-key field is hidden, and the email toggle is locked. Calendly does **not** use Web3Forms.
+
+### Booking email checklist
+
+1. Create an access key at [web3forms.com](https://web3forms.com) for the clinic inbox (e.g. `info@wellnessneedles.ie`).
+2. Set `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` in Vercel for Preview + Production.
+3. Redeploy both environments.
+4. On `/admin`, enable **Legacy stepper form** when you want form submissions.
+5. Submit a test booking on `/bookings` and confirm the email arrives.
+
+Full details: [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md). Architecture: [WORKFLOW.md](WORKFLOW.md). Contact config: [CONTACT_CONFIG_SUMMARY.md](CONTACT_CONFIG_SUMMARY.md).
+
+### Build locally
+
+```bash
+npm run build
+```
+
+Static files are written to `out/`.

@@ -17,6 +17,7 @@ export default function Header() {
     // { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
     { href: '/bookings', label: 'Bookings' },
+    { href: '/admin', label: 'Admin' },
   ]
 
   return (
