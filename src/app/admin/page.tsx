@@ -222,7 +222,7 @@ export default function AdminPage() {
                     Fresha booking URL
                   </label>
                   <p className="text-sm text-secondary mb-3">
-                    Paste your public Fresha booking link. See README for the checklist.
+                    Paste your public Fresha booking link.
                   </p>
                   <input
                     id="fresha-booking-url"
