@@ -229,9 +229,6 @@ export default function Bookings() {
                       <h3 className="font-semibold text-primary">{service.name}</h3>
                       <div className="text-right">
                         <span className="text-gold font-bold">{service.price}</span>
-                        {service.savings && (
-                          <div className="text-green-600 text-sm font-medium">{service.savings}</div>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center text-sm text-secondary mb-2">
@@ -630,9 +627,6 @@ export default function Bookings() {
                         <h3 className="font-semibold text-primary">{service.name}</h3>
                         <div className="text-right">
                           <span className="text-gold font-bold text-lg">{service.price}</span>
-                          {service.savings && (
-                            <div className="text-green-600 text-sm font-medium">{service.savings}</div>
-                          )}
                         </div>
                       </div>
                       <div className="flex items-center text-sm text-secondary mb-2">
