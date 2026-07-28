@@ -28,7 +28,7 @@
 │  ┌──────────────────────────────────────────────────────────┐    │
 │  │  HEADER (Header.tsx) — Fixed, global                     │    │
 │  │  Logo | Home | About | Acupuncture | Chinese Medicine    │    │
-│  │  Testimonials | Contact | Bookings | [Book Now CTA]      │    │
+│  │  Testimonials | Contact | Bookings | Admin | [Book Now]  │    │
 │  └──────────────────────────────────────────────────────────┘    │
 │                                                                    │
 │  ┌──────────────────────────────────────────────────────────┐    │
@@ -36,7 +36,7 @@
 │  │  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐   │    │
 │  │  │  /       │  │  /about  │  │  /acupuncture        │   │    │
 │  │  │  /contact│  │  /book.. │  │  /chinese-medicine   │   │    │
-│  │  │  /testim.│  │  /blog*  │  │  /bookings           │   │    │
+│  │  │  /testim.│  │  /blog*  │  │  /admin              │   │    │
 │  │  └──────────┘  └──────────┘  └─────────────────────┘   │    │
 │  └──────────────────────────────────────────────────────────┘    │
 │                                                                    │
@@ -58,37 +58,39 @@ src/
 │   ├── layout.tsx                ← Root layout (Header + Footer wrapper)
 │   ├── globals.css               ← Tailwind + CSS variables (colors, gradients)
 │   ├── page.tsx                  ← Home page
-│   ├── about/page.tsx            ← About Arkinth Garcia
-│   ├── acupuncture/page.tsx      ← Educational: how acupuncture works
-│   ├── chinese-medicine/page.tsx ← TCM philosophy & methods
-│   ├── contact/page.tsx          ← Contact info + FAQ (form disabled)
-│   ├── bookings/page.tsx         ← Pricing display + booking form (disabled)
-│   └── testimonials/page.tsx     ← Patient stories + before/after images
+│   ├── about/page.tsx
+│   ├── acupuncture/page.tsx
+│   ├── chinese-medicine/page.tsx
+│   ├── contact/page.tsx          ← Contact info + FAQ (form gated)
+│   ├── bookings/page.tsx         ← Pricing + Calendly or legacy stepper
+│   ├── admin/page.tsx            ← Feature toggles (no auth)
+│   ├── blog/page.tsx             ← Listing only
+│   └── testimonials/page.tsx
 │
 ├── components/                   ← Global shared components
-│   ├── Header.tsx                ← Nav bar + mobile hamburger menu
-│   ├── Footer.tsx                ← Footer links + contact summary
-│   ├── ContactInfo.tsx           ← Reusable contact block (3 variants)
-│   └── LoadingComponent.tsx      ← Animated skeleton loader
+│   ├── Header.tsx                ← Nav (includes Admin) + mobile menu
+│   ├── Footer.tsx
+│   ├── BookingForm.tsx           ← Legacy stepper form
+│   ├── BookingStepper.tsx
+│   ├── CalendlyEmbed.tsx         ← Inline Calendly iframe + URL builder
+│   ├── ContactInfo.tsx
+│   ├── BusinessHours.tsx
+│   ├── LocationMap.tsx
+│   ├── Toast.tsx
+│   └── LoadingComponent.tsx
 │
 ├── features/                     ← Domain-specific feature components
-│   ├── home/                     ← Sections exclusive to the home page
-│   │   ├── HeroSection.tsx       ← Logo + headline + CTA buttons
-│   │   ├── FeaturesSection.tsx   ← "Why Choose Us" 3-card grid + images
-│   │   ├── QuickLinksSection.tsx ← 4 service navigation cards
-│   │   └── CTASection.tsx        ← "Book Now" banner
-│   └── ui/                       ← Generic reusable UI primitives
-│       ├── HeroSection.tsx       ← Configurable hero (used on all inner pages)
-│       ├── CTAButton.tsx         ← Link button (primary/secondary/gold)
-│       ├── FeatureCard.tsx       ← Icon + title + description card
-│       ├── ServiceCard.tsx       ← Service navigation card
-│       ├── DecorativeImageCard.tsx ← Image + floating leaf decoration
-│       └── PulsingLeaf.tsx       ← Animated leaf icon (decorative)
+│   ├── home/                     ← Home-only sections
+│   └── ui/                       ← Reusable Hero, cards, CTA, etc.
 │
-└── lib/                          ← Utilities & configuration
-    ├── contact-config.ts         ← Single source of truth: address, phone,
-    │                               email, hours, feature flags
-    └── loading-utils.ts          ← simulateLoading(), withLoadingSimulation()
+├── hooks/
+│   └── useBookingFeatures.ts     ← Admin / bookings feature flags
+│
+└── lib/
+    ├── contact-config.ts         ← Address, phone, email, hours, default flags
+    ├── booking-features.ts       ← localStorage flags + Web3Forms env key
+    ├── send-booking-email.ts     ← Web3Forms submit helper
+    └── loading-utils.ts
 ```
 
 ---
@@ -98,40 +100,38 @@ src/
 ```
 ┌─────────────────────────────────────────────────────┐
 │                contact-config.ts                     │
-│  address | phone | email | hours | feature flags     │
+│  address | phone | email | hours | calendly URL      │
+│  default feature flags                               │
 └────────────────────┬────────────────────────────────┘
                      │ imported by
-         ┌───────────┼───────────┐
-         ▼           ▼           ▼
-    Footer.tsx   Contact/     Bookings/
-                 page.tsx     page.tsx
+         ┌───────────┼───────────────┐
+         ▼           ▼               ▼
+    Footer.tsx   Contact/      booking-features.ts
+                 page.tsx      (defaults + env key)
+
+┌────────────────────────────────────────────────────┐
+│  booking-features.ts + useBookingFeatures            │
+│  localStorage: wellness-needles-booking-features     │
+│  NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY (preferred)        │
+│  Admin (/admin) toggles Calendly ↔ legacy form       │
+└──────────────────────┬─────────────────────────────┘
+                       │
+         ┌─────────────┼─────────────┐
+         ▼             ▼             ▼
+   Bookings page   CalendlyEmbed  BookingForm
+   (mode switch)                  → send-booking-email.ts
+                                  → api.web3forms.com
 
 ┌────────────────────────────────────────────────────┐
 │          Static/Hardcoded Content                   │
-│  Testimonials array | Services & Pricing arrays    │
-│  Educational text  | About bio                     │
-└──────────────────────┬─────────────────────────────┘
-                       │ defined inside
-           ┌───────────┼────────────┐
-           ▼           ▼            ▼
-     testimonials/  bookings/   acupuncture/
-     page.tsx       page.tsx    page.tsx
+│  Testimonials | Services & Pricing | Educational    │
+└────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────┐
-│          Client-Side Form State (useState)          │
-│  Booking form:  {name, email, service, date, ...}  │
-│  Contact form:  {name, email, phone, subject, msg} │
-└──────────────────────┬─────────────────────────────┘
-                       │ on submit
-                       ▼
-              console.log() + alert()
-              (no backend — forms disabled)
-
-┌────────────────────────────────────────────────────┐
-│          External Links (no JS fetch calls)         │
-│  tel:+353860543085   → user's phone dialer          │
-│  mailto:arkinth1@... → user's email client          │
-│  https://facebook… → Facebook page (new tab)        │
+│          External Links                             │
+│  tel:+353860543085   → phone dialer                 │
+│  mailto:info@wellnessneedles.ie → email client      │
+│  Calendly embed / Facebook                          │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -200,7 +200,8 @@ src/
 | Feature | Config Key | Status | What Happens |
 |---------|-----------|--------|--------------|
 | Contact form | `contactFormEnabled` | `false` | Form hidden; user sees call/email CTA |
-| Booking form | `BOOKING_FORM_ENABLED` | `false` | Pricing shown; form button disabled |
+| Booking form | `bookingFormEnabled` | `false` (default; overridable in Admin) | Legacy stepper on `/bookings` |
+| Calendly scheduling | `calendlyEnabled` | `true` (default; overridable in Admin) | Inline Calendly embed on `/bookings` |
 | Live chat | `liveChatEnabled` | `false` | Button not rendered |
 | Map integration | `mapIntegrationEnabled` | `true` | Dual Google Maps embeds on Contact |
 | Treatment packages | `treatmentPackagesEnabled` | `false` | 5/10 session packages hidden |
@@ -254,44 +255,53 @@ Sections (in order):
 
 ### `/bookings`
 1. Hero
-2. Service tabs (In-Clinic | Home Visits) with full pricing list
-3. Add-ons section (Cupping €20, Moxibustion free)
-4. Travel policy for home visits
-5. Practitioner card (Arkinth Garcia credentials)
-6. Booking form (disabled — shows "Call to Book" instead)
+2. When **legacy stepper** is on (`bookingFormEnabled`): full `BookingForm` (Service → Location → Date & Time → Details). Pricing UI is replaced by the form path.
+3. When **Calendly** is on (default): service tabs + pricing, add-ons, travel policy, practitioner card, then inline Calendly after location + service are selected.
+4. When both off: call / contact CTA only.
+5. Mode + Calendly URL + email settings: `/admin` (browser localStorage). Defaults from `contact-config.ts`.
+6. Legacy form email: Web3Forms when email is configured — preferred via `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys. See `BOOKING_EMAIL_INTEGRATION.md` and README deployment section.
+
+### `/admin`
+1. Active mode banner (Calendly | Legacy form | both off)
+2. Mutually exclusive toggles: Calendly embed ↔ Legacy stepper form
+3. Calendly setup: Scheduling URL + Save / Open link (when Calendly on)
+4. Booking email setup: recipient (+ access key only if env key unset); email toggle locked when env key is set
+5. Reset to defaults / Open bookings
+6. **No auth** — linked from Header. Setup checklists live in README (not in the UI).
+
+**Calendly one-time setup:** see [README → Calendly setup checklist](README.md#calendly-setup-checklist). Default Share URL must match `contactConfig.calendly.schedulingUrl` (or the Admin override).
 
 ---
 
-## 8. Booking Form Flow (Ready to Activate)
+## 8. Booking Form Flow (Legacy Stepper)
 
-When `BOOKING_FORM_ENABLED = true` in `/bookings/page.tsx`, the multi-step form activates:
+When `bookingFormEnabled` is true (Admin toggle), the legacy form uses `BookingForm` + `BookingStepper`:
 
 ```
-Step 1: Service Type
+Progress: Service → Location → Date & Time → Your details
+  (desktop: numbered steps; mobile: “Step X of 4” + dots + sticky Back/Next)
+
+Step 1: Service
   └── Tab: In-Clinic | Home Visit
-      └── Radio select: Initial (€75/€90) | Follow-up (€60/€75)
-                        5-session | 10-session package
+      └── Radio select: Initial | Follow-up (packages if enabled)
+      └── Add-ons: Cupping | Moxibustion
+      └── Practitioner card
 
-Step 2: Add-ons (checkboxes)
-  └── Cupping Therapy | Moxibustion
+Step 2: Location
+  └── Celbridge | Carlow (required)
 
-Step 3: Practitioner
-  └── Arkinth Garcia (only option)
+Step 3: Date & Time
+  └── Preferred date + time slot (past times disabled for today)
 
-Step 4: Date & Time
-  └── Date picker (min: today) + Time slot dropdown
-      Morning: 9am–12pm | Afternoon: 12pm–4pm | Evening: 4pm–7pm
+Step 4: Your details
+  └── Personal info + health info (Irish phone + email validation)
 
-Step 5: Personal Info
-  └── First name, Last name, Email, Phone, Date of Birth
-
-Step 6: Health Info
-  └── Chief complaint, Previous treatment (Y/N), Medications,
-      Allergies, Emergency contact name + phone
-
-Step 7: Submit → console.log() + alert()
-  (backend integration point: connect to email/calendar API here)
+Submit → toast (+ console.log)
+  └── If email configured → POST Web3Forms (send-booking-email.ts)
+  └── Form resets after successful submit
 ```
+
+Per-step validation blocks Next until required fields on that step are filled. All validation errors can surface as a toast list with red field highlights.
 
 ---
 
@@ -307,32 +317,32 @@ Step 7: Submit → console.log() + alert()
 
 ## 10. What's Missing / Extension Points
 
-| Gap | To Implement |
-|-----|-------------|
-| Form backend | Connect booking/contact forms to email API (e.g., Resend, EmailJS, Formspree) |
-| Calendar | Integrate Calendly or custom calendar for appointment slots |
-| Payment | Add Stripe for package pre-payment |
-| Blog | Optional: add MDX `/blog/[slug]` detail pages when ready |
-| Map | Embed Google Maps in contact page |
-| Live chat | Enable live chat widget (e.g., Tawk.to) |
-| Video testimonials | Upload/embed real patient videos |
-| CMS | Connect to Sanity/Contentful for dynamic content editing |
+| Gap | Notes |
+|-----|--------|
+| Contact form backend | Still gated (`contactFormEnabled: false`); no email API for contact yet |
+| Admin auth | `/admin` is public — add protection if exposing more than feature toggles |
+| Payment | Stripe for package pre-payment (packages currently hidden) |
+| Blog detail routes | Optional MDX `/blog/[slug]` when ready |
+| Live chat | Flag exists; widget not wired |
+| Video testimonials | “Coming soon” placeholder |
+| CMS | Sanity/Contentful for dynamic content |
+
+**Already in place:** Calendly embed, legacy stepper, Web3Forms booking email, dual Google Maps on Contact.
 
 ---
 
 ## Verification
 
-To view the app:
 ```bash
 npm install
+cp .env.example .env.local   # optional Web3Forms key
 npm run dev
 # Open http://localhost:3000
 ```
 
-To build static export:
 ```bash
 npm run build
-# Output in /out directory
+# Output in /out
 ```
 
-Test each route: `/`, `/about`, `/acupuncture`, `/chinese-medicine`, `/testimonials`, `/contact`, `/bookings`
+Test routes: `/`, `/about`, `/acupuncture`, `/chinese-medicine`, `/testimonials`, `/contact`, `/bookings`, `/admin`, `/blog`.

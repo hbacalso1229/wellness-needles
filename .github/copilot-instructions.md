@@ -1,135 +1,106 @@
 # Wellness Needles - AI Coding Instructions
 
 ## Project Overview
-This is a static Next.js website for an acupuncture and traditional Chinese medicine practice. The site emphasizes a calming, professional atmosphere with a tropical/jungle theme inspired by Southeast Asian heritage.
+
+Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ireland). Tropical/jungle theme. Static export (`output: 'export'`) — no server API routes.
 
 ## Key Architecture Patterns
 
 ### Design System
-- **Color Palette**: Custom CSS variables in `globals.css` define the core theme
+- **Color Palette**: Custom CSS variables in `globals.css`
   - Primary green spectrum: `--primary-green` (#2d5016) to `--light-green` (#a7c957)
-  - Accent colors: `--gold-accent` (#d4af37), blue accents from logo
-  - Background: `--cream` (#f9f7f4) for warm, calming feel
-- **Typography**: Inter (body) + Playfair Display (headings) via Google Fonts
-- **Custom Gradients**: Predefined gradients (`jungle-gradient`, `sunset-gradient`, etc.) in both CSS variables and Tailwind config
+  - Accent: `--gold-accent` (#d4af37); background `--cream` (#f9f7f4)
+- **Typography**: Inter (body) + Playfair Display (headings)
+- **Gradients**: `jungle-gradient`, `sunset-gradient`, etc. in CSS + Tailwind
 
 ### Component Structure
-- **Layout**: Fixed header with transparent backdrop-blur, main content with `pt-16` offset, persistent footer
-- **Navigation**: Mobile-first responsive with hamburger menu, consistent CTA button placement
-- **Image Handling**: Next.js Image component with decorative overlays and hover effects
-- **Icons**: Lucide React icons throughout (Leaf, Heart, Users, etc.)
+- Fixed header (`pt-16` offset), persistent footer
+- Nav: Home, About, Acupuncture, Chinese Medicine, Testimonials, Contact, Bookings, **Admin**, Book Now CTA
+- Icons: Lucide React
+
+### Booking / Admin
+- Defaults in `src/lib/contact-config.ts` (`calendlyEnabled: true`, `bookingFormEnabled: false`)
+- Runtime overrides: `/admin` → `booking-features.ts` / `useBookingFeatures` (localStorage)
+- Calendly embed vs legacy stepper are mutually exclusive in Admin
+- Legacy form email: Web3Forms via `send-booking-email.ts`
+- Prefer `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` for shared deploys (Vercel Preview + Production) — not GitHub Secrets
+- When env key is set: email forced on; Admin key field hidden; toggle locked
+- Setup checklists live in README / BOOKING_EMAIL_INTEGRATION.md — keep Admin UI lean
 
 ## Development Conventions
 
 ### File Organization
 ```
-src/app/           # Next.js App Router - routing infrastructure only
-src/components/    # Reusable UI components (Header, Footer)
-src/features/      # Business logic, domain-specific components, and feature implementations
-public/           # Static assets (images, logos)
+src/app/           # App Router pages only (incl. /admin)
+src/components/    # Shared UI (Header, Footer, BookingForm, CalendlyEmbed, …)
+src/features/      # Home sections + reusable UI primitives
+src/hooks/         # e.g. useBookingFeatures
+src/lib/           # contact-config, booking-features, send-booking-email
+public/            # Static assets
 ```
 
 ### Separation of Concerns
-- **App Folder**: Contains only routing infrastructure (page.tsx files, layout.tsx, loading.tsx, error.tsx)
-- **Features Folder**: Houses all business logic, feature-specific components, hooks, utilities, and domain logic
-- **Components Folder**: Shared UI components that are agnostic to business logic (Header, Footer, common UI elements)
+- App pages compose features/components; keep pages thin
+- Contact/business defaults → `contact-config.ts`
+- Booking runtime flags → `booking-features.ts` (not scattered localStorage)
 
-When adding new functionality:
-1. Create feature modules in `src/features/[feature-name]/`
-2. Keep app router pages minimal - they should import and compose from features
-3. Move complex logic, data fetching, and domain-specific components to appropriate feature folders
+### Styling
+- Tailwind + semantic classes (`.text-primary`, `.bg-accent`)
+- Section padding `py-20`; containers `max-w-7xl mx-auto`
+- Gentle transitions; decorative leaf animations where established
 
-### Styling Patterns
-- **Tailwind + Custom CSS**: Extend Tailwind with custom color classes (`.text-primary`, `.bg-accent`)
-- **Consistent Spacing**: Use `py-20` for section padding, `max-w-7xl mx-auto` for content containers
-- **Hover Effects**: Gentle transitions with `transition-all duration-300`, scale transforms on images
-- **Decorative Elements**: Floating leaf icons with staggered animations using `animationDelay`
-
-### Image Implementation
-- All images use Next.js `Image` component with `fill` prop and object-cover/contain
-- Decorative frames with gradient backgrounds and border effects
-- Hover scale effects: `group-hover:scale-105 transition-transform duration-500`
-- Floating leaf decorations positioned absolutely with CSS transforms
-
-### Static Export Configuration
-- **Build**: Configured for static export (`output: 'export'` in `next.config.ts`)
-- **Images**: `unoptimized: true` for static hosting compatibility
-- **Deployment**: Generates `/out` directory with static files
+### Static Export
+- `output: 'export'` in `next.config.ts`
+- Images: `unoptimized: true`
+- Build output: `/out`
+- `NEXT_PUBLIC_*` env vars are baked at build time — redeploy after changes
 
 ## Content Patterns
 
-### Page Structure
-- Hero section with large logo, gradient background, dual CTAs
-- Feature sections with 3-column grids and icon-based content
-- Image galleries with decorative frames and hover effects
-- CTA sections with background images and overlays
-
-### Practitioner Focus
-- Personal story of Arkinth Garcia (founder) integrated throughout
-- Professional credentials from College of Naturopathic Medicine, Dublin
-- Specializations: pain management, mental health, digestive issues, fertility
-
-### Service Areas
-Navigation covers: Home, About, Why Acupuncture, Testimonials, Chinese Medicine, Blog, Contact, Bookings
+- Practitioner: Arkinth Garcia (College of Naturopathic Medicine, Dublin)
+- Dual clinics: Celbridge + Carlow; email `info@wellnessneedles.ie`
+- Testimonials: illustrative / disclaimed where noted
 
 ## Technical Requirements
 
-### Development Commands
 ```bash
-npm run dev --turbopack    # Development with Turbopack
-npm run build             # Static export build
-npm run start             # Production server
-npm run lint              # ESLint checking
+npm run dev       # Development
+npm run build     # Static export → /out
+npm run lint      # ESLint
 ```
 
 ### Dependencies
-- Next.js 15.4.6 with App Router
-- React 19.1.0
-- Tailwind CSS with typography plugin
-- Lucide React for icons
-- TypeScript with strict configuration
+- Next.js 15.5.x (App Router), React 19, TypeScript, Tailwind 3.4, Lucide React
 
-### Key Files to Understand
-- `globals.css`: Complete color system and utility classes
-- `layout.tsx`: App-wide layout with font loading and metadata
-- `Header.tsx`: Complex responsive navigation with mobile menu
-- `tailwind.config.js`: Extended color palette and gradient definitions
+### Key Files
+- `src/app/globals.css` — theme
+- `src/lib/contact-config.ts` — contact + default flags + Calendly URL
+- `src/lib/booking-features.ts` — Admin flags + Web3Forms env
+- `src/app/admin/page.tsx` — feature toggles (no auth)
+- `src/components/Header.tsx` — navigation
+- `BOOKING_EMAIL_INTEGRATION.md` / `README.md` — deploy & email setup
 
 ## Code Style Guidelines
 
-### Component Patterns
-- Use `'use client'` directive only when necessary (interactive components)
-- Prefer functional components with TypeScript interfaces
-- Implement responsive design mobile-first with Tailwind breakpoints
-- Group related functionality in reusable components
-
-### Styling Approach
-- Leverage custom CSS variables for theme consistency
-- Use Tailwind utilities with semantic custom classes
-- Implement hover states and animations consistently
-- Maintain visual hierarchy with font-serif for headings
-
-### Image & Asset Guidelines
-- Place all images in `/public` directory
-- Use descriptive alt text related to acupuncture/wellness context
-- Implement decorative overlays and frame effects for visual consistency
-- Apply consistent hover animations across image galleries
+- `'use client'` only when needed
+- Functional components + TypeScript
+- Mobile-first Tailwind breakpoints
+- Prefer existing patterns over new abstractions
+- Do not put long setup checklists back into Admin UI — document in Markdown
 
 ## Common Tasks
 
-### Adding New Pages
-1. Create page.tsx in appropriate app directory
-2. Follow established hero + content sections pattern
-3. Include relevant medical/wellness imagery
-4. Add navigation link to Header.tsx if needed
+### Env / deploy
+1. Copy `.env.example` → `.env.local` for local Web3Forms key
+2. Set the same var in Vercel for Preview (`dev`) and Production (`main`)
+3. Redeploy after env changes
 
-### Extending Color Palette
-1. Add CSS variable to `:root` in globals.css
-2. Create corresponding Tailwind utilities
-3. Add to tailwind.config.js colors object
-4. Use semantic naming (e.g., `healing-blue`, `wisdom-purple`)
+### Booking mode
+1. `/admin` — toggle Calendly vs legacy form
+2. Calendly: paste Share URL; follow README Calendly checklist
+3. Legacy email: prefer env key; Admin recipient override is per-browser
 
-### Content Updates
-- Replace placeholder contact info in Footer.tsx
-- Update practitioner details in about/page.tsx
-- Maintain professional, wellness-focused tone throughout
+### Adding pages
+1. `src/app/[route]/page.tsx`
+2. Reuse `features/ui` hero/CTA patterns
+3. Add Header link if needed

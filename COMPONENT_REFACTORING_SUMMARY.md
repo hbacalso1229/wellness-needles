@@ -1,5 +1,7 @@
 # Application-Wide Component Refactoring Summary
 
+> **Historical snapshot** of a past UI refactor. Not a living status doc — see [README.md](README.md) and [WORKFLOW.md](WORKFLOW.md) for current architecture. Booking/Admin/Web3Forms details: [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md).
+
 ## Overview
 Successfully updated the entire application to use the new reusable UI components created in the `src/features` directory. This comprehensive refactoring maintains 100% visual consistency while dramatically improving code organization and maintainability.
 

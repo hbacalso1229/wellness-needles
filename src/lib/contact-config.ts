@@ -8,6 +8,8 @@ export const contactConfig = {
     icon: MapPin,
     locations: [
       {
+        id: 'celbridge',
+        label: 'Celbridge',
         full: celbridgeAddress,
         formatted: {
           street: "56 The Orchard Oldtown Mill",
@@ -19,6 +21,8 @@ export const contactConfig = {
         directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(celbridgeAddress)}`
       },
       {
+        id: 'carlow',
+        label: 'Carlow',
         full: carlowAddress,
         formatted: {
           street: "16 Kennedy St",
@@ -69,11 +73,18 @@ export const contactConfig = {
     ],
     emergencyNote: "Emergency appointments available by request"
   },
+  calendly: {
+    // Must match the Calendly event type slug (Event type → Share → link).
+    // Create as "Scheduled Booking" so the public URL ends with /scheduled-booking.
+    schedulingUrl: 'https://calendly.com/hbacalso1229/scheduled-booking'
+  },
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
     mapIntegrationEnabled: true,
-    treatmentPackagesEnabled: false
+    treatmentPackagesEnabled: false,
+    calendlyEnabled: true,
+    bookingFormEnabled: false,
   }
 } as const
 
