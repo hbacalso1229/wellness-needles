@@ -144,7 +144,7 @@ export function getFreshaOpenAttrs(
 ): { target?: string; rel?: string } {
   if (openTarget === 'app') {
     // Same-tab navigation gives OS universal links a better chance to open the app.
-    return {}
+    return { target: '_self' }
   }
   return { target: '_blank', rel: 'noopener noreferrer' }
 }

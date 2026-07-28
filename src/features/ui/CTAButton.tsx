@@ -42,11 +42,14 @@ export function CTAButton({
   const isExternal = external || /^https?:\/\//i.test(href)
 
   if (isExternal) {
+    const resolvedTarget = target ?? '_blank'
+    const resolvedRel =
+      rel ?? (resolvedTarget === '_blank' ? 'noopener noreferrer' : undefined)
     return (
       <a
         href={href}
-        target={target ?? '_blank'}
-        rel={rel ?? (target === undefined || target === '_blank' ? 'noopener noreferrer' : undefined)}
+        target={resolvedTarget}
+        rel={resolvedRel}
         className={classes}
       >
         {children}

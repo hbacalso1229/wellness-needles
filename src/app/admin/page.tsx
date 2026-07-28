@@ -147,7 +147,7 @@ export default function AdminPage() {
   }
 
   const saveFreshaUrl = () => {
-    if (!freshaUrlDraft.trim()) return
+    if (!freshaUrlDraft.trim() || !isValidFreshaBookingUrl(freshaUrlDraft)) return
     setFreshaBookingUrl(freshaUrlDraft)
     setFreshaOpenTarget(freshaOpenDraft)
     setFreshaUrlSaved(true)
@@ -295,7 +295,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={saveFreshaUrl}
-                    disabled={!freshaUrlDirty || !freshaUrlDraft.trim()}
+                    disabled={!freshaUrlDirty || !freshaUrlValid}
                     className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Save Fresha settings
