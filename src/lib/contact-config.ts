@@ -32,8 +32,8 @@ export const contactConfig = {
     icon: Phone
   },
   email: {
-    address: "arkinth1@gmail.com",
-    href: "mailto:arkinth1@gmail.com", 
+    address: "info@wellnessneedles.ie",
+    href: "mailto:info@wellnessneedles.ie", 
     icon: Mail
   },
   socialMedia: {
