@@ -29,6 +29,10 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - Sunday: Closed
   - Emergency appointments note
 
+- **Fresha**:
+  - `fresha.bookingUrl` — public booking page (placeholder until set in Admin)
+  - `features.freshaEnabled` — default `false`; when on, Book Now opens Fresha
+
 - **Calendly**:
   - `calendly.initialConsultationUrl` — Initial (1h 45m / 105 min, 15-min starts)
   - `calendly.followUpUrl` — Follow-up (1h 15m / 75 min, 15-min starts)
@@ -36,7 +40,7 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - `calendly.durations` — labels + minute constants
   - Overridable on `/admin` when Calendly mode is on (Initial + Follow-up URLs)
 
-- **Feature flags** (defaults; booking pair overridable on `/admin`):
+- **Feature flags** (defaults; booking modes overridable on `/admin`):
 
 | Flag | Default | Effect |
 |------|---------|--------|
@@ -45,14 +49,17 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
 | `mapIntegrationEnabled` | `true` | Dual Google Maps on Contact |
 | `treatmentPackagesEnabled` | `false` | 5/10 session packages hidden |
 | `calendlyEnabled` | `true` | Calendly embed on `/bookings` |
-| `bookingFormEnabled` | `false` | Legacy stepper (mutually exclusive with Calendly in Admin) |
+| `bookingFormEnabled` | `false` | Legacy stepper |
+| `freshaEnabled` | `false` | Fresha Book Now + bookings CTA |
 
+Fresha, Calendly, and legacy form are **mutually exclusive** in Admin.
 ### 2. Booking features (`src/lib/booking-features.ts`)
 
 - Reads/writes `wellness-needles-booking-features` in localStorage
 - Defaults from `contactConfig` + `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`
 - Env access key always wins; when set, booking email is forced on
 - `resolveCalendlyUrlForService()` picks Initial vs Follow-up Calendly URL from the selected service id
+- `getBookingCtaHref()` / Fresha flags for Book Now CTAs
 
 ### 3. Reusable components
 

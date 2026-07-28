@@ -2,7 +2,8 @@
 
 import { Brain, Heart, Zap, Shield, Target, Activity, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
-import { PulsingLeaf, CTAButton, FeatureCard, HeroSection } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 //a
 export default function Acupuncture() {
   return (
@@ -340,9 +341,9 @@ export default function Acupuncture() {
           <p className="text-xl mb-8 opacity-90">
             Discover how this ancient healing art can help you achieve optimal health and wellness
           </p>
-          <CTAButton href="/bookings" variant="gold">
+          <BookingCtaButton variant="gold">
             Schedule Your Treatment
-          </CTAButton>
+          </BookingCtaButton>
         </div>
       </section>
     </div>

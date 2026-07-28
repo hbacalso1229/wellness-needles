@@ -1,8 +1,11 @@
 'use client'
 
 import { HeroSection as ReusableHeroSection } from '../ui/HeroSection'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export function HeroSection() {
+  const { href: bookHref } = useBookingCtaHref()
+
   return (
     <ReusableHeroSection
       title="Wellness Needles"
@@ -19,7 +22,7 @@ export function HeroSection() {
       ctaButtons={[
         {
           text: "Book Your Session",
-          href: "/bookings",
+          href: bookHref,
           variant: "primary"
         },
         {

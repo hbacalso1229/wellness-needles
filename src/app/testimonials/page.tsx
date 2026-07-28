@@ -2,6 +2,7 @@
 
 import { Star, Quote, Heart, CheckCircle } from 'lucide-react'
 import { CTAButton, DecorativeImageCard, HeroSection } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export default function Testimonials() {
   const testimonials = [
@@ -251,9 +252,9 @@ export default function Testimonials() {
             <CTAButton href="/contact" variant="primary">
               Share Your Story
             </CTAButton>
-            <CTAButton href="/bookings" variant="secondary" showArrow={false}>
+            <BookingCtaButton variant="secondary" showArrow={false}>
               Start Your Journey
-            </CTAButton>
+            </BookingCtaButton>
           </div>
         </div>
       </section>
@@ -267,9 +268,9 @@ export default function Testimonials() {
           <p className="text-xl mb-8 opacity-90">
             Join hundreds of patients who have found healing and wellness through acupuncture
           </p>
-          <CTAButton href="/bookings" variant="gold">
+          <BookingCtaButton variant="gold">
             Book Your First Session
-          </CTAButton>
+          </BookingCtaButton>
         </div>
       </section>
     </div>

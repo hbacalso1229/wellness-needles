@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { CTAButton } from '../ui/CTAButton'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export function CTASection() {
   return (
@@ -23,9 +23,9 @@ export function CTASection() {
         <p className="text-xl mb-8 opacity-90">
           Take the first step towards better health and wellness with our expert acupuncture treatments
         </p>
-        <CTAButton href="/bookings" variant="gold">
+        <BookingCtaButton variant="gold">
           Schedule Your Consultation
-        </CTAButton>
+        </BookingCtaButton>
       </div>
     </section>
   )

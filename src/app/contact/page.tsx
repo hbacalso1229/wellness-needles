@@ -2,9 +2,10 @@
 
 import { Clock, Send, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
-import { CTAButton, HeroSection } from '../../features'
+import { HeroSection } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
 import LocationMap from '../../components/LocationMap'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -248,14 +249,13 @@ export default function Contact() {
                   Quick Actions
                 </h3>
                 <div className="space-y-3">
-                  <CTAButton 
-                    href="/bookings" 
+                  <BookingCtaButton
                     variant="gold"
                     showArrow={false}
                     className="w-full"
                   >
                     Book an Appointment
-                  </CTAButton>
+                  </BookingCtaButton>
                   <button 
                     disabled={!contactConfig.features.liveChatEnabled}
                     className={`block w-full border-2 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
