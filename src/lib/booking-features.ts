@@ -183,7 +183,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
         : defaults.bookingEmailEnabled
 
     // Mutual exclusivity: prefer Fresha > legacy form > Calendly when multiple were stored.
-    let freshaEnabled = Boolean(parsed.freshaEnabled)
+    const freshaEnabled = Boolean(parsed.freshaEnabled)
     let bookingFormEnabled = Boolean(parsed.bookingFormEnabled)
     let calendlyEnabled = Boolean(parsed.calendlyEnabled)
     if (freshaEnabled) {
