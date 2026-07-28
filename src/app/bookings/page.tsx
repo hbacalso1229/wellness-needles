@@ -349,8 +349,14 @@ export default function Bookings() {
               
               <div className="bg-primary/5 border-2 border-primary rounded-lg p-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <User className="w-8 h-8 text-cream" />
+                  <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
+                    <Image
+                      src="/Arkinth_clinic_founder.jpeg"
+                      alt="Arkinth Garcia - Naturopath & Acupuncturist"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
                   <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
@@ -733,8 +739,14 @@ export default function Bookings() {
                 {/* Practitioner Information */}
                 <div className="mt-8 p-6 bg-primary/5 border-2 border-primary rounded-lg">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <User className="w-8 h-8 text-cream" />
+                    <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
+                      <Image
+                        src="/Arkinth_clinic_founder.jpeg"
+                        alt="Arkinth Garcia - Naturopath & Acupuncturist"
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
                     <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
