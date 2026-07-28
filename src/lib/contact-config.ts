@@ -1,26 +1,33 @@
 import { Phone, MapPin, Mail } from 'lucide-react'
 
+const celbridgeAddress = "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603"
+const carlowAddress = "16 Kennedy St, Graigue, Carlow, R93 H2X8"
+
 export const contactConfig = {
   address: {
     icon: MapPin,
     locations: [
       {
-        full: "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603",
+        full: celbridgeAddress,
         formatted: {
           street: "56 The Orchard Oldtown Mill",
           city: "Celbridge",
           county: "Co.Kildare",
           postcode: "W23 K603"
-        }
+        },
+        mapQuery: celbridgeAddress,
+        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(celbridgeAddress)}`
       },
       {
-        full: "16 Kennedy St, Graigue, Carlow, R93 H2X8",
+        full: carlowAddress,
         formatted: {
           street: "16 Kennedy St",
           city: "Graigue",
           county: "Carlow",
           postcode: "R93 H2X8"
-        }
+        },
+        mapQuery: carlowAddress,
+        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(carlowAddress)}`
       }
     ]
   },
@@ -65,7 +72,7 @@ export const contactConfig = {
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
-    mapIntegrationEnabled: false,
+    mapIntegrationEnabled: true,
     treatmentPackagesEnabled: false
   }
 } as const

@@ -59,19 +59,31 @@ export default function ContactInfo({
           {variant === 'inline' || variant === 'compact' ? (
             <div className="text-current opacity-80 space-y-1">
               {contactConfig.address.locations.map((location) => (
-                <div key={location.full}>
+                <a
+                  key={location.full}
+                  href={location.directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block hover:opacity-100 transition-opacity"
+                >
                   {location.formatted.street}, {location.formatted.city}, {location.formatted.county} {location.formatted.postcode}
-                </div>
+                </a>
               ))}
             </div>
           ) : (
             <div className="text-current opacity-80 space-y-3">
               {contactConfig.address.locations.map((location) => (
-                <div key={location.full}>
+                <a
+                  key={location.full}
+                  href={location.directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block hover:opacity-100 transition-opacity"
+                >
                   <div>{location.formatted.street}</div>
                   <div>{location.formatted.city}</div>
                   <div>{location.formatted.county} {location.formatted.postcode}</div>
-                </div>
+                </a>
               ))}
             </div>
           )}
@@ -117,19 +129,31 @@ export function AddressContact({ className = '', compact = false }) {
       {compact ? (
         <div className="space-y-1">
           {contactConfig.address.locations.map((location) => (
-            <div key={location.full}>
+            <a
+              key={location.full}
+              href={location.directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block hover:opacity-80 transition-opacity"
+            >
               {location.formatted.street}, {location.formatted.city}, {location.formatted.county} {location.formatted.postcode}
-            </div>
+            </a>
           ))}
         </div>
       ) : (
         <div className="space-y-3">
           {contactConfig.address.locations.map((location) => (
-            <div key={location.full}>
+            <a
+              key={location.full}
+              href={location.directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block hover:opacity-80 transition-opacity"
+            >
               <div>{location.formatted.street}</div>
               <div>{location.formatted.city}</div>
               <div>{location.formatted.county} {location.formatted.postcode}</div>
-            </div>
+            </a>
           ))}
         </div>
       )}

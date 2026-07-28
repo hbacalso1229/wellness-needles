@@ -4,6 +4,7 @@ import { Clock, Send, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import { CTAButton, HeroSection } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
+import LocationMap from '../../components/LocationMap'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -204,9 +205,16 @@ export default function Contact() {
                     <div className="text-secondary mb-2 space-y-3">
                       {contactConfig.address.locations.map((location) => (
                         <div key={location.full}>
-                          <div>{location.formatted.street}</div>
-                          <div>{location.formatted.city}</div>
-                          <div>{location.formatted.county} {location.formatted.postcode}</div>
+                          <a
+                            href={location.directionsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block hover:text-primary transition-colors"
+                          >
+                            <div>{location.formatted.street}</div>
+                            <div>{location.formatted.city}</div>
+                            <div>{location.formatted.county} {location.formatted.postcode}</div>
+                          </a>
                         </div>
                       ))}
                     </div>
@@ -275,20 +283,32 @@ export default function Contact() {
                 Find Us
               </h2>
               <p className="text-lg text-secondary">
-                Located in the heart of the wellness district
+                Visit us in Celbridge or Carlow
               </p>
             </div>
-            
-            <div className="bg-accent/20 rounded-lg aspect-video flex items-center justify-center">
-              <div className="text-center">
-                <contactConfig.address.icon className="w-16 h-16 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold text-lg text-primary mb-2">
-                  Interactive Map
-                </h3>
-                <p className="text-secondary">
-                  Map integration coming soon
-                </p>
-              </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {contactConfig.address.locations.map((location) => (
+                <div key={location.full}>
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-primary mb-2">
+                      {location.formatted.city}
+                    </h3>
+                    <div className="text-secondary text-sm">
+                      <div>{location.formatted.street}</div>
+                      <div>
+                        {location.formatted.city}, {location.formatted.county}{' '}
+                        {location.formatted.postcode}
+                      </div>
+                    </div>
+                  </div>
+                  <LocationMap
+                    query={location.mapQuery}
+                    title={`Map of ${location.full}`}
+                    directionsUrl={location.directionsUrl}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
