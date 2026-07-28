@@ -2,8 +2,11 @@
 
 import { Leaf, Heart, Users, Calendar } from 'lucide-react'
 import { ServiceCard } from '../ui/ServiceCard'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export function QuickLinksSection() {
+  const { href: bookHref, isExternal } = useBookingCtaHref()
+
   return (
     <section className="py-20 bg-gradient-to-br from-accent/5 via-blue-subtle/30 to-accent/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +45,8 @@ export function QuickLinksSection() {
           />
           
           <ServiceCard
-            href="/bookings"
+            href={bookHref}
+            external={isExternal}
             icon={Calendar}
             title="Book Now"
             description="Schedule your appointment today"

@@ -8,7 +8,7 @@ import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { resolveCalendlyUrlForService } from '@/lib/booking-features'
+import { isFreshaBookingConfigured, resolveCalendlyUrlForService } from '@/lib/booking-features'
 
 type BookingService = {
   id: string
@@ -23,6 +23,8 @@ export default function Bookings() {
   const { features } = useBookingFeatures()
   const bookingFormEnabled = features.bookingFormEnabled
   const calendlyEnabled = features.calendlyEnabled
+  const freshaEnabled = features.freshaEnabled
+  const freshaReady = isFreshaBookingConfigured(features)
   const { initialLabel, followUpLabel } = contactConfig.calendly.durations
 
   const [activeTab, setActiveTab] = useState('in-clinic')
@@ -199,7 +201,7 @@ export default function Bookings() {
                 <p className="text-lg text-secondary mb-6">
                   Professional acupuncture treatments to support your health and wellness journey
                 </p>
-                {!calendlyEnabled && (
+                {!calendlyEnabled && !freshaEnabled && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
                     <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
                       <Phone className="w-5 h-5 mr-2" />
@@ -215,6 +217,37 @@ export default function Bookings() {
                       <Phone className="w-5 h-5 mr-2" />
                       Call {contactConfig.phone.displayText}
                     </a>
+                  </div>
+                )}
+
+                {freshaEnabled && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto mt-6">
+                    <h3 className="font-semibold text-primary mb-3 text-center text-xl">
+                      Book on Fresha
+                    </h3>
+                    <p className="text-secondary text-sm mb-4 text-center">
+                      Review services below, then continue to Fresha to choose a time.
+                    </p>
+                    {freshaReady ? (
+                      <div className="text-center">
+                        <a
+                          href={features.freshaBookingUrl.trim()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
+                        >
+                          Book on Fresha
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-center text-sm text-red-700" role="alert">
+                        Fresha is enabled but the booking URL is missing or invalid. Set it in{' '}
+                        <a href="/admin" className="font-medium underline">
+                          Admin
+                        </a>
+                        .
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -398,7 +431,7 @@ export default function Bookings() {
                 </div>
               </div>
 
-              {calendlyEnabled && (
+              {calendlyEnabled && !freshaEnabled && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
                   <h3 className="font-semibold text-primary mb-2 text-center text-xl">
                     Schedule a Booking

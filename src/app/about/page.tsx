@@ -2,7 +2,8 @@
 
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
 import Image from 'next/image'
-import { PulsingLeaf, CTAButton, FeatureCard, HeroSection } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export default function About() {
   return (
@@ -241,9 +242,9 @@ export default function About() {
           <p className="text-xl mb-8 opacity-90">
             Take the first step towards better health with experienced, compassionate care
           </p>
-          <CTAButton href="/bookings" variant="gold">
+          <BookingCtaButton variant="gold">
             Schedule Your Consultation
-          </CTAButton>
+          </BookingCtaButton>
         </div>
       </section>
     </div>

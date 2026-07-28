@@ -49,14 +49,26 @@ export function useBookingFeatures() {
     [features, setFeatures]
   )
 
+  const setFreshaEnabled = useCallback(
+    (enabled: boolean) => {
+      patchFeatures({
+        freshaEnabled: enabled,
+        calendlyEnabled: enabled ? false : features.calendlyEnabled,
+        bookingFormEnabled: enabled ? false : features.bookingFormEnabled,
+      })
+    },
+    [features.calendlyEnabled, features.bookingFormEnabled, patchFeatures]
+  )
+
   const setCalendlyEnabled = useCallback(
     (enabled: boolean) => {
       patchFeatures({
         calendlyEnabled: enabled,
         bookingFormEnabled: enabled ? false : features.bookingFormEnabled,
+        freshaEnabled: enabled ? false : features.freshaEnabled,
       })
     },
-    [features.bookingFormEnabled, patchFeatures]
+    [features.bookingFormEnabled, features.freshaEnabled, patchFeatures]
   )
 
   const setBookingFormEnabled = useCallback(
@@ -64,9 +76,10 @@ export function useBookingFeatures() {
       patchFeatures({
         bookingFormEnabled: enabled,
         calendlyEnabled: enabled ? false : features.calendlyEnabled,
+        freshaEnabled: enabled ? false : features.freshaEnabled,
       })
     },
-    [features.calendlyEnabled, patchFeatures]
+    [features.calendlyEnabled, features.freshaEnabled, patchFeatures]
   )
 
   const setCalendlySchedulingUrl = useCallback(
@@ -86,6 +99,13 @@ export function useBookingFeatures() {
   const setCalendlyFollowUpUrl = useCallback(
     (url: string) => {
       patchFeatures({ calendlyFollowUpUrl: url.trim() })
+    },
+    [patchFeatures]
+  )
+
+  const setFreshaBookingUrl = useCallback(
+    (url: string) => {
+      patchFeatures({ freshaBookingUrl: url.trim() })
     },
     [patchFeatures]
   )
@@ -119,11 +139,13 @@ export function useBookingFeatures() {
     features,
     hydrated,
     setFeatures,
+    setFreshaEnabled,
     setCalendlyEnabled,
     setBookingFormEnabled,
     setCalendlySchedulingUrl,
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
+    setFreshaBookingUrl,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,

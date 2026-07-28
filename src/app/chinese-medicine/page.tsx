@@ -1,7 +1,7 @@
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CTAButton } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export default function ChineseMedicine() {
   return (
@@ -357,9 +357,9 @@ export default function ChineseMedicine() {
           <p className="text-xl mb-8 opacity-90">
             Discover how this ancient healing system can support your journey to optimal health
           </p>
-          <CTAButton href="/bookings" variant="gold">
+          <BookingCtaButton variant="gold">
             Begin Your Healing Journey
-          </CTAButton>
+          </BookingCtaButton>
         </div>
       </section>
     </div>

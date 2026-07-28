@@ -202,6 +202,7 @@ src/
 | Contact form | `contactFormEnabled` | `false` | Form hidden; user sees call/email CTA |
 | Booking form | `bookingFormEnabled` | `false` (default; overridable in Admin) | Legacy stepper on `/bookings` |
 | Calendly scheduling | `calendlyEnabled` | `true` (default; overridable in Admin) | Inline Calendly embed on `/bookings` |
+| Fresha booking | `freshaEnabled` | `false` (default; overridable in Admin) | Book Now → Fresha; `/bookings` Fresha CTA |
 | Live chat | `liveChatEnabled` | `false` | Button not rendered |
 | Map integration | `mapIntegrationEnabled` | `true` | Dual Google Maps embeds on Contact |
 | Treatment packages | `treatmentPackagesEnabled` | `false` | 5/10 session packages hidden |
@@ -257,19 +258,23 @@ Sections (in order):
 1. Hero
 2. When **legacy stepper** is on (`bookingFormEnabled`): full `BookingForm` (Service → Location → Date & Time → Details). Pricing UI is replaced by the form path.
 3. When **Calendly** is on (default): service tabs + pricing, add-ons, travel policy, practitioner card, then inline Calendly after location + service are selected.
-4. When both off: call / contact CTA only.
-5. Mode + Calendly URL + email settings: `/admin` (browser localStorage). Defaults from `contact-config.ts`.
-6. Legacy form email: Web3Forms when email is configured — preferred via `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys. See `BOOKING_EMAIL_INTEGRATION.md` and README deployment section.
+4. When **Fresha** is on: pricing + **Book on Fresha** button; site-wide Book Now CTAs open the Fresha URL.
+5. When all scheduling modes are off: call / contact CTA only.
+6. Mode + URLs + email settings: `/admin` (browser localStorage). Defaults from `contact-config.ts`.
+7. Legacy form email: Web3Forms when email is configured — preferred via `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys. See `BOOKING_EMAIL_INTEGRATION.md` and README deployment section.
 
 ### `/admin`
-1. Active mode banner (Calendly | Legacy form | both off)
-2. Mutually exclusive toggles: Calendly embed ↔ Legacy stepper form
-3. Calendly setup: Scheduling URL + Save / Open link (when Calendly on)
-4. Booking email setup: recipient (+ access key only if env key unset); email toggle locked when env key is set
-5. Reset to defaults / Open bookings
-6. **No auth** — linked from Header. Setup checklists live in README (not in the UI).
+1. Active mode banner (Fresha | Calendly | Legacy form | all off)
+2. Mutually exclusive toggles: Fresha ↔ Calendly ↔ Legacy stepper form
+3. Fresha setup: booking URL + Save (when Fresha on)
+4. Calendly setup: Initial + Follow-up URLs (when Calendly on)
+5. Booking email setup: recipient (+ access key only if env key unset); email toggle locked when env key is set
+6. Reset to defaults / Open bookings
+7. **No auth** — linked from Header. Setup checklists live in README (not in the UI).
 
 **Calendly one-time setup:** see [README → Calendly setup checklist](README.md#calendly-setup-checklist). Create two event types (Initial **1h 45m**, Follow-up **1h 15m**, 15-min starts). Defaults: `contactConfig.calendly.initialConsultationUrl` / `followUpUrl` (overridable on `/admin`).
+
+**Fresha setup:** see [README → Fresha setup checklist](README.md#fresha-setup-checklist).
 
 ---
 

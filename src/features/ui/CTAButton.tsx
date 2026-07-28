@@ -10,6 +10,8 @@ interface CTAButtonProps {
   size?: 'medium' | 'large'
   showArrow?: boolean
   className?: string
+  /** Open in a new tab (external Fresha / absolute URLs). */
+  external?: boolean
 }
 
 export function CTAButton({
@@ -18,7 +20,8 @@ export function CTAButton({
   variant = 'primary',
   size = 'large',
   showArrow = true,
-  className = ''
+  className = '',
+  external = false,
 }: CTAButtonProps) {
   const variantClasses = {
     primary: 'bg-gradient-to-r from-gold to-blue-primary text-primary hover:from-gold/90 hover:to-blue-primary/90',
@@ -31,11 +34,25 @@ export function CTAButton({
     large: 'px-8 py-4 text-lg'
   }
 
+  const classes = `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg ${className}`
+  const isExternal = external || /^https?:\/\//i.test(href)
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classes}
+      >
+        {children}
+        {showArrow && <ArrowRight className="ml-2 w-5 h-5" />}
+      </a>
+    )
+  }
+
   return (
-    <Link
-      href={href}
-      className={`${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg ${className}`}
-    >
+    <Link href={href} className={classes}>
       {children}
       {showArrow && <ArrowRight className="ml-2 w-5 h-5" />}
     </Link>

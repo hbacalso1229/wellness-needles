@@ -92,6 +92,10 @@ export const contactConfig = {
       followUpLabel: '1 hour 15 minutes',
     },
   },
+  fresha: {
+    // Paste the real Fresha booking link in Admin, or replace this placeholder.
+    bookingUrl: 'https://www.fresha.com/a/YOUR-BUSINESS',
+  },
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
@@ -99,6 +103,7 @@ export const contactConfig = {
     treatmentPackagesEnabled: false,
     calendlyEnabled: true,
     bookingFormEnabled: false,
+    freshaEnabled: false,
   }
 } as const
 

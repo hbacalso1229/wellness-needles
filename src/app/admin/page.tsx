@@ -8,6 +8,7 @@ import {
   isBookingEmailConfigured,
   isValidCalendlySchedulingUrl,
   isValidEmailAddress,
+  isValidFreshaBookingUrl,
 } from '@/lib/booking-features'
 
 function Toggle({
@@ -68,10 +69,12 @@ export default function AdminPage() {
   const {
     features,
     hydrated,
+    setFreshaEnabled,
     setCalendlyEnabled,
     setBookingFormEnabled,
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
+    setFreshaBookingUrl,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
@@ -80,7 +83,9 @@ export default function AdminPage() {
 
   const [initialUrlDraft, setInitialUrlDraft] = useState(features.calendlyInitialUrl)
   const [followUpUrlDraft, setFollowUpUrlDraft] = useState(features.calendlyFollowUpUrl)
+  const [freshaUrlDraft, setFreshaUrlDraft] = useState(features.freshaBookingUrl)
   const [urlSaved, setUrlSaved] = useState(false)
+  const [freshaUrlSaved, setFreshaUrlSaved] = useState(false)
   const [accessKeyDraft, setAccessKeyDraft] = useState(features.bookingEmailAccessKey)
   const [emailToDraft, setEmailToDraft] = useState(features.bookingEmailTo)
   const [emailSaved, setEmailSaved] = useState(false)
@@ -89,6 +94,7 @@ export default function AdminPage() {
     if (hydrated) {
       setInitialUrlDraft(features.calendlyInitialUrl)
       setFollowUpUrlDraft(features.calendlyFollowUpUrl)
+      setFreshaUrlDraft(features.freshaBookingUrl)
       setAccessKeyDraft(features.bookingEmailAccessKey)
       setEmailToDraft(features.bookingEmailTo)
     }
@@ -96,6 +102,7 @@ export default function AdminPage() {
     hydrated,
     features.calendlyInitialUrl,
     features.calendlyFollowUpUrl,
+    features.freshaBookingUrl,
     features.bookingEmailAccessKey,
     features.bookingEmailTo,
   ])
@@ -109,17 +116,21 @@ export default function AdminPage() {
   const urlDirty =
     initialUrlDraft.trim() !== features.calendlyInitialUrl ||
     followUpUrlDraft.trim() !== features.calendlyFollowUpUrl
+  const freshaUrlValid = isValidFreshaBookingUrl(freshaUrlDraft)
+  const freshaUrlDirty = freshaUrlDraft.trim() !== features.freshaBookingUrl
   const emailToValid = isValidEmailAddress(emailToDraft)
   const emailDirty =
     (!usingEnvAccessKey &&
       accessKeyDraft.trim() !== features.bookingEmailAccessKey) ||
     emailToDraft.trim() !== features.bookingEmailTo
 
-  const activeMode = features.bookingFormEnabled
-    ? 'Legacy stepper form'
-    : features.calendlyEnabled
-      ? 'Calendly embed'
-      : 'Call / contact only (both off)'
+  const activeMode = features.freshaEnabled
+    ? 'Fresha booking'
+    : features.bookingFormEnabled
+      ? 'Legacy stepper form'
+      : features.calendlyEnabled
+        ? 'Calendly embed'
+        : 'Call / contact only (all off)'
 
   const saveCalendlyUrls = () => {
     if (!urlsValid) return
@@ -127,6 +138,13 @@ export default function AdminPage() {
     setCalendlyFollowUpUrl(followUpUrlDraft)
     setUrlSaved(true)
     window.setTimeout(() => setUrlSaved(false), 2000)
+  }
+
+  const saveFreshaUrl = () => {
+    if (!freshaUrlDraft.trim()) return
+    setFreshaBookingUrl(freshaUrlDraft)
+    setFreshaUrlSaved(true)
+    window.setTimeout(() => setFreshaUrlSaved(false), 2000)
   }
 
   const saveEmailSettings = () => {
@@ -160,12 +178,20 @@ export default function AdminPage() {
             </p>
             <p className="mt-2">
               Settings are saved in this browser only (localStorage). Enabling one booking UI
-              turns the other off.
+              turns the others off.
             </p>
           </div>
 
           <div className="space-y-4">
             <h2 className="font-serif text-2xl font-bold text-primary">Booking UI</h2>
+
+            <Toggle
+              id="toggle-fresha"
+              label="Fresha booking"
+              description="Book Now opens Fresha; the bookings page shows pricing plus a Fresha button."
+              checked={features.freshaEnabled}
+              onChange={setFreshaEnabled}
+            />
 
             <Toggle
               id="toggle-calendly"
@@ -183,6 +209,68 @@ export default function AdminPage() {
               onChange={setBookingFormEnabled}
             />
           </div>
+
+          {features.freshaEnabled && (
+            <div className="space-y-4">
+              <h2 className="font-serif text-2xl font-bold text-primary">Fresha setup</h2>
+              <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-4">
+                <div>
+                  <label
+                    htmlFor="fresha-booking-url"
+                    className="block font-semibold text-primary mb-1"
+                  >
+                    Fresha booking URL
+                  </label>
+                  <p className="text-sm text-secondary mb-3">
+                    Paste your public Fresha booking link. See README for the checklist.
+                  </p>
+                  <input
+                    id="fresha-booking-url"
+                    type="url"
+                    value={freshaUrlDraft}
+                    onChange={(e) => {
+                      setFreshaUrlDraft(e.target.value)
+                      setFreshaUrlSaved(false)
+                    }}
+                    placeholder="https://www.fresha.com/a/your-business"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                      freshaUrlDraft && !freshaUrlValid
+                        ? 'border-red-500 bg-red-50/40'
+                        : 'border-accent/30'
+                    }`}
+                  />
+                  {freshaUrlDraft && !freshaUrlValid && (
+                    <p className="mt-2 text-sm text-red-700" role="alert">
+                      Enter a valid Fresha URL (https://www.fresha.com/…).
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={saveFreshaUrl}
+                    disabled={!freshaUrlDirty || !freshaUrlDraft.trim()}
+                    className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Save URL
+                  </button>
+                  {freshaUrlSaved && (
+                    <span className="text-sm text-primary font-medium">Saved</span>
+                  )}
+                  {freshaUrlValid && (
+                    <a
+                      href={freshaUrlDraft.trim()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                    >
+                      Open link
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {features.calendlyEnabled && (
             <div className="space-y-4">

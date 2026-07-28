@@ -1,5 +1,5 @@
 import { Calendar, User, Leaf, Heart, Brain } from 'lucide-react'
-import { CTAButton } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 export default function Blog() {
   const blogPosts = [
@@ -271,9 +271,9 @@ export default function Blog() {
           <p className="text-xl mb-8 opacity-90">
             Put these insights into practice with personalized acupuncture treatments
           </p>
-          <CTAButton href="/bookings" variant="gold">
+          <BookingCtaButton variant="gold">
             Schedule Your Consultation
-          </CTAButton>
+          </BookingCtaButton>
         </div>
       </section>
     </div>

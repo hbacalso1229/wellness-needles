@@ -4,9 +4,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { href: bookHref, isExternal: bookExternal } = useBookingCtaHref()
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -19,6 +21,11 @@ export default function Header() {
     { href: '/bookings', label: 'Bookings' },
     { href: '/admin', label: 'Admin' },
   ]
+
+  const bookNowClassName =
+    'bg-gradient-to-r from-primary to-blue-primary text-cream px-6 py-2 rounded-full text-sm font-medium hover:from-secondary hover:to-blue-primary/90 transition-all duration-200 shadow-sm'
+  const bookNowMobileClassName =
+    'block px-3 py-2 mt-4 bg-gradient-to-r from-primary to-blue-primary text-cream text-center rounded-full font-medium hover:from-secondary hover:to-blue-primary/90 transition-all duration-200'
 
   return (
     <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50">
@@ -55,12 +62,20 @@ export default function Header() {
 
           {/* CTA Button */}
           <div className="hidden md:flex">
-            <Link
-              href="/bookings"
-              className="bg-gradient-to-r from-primary to-blue-primary text-cream px-6 py-2 rounded-full text-sm font-medium hover:from-secondary hover:to-blue-primary/90 transition-all duration-200 shadow-sm"
-            >
-              Book Now
-            </Link>
+            {bookExternal ? (
+              <a
+                href={bookHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={bookNowClassName}
+              >
+                Book Now
+              </a>
+            ) : (
+              <Link href={bookHref} className={bookNowClassName}>
+                Book Now
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -92,13 +107,25 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                href="/bookings"
-                className="block px-3 py-2 mt-4 bg-gradient-to-r from-primary to-blue-primary text-cream text-center rounded-full font-medium hover:from-secondary hover:to-blue-primary/90 transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Book Now
-              </Link>
+              {bookExternal ? (
+                <a
+                  href={bookHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={bookNowMobileClassName}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Book Now
+                </a>
+              ) : (
+                <Link
+                  href={bookHref}
+                  className={bookNowMobileClassName}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Book Now
+                </Link>
+              )}
             </div>
           </div>
         )}

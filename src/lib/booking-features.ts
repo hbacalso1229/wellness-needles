@@ -3,12 +3,15 @@ import { contactConfig } from '@/lib/contact-config'
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
+  freshaEnabled: boolean
   /** Fallback Calendly URL (packages / unknown service). */
   calendlySchedulingUrl: string
   /** Initial Consultation event (1h 45m). */
   calendlyInitialUrl: string
   /** Follow-up event (1h 15m). */
   calendlyFollowUpUrl: string
+  /** Fresha public booking page URL. */
+  freshaBookingUrl: string
   /** Send legacy form submissions by email (Web3Forms). */
   bookingEmailEnabled: boolean
   /** Web3Forms access key from https://web3forms.com */
@@ -35,9 +38,11 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
   return {
     calendlyEnabled: contactConfig.features.calendlyEnabled,
     bookingFormEnabled: contactConfig.features.bookingFormEnabled,
+    freshaEnabled: contactConfig.features.freshaEnabled,
     calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
+    freshaBookingUrl: contactConfig.fresha.bookingUrl,
     // Shared deploys: env key alone is enough — email is on by default for all visitors.
     bookingEmailEnabled: Boolean(envAccessKey),
     bookingEmailAccessKey: envAccessKey,
@@ -58,16 +63,41 @@ export function isValidCalendlySchedulingUrl(url: string): boolean {
   }
 }
 
+export function isValidFreshaBookingUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.trim())
+    const host = parsed.hostname.toLowerCase()
+    return (
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
+      (host === 'fresha.com' || host.endsWith('.fresha.com')) &&
+      !host.includes('YOUR-BUSINESS'.toLowerCase()) &&
+      !parsed.pathname.includes('YOUR-BUSINESS')
+    )
+  } catch {
+    return false
+  }
+}
+
 export function isValidEmailAddress(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
 
-function readCalendlyUrl(
-  value: unknown,
-  fallback: string
-): string {
-  if (typeof value === 'string' && value.trim().length > 0 && isValidCalendlySchedulingUrl(value)) {
+function readCalendlyUrl(value: unknown, fallback: string): string {
+  if (
+    typeof value === 'string' &&
+    value.trim().length > 0 &&
+    isValidCalendlySchedulingUrl(value)
+  ) {
     return value.trim()
+  }
+  return fallback
+}
+
+function readFreshaUrl(value: unknown, fallback: string): string {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const trimmed = value.trim()
+    // Allow saving the placeholder until Admin replaces it; validation gates CTAs.
+    return trimmed
   }
   return fallback
 }
@@ -89,6 +119,18 @@ export function resolveCalendlyUrlForService(
     return features.calendlyFollowUpUrl
   }
   return features.calendlySchedulingUrl
+}
+
+/** Book Now CTA target: Fresha when enabled + valid URL, otherwise /bookings. */
+export function getBookingCtaHref(features: BookingFeatureFlags): string {
+  if (features.freshaEnabled && isValidFreshaBookingUrl(features.freshaBookingUrl)) {
+    return features.freshaBookingUrl.trim()
+  }
+  return '/bookings'
+}
+
+export function isExternalBookingHref(href: string): boolean {
+  return /^https?:\/\//i.test(href)
 }
 
 export function readBookingFeatures(): BookingFeatureFlags {
@@ -116,6 +158,10 @@ export function readBookingFeatures(): BookingFeatureFlags {
         ? defaults.calendlyFollowUpUrl
         : fallbackUrl
     )
+    const freshaBookingUrl = readFreshaUrl(
+      parsed.freshaBookingUrl,
+      defaults.freshaBookingUrl
+    )
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
         ? parsed.bookingEmailAccessKey.trim()
@@ -136,12 +182,25 @@ export function readBookingFeatures(): BookingFeatureFlags {
         ? parsed.bookingEmailEnabled
         : defaults.bookingEmailEnabled
 
+    // Mutual exclusivity: prefer Fresha > legacy form > Calendly when multiple were stored.
+    const freshaEnabled = Boolean(parsed.freshaEnabled)
+    let bookingFormEnabled = Boolean(parsed.bookingFormEnabled)
+    let calendlyEnabled = Boolean(parsed.calendlyEnabled)
+    if (freshaEnabled) {
+      bookingFormEnabled = false
+      calendlyEnabled = false
+    } else if (bookingFormEnabled) {
+      calendlyEnabled = false
+    }
+
     return {
-      calendlyEnabled: Boolean(parsed.calendlyEnabled),
-      bookingFormEnabled: Boolean(parsed.bookingFormEnabled),
+      calendlyEnabled,
+      bookingFormEnabled,
+      freshaEnabled,
       calendlySchedulingUrl: fallbackUrl,
       calendlyInitialUrl: initialUrl,
       calendlyFollowUpUrl: followUpUrl,
+      freshaBookingUrl,
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKey,
       bookingEmailTo: emailTo,
@@ -172,4 +231,8 @@ export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean
     features.bookingEmailAccessKey.trim().length > 0 &&
     isValidEmailAddress(features.bookingEmailTo)
   )
+}
+
+export function isFreshaBookingConfigured(features: BookingFeatureFlags): boolean {
+  return features.freshaEnabled && isValidFreshaBookingUrl(features.freshaBookingUrl)
 }

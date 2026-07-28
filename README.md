@@ -7,7 +7,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Modern tropical/jungle design system (CSS variables + Tailwind)
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
-- Bookings via **Calendly embed** (default) or **legacy stepper form** (Admin toggle)
+- Bookings via **Calendly embed** (default), **Fresha** (Admin toggle), or **legacy stepper form**
 - Legacy form emails via **Web3Forms** (`NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys)
 - Feature flags in `contact-config.ts`, overridable on `/admin` (browser localStorage)
 - SEO-ready meta tags and semantic HTML
@@ -116,6 +116,17 @@ Replace placeholders under `public/` with practice photos and headshots.
 ## Production deployment
 
 Static export (`output: 'export'`). Typical flow: push `dev` for Preview / staging, merge to `main` for Production.
+
+### Fresha setup checklist
+
+Use when **Fresha booking** is enabled on `/admin` (mutually exclusive with Calendly and the legacy form).
+
+1. Copy your public Fresha booking link from Fresha.
+2. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL** → Save.
+3. Confirm **Book Now** opens Fresha in a new tab.
+4. Confirm `/bookings` shows pricing plus **Book on Fresha**.
+
+Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin).
 
 ### Calendly setup checklist
 
