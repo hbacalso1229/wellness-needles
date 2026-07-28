@@ -8,6 +8,7 @@ import {
   readBookingFeatures,
   writeBookingFeatures,
   type BookingFeatureFlags,
+  type FreshaOpenTarget,
 } from '@/lib/booking-features'
 
 export function useBookingFeatures() {
@@ -110,6 +111,13 @@ export function useBookingFeatures() {
     [patchFeatures]
   )
 
+  const setFreshaOpenTarget = useCallback(
+    (openTarget: FreshaOpenTarget) => {
+      patchFeatures({ freshaOpenTarget: openTarget })
+    },
+    [patchFeatures]
+  )
+
   const setBookingEmailEnabled = useCallback(
     (enabled: boolean) => {
       patchFeatures({ bookingEmailEnabled: enabled })
@@ -146,6 +154,7 @@ export function useBookingFeatures() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
+    setFreshaOpenTarget,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,

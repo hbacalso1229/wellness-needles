@@ -12,6 +12,8 @@ interface CTAButtonProps {
   className?: string
   /** Open in a new tab (external Fresha / absolute URLs). */
   external?: boolean
+  target?: string
+  rel?: string
 }
 
 export function CTAButton({
@@ -22,6 +24,8 @@ export function CTAButton({
   showArrow = true,
   className = '',
   external = false,
+  target,
+  rel,
 }: CTAButtonProps) {
   const variantClasses = {
     primary: 'bg-gradient-to-r from-gold to-blue-primary text-primary hover:from-gold/90 hover:to-blue-primary/90',
@@ -38,11 +42,14 @@ export function CTAButton({
   const isExternal = external || /^https?:\/\//i.test(href)
 
   if (isExternal) {
+    const resolvedTarget = target ?? '_blank'
+    const resolvedRel =
+      rel ?? (resolvedTarget === '_blank' ? 'noopener noreferrer' : undefined)
     return (
       <a
         href={href}
-        target="_blank"
-        rel="noopener noreferrer"
+        target={resolvedTarget}
+        rel={resolvedRel}
         className={classes}
       >
         {children}

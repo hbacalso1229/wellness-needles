@@ -30,6 +30,9 @@ export interface HeroSectionProps {
     href: string
     variant?: 'primary' | 'secondary' | 'gold'
     showArrow?: boolean
+    external?: boolean
+    target?: string
+    rel?: string
   }>
   /** Whether to show floating leaf decorations */
   showFloatingLeaves?: boolean
@@ -150,6 +153,9 @@ export function HeroSection({
                   href={button.href}
                   variant={button.variant}
                   showArrow={button.showArrow}
+                  external={button.external}
+                  target={button.target}
+                  rel={button.rel}
                 >
                   {button.text}
                 </CTAButton>
