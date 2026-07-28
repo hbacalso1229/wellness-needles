@@ -65,7 +65,8 @@ export const contactConfig = {
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
-    mapIntegrationEnabled: false
+    mapIntegrationEnabled: false,
+    treatmentPackagesEnabled: false
   }
 } as const
 

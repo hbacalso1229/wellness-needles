@@ -43,6 +43,22 @@ export default function Bookings() {
       duration: '45–60 minutes',
       price: '€60',
       description: 'Tailored acupuncture treatment based on your progress and ongoing needs'
+    },
+    {
+      id: 'package-5',
+      name: 'Treatment Package (5 sessions)',
+      duration: 'Multiple visits',
+      price: '€270',
+      description: 'Save €30 with our 5-session package (Valid for 6 months – non-transferable)',
+      savings: 'Save €30'
+    },
+    {
+      id: 'package-10',
+      name: 'Treatment Package (10 sessions)',
+      duration: 'Multiple visits',
+      price: '€520',
+      description: 'Save €80 with our 10-session package (Valid for 6 months – non-transferable)',
+      savings: 'Save €80'
     }
   ]
 
@@ -60,6 +76,22 @@ export default function Bookings() {
       duration: '45–60 minutes',
       price: '€75',
       description: 'Tailored acupuncture treatment in the comfort of your home'
+    },
+    {
+      id: 'home-package-5',
+      name: 'Treatment Package (5 sessions)',
+      duration: 'Multiple visits',
+      price: '€350',
+      description: 'Save €25 with our 5-session home visit package (Valid for 6 months)',
+      savings: 'Save €25'
+    },
+    {
+      id: 'home-package-10',
+      name: 'Treatment Package (10 sessions)',
+      duration: 'Multiple visits',
+      price: '€690',
+      description: 'Save €60 with our 10-session home visit package (Valid for 6 months)',
+      savings: 'Save €60'
     }
   ]
 
@@ -93,7 +125,11 @@ export default function Bookings() {
     }
   ]
 
-  const services = activeTab === 'in-clinic' ? inClinicServices : homeVisitServices
+  const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
+    (service) =>
+      contactConfig.features.treatmentPackagesEnabled ||
+      !service.id.includes('package')
+  )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
 
   const timeSlots = [
@@ -229,6 +265,9 @@ export default function Bookings() {
                       <h3 className="font-semibold text-primary">{service.name}</h3>
                       <div className="text-right">
                         <span className="text-gold font-bold">{service.price}</span>
+                        {service.savings && (
+                          <div className="text-green-600 text-sm font-medium">{service.savings}</div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center text-sm text-secondary mb-2">
@@ -627,6 +666,9 @@ export default function Bookings() {
                         <h3 className="font-semibold text-primary">{service.name}</h3>
                         <div className="text-right">
                           <span className="text-gold font-bold text-lg">{service.price}</span>
+                          {service.savings && (
+                            <div className="text-green-600 text-sm font-medium">{service.savings}</div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center text-sm text-secondary mb-2">
