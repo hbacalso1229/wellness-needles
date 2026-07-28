@@ -65,8 +65,12 @@ export default function Header() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-primary hover:text-secondary"
+              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-navigation"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -75,7 +79,7 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
+          <div id="mobile-navigation" className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-cream border-t border-blue-light/30">
               {navItems.map((item) => (
                 <Link

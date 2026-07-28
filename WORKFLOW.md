@@ -2,7 +2,7 @@
 
 ## Context
 
-**Wellness Needles** is a Next.js 15 marketing/informational website for Arkinth Garcia's acupuncture and Traditional Chinese Medicine practice in Celbridge, Co. Kildare, Ireland. It is a fully static site (no backend) with a nature-themed design system. The workflow below covers site navigation, component architecture, data flow, and the user journey from discovery to booking.
+**Wellness Needles** is a Next.js 15 marketing/informational website for Arkinth Garcia's acupuncture and Traditional Chinese Medicine practice in Celbridge and Carlow, Ireland. It is a fully static site (no backend) with a nature-themed design system. The workflow below covers site navigation, component architecture, data flow, and the user journey from discovery to booking.
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15.4.6 (App Router, static export) |
+| Framework | Next.js 15.5.22 (App Router, static export) |
 | UI | React 19.1.0 + TypeScript 5 |
 | Styling | Tailwind CSS 3.4 + Custom CSS variables |
 | Icons | Lucide React 0.539 |
@@ -36,7 +36,7 @@
 │  │  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐   │    │
 │  │  │  /       │  │  /about  │  │  /acupuncture        │   │    │
 │  │  │  /contact│  │  /book.. │  │  /chinese-medicine   │   │    │
-│  │  │  /testim.│  │  /blog*  │  │  /test-loading       │   │    │
+│  │  │  /testim.│  │  /blog*  │  │  /bookings           │   │    │
 │  │  └──────────┘  └──────────┘  └─────────────────────┘   │    │
 │  └──────────────────────────────────────────────────────────┘    │
 │                                                                    │
@@ -45,7 +45,7 @@
 │  │  Logo | Quick Links | Contact Info | Facebook | ©        │    │
 │  └──────────────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────────────┘
-* blog route exists but is not implemented
+* blog listing page exists; article detail routes not implemented yet
 ```
 
 ---
@@ -202,8 +202,9 @@ src/
 | Contact form | `contactFormEnabled` | `false` | Form hidden; user sees call/email CTA |
 | Booking form | `BOOKING_FORM_ENABLED` | `false` | Pricing shown; form button disabled |
 | Live chat | `liveChatEnabled` | `false` | Button not rendered |
-| Map integration | `mapIntegrationEnabled` | `false` | Map section hidden |
-| Blog | route `/blog` | not implemented | Placeholder only |
+| Map integration | `mapIntegrationEnabled` | `true` | Dual Google Maps embeds on Contact |
+| Treatment packages | `treatmentPackagesEnabled` | `false` | 5/10 session packages hidden |
+| Blog | route `/blog` | listing only | Article list shown; no `/blog/[id]` routes |
 | Video testimonials | hardcoded | not implemented | "Coming soon" placeholder |
 
 ---
@@ -227,7 +228,7 @@ Sections (in order):
 1. Hero
 2. "How Acupuncture Works" (TCM + scientific view)
 3. 6 Benefits cards (Pain, Stress, Sleep, Digestion, Fertility, Immunity)
-4. 43 Conditions treated (6 categories: Musculoskeletal, Mental, Neurological, Digestive, Women's Health, General Wellness)
+4. Conditions treated (categories: Pain Management, Mental Health, Women's Health, Digestive Issues, Respiratory, General Wellness)
 5. Scientific evidence section + CTA
 
 ### `/chinese-medicine`
@@ -240,15 +241,16 @@ Sections (in order):
 ### `/testimonials`
 1. Hero
 2. Before/After image cards (Alopecia, Skin conditions)
-3. 6 Patient testimonials (name, treatment, duration, rating, quote)
+3. Illustrative example stories (disclaimed; not verified patient quotes)
 4. Video testimonials placeholder (coming soon)
 5. CTA to share your story
 
 ### `/contact`
 1. Hero
-2. Contact Info block (phone, email, address, hours)
-3. FAQ (2 questions shown: how to prepare, how many sessions)
-4. CTA buttons: Book Appointment + Send Message (if enabled)
+2. Contact Info block (phone, email, dual addresses with directions links, hours)
+3. Find Us — Google Maps embeds for Celbridge and Carlow
+4. FAQ (2 questions shown: how to prepare, how many sessions)
+5. CTA buttons: Book Appointment + Send Message (if enabled)
 
 ### `/bookings`
 1. Hero
@@ -310,7 +312,7 @@ Step 7: Submit → console.log() + alert()
 | Form backend | Connect booking/contact forms to email API (e.g., Resend, EmailJS, Formspree) |
 | Calendar | Integrate Calendly or custom calendar for appointment slots |
 | Payment | Add Stripe for package pre-payment |
-| Blog | Build blog list + MDX blog post pages |
+| Blog | Optional: add MDX `/blog/[slug]` detail pages when ready |
 | Map | Embed Google Maps in contact page |
 | Live chat | Enable live chat widget (e.g., Tawk.to) |
 | Video testimonials | Upload/embed real patient videos |

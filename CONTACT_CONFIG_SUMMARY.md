@@ -1,121 +1,79 @@
 # Centralized Contact Configuration
 
 ## Overview
-I've successfully created a centralized location for all contact details and business information that can be easily referenced throughout the application. This makes updates much easier and ensures consistency across all pages.
+Centralized location for all contact details and business information, referenced throughout the application for consistency and easy updates.
 
-## Files Created/Modified
+## Files
 
 ### 1. Contact Configuration (`src/lib/contact-config.ts`)
 **Central source of truth for all contact information:**
 
-- **Address**: 56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603
-  - Formatted for easy display across multiple lines
-  - Includes MapPin icon from Lucide React
-  
+- **Locations** (two clinics):
+  1. 56 The Orchard Oldtown Mill, Celbridge, Co.Kildare W23 K603
+  2. 16 Kennedy St, Graigue, Carlow, R93 H2X8
+  - Each location includes `formatted` lines, `mapQuery`, and `directionsUrl`
+  - Shared MapPin icon from Lucide React
+
 - **Phone**: 0860543085
-  - Multiple format options: raw number, formatted display, international format
-  - Includes clickable `tel:` link
-  - Includes Phone icon from Lucide React
-  
-- **Email**: info@wellnessneedles.com
-  - Includes clickable `mailto:` link
-  - Includes Mail icon from Lucide React
-  
-- **Business Hours**: 
+  - Formats: raw number, formatted display, international display
+  - Clickable `tel:` link
+
+- **Email**: info@wellnessneedles.ie
+  - Clickable `mailto:` link
+
+- **Business Hours**:
   - Monday-Friday: 9:00 AM - 7:00 PM
   - Saturday: 10:00 AM - 4:00 PM
   - Sunday: Closed
   - Emergency appointments note
-  
-- **Business Information**:
-  - Company name, tagline, description
-  - Social media links
+
+- **Feature flags**:
+  - `contactFormEnabled: false`
+  - `liveChatEnabled: false`
+  - `mapIntegrationEnabled: true` (Google Maps embeds on Contact)
+  - `treatmentPackagesEnabled: false` (5/10 session packages hidden until enabled)
 
 ### 2. Reusable Components
 
-#### ContactInfo Component (`src/components/ContactInfo.tsx`)
-Flexible component with multiple variants:
-- **Default**: Full contact info with icons and multi-line layout
-- **Compact**: Smaller version for tight spaces
-- **Inline**: Horizontal layout for headers/footers
+#### ContactInfo (`src/components/ContactInfo.tsx`)
+Variants: default, compact, inline. Address entries link to Google Maps directions.
 
-Individual contact components also available:
-- `PhoneContact`
-- `EmailContact` 
-- `AddressContact`
+#### LocationMap (`src/components/LocationMap.tsx`)
+Iframe map embed + optional “Get directions” link per location.
 
-#### BusinessHours Component (`src/components/BusinessHours.tsx`)
-Displays business hours with variants:
-- **Default**: Standard layout with hours and emergency note
-- **Compact**: Minimal version for sidebars
-- **Card**: Styled card format with background
+#### BusinessHours (`src/components/BusinessHours.tsx`)
+Variants: default, compact, card.
 
-### 3. Updated Components
+### 3. Consumers
 
-#### Footer (`src/components/Footer.tsx`)
-- Now uses centralized contact config
-- Displays proper Irish address and phone number
-- Maintains existing styling and layout
+- Footer, Contact page, Bookings page, ContactInfo, BusinessHours
+- Contact “Find Us” section renders both maps when `mapIntegrationEnabled` is true
 
-#### Contact Page (`src/app/contact/page.tsx`)
-- Updated all contact information sections
-- Uses centralized config for phone, email, address, and business hours
-- Maintains interactive features (clickable phone/email links)
+## Usage
 
-## Usage Examples
-
-### Import the config:
 ```typescript
 import { contactConfig } from '../lib/contact-config'
-```
 
-### Use contact information directly:
-```typescript
-// Phone number
 {contactConfig.phone.displayText}
-{contactConfig.phone.href} // for tel: links
-
-// Address
-{contactConfig.address.full}
-{contactConfig.address.formatted.street}
-
-// Business info
-{contactConfig.businessInfo.name}
-{contactConfig.businessInfo.hoursDisplay.map(hours => ...)}
+{contactConfig.email.address}
+{contactConfig.address.locations.map((location) => location.full)}
 ```
 
-### Use the reusable components:
 ```typescript
 import ContactInfo from '../components/ContactInfo'
-import BusinessHours from '../components/BusinessHours'
+import LocationMap from '../components/LocationMap'
 
-// Full contact info
 <ContactInfo />
-
-// Compact version
-<ContactInfo variant="compact" />
-
-// Show only phone and email
-<ContactInfo showAddress={false} />
-
-// Business hours card
-<BusinessHours variant="card" />
+<LocationMap
+  query={location.mapQuery}
+  title={`Map of ${location.full}`}
+  directionsUrl={location.directionsUrl}
+/>
 ```
 
-## Benefits
+## Irish contact details
 
-1. **Single Source of Truth**: All contact details in one file
-2. **Easy Updates**: Change address/phone once, updates everywhere
-3. **Consistency**: Same formatting and styling across all pages
-4. **Icons Included**: Proper icons (MapPin, Phone, Mail) with each contact method
-5. **Accessibility**: Proper semantic markup and clickable links
-6. **Reusable**: Components can be used throughout the app
-7. **Flexible**: Multiple display variants for different contexts
-
-## Irish Contact Details Applied
-
-- **Address**: 56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603
-- **Phone**: 0860543085 (displayed as +353 86 054 3085 for international clarity)
-- **Icons**: MapPin for address, Phone for mobile number
-
-The configuration properly handles the Irish address format with street, town, county, and Eircode postal code structure.
+- Celbridge: 56 The Orchard Oldtown Mill, Celbridge, Co.Kildare W23 K603
+- Carlow: 16 Kennedy St, Graigue, Carlow, R93 H2X8
+- Phone: +353 86 054 3085
+- Email: info@wellnessneedles.ie

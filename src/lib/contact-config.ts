@@ -1,15 +1,35 @@
 import { Phone, MapPin, Mail } from 'lucide-react'
 
+const celbridgeAddress = "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603"
+const carlowAddress = "16 Kennedy St, Graigue, Carlow, R93 H2X8"
+
 export const contactConfig = {
   address: {
-    full: "56 The Orchard Oldtown Mill Celbridge Co.Kildare W23 K603",
-    formatted: {
-      street: "56 The Orchard Oldtown Mill",
-      city: "Celbridge",
-      county: "Co.Kildare", 
-      postcode: "W23 K603"
-    },
-    icon: MapPin
+    icon: MapPin,
+    locations: [
+      {
+        full: celbridgeAddress,
+        formatted: {
+          street: "56 The Orchard Oldtown Mill",
+          city: "Celbridge",
+          county: "Co.Kildare",
+          postcode: "W23 K603"
+        },
+        mapQuery: celbridgeAddress,
+        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(celbridgeAddress)}`
+      },
+      {
+        full: carlowAddress,
+        formatted: {
+          street: "16 Kennedy St",
+          city: "Graigue",
+          county: "Carlow",
+          postcode: "R93 H2X8"
+        },
+        mapQuery: carlowAddress,
+        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(carlowAddress)}`
+      }
+    ]
   },
   phone: {
     number: "0860543085",
@@ -19,8 +39,8 @@ export const contactConfig = {
     icon: Phone
   },
   email: {
-    address: "arkinth1@gmail.com",
-    href: "mailto:arkinth1@gmail.com", 
+    address: "info@wellnessneedles.ie",
+    href: "mailto:info@wellnessneedles.ie", 
     icon: Mail
   },
   socialMedia: {
@@ -52,7 +72,8 @@ export const contactConfig = {
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
-    mapIntegrationEnabled: false
+    mapIntegrationEnabled: true,
+    treatmentPackagesEnabled: false
   }
 } as const
 

@@ -44,10 +44,9 @@ The website uses a carefully crafted color palette inspired by tropical and jung
 - Research validation
 
 ### 4. Testimonials (`/testimonials`)
-- Patient success stories
-- Statistics and results
+- Illustrative healing journey examples (disclaimed)
+- Before/after treatment imagery
 - Video testimonials (placeholder)
-- Patient review submission
 
 ### 5. Chinese Medicine (`/chinese-medicine`)
 - TCM philosophy and principles
@@ -56,32 +55,29 @@ The website uses a carefully crafted color palette inspired by tropical and jung
 - Integration with modern medicine
 
 ### 6. Blog (`/blog`)
-- Wellness articles and insights
-- Categorized content
-- Newsletter signup
-- Educational resources
+- Wellness article listing and categories
+- Detail articles not yet implemented
+- Newsletter signup (UI only)
 
 ### 7. Contact (`/contact`)
-- Contact form
-- Location and hours
+- Dual clinic locations (Celbridge & Carlow) with Google Maps
+- Contact details and hours
 - FAQ section
-- Multiple contact methods
+- Contact form gated by feature flag
 
 ### 8. Bookings (`/bookings`)
-- Service selection
-- Practitioner choice
-- Date and time scheduling
-- Health intake form
-- Complete booking process
+- In-clinic and home-visit pricing
+- Practitioner information
+- Booking form gated by feature flag (call-to-book when off)
 
 ## 🛠 Technology Stack
 
-- **Framework**: Next.js 15.4.6 with App Router
-- **Styling**: Tailwind CSS v4
+- **Framework**: Next.js 15.5.22 with App Router (static export)
+- **Styling**: Tailwind CSS 3.4
 - **Icons**: Lucide React
 - **Fonts**: Inter & Playfair Display (Google Fonts)
 - **Language**: TypeScript
-- **Deployment Ready**: Optimized for production
+- **Deployment**: GitHub Actions → Vercel (staging on `dev`, production on `main`)
 
 ## 🚀 Getting Started
 
@@ -103,19 +99,28 @@ The website uses a carefully crafted color palette inspired by tropical and jung
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── about/             # About page
-│   ├── acupuncture/       # Why Acupuncture page
-│   ├── blog/              # Blog page
-│   ├── bookings/          # Booking page
-│   ├── chinese-medicine/  # TCM page
-│   ├── contact/           # Contact page
-│   ├── testimonials/      # Testimonials page
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-└── components/            # Reusable components
-    ├── Header.tsx         # Navigation header
-    └── Footer.tsx         # Site footer
+│   ├── about/
+│   ├── acupuncture/
+│   ├── blog/               # Listing only (no [id] routes yet)
+│   ├── bookings/
+│   ├── chinese-medicine/
+│   ├── contact/            # Includes Google Maps Find Us
+│   ├── testimonials/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/             # Shared UI chrome
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── ContactInfo.tsx
+│   ├── BusinessHours.tsx
+│   ├── LocationMap.tsx
+│   └── LoadingComponent.tsx
+├── features/               # Domain UI (home + shared cards)
+│   ├── home/
+│   └── ui/
+└── lib/
+    └── contact-config.ts   # Contact details + feature flags
 ```
 
 ## 🎯 Key Features

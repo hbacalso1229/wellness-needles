@@ -55,43 +55,18 @@ export default function Testimonials() {
     }
   ]
 
-  const stats = [
-    { number: "95%", label: "Patient Satisfaction Rate" },
-    { number: "500+", label: "Patients Treated Successfully" },
-    { number: "15+", label: "Years of Combined Experience" },
-    { number: "43", label: "Conditions Treated" }
-  ]
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <HeroSection
         title="Patient Testimonials"
-        subtitle="Real stories from real people who found healing through acupuncture"
-        description="Discover how our patients have transformed their health and improved their quality of life with traditional Chinese medicine."
+        subtitle="Stories inspired by the kinds of healing journeys acupuncture can support"
+        description="Explore illustrative examples of how traditional Chinese medicine may help improve quality of life. Real patient reviews will be shared here with consent."
         backgroundClass="bg-accent"
         textColor="text-cream"
         heightClass="py-20"
         showFloatingLeaves={false}
       />
-
-      {/* Stats Section */}
-      {/* <section className="py-16 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-secondary text-sm md:text-base">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       {/* Success Stories with Images */}
       <section className="py-20 bg-cream">
@@ -145,7 +120,11 @@ export default function Testimonials() {
               Success Stories
             </h2>
             <p className="text-lg text-secondary">
-              Read about the healing journeys of our patients
+              Illustrative examples of common treatment journeys
+            </p>
+            <p className="mt-4 max-w-3xl mx-auto text-sm text-secondary bg-cream/80 border border-accent/20 rounded-lg px-4 py-3">
+              These stories are illustrative examples for educational purposes and are not attributed
+              to verified patients. Genuine reviews will be published here once consent is obtained.
             </p>
           </div>
           
