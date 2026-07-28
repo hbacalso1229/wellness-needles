@@ -43,22 +43,6 @@ export default function Bookings() {
       duration: '45–60 minutes',
       price: '€60',
       description: 'Tailored acupuncture treatment based on your progress and ongoing needs'
-    },
-    {
-      id: 'package-5',
-      name: 'Treatment Package (5 sessions)',
-      duration: 'Multiple visits',
-      price: '€270',
-      description: 'Save €30 with our 5-session package (Valid for 6 months – non-transferable)',
-      savings: 'Save €30'
-    },
-    {
-      id: 'package-10',
-      name: 'Treatment Package (10 sessions)',
-      duration: 'Multiple visits',
-      price: '€520',
-      description: 'Save €80 with our 10-session package (Valid for 6 months – non-transferable)',
-      savings: 'Save €80'
     }
   ]
 
@@ -76,22 +60,6 @@ export default function Bookings() {
       duration: '45–60 minutes',
       price: '€75',
       description: 'Tailored acupuncture treatment in the comfort of your home'
-    },
-    {
-      id: 'home-package-5',
-      name: 'Treatment Package (5 sessions)',
-      duration: 'Multiple visits',
-      price: '€350',
-      description: 'Save €25 with our 5-session home visit package (Valid for 6 months)',
-      savings: 'Save €25'
-    },
-    {
-      id: 'home-package-10',
-      name: 'Treatment Package (10 sessions)',
-      duration: 'Multiple visits',
-      price: '€690',
-      description: 'Save €60 with our 10-session home visit package (Valid for 6 months)',
-      savings: 'Save €60'
     }
   ]
 
