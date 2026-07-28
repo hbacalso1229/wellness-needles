@@ -5,7 +5,7 @@ import { ServiceCard } from '../ui/ServiceCard'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export function QuickLinksSection() {
-  const { href: bookHref, isExternal } = useBookingCtaHref()
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
   return (
     <section className="py-20 bg-gradient-to-br from-accent/5 via-blue-subtle/30 to-accent/5">
@@ -47,6 +47,8 @@ export function QuickLinksSection() {
           <ServiceCard
             href={bookHref}
             external={isExternal}
+            target={target}
+            rel={rel}
             icon={Calendar}
             title="Book Now"
             description="Schedule your appointment today"

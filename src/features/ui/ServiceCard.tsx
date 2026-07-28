@@ -11,6 +11,9 @@ interface ServiceCardProps {
   borderColor?: string
   variant?: 'default' | 'primary'
   className?: string
+  external?: boolean
+  target?: string
+  rel?: string
 }
 
 export function ServiceCard({
@@ -22,7 +25,9 @@ export function ServiceCard({
   variant = 'default',
   className = '',
   external = false,
-}: ServiceCardProps & { external?: boolean }) {
+  target,
+  rel,
+}: ServiceCardProps) {
   const baseClasses = "group rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300"
   
   const variantClasses = {
@@ -45,8 +50,11 @@ export function ServiceCard({
   )
 
   if (isExternal) {
+    const resolvedTarget = target ?? '_blank'
+    const resolvedRel =
+      rel ?? (resolvedTarget === '_blank' ? 'noopener noreferrer' : undefined)
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
+      <a href={href} target={resolvedTarget} rel={resolvedRel} className={classes}>
         {content}
       </a>
     )

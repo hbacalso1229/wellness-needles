@@ -4,7 +4,7 @@ import { HeroSection as ReusableHeroSection } from '../ui/HeroSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export function HeroSection() {
-  const { href: bookHref } = useBookingCtaHref()
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
   return (
     <ReusableHeroSection
@@ -23,7 +23,10 @@ export function HeroSection() {
         {
           text: "Book Your Session",
           href: bookHref,
-          variant: "primary"
+          variant: "primary",
+          external: isExternal,
+          target,
+          rel,
         },
         {
           text: "Learn More",
