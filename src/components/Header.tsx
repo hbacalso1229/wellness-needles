@@ -8,7 +8,8 @@ import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { href: bookHref, isExternal: bookExternal } = useBookingCtaHref()
+  const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
+    useBookingCtaHref()
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -65,8 +66,8 @@ export default function Header() {
             {bookExternal ? (
               <a
                 href={bookHref}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={bookTarget}
+                rel={bookRel}
                 className={bookNowClassName}
               >
                 Book Now
@@ -110,8 +111,8 @@ export default function Header() {
               {bookExternal ? (
                 <a
                   href={bookHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={bookTarget}
+                  rel={bookRel}
                   className={bookNowMobileClassName}
                   onClick={() => setIsMenuOpen(false)}
                 >

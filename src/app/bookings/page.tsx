@@ -8,7 +8,11 @@ import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isFreshaBookingConfigured, resolveCalendlyUrlForService } from '@/lib/booking-features'
+import {
+  getFreshaOpenAttrs,
+  isFreshaBookingConfigured,
+  resolveCalendlyUrlForService,
+} from '@/lib/booking-features'
 
 type BookingService = {
   id: string
@@ -229,14 +233,20 @@ export default function Bookings() {
                       Review services below, then continue to Fresha to choose a time.
                     </p>
                     {freshaReady ? (
-                      <div className="text-center">
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                         <a
                           href={features.freshaBookingUrl.trim()}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          {...getFreshaOpenAttrs('browser')}
                           className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
                         >
-                          Book on Fresha
+                          Open in browser
+                        </a>
+                        <a
+                          href={features.freshaBookingUrl.trim()}
+                          {...getFreshaOpenAttrs('app')}
+                          className="border-2 border-primary text-primary px-8 py-3 rounded-full text-lg font-semibold hover:bg-primary hover:text-cream transition-all duration-300 inline-flex items-center justify-center"
+                        >
+                          Open in Fresha app
                         </a>
                       </div>
                     ) : (

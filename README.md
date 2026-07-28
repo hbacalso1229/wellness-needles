@@ -122,11 +122,11 @@ Static export (`output: 'export'`). Typical flow: push `dev` for Preview / stagi
 Use when **Fresha booking** is enabled on `/admin` (mutually exclusive with Calendly and the legacy form).
 
 1. Copy your public Fresha booking link from Fresha.
-2. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL** → Save.
-3. Confirm **Book Now** opens Fresha in a new tab.
-4. Confirm `/bookings` shows pricing plus **Book on Fresha**.
+2. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL**.
+3. Choose **Open Fresha in**: Browser (new tab) or Fresha app (when installed).
+4. Save → confirm **Book Now** and `/bookings` (**Open in browser** / **Open in Fresha app**).
 
-Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin).
+Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin). On mobile, the OS may still open the Fresha app for `fresha.com` links even when “Browser” is selected.
 
 ### Calendly setup checklist
 

@@ -1,5 +1,7 @@
 import { contactConfig } from '@/lib/contact-config'
 
+export type FreshaOpenTarget = 'browser' | 'app'
+
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
@@ -12,6 +14,8 @@ export type BookingFeatureFlags = {
   calendlyFollowUpUrl: string
   /** Fresha public booking page URL. */
   freshaBookingUrl: string
+  /** Prefer opening Fresha in browser tab or the Fresha app (when installed). */
+  freshaOpenTarget: FreshaOpenTarget
   /** Send legacy form submissions by email (Web3Forms). */
   bookingEmailEnabled: boolean
   /** Web3Forms access key from https://web3forms.com */
@@ -43,6 +47,7 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
     freshaBookingUrl: contactConfig.fresha.bookingUrl,
+    freshaOpenTarget: 'browser',
     // Shared deploys: env key alone is enough — email is on by default for all visitors.
     bookingEmailEnabled: Boolean(envAccessKey),
     bookingEmailAccessKey: envAccessKey,
@@ -133,6 +138,21 @@ export function isExternalBookingHref(href: string): boolean {
   return /^https?:\/\//i.test(href)
 }
 
+/** Anchor attributes for Fresha links (browser tab vs prefer app / same tab). */
+export function getFreshaOpenAttrs(
+  openTarget: FreshaOpenTarget = 'browser'
+): { target?: string; rel?: string } {
+  if (openTarget === 'app') {
+    // Same-tab navigation gives OS universal links a better chance to open the app.
+    return {}
+  }
+  return { target: '_blank', rel: 'noopener noreferrer' }
+}
+
+export function normalizeFreshaOpenTarget(value: unknown): FreshaOpenTarget {
+  return value === 'app' ? 'app' : 'browser'
+}
+
 export function readBookingFeatures(): BookingFeatureFlags {
   const defaults = getDefaultBookingFeatures()
   if (typeof window === 'undefined') return defaults
@@ -162,6 +182,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
       parsed.freshaBookingUrl,
       defaults.freshaBookingUrl
     )
+    const freshaOpenTarget = normalizeFreshaOpenTarget(parsed.freshaOpenTarget)
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
         ? parsed.bookingEmailAccessKey.trim()
@@ -201,6 +222,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
       calendlyInitialUrl: initialUrl,
       calendlyFollowUpUrl: followUpUrl,
       freshaBookingUrl,
+      freshaOpenTarget,
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKey,
       bookingEmailTo: emailTo,

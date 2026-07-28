@@ -75,6 +75,7 @@ export default function AdminPage() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
+    setFreshaOpenTarget,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
@@ -84,6 +85,7 @@ export default function AdminPage() {
   const [initialUrlDraft, setInitialUrlDraft] = useState(features.calendlyInitialUrl)
   const [followUpUrlDraft, setFollowUpUrlDraft] = useState(features.calendlyFollowUpUrl)
   const [freshaUrlDraft, setFreshaUrlDraft] = useState(features.freshaBookingUrl)
+  const [freshaOpenDraft, setFreshaOpenDraft] = useState(features.freshaOpenTarget)
   const [urlSaved, setUrlSaved] = useState(false)
   const [freshaUrlSaved, setFreshaUrlSaved] = useState(false)
   const [accessKeyDraft, setAccessKeyDraft] = useState(features.bookingEmailAccessKey)
@@ -95,6 +97,7 @@ export default function AdminPage() {
       setInitialUrlDraft(features.calendlyInitialUrl)
       setFollowUpUrlDraft(features.calendlyFollowUpUrl)
       setFreshaUrlDraft(features.freshaBookingUrl)
+      setFreshaOpenDraft(features.freshaOpenTarget)
       setAccessKeyDraft(features.bookingEmailAccessKey)
       setEmailToDraft(features.bookingEmailTo)
     }
@@ -103,6 +106,7 @@ export default function AdminPage() {
     features.calendlyInitialUrl,
     features.calendlyFollowUpUrl,
     features.freshaBookingUrl,
+    features.freshaOpenTarget,
     features.bookingEmailAccessKey,
     features.bookingEmailTo,
   ])
@@ -117,7 +121,9 @@ export default function AdminPage() {
     initialUrlDraft.trim() !== features.calendlyInitialUrl ||
     followUpUrlDraft.trim() !== features.calendlyFollowUpUrl
   const freshaUrlValid = isValidFreshaBookingUrl(freshaUrlDraft)
-  const freshaUrlDirty = freshaUrlDraft.trim() !== features.freshaBookingUrl
+  const freshaUrlDirty =
+    freshaUrlDraft.trim() !== features.freshaBookingUrl ||
+    freshaOpenDraft !== features.freshaOpenTarget
   const emailToValid = isValidEmailAddress(emailToDraft)
   const emailDirty =
     (!usingEnvAccessKey &&
@@ -143,6 +149,7 @@ export default function AdminPage() {
   const saveFreshaUrl = () => {
     if (!freshaUrlDraft.trim()) return
     setFreshaBookingUrl(freshaUrlDraft)
+    setFreshaOpenTarget(freshaOpenDraft)
     setFreshaUrlSaved(true)
     window.setTimeout(() => setFreshaUrlSaved(false), 2000)
   }
@@ -245,6 +252,45 @@ export default function AdminPage() {
                     </p>
                   )}
                 </div>
+
+                <fieldset>
+                  <legend className="block font-semibold text-primary mb-2">
+                    Open Fresha in
+                  </legend>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
+                      <input
+                        type="radio"
+                        name="fresha-open-target"
+                        checked={freshaOpenDraft === 'browser'}
+                        onChange={() => {
+                          setFreshaOpenDraft('browser')
+                          setFreshaUrlSaved(false)
+                        }}
+                        className="accent-primary"
+                      />
+                      Browser (new tab)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
+                      <input
+                        type="radio"
+                        name="fresha-open-target"
+                        checked={freshaOpenDraft === 'app'}
+                        onChange={() => {
+                          setFreshaOpenDraft('app')
+                          setFreshaUrlSaved(false)
+                        }}
+                        className="accent-primary"
+                      />
+                      Fresha app (when installed)
+                    </label>
+                  </div>
+                  <p className="mt-2 text-xs text-secondary">
+                    App opening depends on the device; if the app isn&apos;t installed, Fresha
+                    opens in the browser.
+                  </p>
+                </fieldset>
+
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
@@ -252,7 +298,7 @@ export default function AdminPage() {
                     disabled={!freshaUrlDirty || !freshaUrlDraft.trim()}
                     className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Save URL
+                    Save Fresha settings
                   </button>
                   {freshaUrlSaved && (
                     <span className="text-sm text-primary font-medium">Saved</span>

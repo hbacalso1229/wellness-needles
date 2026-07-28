@@ -11,14 +11,14 @@ type BookingLinkProps = {
 
 /** Link that opens Fresha when Admin Fresha mode is on; otherwise /bookings. */
 export function BookingLink({ className, children, onClick }: BookingLinkProps) {
-  const { href, isExternal } = useBookingCtaHref()
+  const { href, isExternal, target, rel } = useBookingCtaHref()
 
   if (isExternal) {
     return (
       <a
         href={href}
-        target="_blank"
-        rel="noopener noreferrer"
+        target={target}
+        rel={rel}
         className={className}
         onClick={onClick}
       >
