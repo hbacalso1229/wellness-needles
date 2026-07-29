@@ -424,42 +424,41 @@ export default function Bookings() {
         </div>
       </section>
 
-      {/* Contact Alternative */}
-      <section className={`py-20 ${bookingFormEnabled ? 'bg-secondary/10' : 'bg-primary/5'}`}>
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-3xl font-bold text-primary mb-6">
-            {bookingFormEnabled ? 'Prefer to Book by Phone?' : 'Ready to Schedule Your Appointment?'}
-          </h2>
-          <p className="text-lg text-secondary mb-8">
-            {bookingFormEnabled 
-              ? 'Call us directly to speak with our friendly staff and schedule your appointment'
-              : 'Contact us today to book your consultation and take the first step towards better health'
-            }
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <CTAButton
-              href={contactConfig.phone.href}
-              variant="gold"
-              size="medium"
-              showArrow={false}
-              className="inline-flex items-center justify-center"
-            >
-              <Phone className="w-4 h-4 mr-2" />
-              Call {contactConfig.phone.displayText}
-            </CTAButton>
-            <CTAButton 
-              href="/contact" 
-              variant="outline"
-              size="medium"
-              showArrow={false}
-              className="inline-flex items-center justify-center"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Send Message
-            </CTAButton>
+      {/* Contact Alternative — only when booking form is off (pricing/browse mode) */}
+      {!bookingFormEnabled && (
+        <section className="py-14 bg-primary/5">
+          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+              Ready to Schedule Your Appointment?
+            </h2>
+            <p className="text-lg text-secondary mb-6">
+              Contact us today to book your consultation and take the first step towards better health
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <CTAButton
+                href={contactConfig.phone.href}
+                variant="gold"
+                size="medium"
+                showArrow={false}
+                className="inline-flex items-center justify-center"
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Call {contactConfig.phone.displayText}
+              </CTAButton>
+              <CTAButton
+                href="/contact"
+                variant="outline"
+                size="medium"
+                showArrow={false}
+                className="inline-flex items-center justify-center"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Send Message
+              </CTAButton>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   )
 }
