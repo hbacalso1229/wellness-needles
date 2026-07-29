@@ -164,3 +164,13 @@ body {
 .font-serif {
   font-family: 'Playfair Display', serif;
 }
+
+/* Native date inputs can overflow card bounds on mobile WebKit */
+input[type='date'],
+input.booking-date-input {
+  max-width: 100%;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  margin-left: 0;
+}
