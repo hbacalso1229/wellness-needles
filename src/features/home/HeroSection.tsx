@@ -29,9 +29,9 @@ export function HeroSection() {
           rel,
         },
         {
-          text: "Learn More",
+          text: "Learn more",
           href: "/about",
-          variant: "secondary",
+          appearance: "link",
           showArrow: false
         }
       ]}

@@ -158,60 +158,93 @@ export default function Testimonials() {
               to verified patients. Genuine reviews will be published here once consent is obtained.
             </p>
           </div>
-          
-          {/* Mobile: horizontal scroll carousel | md: 2-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
-                <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
-                
-                {/* Rating */}
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-gold fill-current" />
-                  ))}
-                </div>
-                
-                {/* Testimonial Text */}
-                <p className="text-secondary mb-6 italic">
-                  &quot;{testimonial.text}&quot;
-                </p>
-                
-                {/* Patient Info */}
-                <div className="border-t border-accent/20 pt-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-primary">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-sm text-secondary">
-                        {testimonial.condition}
-                      </p>
-                    </div>
-                    <Heart className="w-6 h-6 text-accent" />
-                  </div>
-                  
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center text-sm text-secondary">
-                      <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                      Treatment: {testimonial.treatment}
-                    </div>
-                    <div className="flex items-center text-sm text-secondary">
-                      <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                      Duration: {testimonial.duration}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
+            <div className="min-w-0">
+              {/* Mobile: horizontal scroll carousel | md: 2-col */}
+              <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
+                {testimonials.map((testimonial, index) => (
+                  <div key={index} className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
+                    <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
+                    
+                    {/* Rating */}
+                    <div className="flex items-center mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 text-gold fill-current" />
+                      ))}
+                    </div>
+                    
+                    {/* Testimonial Text */}
+                    <p className="text-secondary mb-6 italic">
+                      &quot;{testimonial.text}&quot;
+                    </p>
+                    
+                    {/* Patient Info */}
+                    <div className="border-t border-accent/20 pt-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-primary">
+                            {testimonial.name}
+                          </h4>
+                          <p className="text-sm text-secondary">
+                            {testimonial.condition}
+                          </p>
+                        </div>
+                        <Heart className="w-6 h-6 text-accent" />
+                      </div>
+                      
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center text-sm text-secondary">
+                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
+                          Treatment: {testimonial.treatment}
+                        </div>
+                        <div className="flex items-center text-sm text-secondary">
+                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
+                          Duration: {testimonial.duration}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Swipe hint — mobile only */}
+              <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+                <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+                <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Share CTA — below stories on mobile, sticky sidebar on desktop */}
+            <aside className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
+              <h3 className="font-semibold text-base text-primary mb-2">
+                Share Your Success Story
+              </h3>
+              <p className="text-sm text-secondary mb-4">
+                Experienced healing through our treatments? We&apos;d love to hear your journey.
+              </p>
+              <div className="space-y-2.5">
+                <CTAButton
+                  href="/contact"
+                  variant="gold"
+                  size="medium"
+                  showArrow={false}
+                  className="w-full !rounded-xl text-sm font-bold gap-2"
+                >
+                  Share Your Story
+                </CTAButton>
+                <BookingCtaButton
+                  variant="outline"
+                  showArrow={false}
+                  size="medium"
+                  className="w-full !rounded-xl text-sm font-medium"
+                >
+                  Start Your Journey
+                </BookingCtaButton>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
@@ -282,27 +315,6 @@ export default function Testimonials() {
             <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
             </svg>
-          </div>
-        </div>
-      </section>
-
-      {/* Patient Review Form CTA */}
-      <section className="py-20 bg-secondary/10">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold text-primary mb-6">
-            Share Your Success Story
-          </h2>
-          <p className="text-lg text-secondary mb-8">
-            Have you experienced healing through our treatments? We&apos;d love to hear about your journey 
-            and how acupuncture has improved your life.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <CTAButton href="/contact" variant="gold" size="medium">
-              Share Your Story
-            </CTAButton>
-            <BookingCtaButton variant="outline" showArrow={false} size="medium">
-              Start Your Journey
-            </BookingCtaButton>
           </div>
         </div>
       </section>
