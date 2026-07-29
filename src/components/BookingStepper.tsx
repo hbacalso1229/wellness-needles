@@ -115,7 +115,7 @@ export default function BookingStepper({
         </div>
       </div>
 
-      <div className="bg-accent/5 rounded-lg p-5 sm:p-8 pb-28 sm:pb-8">
+      <div className="bg-accent/5 rounded-lg p-5 sm:p-8">
         <h2
           ref={headingRef}
           tabIndex={-1}
@@ -126,8 +126,8 @@ export default function BookingStepper({
 
         <div className="min-h-[12rem]">{children}</div>
 
-        {/* Desktop footer */}
-        <div className="mt-8 hidden sm:flex items-center justify-between gap-4">
+        {/* Step nav — in-flow on all breakpoints so buttons stay visible with the form */}
+        <div className="mt-8 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onBack}
@@ -141,51 +141,21 @@ export default function BookingStepper({
               type="button"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="bg-primary text-cream px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-primary text-cream px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Sending…' : submitLabel}
+              {isSubmitting ? 'Sending…' : (
+                <>
+                  <span className="sm:hidden">Submit</span>
+                  <span className="hidden sm:inline">{submitLabel}</span>
+                </>
+              )}
             </button>
           ) : (
             <button
               type="button"
               onClick={onNext}
               disabled={isSubmitting}
-              className="bg-primary text-cream px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {nextLabel}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Sticky mobile footer */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-accent/20 bg-cream/95 backdrop-blur-sm px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          {!isFirst && (
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 text-sm rounded-full font-semibold border-2 border-accent/30 text-primary disabled:opacity-40"
-            >
-              Back
-            </button>
-          )}
-          {isLast ? (
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={isSubmitting}
-              className="flex-[2] bg-primary text-cream px-4 py-2.5 text-sm rounded-full font-semibold disabled:opacity-60"
-            >
-              {isSubmitting ? 'Sending…' : 'Submit'}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onNext}
-              disabled={isSubmitting}
-              className={`${isFirst ? 'w-full' : 'flex-[2]'} bg-primary text-cream px-4 py-2.5 text-sm rounded-full font-semibold disabled:opacity-60`}
+              className="bg-primary text-cream px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {nextLabel}
             </button>

@@ -185,280 +185,269 @@ export default function Bookings() {
 
       {/* Booking Form or Pricing Display */}
       <section className="py-20 bg-cream">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {bookingFormEnabled ? (
-            <BookingForm />
-          ) : (
-            // Pricing Display Only (when booking form is disabled)
-            <div className="space-y-12">
-              <div className="text-center mb-12">
-                <h2 className="font-serif text-3xl font-bold text-primary mb-4">
-                  Our Services & Pricing
-                </h2>
-                <p className="text-lg text-secondary mb-6">
-                  Professional acupuncture treatments to support your health and wellness journey
-                </p>
-                {!calendlyEnabled && !freshaEnabled && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
-                    <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
-                      <Phone className="w-5 h-5 mr-2" />
-                      Ready to Book Your Appointment?
-                    </h3>
-                    <p className="text-secondary text-sm mb-4">
-                      Call us directly to schedule your consultation and begin your path to better health
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
+            <div className="min-w-0 order-1 lg:order-1">
+              {bookingFormEnabled ? (
+                <BookingForm />
+              ) : (
+                <div className="space-y-12">
+                  <div className="text-center mb-12">
+                    <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+                      Our Services & Pricing
+                    </h2>
+                    <p className="text-lg text-secondary mb-6">
+                      Professional acupuncture treatments to support your health and wellness journey
                     </p>
-                    <a
-                      href={contactConfig.phone.href}
-                      className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
-                    >
-                      <Phone className="w-5 h-5 mr-2" />
-                      Call {contactConfig.phone.displayText}
-                    </a>
-                  </div>
-                )}
-
-                {freshaEnabled && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto mt-6">
-                    <h3 className="font-semibold text-primary mb-3 text-center text-xl">
-                      Book on Fresha
-                    </h3>
-                    <p className="text-secondary text-sm mb-4 text-center">
-                      Review services below, then continue to Fresha to choose a time.
-                    </p>
-                    {freshaReady ? (
-                      <div className="flex justify-center">
+                    {!calendlyEnabled && !freshaEnabled && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+                        <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
+                          <Phone className="w-5 h-5 mr-2" />
+                          Ready to Book Your Appointment?
+                        </h3>
+                        <p className="text-secondary text-sm mb-4">
+                          Call us directly to schedule your consultation and begin your path to better health
+                        </p>
                         <a
-                          href={features.freshaBookingUrl.trim()}
-                          {...getFreshaOpenAttrs()}
+                          href={contactConfig.phone.href}
                           className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
                         >
-                          Continue to Fresha
+                          <Phone className="w-5 h-5 mr-2" />
+                          Call {contactConfig.phone.displayText}
                         </a>
                       </div>
-                    ) : (
-                      <p className="text-center text-sm text-red-700" role="alert">
-                        Fresha is enabled but the booking URL is missing or invalid. Set it in{' '}
-                        <a href="/admin" className="font-medium underline">
-                          Admin
-                        </a>
-                        .
-                      </p>
+                    )}
+
+                    {freshaEnabled && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto mt-6">
+                        <h3 className="font-semibold text-primary mb-3 text-center text-xl">
+                          Book on Fresha
+                        </h3>
+                        <p className="text-secondary text-sm mb-4 text-center">
+                          Review services below, then continue to Fresha to choose a time.
+                        </p>
+                        {freshaReady ? (
+                          <div className="flex justify-center">
+                            <a
+                              href={features.freshaBookingUrl.trim()}
+                              {...getFreshaOpenAttrs()}
+                              className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
+                            >
+                              Continue to Fresha
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-center text-sm text-red-700" role="alert">
+                            Fresha is enabled but the booking URL is missing or invalid. Set it in{' '}
+                            <a href="/admin" className="font-medium underline">
+                              Admin
+                            </a>
+                            .
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Tab Navigation for Pricing */}
-              <div className="bg-accent/5 rounded-lg p-8">
-                <div className="flex border-b border-accent/20 mb-6">
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('in-clinic')}
-                    className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                      activeTab === 'in-clinic'
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                  >
-                    In Clinic Services
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('call-out')}
-                    className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                      activeTab === 'call-out'
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-secondary hover:text-primary'
-                    }`}
-                  >
-                    Home Visit Services
-                  </button>
-                </div>
-
-                {/* Service first, then location (Fresha / Calendly flow) */}
-                <div className="mb-8">
-                  <h3 className="font-serif text-xl font-bold text-primary mb-4">
-                    Service
-                  </h3>
-                  <ServiceSelectionCards
-                    services={services}
-                    selectedId={selectedService}
-                    onSelect={setSelectedService}
-                    name="pricing-service"
-                    largePrice
-                  />
-                </div>
-
-                <div className="mb-8">
-                  <h3 className="font-serif text-xl font-bold text-primary mb-2">
-                    {activeTab === 'call-out' ? 'Nearest Clinic / Service Area' : 'Clinic Location'}
-                  </h3>
-                  <p className="text-sm text-secondary mb-4">
-                    {activeTab === 'call-out'
-                      ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
-                      : 'Select which clinic you will attend. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
-                  </p>
-                  <ClinicLocationCards
-                    locations={clinicLocations}
-                    selectedId={selectedLocation}
-                    onSelect={setSelectedLocation}
-                    name="pricing-location"
-                  />
-                </div>
-
-                <OptionalAddOns
-                  addOns={addOns}
-                  selectedIds={selectedAddOns}
-                  onToggle={handleAddOnToggle}
-                />
-
-                {/* Travel Policy for Home Visits */}
-                {activeTab === 'call-out' && (
-                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 className="font-semibold text-primary mb-2">Travel Policy:</h4>
-                    <div className="text-sm text-secondary space-y-1">
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                        Within 10 km included
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                        Beyond 10 km: +€0.50/km or flat €15 travel fee
-                      </div>
+                  {/* Tab Navigation for Pricing */}
+                  <div className="bg-accent/5 rounded-lg p-8">
+                    <div className="flex border-b border-accent/20 mb-6">
+                      <button
+                        type="button"
+                        onClick={() => handleTabChange('in-clinic')}
+                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
+                          activeTab === 'in-clinic'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-secondary hover:text-primary'
+                        }`}
+                      >
+                        In Clinic Services
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleTabChange('call-out')}
+                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
+                          activeTab === 'call-out'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-secondary hover:text-primary'
+                        }`}
+                      >
+                        Home Visit Services
+                      </button>
                     </div>
-                  </div>
-                )}
 
-                {/* Practitioner Information */}
-                <div className="mt-8 p-6 bg-primary/5 border-2 border-primary rounded-lg">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
-                      <Image
-                        src="/Arkinth_clinic_founder.jpeg"
-                        alt="Arkinth Garcia - Naturopath & Acupuncturist"
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
+                    {/* Service first, then location (Fresha / Calendly flow) */}
+                    <div className="mb-8">
+                      <h3 className="font-serif text-xl font-bold text-primary mb-4">
+                        Service
+                      </h3>
+                      <ServiceSelectionCards
+                        services={services}
+                        selectedId={selectedService}
+                        onSelect={setSelectedService}
+                        name="pricing-service"
+                        largePrice
                       />
                     </div>
-                    <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
-                    <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
-                    <p className="text-secondary text-sm">
-                      Qualified from the College of Naturopathic Medicine, Dublin. Specializing in 
-                      pain management, mental health conditions, digestive issues, and fertility support.
-                    </p>
-                  </div>
-                </div>
-              </div>
 
-              {calendlyEnabled && !freshaEnabled && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
-                  <h3 className="font-semibold text-primary mb-2 text-center text-xl">
-                    Schedule a Booking
-                  </h3>
-                  <div className="mb-4 rounded-lg border border-blue-200 bg-white/70 p-4 text-sm text-secondary max-w-xl mx-auto">
-                    <p className="font-semibold text-primary mb-2 text-center">
-                      Details sent with this booking
-                    </p>
-                    <ul className="space-y-1">
-                      <li>
-                        <span className="font-medium text-primary">Visit type:</span>{' '}
-                        {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
-                      </li>
-                      <li>
-                        <span className="font-medium text-primary">Service / package:</span>{' '}
-                        {selectedServiceDetails?.name ?? 'Not selected'}
-                      </li>
-                      <li>
-                        <span className="font-medium text-primary">Location:</span>{' '}
-                        {selectedLocationDetails
-                          ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
-                          : 'Not selected'}
-                      </li>
-                      <li>
-                        <span className="font-medium text-primary">Add-ons:</span>{' '}
-                        {selectedAddOnLabels.length > 0
-                          ? selectedAddOnLabels.join(', ')
-                          : 'None'}
-                      </li>
-                    </ul>
-                  </div>
+                    <div className="mb-8">
+                      <h3 className="font-serif text-xl font-bold text-primary mb-2">
+                        {activeTab === 'call-out' ? 'Nearest Clinic / Service Area' : 'Clinic Location'}
+                      </h3>
+                      <p className="text-sm text-secondary mb-4">
+                        {activeTab === 'call-out'
+                          ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
+                          : 'Select which clinic you will attend. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
+                      </p>
+                      <ClinicLocationCards
+                        locations={clinicLocations}
+                        selectedId={selectedLocation}
+                        onSelect={setSelectedLocation}
+                        name="pricing-location"
+                      />
+                    </div>
 
-                  {!canOpenScheduler ? (
-                    <p className="text-center text-sm text-secondary mb-4">
-                      Select a service/package and a location above to load the scheduling
-                      calendar. Those choices are prefilled into the Calendly booking.
-                    </p>
-                  ) : (
-                    <CalendlyEmbed
-                      url={buildCalendlyUrl(
-                        resolveCalendlyUrlForService(features, selectedService),
-                        {
-                          bookingSource: activeTab === 'call-out' ? 'home-visit' : 'in-clinic',
-                          locationId: selectedLocation,
-                          locationLabel: selectedLocationDetails
-                            ? `${selectedLocationDetails.label} — ${selectedLocationDetails.full}`
-                            : undefined,
-                          serviceId: selectedService,
-                          serviceLabel: selectedServiceDetails?.name,
-                          addOnIds: selectedAddOns,
-                          addOnLabels: selectedAddOnLabels,
-                        }
-                      )}
+                    <OptionalAddOns
+                      addOns={addOns}
+                      selectedIds={selectedAddOns}
+                      onToggle={handleAddOnToggle}
                     />
-                  )}
-                  <div className="mt-6 text-center">
-                    <p className="text-secondary text-sm mb-3">Prefer to call?</p>
-                    <a
-                      href={contactConfig.phone.href}
-                      className="inline-flex items-center justify-center text-primary font-semibold hover:text-secondary transition-colors"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call {contactConfig.phone.displayText}
-                    </a>
+
+                    {/* Travel Policy for Home Visits */}
+                    {activeTab === 'call-out' && (
+                      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-semibold text-primary mb-2">Travel Policy:</h4>
+                        <div className="text-sm text-secondary space-y-1">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            Within 10 km included
+                          </div>
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                            Beyond 10 km: +€0.50/km or flat €15 travel fee
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Practitioner Information */}
+                    <div className="mt-8 p-6 bg-primary/5 border-2 border-primary rounded-lg">
+                      <div className="text-center">
+                        <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
+                          <Image
+                            src="/Arkinth_clinic_founder.jpeg"
+                            alt="Arkinth Garcia - Naturopath & Acupuncturist"
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
+                        <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
+                        <p className="text-secondary text-sm">
+                          Qualified from the College of Naturopathic Medicine, Dublin. Specializing in
+                          pain management, mental health conditions, digestive issues, and fertility support.
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
+                  {calendlyEnabled && !freshaEnabled && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                      <h3 className="font-semibold text-primary mb-2 text-center text-xl">
+                        Schedule a Booking
+                      </h3>
+                      <div className="mb-4 rounded-lg border border-blue-200 bg-white/70 p-4 text-sm text-secondary max-w-xl mx-auto">
+                        <p className="font-semibold text-primary mb-2 text-center">
+                          Details sent with this booking
+                        </p>
+                        <ul className="space-y-1">
+                          <li>
+                            <span className="font-medium text-primary">Visit type:</span>{' '}
+                            {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
+                          </li>
+                          <li>
+                            <span className="font-medium text-primary">Service / package:</span>{' '}
+                            {selectedServiceDetails?.name ?? 'Not selected'}
+                          </li>
+                          <li>
+                            <span className="font-medium text-primary">Location:</span>{' '}
+                            {selectedLocationDetails
+                              ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
+                              : 'Not selected'}
+                          </li>
+                          <li>
+                            <span className="font-medium text-primary">Add-ons:</span>{' '}
+                            {selectedAddOnLabels.length > 0
+                              ? selectedAddOnLabels.join(', ')
+                              : 'None'}
+                          </li>
+                        </ul>
+                      </div>
+
+                      {!canOpenScheduler ? (
+                        <p className="text-center text-sm text-secondary mb-4">
+                          Select a service/package and a location above to load the scheduling
+                          calendar. Those choices are prefilled into the Calendly booking.
+                        </p>
+                      ) : (
+                        <CalendlyEmbed
+                          url={buildCalendlyUrl(
+                            resolveCalendlyUrlForService(features, selectedService),
+                            {
+                              bookingSource: activeTab === 'call-out' ? 'home-visit' : 'in-clinic',
+                              locationId: selectedLocation,
+                              locationLabel: selectedLocationDetails
+                                ? `${selectedLocationDetails.label} — ${selectedLocationDetails.full}`
+                                : undefined,
+                              serviceId: selectedService,
+                              serviceLabel: selectedServiceDetails?.name,
+                              addOnIds: selectedAddOns,
+                              addOnLabels: selectedAddOnLabels,
+                            }
+                          )}
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+
+            {/* Contact CTA — below form on mobile, sticky sidebar on desktop */}
+            <aside className="order-2 lg:order-2 w-full mt-6 lg:mt-0 lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss">
+              <h3 className="font-semibold text-base text-primary mb-2">
+                Ready to Schedule?
+              </h3>
+              <p className="text-sm text-secondary mb-4">
+                Prefer to call or message us instead.
+              </p>
+              <div className="space-y-2.5">
+                <CTAButton
+                  href={contactConfig.phone.href}
+                  variant="gold"
+                  size="medium"
+                  showArrow={false}
+                  className="w-full !rounded-xl !px-3 text-xs sm:text-sm font-bold gap-1.5 !whitespace-nowrap"
+                >
+                  <Phone className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                  {contactConfig.phone.displayText}
+                </CTAButton>
+                <CTAButton
+                  href="/contact"
+                  variant="outline"
+                  size="medium"
+                  showArrow={false}
+                  className="w-full !rounded-xl text-sm font-medium gap-2"
+                >
+                  <Mail className="w-4 h-4 shrink-0" aria-hidden />
+                  Send Message
+                </CTAButton>
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
-
-      {/* Contact Alternative — only when booking form is off (pricing/browse mode) */}
-      {!bookingFormEnabled && (
-        <section className="py-8 sm:py-10 bg-primary/5">
-          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="font-serif text-2xl font-bold text-primary mb-2">
-              Ready to Schedule Your Appointment?
-            </h2>
-            <p className="text-base text-secondary mb-4">
-              Contact us today to book your consultation and take the first step towards better health
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <CTAButton
-                href={contactConfig.phone.href}
-                variant="gold"
-                size="medium"
-                showArrow={false}
-                className="inline-flex items-center justify-center"
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                Call {contactConfig.phone.displayText}
-              </CTAButton>
-              <CTAButton
-                href="/contact"
-                variant="outline"
-                size="medium"
-                showArrow={false}
-                className="inline-flex items-center justify-center"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Send Message
-              </CTAButton>
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   )
 }

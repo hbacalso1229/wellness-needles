@@ -259,7 +259,7 @@ export default function BookingForm() {
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
   const [selectedService, setSelectedService] = useState('initial-consultation')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
-  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedDate, setSelectedDate] = useState(todayDateInputValue)
   const [selectedTime, setSelectedTime] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
@@ -428,7 +428,7 @@ export default function BookingForm() {
     setSelectedLocation('celbridge')
     setSelectedService('initial-consultation')
     setSelectedAddOns([])
-    setSelectedDate('')
+    setSelectedDate(todayDateInputValue())
     setSelectedTime('')
     setFormData({
       firstName: '',
@@ -673,7 +673,7 @@ export default function BookingForm() {
                   role="group"
                   aria-labelledby="booking-time-label"
                   aria-invalid={hasFieldError('time')}
-                  className={`grid grid-cols-3 sm:grid-cols-4 gap-2 outline-none ${
+                  className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 outline-none ${
                     hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
                   }`}
                 >
@@ -689,7 +689,7 @@ export default function BookingForm() {
                           setSelectedTime(slot)
                           clearFieldError('time')
                         }}
-                        className={`px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                        className={`px-1.5 py-2 rounded-lg text-[11px] sm:text-xs md:text-sm font-medium whitespace-nowrap transition-colors ${
                           selected
                             ? 'bg-primary text-cream'
                             : past
