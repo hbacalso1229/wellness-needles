@@ -96,36 +96,49 @@ export default function Testimonials() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <DecorativeImageCard
-              src="/alopecia_treatment_before_after.jpeg"
-              alt="Alopecia treatment before and after results"
-              title="Alopecia Treatment Success"
-              description="Real results from our specialized alopecia treatment program, showing significant hair regrowth through targeted acupuncture therapy."
-              gradientFrom="from-primary/10"
-              gradientTo="to-gold/10"
-              objectFit="contain"
-              leafColors={{
-                topRight: 'text-gold/70',
-                bottomLeft: 'text-accent/70'
-              }}
-              className="text-center"
-            />
-            
-            <DecorativeImageCard
-              src="/skin_treatment_before_after.jpeg"
-              alt="Skin treatment before and after results"
-              title="Skin Condition Improvement"
-              description="Remarkable skin healing achieved through acupuncture and holistic treatment approaches, demonstrating the power of traditional medicine."
-              gradientFrom="from-secondary/10"
-              gradientTo="to-light-green/10"
-              objectFit="contain"
-              leafColors={{
-                topRight: 'text-light-green/70',
-                bottomLeft: 'text-secondary/70'
-              }}
-              className="text-center"
-            />
+          {/* Mobile: horizontal scroll carousel | md: 2-col */}
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <DecorativeImageCard
+                src="/alopecia_treatment_before_after.jpeg"
+                alt="Alopecia treatment before and after results"
+                title="Alopecia Treatment Success"
+                description="Real results from our specialized alopecia treatment program, showing significant hair regrowth through targeted acupuncture therapy."
+                gradientFrom="from-primary/10"
+                gradientTo="to-gold/10"
+                objectFit="contain"
+                leafColors={{
+                  topRight: 'text-gold/70',
+                  bottomLeft: 'text-accent/70'
+                }}
+                className="text-center"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <DecorativeImageCard
+                src="/skin_treatment_before_after.jpeg"
+                alt="Skin treatment before and after results"
+                title="Skin Condition Improvement"
+                description="Remarkable skin healing achieved through acupuncture and holistic treatment approaches, demonstrating the power of traditional medicine."
+                gradientFrom="from-secondary/10"
+                gradientTo="to-light-green/10"
+                objectFit="contain"
+                leafColors={{
+                  topRight: 'text-light-green/70',
+                  bottomLeft: 'text-secondary/70'
+                }}
+                className="text-center"
+              />
+            </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -146,9 +159,10 @@ export default function Testimonials() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Mobile: horizontal scroll carousel | md: 2-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
+              <div key={index} className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
                 <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
                 
                 {/* Rating */}
@@ -179,17 +193,25 @@ export default function Testimonials() {
                   
                   <div className="mt-4 space-y-2">
                     <div className="flex items-center text-sm text-secondary">
-                      <CheckCircle className="w-4 h-4 text-accent mr-2" />
+                      <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
                       Treatment: {testimonial.treatment}
                     </div>
                     <div className="flex items-center text-sm text-secondary">
-                      <CheckCircle className="w-4 h-4 text-accent mr-2" />
+                      <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
                       Duration: {testimonial.duration}
                     </div>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -206,8 +228,9 @@ export default function Testimonials() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
+          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -221,8 +244,8 @@ export default function Testimonials() {
                 Watch how acupuncture helped resolve chronic pain issues
               </p>
             </div>
-            
-            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -236,8 +259,8 @@ export default function Testimonials() {
                 A couple shares their fertility success story with acupuncture
               </p>
             </div>
-            
-            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -252,6 +275,14 @@ export default function Testimonials() {
               </p>
             </div>
           </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </div>
         </div>
       </section>
 
@@ -265,11 +296,11 @@ export default function Testimonials() {
             Have you experienced healing through our treatments? We&apos;d love to hear about your journey 
             and how acupuncture has improved your life.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <CTAButton href="/contact" variant="gold">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <CTAButton href="/contact" variant="gold" size="medium">
               Share Your Story
             </CTAButton>
-            <BookingCtaButton variant="outline" showArrow={false}>
+            <BookingCtaButton variant="outline" showArrow={false} size="medium">
               Start Your Journey
             </BookingCtaButton>
           </div>
