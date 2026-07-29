@@ -1,6 +1,6 @@
 'use client'
 
-import { Phone, Mail } from 'lucide-react'
+import { Phone, Mail, Calendar } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import {
@@ -347,43 +347,75 @@ export default function Bookings() {
                   </div>
 
                   {calendlyEnabled && !freshaEnabled && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                      <h3 className="font-semibold text-primary mb-2 text-center text-xl">
+                    <div className="bg-accent/5 border border-accent/20 rounded-xl p-5 sm:p-6">
+                      <div className="text-center mb-5 max-w-xl mx-auto">
+                        <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
                           Schedule a booking
                         </h3>
-                      <div className="mb-4 rounded-lg border border-blue-200 bg-white/70 p-4 text-sm text-secondary max-w-xl mx-auto">
-                        <p className="font-semibold text-primary mb-2 text-center">
-                          Details sent with this booking
+                        <p className="text-sm text-secondary">
+                          Pick a time — your selections above are included with the booking.
                         </p>
-                        <ul className="space-y-1">
-                          <li>
-                            <span className="font-medium text-primary">Visit type:</span>{' '}
-                            {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
-                          </li>
-                          <li>
-                            <span className="font-medium text-primary">Service / package:</span>{' '}
-                            {selectedServiceDetails?.name ?? 'Not selected'}
-                          </li>
-                          <li>
-                            <span className="font-medium text-primary">Location:</span>{' '}
-                            {selectedLocationDetails
-                              ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
-                              : 'Not selected'}
-                          </li>
-                          <li>
-                            <span className="font-medium text-primary">Add-ons:</span>{' '}
-                            {selectedAddOnLabels.length > 0
-                              ? selectedAddOnLabels.join(', ')
-                              : 'None'}
-                          </li>
-                        </ul>
                       </div>
 
+                      {canOpenScheduler && (
+                        <div className="mb-5 rounded-xl border border-accent/25 bg-cream p-4 max-w-2xl mx-auto">
+                          <p className="font-semibold text-primary mb-3 text-center text-sm sm:text-base">
+                            Your booking summary
+                          </p>
+                          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                            <div>
+                              <dt className="text-xs font-medium uppercase tracking-wide text-secondary/80 mb-0.5">
+                                Visit type
+                              </dt>
+                              <dd className="font-medium text-primary">
+                                {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-xs font-medium uppercase tracking-wide text-secondary/80 mb-0.5">
+                                Service / package
+                              </dt>
+                              <dd className="font-medium text-primary">
+                                {selectedServiceDetails?.name ?? 'Not selected'}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-xs font-medium uppercase tracking-wide text-secondary/80 mb-0.5">
+                                Location
+                              </dt>
+                              <dd className="font-medium text-primary">
+                                {selectedLocationDetails
+                                  ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
+                                  : 'Not selected'}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-xs font-medium uppercase tracking-wide text-secondary/80 mb-0.5">
+                                Add-ons
+                              </dt>
+                              <dd className="font-medium text-primary">
+                                {selectedAddOnLabels.length > 0
+                                  ? selectedAddOnLabels.join(', ')
+                                  : 'None'}
+                              </dd>
+                            </div>
+                          </dl>
+                        </div>
+                      )}
+
                       {!canOpenScheduler ? (
-                        <p className="text-center text-sm text-secondary mb-4">
-                          Select a service/package and a location above to load the scheduling
-                          calendar. Those choices are prefilled into the Calendly booking.
-                        </p>
+                        <div className="rounded-xl border border-dashed border-accent/40 bg-cream/60 px-5 py-10 text-center max-w-xl mx-auto">
+                          <Calendar
+                            className="w-8 h-8 text-primary/50 mx-auto mb-3"
+                            aria-hidden
+                          />
+                          <p className="font-medium text-primary mb-1">
+                            Calendar not ready yet
+                          </p>
+                          <p className="text-sm text-secondary">
+                            Select a service and location above to open the calendar.
+                          </p>
+                        </div>
                       ) : (
                         <CalendlyEmbed
                           url={buildCalendlyUrl(

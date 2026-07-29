@@ -203,7 +203,7 @@ export default function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block px-3 py-2.5 text-base font-medium text-primary hover:text-secondary hover:bg-blue-subtle/50 rounded-md transition-colors duration-200"
+                    className="block px-3 py-2.5 text-base font-medium text-primary hover:text-secondary hover:bg-accent/10 rounded-md transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.label}
