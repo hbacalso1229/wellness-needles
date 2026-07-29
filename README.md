@@ -117,31 +117,36 @@ Replace placeholders under `public/` with practice photos and headshots.
 
 Static export (`output: 'export'`). Typical flow: push `dev` for Preview / staging, merge to `main` for Production.
 
+**Live booking rule:** In production, enable **only one** scheduling product — **Fresha or Calendly** (never both). Admin toggles are mutually exclusive for that reason; running both would risk double-booking the same practitioner across Celbridge and Carlow.
+
 ### Fresha setup checklist
 
-Use when **Fresha booking** is enabled on `/admin` (mutually exclusive with Calendly and the legacy form).
+Use when **Fresha booking** is the chosen live booking UI on `/admin` (mutually exclusive with Calendly and the legacy form).
 
-1. Copy your public Fresha booking link from Fresha.
-2. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL**.
-3. Save → confirm **Book Now** and `/bookings` (**Continue to Fresha**).
+1. In Fresha, configure **both clinic locations** (Celbridge and Carlow) under **one staff member** so busy time is shared — a booking at one clinic blocks that slot for the other.
+2. Copy your public Fresha booking link from Fresha (Link builder / Online Booking).
+3. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL** (Calendly and legacy form turn off automatically).
+4. Save → confirm **Book Now** and `/bookings` (**Continue to Fresha**).
 
 Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin). On phones with the Fresha app installed, the OS may open the app automatically via Universal/App Links; otherwise Fresha opens in the browser.
 
 ### Calendly setup checklist
 
-Use when **Calendly booking embed** is enabled on `/admin`. Create **two** event types so the calendar blocks the correct length after a booking:
+Use when **Calendly booking embed** is the chosen live booking UI on `/admin` (mutually exclusive with Fresha and the legacy form). Create **two** event types so the calendar blocks the correct length after a booking:
 
 | Service | Event duration (blocks availability) | Start-time increments | Default Share URL slug |
 |---------|--------------------------------------|------------------------|-------------------------|
 | Initial Consultation | **1 hour 45 minutes** (105 min) | **15 minutes** | `/initial-consultation` |
 | Follow-up | **1 hour 15 minutes** (75 min) | **15 minutes** | `/follow-up` |
 
-1. Create both event types in Calendly → Event types → New Event Type (One-on-One).
+1. Create both event types in Calendly → Event types → New Event Type (One-on-One) under **one** Calendly user (not one account per clinic).
 2. Set duration and start-time increments as in the table above (slug is case-sensitive).
-3. Calendar connected (Google/Outlook) with weekly availability set.
-4. Location set to **Ask invitee** so clinic selection appears on the meeting.
+3. Connect **both** event types to the **same** Google/Outlook calendar with weekly availability set. Shared availability = one connected calendar; Celbridge vs Carlow is a **location tag only**, not a second schedule.
+4. Location set to **Ask invitee** so clinic selection from the site appears on the meeting.
 5. Keep at least one invitee question (default “Please share anything…” works) for visit type / service / add-ons.
-6. Paste each Share link into `/admin` → **Initial Consultation URL** and **Follow-up URL**.
+6. Optional but recommended: add **buffers** before/after events (e.g. 30–60+ minutes) so travel between Celbridge and Carlow is not bookable back-to-back.
+7. Do **not** create separate Celbridge vs Carlow calendars unless they sync to one busy calendar.
+8. Paste each Share link into `/admin` → **Initial Consultation URL** and **Follow-up URL**.
 
 Defaults live in `src/lib/contact-config.ts` (`calendly.initialConsultationUrl`, `calendly.followUpUrl`). The bookings page picks the URL from the selected service so the right duration is blocked. Packages use the Follow-up event URL.
 

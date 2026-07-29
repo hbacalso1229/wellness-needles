@@ -340,8 +340,8 @@ export default function Bookings() {
                   </h3>
                   <p className="text-sm text-secondary mb-4">
                     {activeTab === 'call-out'
-                      ? 'Choose which clinic area this home visit is booked under — it is tagged on your Calendly booking.'
-                      : 'Select which clinic you will attend — it is tagged on your Calendly booking.'}
+                      ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
+                      : 'Select which clinic you will attend. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {clinicLocations.map((location) => (
