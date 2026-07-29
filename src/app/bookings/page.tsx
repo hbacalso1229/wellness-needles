@@ -426,12 +426,12 @@ export default function Bookings() {
 
       {/* Contact Alternative — only when booking form is off (pricing/browse mode) */}
       {!bookingFormEnabled && (
-        <section className="py-14 bg-primary/5">
+        <section className="py-8 sm:py-10 bg-primary/5">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+            <h2 className="font-serif text-2xl font-bold text-primary mb-2">
               Ready to Schedule Your Appointment?
             </h2>
-            <p className="text-lg text-secondary mb-6">
+            <p className="text-base text-secondary mb-4">
               Contact us today to book your consultation and take the first step towards better health
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">

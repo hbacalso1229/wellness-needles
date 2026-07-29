@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { Calendar, CheckCircle, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
@@ -186,10 +185,13 @@ const homeVisitAddOns = [
 ]
 
 const inputClassName =
-  'w-full px-4 py-3 pr-10 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-white'
+  'w-full min-w-0 max-w-full box-border px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-white'
 
 const fieldErrorClassName =
-  'w-full px-4 py-3 pr-10 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
+  'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
+
+const dateInputClassName = `${inputClassName} booking-date-input`
+const dateInputErrorClassName = `${fieldErrorClassName} booking-date-input`
 
 type FieldErrorKey =
   | 'service'
@@ -201,6 +203,30 @@ type FieldErrorKey =
   | 'email'
   | 'phone'
   | 'chiefComplaint'
+
+const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
+  service: 'booking-service',
+  location: 'booking-location',
+  date: 'booking-date',
+  time: 'booking-time',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phone: 'phone',
+  chiefComplaint: 'chiefComplaint',
+}
+
+function focusFirstInvalidField(fields: FieldErrorKey[]) {
+  const id = FIELD_FOCUS_IDS[fields[0]]
+  if (!id) return
+  requestAnimationFrame(() => {
+    const el = document.getElementById(id)
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (el instanceof HTMLElement) {
+      el.focus({ preventScroll: true })
+    }
+  })
+}
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -383,6 +409,7 @@ export default function BookingForm() {
     if (error) {
       setFieldErrors(new Set(error.fields))
       showErrorToast(error.messages)
+      focusFirstInvalidField(error.fields)
       return
     }
     setFieldErrors(new Set())
@@ -421,6 +448,7 @@ export default function BookingForm() {
     if (error) {
       setFieldErrors(new Set(error.fields))
       showErrorToast(error.messages)
+      focusFirstInvalidField(error.fields)
       return
     }
 
@@ -505,6 +533,9 @@ export default function BookingForm() {
               <CheckCircle className="w-5 h-5 mr-2 text-primary shrink-0" />
               Choose In Clinic or Home Visit, then select a service.
             </p>
+            <p className="text-xs text-secondary">
+              Treated by Arkinth Garcia, Naturopath &amp; Acupuncturist.
+            </p>
 
             <div className="flex border-b border-accent/20">
               <button
@@ -527,12 +558,15 @@ export default function BookingForm() {
                     : 'border-transparent text-secondary hover:text-primary'
                 }`}
               >
-                Call Out (Home Visits)
+                <span className="sm:hidden">Home Visits</span>
+                <span className="hidden sm:inline">Call Out (Home Visits)</span>
               </button>
             </div>
 
             <div
-              className={`rounded-lg ${
+              id="booking-service"
+              tabIndex={-1}
+              className={`rounded-lg outline-none ${
                 hasFieldError('service') ? 'ring-2 ring-red-400 p-1' : ''
               }`}
             >
@@ -563,33 +597,6 @@ export default function BookingForm() {
                 </div>
               </div>
             )}
-
-            <OptionalAddOns
-              addOns={addOns}
-              selectedIds={selectedAddOns}
-              onToggle={handleAddOnToggle}
-            />
-
-            <div className="p-6 bg-primary/5 border-2 border-primary rounded-lg">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
-                  <Image
-                    src="/Arkinth_clinic_founder.jpeg"
-                    alt="Arkinth Garcia - Naturopath & Acupuncturist"
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
-                <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
-                <p className="text-secondary text-sm">
-                  Qualified from the College of Naturopathic Medicine, Dublin. Specializing in
-                  pain management, mental health conditions, digestive issues, and fertility
-                  support.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
@@ -602,7 +609,9 @@ export default function BookingForm() {
                 : 'Select which clinic you will attend.'}
             </p>
             <div
-              className={`rounded-lg ${
+              id="booking-location"
+              tabIndex={-1}
+              className={`rounded-lg outline-none ${
                 hasFieldError('location') ? 'ring-2 ring-red-400 p-1' : ''
               }`}
             >
@@ -627,7 +636,7 @@ export default function BookingForm() {
               Pick your preferred date and time. We will confirm within 24 hours.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+              <div className="min-w-0 w-full overflow-hidden">
                 <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
                   Preferred Date *
                 </label>
@@ -646,35 +655,61 @@ export default function BookingForm() {
                   }}
                   min={todayDateInputValue()}
                   aria-invalid={hasFieldError('date')}
-                  className={hasFieldError('date') ? fieldErrorClassName : inputClassName}
+                  className={
+                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
+                  }
                 />
               </div>
-              <div>
-                <label htmlFor="booking-time" className="block text-sm font-medium text-primary mb-2">
-                  Preferred Time *
-                </label>
-                <select
-                  id="booking-time"
-                  value={selectedTime}
-                  onChange={(e) => {
-                    setSelectedTime(e.target.value)
-                    clearFieldError('time')
-                  }}
-                  aria-invalid={hasFieldError('time')}
-                  className={hasFieldError('time') ? fieldErrorClassName : inputClassName}
+              <div className="min-w-0 w-full">
+                <p
+                  id="booking-time-label"
+                  className="block text-sm font-medium text-primary mb-2"
                 >
-                  <option value="">Select a time</option>
+                  Preferred Time *
+                </p>
+                <div
+                  id="booking-time"
+                  tabIndex={-1}
+                  role="group"
+                  aria-labelledby="booking-time-label"
+                  aria-invalid={hasFieldError('time')}
+                  className={`grid grid-cols-3 sm:grid-cols-4 gap-2 outline-none ${
+                    hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
+                  }`}
+                >
                   {TIME_SLOTS.map((slot) => {
                     const past = isPastTimeSlot(selectedDate, slot)
+                    const selected = selectedTime === slot
                     return (
-                      <option key={slot} value={slot} disabled={past}>
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={past}
+                        onClick={() => {
+                          setSelectedTime(slot)
+                          clearFieldError('time')
+                        }}
+                        className={`px-2 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                          selected
+                            ? 'bg-primary text-cream'
+                            : past
+                              ? 'bg-accent/10 text-secondary/40 cursor-not-allowed'
+                              : 'bg-white border border-accent/30 text-primary hover:border-primary'
+                        }`}
+                      >
                         {slot}
-                      </option>
+                      </button>
                     )
                   })}
-                </select>
+                </div>
               </div>
             </div>
+
+            <OptionalAddOns
+              addOns={addOns}
+              selectedIds={selectedAddOns}
+              onToggle={handleAddOnToggle}
+            />
           </div>
         )}
 
@@ -745,7 +780,7 @@ export default function BookingForm() {
                     className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
                   />
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 min-w-0 w-full overflow-hidden">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
                     Date of Birth
                   </label>
@@ -755,7 +790,7 @@ export default function BookingForm() {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
-                    className={inputClassName}
+                    className={dateInputClassName}
                   />
                 </div>
               </div>

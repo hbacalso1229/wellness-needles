@@ -88,7 +88,7 @@ export default function BookingStepper({
         </ol>
       </nav>
 
-      {/* Progress — mobile */}
+      {/* Progress — mobile (step count + dots; title lives in the card h2) */}
       <div className="sm:hidden space-y-3" aria-label="Booking progress">
         <p className="text-sm text-secondary text-center">
           Step {currentStep + 1} of {steps.length}
@@ -113,7 +113,6 @@ export default function BookingStepper({
             )
           })}
         </div>
-        <p className="text-center font-semibold text-primary">{activeStep?.title}</p>
       </div>
 
       <div className="bg-accent/5 rounded-lg p-5 sm:p-8 pb-28 sm:pb-8">
@@ -133,7 +132,7 @@ export default function BookingStepper({
             type="button"
             onClick={onBack}
             disabled={isFirst || isSubmitting}
-            className="px-6 py-3 rounded-full font-semibold border-2 border-accent/30 text-primary hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2.5 text-sm rounded-full font-semibold border-2 border-accent/30 text-primary hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Back
           </button>
@@ -142,7 +141,7 @@ export default function BookingStepper({
               type="button"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="bg-primary text-cream px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-primary text-cream px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Sending…' : submitLabel}
             </button>
@@ -151,7 +150,7 @@ export default function BookingStepper({
               type="button"
               onClick={onNext}
               disabled={isSubmitting}
-              className="bg-primary text-cream px-8 py-3 rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-primary text-cream px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {nextLabel}
             </button>
@@ -160,14 +159,14 @@ export default function BookingStepper({
       </div>
 
       {/* Sticky mobile footer */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-accent/20 bg-cream/95 backdrop-blur-sm px-4 py-3 safe-area-pb">
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-accent/20 bg-cream/95 backdrop-blur-sm px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           {!isFirst && (
             <button
               type="button"
               onClick={onBack}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 rounded-full font-semibold border-2 border-accent/30 text-primary disabled:opacity-40"
+              className="flex-1 px-4 py-2.5 text-sm rounded-full font-semibold border-2 border-accent/30 text-primary disabled:opacity-40"
             >
               Back
             </button>
@@ -177,7 +176,7 @@ export default function BookingStepper({
               type="button"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="flex-[2] bg-primary text-cream px-4 py-3 rounded-full font-semibold disabled:opacity-60"
+              className="flex-[2] bg-primary text-cream px-4 py-2.5 text-sm rounded-full font-semibold disabled:opacity-60"
             >
               {isSubmitting ? 'Sending…' : 'Submit'}
             </button>
@@ -186,7 +185,7 @@ export default function BookingStepper({
               type="button"
               onClick={onNext}
               disabled={isSubmitting}
-              className={`${isFirst ? 'w-full' : 'flex-[2]'} bg-primary text-cream px-4 py-3 rounded-full font-semibold disabled:opacity-60`}
+              className={`${isFirst ? 'w-full' : 'flex-[2]'} bg-primary text-cream px-4 py-2.5 text-sm rounded-full font-semibold disabled:opacity-60`}
             >
               {nextLabel}
             </button>

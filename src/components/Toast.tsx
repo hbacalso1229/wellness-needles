@@ -39,7 +39,7 @@ export default function Toast({
     <div
       role={isError ? 'alert' : 'status'}
       aria-live={isError ? 'assertive' : 'polite'}
-      className="fixed top-6 right-6 z-[100] max-w-md"
+      className="fixed inset-x-4 top-20 sm:inset-x-auto sm:left-auto sm:right-6 sm:top-20 z-[100] max-w-md mx-auto sm:mx-0"
     >
       <div
         className={`flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${
