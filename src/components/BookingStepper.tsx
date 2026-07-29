@@ -28,7 +28,7 @@ export default function BookingStepper({
   onSubmit,
   children,
   nextLabel = 'Next',
-  submitLabel = 'Submit Appointment Request',
+  submitLabel = 'Submit appointment request',
   isSubmitting = false,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)

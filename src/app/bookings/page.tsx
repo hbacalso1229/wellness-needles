@@ -355,8 +355,8 @@ export default function Bookings() {
                   {calendlyEnabled && !freshaEnabled && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                       <h3 className="font-semibold text-primary mb-2 text-center text-xl">
-                        Schedule a Booking
-                      </h3>
+                          Schedule a booking
+                        </h3>
                       <div className="mb-4 rounded-lg border border-blue-200 bg-white/70 p-4 text-sm text-secondary max-w-xl mx-auto">
                         <p className="font-semibold text-primary mb-2 text-center">
                           Details sent with this booking
@@ -441,7 +441,7 @@ export default function Bookings() {
                   className="w-full !rounded-xl text-sm font-medium gap-2"
                 >
                   <Mail className="w-4 h-4 shrink-0" aria-hidden />
-                  Send Message
+                  Send message
                 </CTAButton>
               </div>
             </aside>

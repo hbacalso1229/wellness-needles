@@ -272,7 +272,7 @@ export default function Blog() {
             Put these insights into practice with personalized acupuncture treatments
           </p>
           <BookingCtaButton variant="gold">
-            Schedule Your Consultation
+            Schedule your consultation
           </BookingCtaButton>
         </div>
       </section>

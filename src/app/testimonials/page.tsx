@@ -233,7 +233,7 @@ export default function Testimonials() {
                   showArrow={false}
                   className="w-full !rounded-xl text-sm font-bold gap-2"
                 >
-                  Share Your Story
+                  Share your story
                 </CTAButton>
                 <BookingCtaButton
                   variant="outline"
@@ -241,7 +241,7 @@ export default function Testimonials() {
                   size="medium"
                   className="w-full !rounded-xl text-sm font-medium"
                 >
-                  Start Your Journey
+                  Start your journey
                 </BookingCtaButton>
               </div>
             </aside>
