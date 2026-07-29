@@ -21,7 +21,7 @@ export default function About() {
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
           {
-            text: 'Schedule Your Consultation',
+            text: 'Schedule your consultation',
             href: bookHref,
             variant: 'gold',
             external: isExternal,

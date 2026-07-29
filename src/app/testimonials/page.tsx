@@ -74,7 +74,7 @@ export default function Testimonials() {
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
           {
-            text: 'Book Your First Session',
+            text: 'Book your first session',
             href: bookHref,
             variant: 'gold',
             external: isExternal,

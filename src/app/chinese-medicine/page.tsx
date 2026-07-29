@@ -24,7 +24,7 @@ export default function ChineseMedicine() {
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
           {
-            text: 'Begin Your Healing Journey',
+            text: 'Begin your healing journey',
             href: bookHref,
             variant: 'gold',
             external: isExternal,
