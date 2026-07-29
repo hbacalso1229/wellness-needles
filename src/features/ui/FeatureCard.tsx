@@ -36,7 +36,9 @@ export function FeatureCard({
   const hoverTo = hoverToClasses[gradientTo] ?? ''
 
   return (
-    <div className={`text-center group ${className}`}>
+    <div
+      className={`text-center group rounded-lg bg-cream/80 p-6 shadow-sm card-emboss ${className}`}
+    >
       <div
         className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} ${hoverFrom} ${hoverTo} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 transition-all duration-300`}
       >

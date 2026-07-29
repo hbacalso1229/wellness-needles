@@ -170,7 +170,7 @@ export default function ChineseMedicine() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Zap className="w-8 h-8 text-primary" />
               </div>
@@ -186,7 +186,7 @@ export default function ChineseMedicine() {
               </Link>
             </div>
             
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-primary" />
               </div>
@@ -200,7 +200,7 @@ export default function ChineseMedicine() {
               <span className="text-accent font-medium">Pain Relief</span>
             </div>
             
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Brain className="w-8 h-8 text-primary" />
               </div>
@@ -214,7 +214,7 @@ export default function ChineseMedicine() {
               <span className="text-accent font-medium">Energy Building</span>
             </div>
             
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Circle className="w-8 h-8 text-primary" />
               </div>
@@ -245,7 +245,7 @@ export default function ChineseMedicine() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="bg-accent/5 rounded-lg p-6">
+              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
                 <h3 className="font-semibold text-lg text-primary mb-3">Pulse Diagnosis</h3>
                 <p className="text-secondary">
                   Practitioners feel the pulse at multiple positions to assess the quality, 
@@ -253,7 +253,7 @@ export default function ChineseMedicine() {
                 </p>
               </div>
               
-              <div className="bg-accent/5 rounded-lg p-6">
+              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
                 <h3 className="font-semibold text-lg text-primary mb-3">Tongue Examination</h3>
                 <p className="text-secondary">
                   The color, coating, texture, and shape of the tongue provide insights 
@@ -263,7 +263,7 @@ export default function ChineseMedicine() {
             </div>
             
             <div className="space-y-6">
-              <div className="bg-accent/5 rounded-lg p-6">
+              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
                 <h3 className="font-semibold text-lg text-primary mb-3">Observation</h3>
                 <p className="text-secondary">
                   Visual assessment of complexion, eyes, body build, movement, and overall 
@@ -271,7 +271,7 @@ export default function ChineseMedicine() {
                 </p>
               </div>
               
-              <div className="bg-accent/5 rounded-lg p-6">
+              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
                 <h3 className="font-semibold text-lg text-primary mb-3">Questioning & Listening</h3>
                 <p className="text-secondary">
                   Detailed inquiry about symptoms, lifestyle, emotions, and listening to 

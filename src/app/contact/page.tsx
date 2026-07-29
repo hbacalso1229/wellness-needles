@@ -1,6 +1,6 @@
 'use client'
 
-import { Clock, Send, MessageCircle } from 'lucide-react'
+import { Calendar, Clock, Send, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import { HeroSection } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
@@ -155,120 +155,192 @@ export default function Contact() {
             )}
 
             {/* Contact Information */}
-            <div className={contactConfig.features.contactFormEnabled ? '' : 'max-w-2xl mx-auto'}>
-              <h2 className="font-serif text-3xl font-bold text-primary mb-8">
-                Get in Touch
-              </h2>
-              
-              <div className="space-y-8">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary rounded-full p-3 flex-shrink-0">
-                    <contactConfig.phone.icon className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-primary mb-2">Phone</h3>
-                    <a 
-                      href={contactConfig.phone.href}
-                      className="text-secondary mb-2 block hover:text-primary transition-colors"
-                    >
-                      {contactConfig.phone.displayText}
-                    </a>
-                    <p className="text-secondary text-sm">
-                      Call us during business hours for immediate assistance
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary rounded-full p-3 flex-shrink-0">
-                    <contactConfig.email.icon className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-primary mb-2">Email</h3>
-                    <a 
-                      href={contactConfig.email.href}
-                      className="text-secondary mb-2 block hover:text-primary transition-colors"
-                    >
-                      {contactConfig.email.address}
-                    </a>
-                    <p className="text-secondary text-sm">
-                      We respond to emails within 24 hours
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary rounded-full p-3 flex-shrink-0">
-                    <contactConfig.address.icon className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-primary mb-2">Location</h3>
-                    <div className="text-secondary mb-2 space-y-3">
-                      {contactConfig.address.locations.map((location) => (
-                        <div key={location.full}>
-                          <a
-                            href={location.directionsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block hover:text-primary transition-colors"
-                          >
-                            <div>{location.formatted.street}</div>
-                            <div>{location.formatted.city}</div>
-                            <div>{location.formatted.county} {location.formatted.postcode}</div>
-                          </a>
+            <div
+              className={
+                contactConfig.features.contactFormEnabled
+                  ? ''
+                  : 'max-w-5xl mx-auto w-full'
+              }
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+                {/* Title + details: centered as a block on mobile, left on desktop */}
+                <div className="w-full max-w-md mx-auto lg:mx-0 lg:max-w-none">
+                  <h2 className="font-serif text-3xl font-bold text-primary mb-8 text-left">
+                    Get in Touch
+                  </h2>
+
+                  <div className="space-y-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-primary rounded-full p-3 flex-shrink-0">
+                        <contactConfig.phone.icon className="w-6 h-6 text-cream" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-primary mb-2">Phone</h3>
+                        <a
+                          href={contactConfig.phone.href}
+                          className="text-secondary mb-2 block hover:text-primary transition-colors"
+                        >
+                          {contactConfig.phone.displayText}
+                        </a>
+                        <p className="text-secondary text-sm">
+                          Call us during business hours for immediate assistance
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-primary rounded-full p-3 flex-shrink-0">
+                        <contactConfig.email.icon className="w-6 h-6 text-cream" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-primary mb-2">Email</h3>
+                        <a
+                          href={contactConfig.email.href}
+                          className="text-secondary mb-2 block hover:text-primary transition-colors"
+                        >
+                          {contactConfig.email.address}
+                        </a>
+                        <p className="text-secondary text-sm">
+                          We respond to emails within 24 hours
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-primary rounded-full p-3 flex-shrink-0">
+                        <contactConfig.address.icon className="w-6 h-6 text-cream" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-primary mb-2">Clinics</h3>
+                        {contactConfig.features.mapIntegrationEnabled ? (
+                          <>
+                            <p className="text-secondary mb-2">Celbridge and Carlow</p>
+                            <a
+                              href="#find-us"
+                              className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                            >
+                              See maps and directions
+                            </a>
+                            <p className="text-secondary text-sm mt-2">
+                              Convenient parking available
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-secondary mb-2 space-y-3">
+                              {contactConfig.address.locations.map((location) => (
+                                <div key={location.full}>
+                                  <a
+                                    href={location.directionsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block hover:text-primary transition-colors"
+                                  >
+                                    <div>{location.formatted.street}</div>
+                                    <div>{location.formatted.city}</div>
+                                    <div>
+                                      {location.formatted.county} {location.formatted.postcode}
+                                    </div>
+                                  </a>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-secondary text-sm">
+                              Convenient parking available
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-primary rounded-full p-3 flex-shrink-0">
+                        <Clock className="w-6 h-6 text-cream" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-primary mb-2">Business Hours</h3>
+                        <div className="text-secondary space-y-1">
+                          {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
+                            <p key={index}>{hours}</p>
+                          ))}
                         </div>
-                      ))}
+                        <p className="text-secondary text-sm mt-2">
+                          {contactConfig.businessInfo.emergencyNote}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-secondary text-sm">
-                      Convenient parking available
-                    </p>
                   </div>
                 </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary rounded-full p-3 flex-shrink-0">
-                    <Clock className="w-6 h-6 text-cream" />
+
+                {/* Quick Actions: below + centered on mobile, upper-right on desktop */}
+                <aside className="w-full max-w-xs mx-auto lg:mx-0 lg:ml-auto p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
+                  <h3 className="font-semibold text-base text-primary mb-3">
+                    Quick Actions
+                  </h3>
+                  <div className="space-y-2.5">
+                    <BookingCtaButton
+                      variant="gold"
+                      size="medium"
+                      showArrow={false}
+                      className="w-full !rounded-xl !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                    >
+                      <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
+                      Book an Appointment
+                    </BookingCtaButton>
+                    <button
+                      type="button"
+                      disabled={!contactConfig.features.liveChatEnabled}
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
+                        contactConfig.features.liveChatEnabled
+                          ? 'bg-cream text-primary border border-accent/30 hover:border-primary hover:shadow-md'
+                          : 'bg-cream text-gray-400 border border-gray-200 cursor-not-allowed opacity-80'
+                      }`}
+                    >
+                      <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
+                      {contactConfig.features.liveChatEnabled
+                        ? 'Start Live Chat'
+                        : 'Live Chat (Coming Soon)'}
+                    </button>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-primary mb-2">Business Hours</h3>
-                    <div className="text-secondary space-y-1">
-                      {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
-                        <p key={index}>{hours}</p>
-                      ))}
-                    </div>
-                    <p className="text-secondary text-sm mt-2">
-                      {contactConfig.businessInfo.emergencyNote}
-                    </p>
-                  </div>
-                </div>
+                </aside>
               </div>
-              
-              {/* Quick Actions */}
-              <div className="mt-12 p-6 bg-accent/10 rounded-lg">
-                <h3 className="font-semibold text-lg text-primary mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-3">
-                  <BookingCtaButton
-                    variant="gold"
-                    showArrow={false}
-                    className="w-full"
-                  >
-                    Book an Appointment
-                  </BookingCtaButton>
-                  <button 
-                    disabled={!contactConfig.features.liveChatEnabled}
-                    className={`block w-full border-2 px-4 py-3 rounded-lg font-semibold transition-colors duration-200 ${
-                      contactConfig.features.liveChatEnabled 
-                        ? 'border-primary text-primary hover:bg-primary hover:text-cream'
-                        : 'border-gray-300 text-gray-400 cursor-not-allowed bg-gray-50'
-                    }`}
-                  >
-                    <MessageCircle className="w-5 h-5 inline mr-2" />
-                    {contactConfig.features.liveChatEnabled ? 'Start Live Chat' : 'Live Chat (Coming Soon)'}
-                  </button>
-                </div>
-              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-cream">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-secondary">
+              Quick answers to common questions
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">
+                How should I prepare for my first appointment?
+              </h3>
+              <p className="text-secondary">
+                Wear comfortable, loose-fitting clothing and arrive 15 minutes early
+                to complete intake forms. Avoid large meals right before treatment.
+              </p>
+            </div>
+
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">
+                How many treatments will I need?
+              </h3>
+              <p className="text-secondary">
+                Treatment plans vary based on your condition and health goals.
+                Most patients see improvements within 3-6 sessions, but we&apos;ll
+                discuss a personalized plan during your consultation.
+              </p>
             </div>
           </div>
         </div>
@@ -276,25 +348,25 @@ export default function Contact() {
 
       {/* Map Section - Only show if enabled */}
       {contactConfig.features.mapIntegrationEnabled && (
-        <section className="py-20 bg-secondary/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+        <section id="find-us" className="py-12 bg-secondary/5 scroll-mt-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="font-serif text-2xl font-bold text-primary mb-2">
                 Find Us
               </h2>
-              <p className="text-lg text-secondary">
+              <p className="text-base text-secondary">
                 Visit us in Celbridge or Carlow
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {contactConfig.address.locations.map((location) => (
                 <div key={location.full}>
-                  <div className="mb-4">
-                    <h3 className="font-semibold text-lg text-primary mb-2">
-                      {location.formatted.city}
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-base text-primary mb-1">
+                      {location.label}
                     </h3>
-                    <div className="text-secondary text-sm">
+                    <div className="text-secondary text-sm leading-snug">
                       <div>{location.formatted.street}</div>
                       <div>
                         {location.formatted.city}, {location.formatted.county}{' '}
@@ -313,45 +385,6 @@ export default function Contact() {
           </div>
         </section>
       )}
-
-      {/* FAQ Section */}
-      <section className="py-20 bg-cream">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-lg text-secondary">
-              Quick answers to common questions
-            </p>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="bg-accent/5 rounded-lg p-6">
-              <h3 className="font-semibold text-lg text-primary mb-3">
-                How should I prepare for my first appointment?
-              </h3>
-              <p className="text-secondary">
-                Wear comfortable, loose-fitting clothing and arrive 15 minutes early 
-                to complete intake forms. Avoid large meals right before treatment.
-              </p>
-            </div>
-            
-       
-            
-            <div className="bg-accent/5 rounded-lg p-6">
-              <h3 className="font-semibold text-lg text-primary mb-3">
-                How many treatments will I need?
-              </h3>
-              <p className="text-secondary">
-                Treatment plans vary based on your condition and health goals. 
-                Most patients see improvements within 3-6 sessions, but we&apos;ll 
-                discuss a personalized plan during your consultation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

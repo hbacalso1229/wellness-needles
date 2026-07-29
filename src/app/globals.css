@@ -68,7 +68,11 @@ body {
   background: var(--secondary-green);
 }
 
-/* Custom utility classes */
+/* Interactive marketing / content tiles */
+.card-emboss {
+  @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
+}
+
 .jungle-gradient {
   background: var(--jungle-gradient);
 }

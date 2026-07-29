@@ -194,6 +194,11 @@ export default function AdminPage() {
               Settings are saved in this browser only (localStorage). Enabling one booking UI
               turns the others off.
             </p>
+            <p className="mt-2">
+              <span className="font-semibold text-primary">Live site:</span> enable only{' '}
+              <span className="font-medium text-primary">Fresha or Calendly</span> — not both —
+              so Celbridge and Carlow share one schedule for the same practitioner.
+            </p>
           </div>
 
           <div className="space-y-4">
@@ -247,7 +252,9 @@ export default function AdminPage() {
                     Fresha booking URL
                   </label>
                   <p className="text-sm text-secondary mb-3">
-                    Paste your public Fresha booking link.
+                    Paste your public Fresha booking link. In Fresha, set up both clinic locations under
+                    one staff member so a booking at Celbridge blocks that time at Carlow (and vice
+                    versa).
                   </p>
                   <input
                     id="fresha-booking-url"
@@ -319,6 +326,12 @@ export default function AdminPage() {
                   <span className="font-medium text-primary">1 hour 45 minutes</span> and Follow-up
                   blocks <span className="font-medium text-primary">1 hour 15 minutes</span> (15-minute
                   start times). See README for the full checklist.
+                </p>
+                <p className="text-sm text-secondary">
+                  Celbridge and Carlow share one schedule: use a single Calendly user and connect both
+                  event types to the <span className="font-medium text-primary">same</span> Google/Outlook
+                  calendar. Clinic choice on the bookings page is a location note on the invite, not a
+                  second calendar. Add buffers in Calendly if you need travel time between clinics.
                 </p>
 
                 <div>

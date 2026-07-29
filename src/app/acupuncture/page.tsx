@@ -189,7 +189,7 @@ export default function Acupuncture() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Pain Management</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Chronic back pain</li>
@@ -200,7 +200,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Mental Health</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Anxiety and stress</li>
@@ -211,7 +211,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Women&apos;s Health</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Fertility support</li>
@@ -222,7 +222,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Digestive Issues</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> IBS</li>
@@ -233,7 +233,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Respiratory</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Asthma</li>
@@ -244,7 +244,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-accent/5 rounded-lg p-6">
+            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">General Wellness</h3>
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Immune support</li>
@@ -271,7 +271,7 @@ export default function Acupuncture() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-cream rounded-lg p-8">
+            <div className="bg-cream rounded-lg p-8 card-emboss">
               <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
                 Clinical Research
               </h3>
@@ -295,7 +295,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-cream rounded-lg p-8">
+            <div className="bg-cream rounded-lg p-8 card-emboss">
               <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
                 Safety Profile
               </h3>

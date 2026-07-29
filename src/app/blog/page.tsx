@@ -182,7 +182,7 @@ export default function Blog() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.filter(post => !post.featured).map(post => (
-              <article key={post.id} className="bg-accent/5 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+              <article key={post.id} className="bg-accent/5 rounded-lg overflow-hidden shadow-sm card-emboss">
                 <div className="bg-primary/20 aspect-video flex items-center justify-center">
                   <div className="text-center">
                     {post.image === 'spring' && <Leaf className="w-12 h-12 text-primary mx-auto mb-2" />}
