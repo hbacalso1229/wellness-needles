@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import {
   getEnvWeb3FormsAccessKey,
@@ -66,6 +66,7 @@ function Toggle({
 }
 
 export default function AdminPage() {
+  const router = useRouter()
   const {
     features,
     hydrated,
@@ -75,7 +76,6 @@ export default function AdminPage() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
-    setFreshaOpenTarget,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
@@ -85,7 +85,6 @@ export default function AdminPage() {
   const [initialUrlDraft, setInitialUrlDraft] = useState(features.calendlyInitialUrl)
   const [followUpUrlDraft, setFollowUpUrlDraft] = useState(features.calendlyFollowUpUrl)
   const [freshaUrlDraft, setFreshaUrlDraft] = useState(features.freshaBookingUrl)
-  const [freshaOpenDraft, setFreshaOpenDraft] = useState(features.freshaOpenTarget)
   const [urlSaved, setUrlSaved] = useState(false)
   const [freshaUrlSaved, setFreshaUrlSaved] = useState(false)
   const [accessKeyDraft, setAccessKeyDraft] = useState(features.bookingEmailAccessKey)
@@ -97,7 +96,6 @@ export default function AdminPage() {
       setInitialUrlDraft(features.calendlyInitialUrl)
       setFollowUpUrlDraft(features.calendlyFollowUpUrl)
       setFreshaUrlDraft(features.freshaBookingUrl)
-      setFreshaOpenDraft(features.freshaOpenTarget)
       setAccessKeyDraft(features.bookingEmailAccessKey)
       setEmailToDraft(features.bookingEmailTo)
     }
@@ -106,7 +104,6 @@ export default function AdminPage() {
     features.calendlyInitialUrl,
     features.calendlyFollowUpUrl,
     features.freshaBookingUrl,
-    features.freshaOpenTarget,
     features.bookingEmailAccessKey,
     features.bookingEmailTo,
   ])
@@ -121,9 +118,7 @@ export default function AdminPage() {
     initialUrlDraft.trim() !== features.calendlyInitialUrl ||
     followUpUrlDraft.trim() !== features.calendlyFollowUpUrl
   const freshaUrlValid = isValidFreshaBookingUrl(freshaUrlDraft)
-  const freshaUrlDirty =
-    freshaUrlDraft.trim() !== features.freshaBookingUrl ||
-    freshaOpenDraft !== features.freshaOpenTarget
+  const freshaUrlDirty = freshaUrlDraft.trim() !== features.freshaBookingUrl
   const emailToValid = isValidEmailAddress(emailToDraft)
   const emailDirty =
     (!usingEnvAccessKey &&
@@ -147,11 +142,22 @@ export default function AdminPage() {
   }
 
   const saveFreshaUrl = () => {
-    if (!freshaUrlDraft.trim() || !isValidFreshaBookingUrl(freshaUrlDraft)) return
+    if (!freshaUrlDraft.trim() || !isValidFreshaBookingUrl(freshaUrlDraft)) return false
     setFreshaBookingUrl(freshaUrlDraft)
-    setFreshaOpenTarget(freshaOpenDraft)
     setFreshaUrlSaved(true)
     window.setTimeout(() => setFreshaUrlSaved(false), 2000)
+    return true
+  }
+
+  const openBookingsPage = () => {
+    if (features.freshaEnabled && freshaUrlDirty) {
+      if (!freshaUrlValid || !saveFreshaUrl()) return
+    }
+    if (features.calendlyEnabled && urlDirty) {
+      if (!urlsValid) return
+      saveCalendlyUrls()
+    }
+    router.push('/bookings')
   }
 
   const saveEmailSettings = () => {
@@ -251,50 +257,18 @@ export default function AdminPage() {
                       Enter a valid Fresha URL (https://www.fresha.com/…).
                     </p>
                   )}
-                </div>
-
-                <fieldset>
-                  <legend className="block font-semibold text-primary mb-2">
-                    Open Fresha in
-                  </legend>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
-                      <input
-                        type="radio"
-                        name="fresha-open-target"
-                        checked={freshaOpenDraft === 'browser'}
-                        onChange={() => {
-                          setFreshaOpenDraft('browser')
-                          setFreshaUrlSaved(false)
-                        }}
-                        className="accent-primary"
-                      />
-                      Browser (new tab)
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
-                      <input
-                        type="radio"
-                        name="fresha-open-target"
-                        checked={freshaOpenDraft === 'app'}
-                        onChange={() => {
-                          setFreshaOpenDraft('app')
-                          setFreshaUrlSaved(false)
-                        }}
-                        className="accent-primary"
-                      />
-                      Fresha app (when installed)
-                    </label>
-                  </div>
                   <p className="mt-2 text-xs text-secondary">
-                    App opening depends on the device; if the app isn&apos;t installed, Fresha
-                    opens in the browser.
+                    On phones with the Fresha app installed, the device may open the app
+                    automatically; otherwise Fresha opens in the browser.
                   </p>
-                </fieldset>
+                </div>
 
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
-                    onClick={saveFreshaUrl}
+                    onClick={() => {
+                      saveFreshaUrl()
+                    }}
                     disabled={!freshaUrlDirty || !freshaUrlValid}
                     className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
@@ -302,6 +276,11 @@ export default function AdminPage() {
                   </button>
                   {freshaUrlSaved && (
                     <span className="text-sm text-primary font-medium">Saved</span>
+                  )}
+                  {freshaUrlDirty && freshaUrlValid && !freshaUrlSaved && (
+                    <span className="text-sm text-amber-800">
+                      Unsaved — click Save, or use Open bookings page to save and continue.
+                    </span>
                   )}
                   {freshaUrlValid && (
                     <a
@@ -552,18 +531,24 @@ export default function AdminPage() {
               onClick={() => {
                 resetToDefaults()
                 setUrlSaved(false)
+                setFreshaUrlSaved(false)
                 setEmailSaved(false)
               }}
               className="px-6 py-3 rounded-full font-semibold border-2 border-accent/30 text-primary hover:border-primary transition-colors"
             >
               Reset to defaults
             </button>
-            <Link
-              href="/bookings"
-              className="px-6 py-3 rounded-full font-semibold bg-primary text-cream text-center hover:bg-secondary transition-colors"
+            <button
+              type="button"
+              onClick={openBookingsPage}
+              disabled={
+                (features.freshaEnabled && freshaUrlDirty && !freshaUrlValid) ||
+                (features.calendlyEnabled && urlDirty && !urlsValid)
+              }
+              className="px-6 py-3 rounded-full font-semibold bg-primary text-cream text-center hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Open bookings page
-            </Link>
+            </button>
           </div>
         </div>
       </section>
