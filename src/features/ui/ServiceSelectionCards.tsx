@@ -84,11 +84,11 @@ export function ServiceSelectionCards({
                 <Icon className="w-5 h-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="flex flex-col gap-0.5 mb-2 sm:flex-row sm:justify-between sm:items-start sm:gap-3">
+                <div className="flex justify-between items-start gap-3 mb-2">
                   <h3 className="font-semibold text-primary leading-snug min-w-0">
                     {service.name}
                   </h3>
-                  <div className="sm:text-right shrink-0">
+                  <div className="text-right shrink-0">
                     <span
                       className={`font-serif font-bold text-primary ${
                         largePrice ? 'text-2xl' : 'text-xl'

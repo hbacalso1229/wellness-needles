@@ -23,7 +23,7 @@ export function HeroSection() {
         {
           text: "Book Your Session",
           href: bookHref,
-          variant: "primary",
+          variant: "gold",
           external: isExternal,
           target,
           rel,

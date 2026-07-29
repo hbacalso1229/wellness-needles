@@ -57,16 +57,15 @@ export default function Acupuncture() {
               <div className="mt-6">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-2xl blur-md"></div>
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-cream to-accent/5 p-3">
-                    <div className="relative h-full rounded-xl overflow-hidden bg-white/50">
-                      <Image
-                        src="/treatment_on_head.jpeg"
-                        alt="Acupuncture treatment on head"
-                        fill
-                        className="object-contain group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute inset-0 rounded-2xl border border-accent/30 group-hover:border-accent/50 transition-all duration-300"></div>
+                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/treatment_on_head.jpeg"
+                      alt="Acupuncture treatment on head"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 rounded-2xl border border-accent/30 group-hover:border-accent/50 transition-all duration-300 pointer-events-none"></div>
                   </div>
                   {/* Floating decorative elements */}
                   <div className="absolute -top-1 -right-1">

@@ -89,6 +89,7 @@ export default function Testimonials() {
               description="Real results from our specialized alopecia treatment program, showing significant hair regrowth through targeted acupuncture therapy."
               gradientFrom="from-primary/10"
               gradientTo="to-gold/10"
+              objectFit="contain"
               leafColors={{
                 topRight: 'text-gold/70',
                 bottomLeft: 'text-accent/70'
@@ -103,6 +104,7 @@ export default function Testimonials() {
               description="Remarkable skin healing achieved through acupuncture and holistic treatment approaches, demonstrating the power of traditional medicine."
               gradientFrom="from-secondary/10"
               gradientTo="to-light-green/10"
+              objectFit="contain"
               leafColors={{
                 topRight: 'text-light-green/70',
                 bottomLeft: 'text-secondary/70'
@@ -249,10 +251,10 @@ export default function Testimonials() {
             and how acupuncture has improved your life.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <CTAButton href="/contact" variant="primary">
+            <CTAButton href="/contact" variant="gold">
               Share Your Story
             </CTAButton>
-            <BookingCtaButton variant="secondary" showArrow={false}>
+            <BookingCtaButton variant="outline" showArrow={false}>
               Start Your Journey
             </BookingCtaButton>
           </div>

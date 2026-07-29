@@ -132,16 +132,15 @@ export default function ChineseMedicine() {
               <div className="mt-6">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-light-green/10 to-gold/10 rounded-2xl blur-md"></div>
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-cream to-light-green/5 p-3">
-                    <div className="relative h-full rounded-xl overflow-hidden bg-white/50">
-                      <Image
-                        src="/accupuncture_cupping_therapy.jpeg"
-                        alt="Acupuncture and cupping therapy session"
-                        fill
-                        className="object-contain group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute inset-0 rounded-2xl border border-light-green/30 group-hover:border-light-green/50 transition-all duration-300"></div>
+                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/accupuncture_cupping_therapy.jpeg"
+                      alt="Acupuncture and cupping therapy session"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 rounded-2xl border border-light-green/30 group-hover:border-light-green/50 transition-all duration-300 pointer-events-none"></div>
                   </div>
                   {/* Traditional decorative elements */}
                   <div className="absolute -top-2 -right-2 text-light-green/70 animate-pulse">

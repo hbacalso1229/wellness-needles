@@ -462,9 +462,9 @@ export default function Bookings() {
             </a>
             <CTAButton 
               href="/contact" 
-              variant="secondary"
+              variant="outline"
               showArrow={false}
-              className="inline-flex items-center justify-center text-primary"
+              className="inline-flex items-center justify-center"
             >
               <Mail className="w-5 h-5 mr-2" />
               Send Message

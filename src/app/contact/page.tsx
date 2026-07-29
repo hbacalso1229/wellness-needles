@@ -348,7 +348,7 @@ export default function Contact() {
 
       {/* Map Section - Only show if enabled */}
       {contactConfig.features.mapIntegrationEnabled && (
-        <section id="find-us" className="py-12 bg-secondary/5 scroll-mt-20">
+        <section id="find-us" className="pt-12 pb-6 bg-secondary/5 scroll-mt-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="font-serif text-2xl font-bold text-primary mb-2">
