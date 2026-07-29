@@ -21,7 +21,7 @@ export function HeroSection() {
       }}
       ctaButtons={[
         {
-          text: "Book Your Session",
+          text: "Book your session",
           href: bookHref,
           variant: "gold",
           external: isExternal,

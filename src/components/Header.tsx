@@ -50,60 +50,65 @@ export default function Header() {
     !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !exploreBookInView
 
   useEffect(() => {
-    const updateScrollGate = () => {
-      const threshold = Math.round(window.innerHeight * 0.55)
-      setScrolledPastHero(window.scrollY > threshold)
+    setExploreBookInView(false)
+
+    // One-shot recheck after mount/navigation (scroll restoration / HMR).
+    const syncFromHeroRect = () => {
+      const hero = document.querySelector('main section')
+      if (!hero) {
+        setScrolledPastHero(window.scrollY > Math.round(window.innerHeight * 0.55))
+        return
+      }
+      const rect = hero.getBoundingClientRect()
+      const visible =
+        Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
+      const ratio = Math.max(0, visible) / Math.max(rect.height, 1)
+      if (ratio < 0.2) setScrolledPastHero(true)
+      else if (ratio > 0.55) setScrolledPastHero(false)
     }
+    const rafId = window.requestAnimationFrame(syncFromHeroRect)
+    const timeoutId = window.setTimeout(syncFromHeroRect, 100)
+    window.addEventListener('pageshow', syncFromHeroRect)
 
-    updateScrollGate()
-    // Scroll restoration / HMR often jumps scrollY without firing a scroll event.
-    const rafId = window.requestAnimationFrame(updateScrollGate)
-    const timeoutId = window.setTimeout(updateScrollGate, 100)
-
-    window.addEventListener('scroll', updateScrollGate, { passive: true })
-    window.addEventListener('resize', updateScrollGate)
-    window.addEventListener('pageshow', updateScrollGate)
-
-    // More reliable than scroll %: show sticky once the home/page hero leaves view.
+    // Hero gate with hysteresis (no competing scroll% listener).
     const hero = document.querySelector('main section')
     let heroObserver: IntersectionObserver | undefined
     if (hero) {
       heroObserver = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return
-          // Hero mostly out of view → allow sticky Book Now
-          if (entry.intersectionRatio < 0.35) {
-            setScrolledPastHero(true)
-          } else if (window.scrollY <= Math.round(window.innerHeight * 0.55)) {
-            setScrolledPastHero(false)
-          }
+          const ratio = entry.intersectionRatio
+          if (ratio < 0.2) setScrolledPastHero(true)
+          else if (ratio > 0.55) setScrolledPastHero(false)
         },
-        { threshold: [0, 0.35, 0.6, 1] }
+        { threshold: [0, 0.2, 0.55, 1] }
       )
       heroObserver.observe(hero)
     }
 
-    // Hide sticky while Explore "Book your session" card is visible (mobile duplicate).
+    // Explore book gate with hysteresis + rootMargin (avoids mid-scroll flicker).
     const exploreBook = document.getElementById('explore-book-cta')
     let exploreObserver: IntersectionObserver | undefined
     if (exploreBook) {
       exploreObserver = new IntersectionObserver(
         ([entry]) => {
-          setExploreBookInView(Boolean(entry?.isIntersecting))
+          if (!entry) return
+          const ratio = entry.intersectionRatio
+          if (ratio >= 0.35) setExploreBookInView(true)
+          else if (ratio <= 0.05) setExploreBookInView(false)
         },
-        { threshold: 0.2 }
+        {
+          threshold: [0, 0.05, 0.35, 1],
+          rootMargin: '0px 0px -12% 0px',
+        }
       )
       exploreObserver.observe(exploreBook)
-    } else {
-      setExploreBookInView(false)
     }
 
     return () => {
       window.cancelAnimationFrame(rafId)
       window.clearTimeout(timeoutId)
-      window.removeEventListener('scroll', updateScrollGate)
-      window.removeEventListener('resize', updateScrollGate)
-      window.removeEventListener('pageshow', updateScrollGate)
+      window.removeEventListener('pageshow', syncFromHeroRect)
       heroObserver?.disconnect()
       exploreObserver?.disconnect()
     }
@@ -231,10 +236,10 @@ export default function Header() {
 
       <div className="xl:hidden fixed bottom-8 left-1/2 z-40 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] pointer-events-none">
         <div
-          className={`transition-all duration-200 ${
+          className={`transition-opacity duration-300 ${
             showStickyBookNow
-              ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 translate-y-2 pointer-events-none'
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none'
           }`}
           aria-hidden={!showStickyBookNow}
         >

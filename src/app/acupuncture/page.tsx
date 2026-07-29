@@ -23,7 +23,7 @@ export default function Acupuncture() {
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
           {
-            text: 'Schedule Your Treatment',
+            text: 'Schedule your treatment',
             href: bookHref,
             variant: 'gold',
             external: isExternal,
