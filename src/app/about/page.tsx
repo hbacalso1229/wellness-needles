@@ -206,30 +206,47 @@ export default function About() {
             <p className="text-lg text-secondary">
               Committed to providing the highest quality care with authentic traditional practices and personal experience
             </p>
-          </div>          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={Award}
-              title="Certified Expert"
-              description="Arkinth Garcia is licensed and certified in acupuncture and naturopathic medicine from Dublin's prestigious College of Naturopathic Medicine"
-              gradientFrom="from-accent/10"
-              gradientTo="to-accent/10"
-            />
-            
-            <FeatureCard
-              icon={Clock}
-              title="Flexible Scheduling"
-              description="We offer convenient appointment times to fit your busy lifestyle and schedule"
-              gradientFrom="from-accent/10"
-              gradientTo="to-accent/10"
-            />
-            
-            <FeatureCard
-              icon={Heart}
-              title="Personal Experience"
-              description="Having experienced the healing power of acupuncture firsthand, Arkinth brings both professional expertise and personal understanding to your care"
-              gradientFrom="from-accent/10"
-              gradientTo="to-accent/10"
-            />
+          </div>
+
+          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Award}
+                title="Certified Expert"
+                description="Arkinth Garcia is licensed and certified in acupuncture and naturopathic medicine from Dublin's prestigious College of Naturopathic Medicine"
+                gradientFrom="from-accent/10"
+                gradientTo="to-accent/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Clock}
+                title="Flexible Scheduling"
+                description="We offer convenient appointment times to fit your busy lifestyle and schedule"
+                gradientFrom="from-accent/10"
+                gradientTo="to-accent/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Heart}
+                title="Personal Experience"
+                description="Having experienced the healing power of acupuncture firsthand, Arkinth brings both professional expertise and personal understanding to your care"
+                gradientFrom="from-accent/10"
+                gradientTo="to-accent/10"
+              />
+            </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>

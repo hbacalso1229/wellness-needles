@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { ReactNode } from 'react'
 import { PulsingLeaf } from './PulsingLeaf'
 import { CTAButton } from './CTAButton'
@@ -29,6 +30,8 @@ export interface HeroSectionProps {
     text: string
     href: string
     variant?: 'primary' | 'secondary' | 'gold' | 'outline'
+    /** Render as a text link instead of a pill button */
+    appearance?: 'button' | 'link'
     showArrow?: boolean
     external?: boolean
     target?: string
@@ -155,20 +158,47 @@ export function HeroSection({
           {/* CTA Buttons */}
           {ctaButtons.length > 0 && (
             <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center ${ctaWrapperClassName}`}>
-              {ctaButtons.map((button, index) => (
-                <CTAButton
-                  key={index}
-                  href={button.href}
-                  variant={button.variant}
-                  size="medium"
-                  showArrow={button.showArrow}
-                  external={button.external}
-                  target={button.target}
-                  rel={button.rel}
-                >
-                  {button.text}
-                </CTAButton>
-              ))}
+              {ctaButtons.map((button, index) => {
+                if (button.appearance === 'link') {
+                  const isExternal =
+                    button.external || /^(https?:\/\/|tel:|mailto:)/i.test(button.href)
+                  const linkClassName =
+                    'text-cream/90 hover:text-cream underline underline-offset-4 decoration-cream/50 hover:decoration-cream text-sm sm:text-base font-medium transition-colors'
+                  if (isExternal) {
+                    return (
+                      <a
+                        key={index}
+                        href={button.href}
+                        target={button.target}
+                        rel={button.rel}
+                        className={linkClassName}
+                      >
+                        {button.text}
+                      </a>
+                    )
+                  }
+                  return (
+                    <Link key={index} href={button.href} className={linkClassName}>
+                      {button.text}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <CTAButton
+                    key={index}
+                    href={button.href}
+                    variant={button.variant}
+                    size="medium"
+                    showArrow={button.showArrow}
+                    external={button.external}
+                    target={button.target}
+                    rel={button.rel}
+                  >
+                    {button.text}
+                  </CTAButton>
+                )
+              })}
             </div>
           )}
           
