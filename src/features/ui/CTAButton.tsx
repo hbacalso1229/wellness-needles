@@ -40,10 +40,11 @@ export function CTAButton({
   }
 
   const classes = `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-md ${className}`
-  const isExternal = external || /^https?:\/\//i.test(href)
+  const isExternal = external || /^(https?:\/\/|tel:|mailto:)/i.test(href)
 
   if (isExternal) {
-    const resolvedTarget = target ?? '_blank'
+    const isTelOrMailto = /^(tel:|mailto:)/i.test(href)
+    const resolvedTarget = target ?? (isTelOrMailto ? undefined : '_blank')
     const resolvedRel =
       rel ?? (resolvedTarget === '_blank' ? 'noopener noreferrer' : undefined)
     return (

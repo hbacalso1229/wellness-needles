@@ -137,54 +137,75 @@ export default function Acupuncture() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={Zap}
-              title="Pain Relief"
-              description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            
-            <FeatureCard
-              icon={Brain}
-              title="Stress Reduction"
-              description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            
-            <FeatureCard
-              icon={Activity}
-              title="Improved Sleep"
-              description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            
-            <FeatureCard
-              icon={Shield}
-              title="Immune Support"
-              description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            
-            <FeatureCard
-              icon={Heart}
-              title="Digestive Health"
-              description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            
-            <FeatureCard
-              icon={Target}
-              title="Hormonal Balance"
-              description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
+          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Zap}
+                title="Pain Relief"
+                description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Brain}
+                title="Stress Reduction"
+                description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Activity}
+                title="Improved Sleep"
+                description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Shield}
+                title="Immune Support"
+                description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Heart}
+                title="Digestive Health"
+                description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                icon={Target}
+                title="Hormonal Balance"
+                description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+              />
+            </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -201,72 +222,81 @@ export default function Acupuncture() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Pain Management</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Chronic back pain</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Neck and shoulder pain</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Arthritis</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Migraines and headaches</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Fibromyalgia</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Chronic back pain</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Neck and shoulder pain</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Arthritis</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Migraines and headaches</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Fibromyalgia</li>
               </ul>
             </div>
-            
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Mental Health</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Anxiety and stress</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Depression</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Insomnia</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> PTSD</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Addiction recovery</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Anxiety and stress</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Depression</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Insomnia</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> PTSD</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Addiction recovery</li>
               </ul>
             </div>
-            
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Women&apos;s Health</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Fertility support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Menstrual irregularities</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Menopause symptoms</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Pregnancy support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> PCOS</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Fertility support</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Menstrual irregularities</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Menopause symptoms</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Pregnancy support</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> PCOS</li>
               </ul>
             </div>
-            
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Digestive Issues</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> IBS</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Acid reflux</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Bloating</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Constipation</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Nausea</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> IBS</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Acid reflux</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Bloating</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Constipation</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Nausea</li>
               </ul>
             </div>
-            
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">Respiratory</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Asthma</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Allergies</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Sinusitis</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Chronic cough</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Bronchitis</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Asthma</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Allergies</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Sinusitis</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Chronic cough</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Bronchitis</li>
               </ul>
             </div>
-            
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-4">General Wellness</h3>
               <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Immune support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Energy enhancement</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Anti-aging</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Weight management</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2" /> Preventive care</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Immune support</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Energy enhancement</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Anti-aging</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Weight management</li>
+                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Preventive care</li>
               </ul>
             </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -283,8 +313,9 @@ export default function Acupuncture() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-cream rounded-lg p-8 card-emboss">
+          {/* Mobile: horizontal scroll carousel | md: 2-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 card-emboss">
               <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
                 Clinical Research
               </h3>
@@ -308,7 +339,7 @@ export default function Acupuncture() {
               </ul>
             </div>
             
-            <div className="bg-cream rounded-lg p-8 card-emboss">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 card-emboss">
               <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
                 Safety Profile
               </h3>
@@ -331,6 +362,14 @@ export default function Acupuncture() {
                 </li>
               </ul>
             </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>

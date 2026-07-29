@@ -28,7 +28,7 @@ export function ServiceCard({
   target,
   rel,
 }: ServiceCardProps) {
-  const baseClasses = "group rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300"
+  const baseClasses = "group rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition-all duration-300"
   
   const variantClasses = {
     default: `bg-cream border ${borderColor}`,
@@ -43,7 +43,7 @@ export function ServiceCard({
   const isExternal = external || /^https?:\/\//i.test(href)
   const content = (
     <>
-      <Icon className={`w-12 h-12 ${iconColorClasses} mx-auto mb-4`} />
+      <Icon className={`w-9 h-9 sm:w-12 sm:h-12 ${iconColorClasses} mx-auto mb-3 sm:mb-4`} />
       <h3 className={`font-semibold text-lg ${titleColorClasses} mb-2`}>{title}</h3>
       <p className={`text-sm ${descriptionColorClasses}`}>{description}</p>
     </>
