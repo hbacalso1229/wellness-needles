@@ -168,8 +168,9 @@ export default function ChineseMedicine() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
+          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Zap className="w-8 h-8 text-primary" />
               </div>
@@ -184,8 +185,8 @@ export default function ChineseMedicine() {
                 Learn More →
               </Link>
             </div>
-            
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-primary" />
               </div>
@@ -198,8 +199,8 @@ export default function ChineseMedicine() {
               </p>
               <span className="text-accent font-medium">Pain Relief</span>
             </div>
-            
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Brain className="w-8 h-8 text-primary" />
               </div>
@@ -212,8 +213,8 @@ export default function ChineseMedicine() {
               </p>
               <span className="text-accent font-medium">Energy Building</span>
             </div>
-            
-            <div className="bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
               <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Circle className="w-8 h-8 text-primary" />
               </div>
@@ -226,6 +227,14 @@ export default function ChineseMedicine() {
               </p>
               <span className="text-accent font-medium">Circulation</span>
             </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -242,42 +251,47 @@ export default function ChineseMedicine() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
-                <h3 className="font-semibold text-lg text-primary mb-3">Pulse Diagnosis</h3>
-                <p className="text-secondary">
-                  Practitioners feel the pulse at multiple positions to assess the quality, 
-                  strength, and rhythm, revealing information about organ function and energy flow.
-                </p>
-              </div>
-              
-              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
-                <h3 className="font-semibold text-lg text-primary mb-3">Tongue Examination</h3>
-                <p className="text-secondary">
-                  The color, coating, texture, and shape of the tongue provide insights 
-                  into internal organ systems and overall constitutional health.
-                </p>
-              </div>
+          {/* Mobile: horizontal scroll carousel | md: 2-col */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">Pulse Diagnosis</h3>
+              <p className="text-secondary">
+                Practitioners feel the pulse at multiple positions to assess the quality, 
+                strength, and rhythm, revealing information about organ function and energy flow.
+              </p>
             </div>
-            
-            <div className="space-y-6">
-              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
-                <h3 className="font-semibold text-lg text-primary mb-3">Observation</h3>
-                <p className="text-secondary">
-                  Visual assessment of complexion, eyes, body build, movement, and overall 
-                  vitality to understand constitutional strengths and imbalances.
-                </p>
-              </div>
-              
-              <div className="bg-accent/5 rounded-lg p-6 card-emboss">
-                <h3 className="font-semibold text-lg text-primary mb-3">Questioning & Listening</h3>
-                <p className="text-secondary">
-                  Detailed inquiry about symptoms, lifestyle, emotions, and listening to 
-                  voice quality and breathing patterns to complete the diagnostic picture.
-                </p>
-              </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">Tongue Examination</h3>
+              <p className="text-secondary">
+                The color, coating, texture, and shape of the tongue provide insights 
+                into internal organ systems and overall constitutional health.
+              </p>
             </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">Observation</h3>
+              <p className="text-secondary">
+                Visual assessment of complexion, eyes, body build, movement, and overall 
+                vitality to understand constitutional strengths and imbalances.
+              </p>
+            </div>
+
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
+              <h3 className="font-semibold text-lg text-primary mb-3">Questioning & Listening</h3>
+              <p className="text-secondary">
+                Detailed inquiry about symptoms, lifestyle, emotions, and listening to 
+                voice quality and breathing patterns to complete the diagnostic picture.
+              </p>
+            </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
