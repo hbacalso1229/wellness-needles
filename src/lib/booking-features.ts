@@ -4,6 +4,8 @@ export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
   freshaEnabled: boolean
+  /** Show 5/10 session treatment packages on the bookings page. */
+  treatmentPackagesEnabled: boolean
   /** Fallback Calendly URL (packages / unknown service). */
   calendlySchedulingUrl: string
   /** Initial Consultation event (1h 45m). */
@@ -39,6 +41,7 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyEnabled: contactConfig.features.calendlyEnabled,
     bookingFormEnabled: contactConfig.features.bookingFormEnabled,
     freshaEnabled: contactConfig.features.freshaEnabled,
+    treatmentPackagesEnabled: contactConfig.features.treatmentPackagesEnabled,
     calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
@@ -203,10 +206,16 @@ export function readBookingFeatures(): BookingFeatureFlags {
       calendlyEnabled = false
     }
 
+    const treatmentPackagesEnabled =
+      typeof parsed.treatmentPackagesEnabled === 'boolean'
+        ? parsed.treatmentPackagesEnabled
+        : defaults.treatmentPackagesEnabled
+
     return {
       calendlyEnabled,
       bookingFormEnabled,
       freshaEnabled,
+      treatmentPackagesEnabled,
       calendlySchedulingUrl: fallbackUrl,
       calendlyInitialUrl: initialUrl,
       calendlyFollowUpUrl: followUpUrl,

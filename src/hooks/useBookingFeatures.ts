@@ -113,6 +113,13 @@ export function useBookingFeatures() {
     [patchFeatures]
   )
 
+  const setTreatmentPackagesEnabled = useCallback(
+    (enabled: boolean) => {
+      patchFeatures({ treatmentPackagesEnabled: enabled })
+    },
+    [patchFeatures]
+  )
+
   const setBookingEmailEnabled = useCallback(
     (enabled: boolean) => {
       patchFeatures({ bookingEmailEnabled: enabled })
@@ -149,6 +156,7 @@ export function useBookingFeatures() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
+    setTreatmentPackagesEnabled,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,

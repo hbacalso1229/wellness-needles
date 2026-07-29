@@ -76,6 +76,7 @@ export default function AdminPage() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
+    setTreatmentPackagesEnabled,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
@@ -220,6 +221,17 @@ export default function AdminPage() {
               description="Show the multi-step booking form (Service → Location → Date & Time → Details)."
               checked={features.bookingFormEnabled}
               onChange={setBookingFormEnabled}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="font-serif text-2xl font-bold text-primary">Booking options</h2>
+            <Toggle
+              id="toggle-treatment-packages"
+              label="Treatment packages"
+              description="Show 5-session and 10-session package options on the bookings page (off by default)."
+              checked={features.treatmentPackagesEnabled}
+              onChange={setTreatmentPackagesEnabled}
             />
           </div>
 

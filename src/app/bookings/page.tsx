@@ -1,7 +1,7 @@
 'use client'
 
 import { Clock, CheckCircle, Phone, Mail, MapPin } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { CTAButton } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
@@ -136,8 +136,7 @@ export default function Bookings() {
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
     (service) =>
-      contactConfig.features.treatmentPackagesEnabled ||
-      !service.id.includes('package')
+      features.treatmentPackagesEnabled || !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
   const selectedServiceDetails = services.find((s) => s.id === selectedService)
@@ -145,6 +144,14 @@ export default function Bookings() {
     .map((id) => addOns.find((a) => a.id === id)?.name)
     .filter((name): name is string => Boolean(name))
   const canOpenScheduler = Boolean(selectedLocation && selectedService)
+
+  useEffect(() => {
+    if (!features.treatmentPackagesEnabled && selectedService.includes('package')) {
+      setSelectedService(
+        activeTab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
+      )
+    }
+  }, [features.treatmentPackagesEnabled, selectedService, activeTab])
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
