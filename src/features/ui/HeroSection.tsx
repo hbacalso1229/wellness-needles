@@ -154,12 +154,13 @@ export function HeroSection({
           
           {/* CTA Buttons */}
           {ctaButtons.length > 0 && (
-            <div className={`flex flex-col sm:flex-row gap-4 justify-center ${ctaWrapperClassName}`}>
+            <div className={`flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center ${ctaWrapperClassName}`}>
               {ctaButtons.map((button, index) => (
                 <CTAButton
                   key={index}
                   href={button.href}
                   variant={button.variant}
+                  size="medium"
                   showArrow={button.showArrow}
                   external={button.external}
                   target={button.target}

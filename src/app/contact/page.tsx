@@ -272,8 +272,8 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Quick Actions: below + centered on mobile, upper-right on desktop */}
-                <aside className="w-full max-w-xs mx-auto lg:mx-0 lg:ml-auto p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
+                {/* Quick Actions: hidden on mobile, visible on desktop */}
+                <aside className="hidden lg:block w-full max-w-xs mx-auto lg:mx-0 lg:ml-auto p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
                   <h3 className="font-semibold text-base text-primary mb-3">
                     Quick Actions
                   </h3>
@@ -321,8 +321,9 @@ export default function Contact() {
             </p>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+          {/* Mobile: horizontal scroll carousel | sm+: stacked */}
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-col sm:overflow-visible sm:pb-0 sm:gap-6">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-3">
                 How should I prepare for my first appointment?
               </h3>
@@ -332,7 +333,7 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="bg-accent/5 rounded-lg p-6 card-emboss">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
               <h3 className="font-semibold text-lg text-primary mb-3">
                 How many treatments will I need?
               </h3>
@@ -342,6 +343,14 @@ export default function Contact() {
                 discuss a personalized plan during your consultation.
               </p>
             </div>
+          </div>
+
+          {/* Swipe hint — mobile only */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 sm:hidden" aria-hidden="true">
+            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </div>
         </div>
       </section>
@@ -359,9 +368,10 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Mobile: horizontal scroll carousel | md: 2-col */}
+            <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-6">
               {contactConfig.address.locations.map((location) => (
-                <div key={location.full}>
+                <div key={location.full} className="snap-start shrink-0 w-[80vw] sm:w-[65vw] md:w-auto">
                   <div className="mb-3">
                     <h3 className="font-semibold text-base text-primary mb-1">
                       {location.label}
@@ -381,6 +391,14 @@ export default function Contact() {
                   />
                 </div>
               ))}
+            </div>
+
+            {/* Swipe hint — mobile only */}
+            <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
+              <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
+              <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
             </div>
           </div>
         </section>

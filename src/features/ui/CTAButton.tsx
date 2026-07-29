@@ -35,8 +35,8 @@ export function CTAButton({
   }
 
   const sizeClasses = {
-    medium: 'px-6 py-3 text-base',
-    large: 'px-8 py-4 text-lg'
+    medium: 'px-5 py-2.5 text-sm sm:px-6 sm:py-3 sm:text-base',
+    large: 'px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg',
   }
 
   const classes = `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-md ${className}`
@@ -55,7 +55,7 @@ export function CTAButton({
         className={classes}
       >
         {children}
-        {showArrow && <ArrowRight className="ml-2 w-5 h-5" />}
+        {showArrow && <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />}
       </a>
     )
   }
@@ -63,7 +63,7 @@ export function CTAButton({
   return (
     <Link href={href} className={classes}>
       {children}
-      {showArrow && <ArrowRight className="ml-2 w-5 h-5" />}
+      {showArrow && <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />}
     </Link>
   )
 }
