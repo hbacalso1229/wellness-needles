@@ -76,6 +76,7 @@ export function FeaturesSection() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <FeatureCard
+            flippable
             icon={Heart}
             title="Holistic Healing"
             description="Our treatments address the root cause of ailments, promoting complete wellness of mind, body, and spirit through time-tested techniques."
@@ -84,6 +85,7 @@ export function FeaturesSection() {
           />
           
           <FeatureCard
+            flippable
             icon={Users}
             title="Expert Practitioner"
             description="Arkinth Garcia, our qualified Naturopath and Acupuncturist, brings deep knowledge and personal experience to provide compassionate, holistic care."
@@ -92,6 +94,7 @@ export function FeaturesSection() {
           />
           
           <FeatureCard
+            flippable
             icon={Award}
             title="Proven Results"
             description="Patients have experienced relief from chronic conditions and improvements in thier quality of life through our personalised treatments."
