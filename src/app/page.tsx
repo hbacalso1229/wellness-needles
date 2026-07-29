@@ -2,7 +2,6 @@ import {
   HeroSection,
   FeaturesSection,
   QuickLinksSection,
-  CTASection
 } from '../features/home'
 
 export default function Home() {
@@ -11,7 +10,6 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <QuickLinksSection />
-      <CTASection />
     </div>
   )
 }

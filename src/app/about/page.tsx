@@ -17,7 +17,7 @@ export default function About() {
         description="Our practice combines ancient healing wisdom with modern understanding to provide comprehensive wellness solutions tailored to your unique needs."
         backgroundImage="/treatment_in_progress_2.jpeg"
         heightClass="py-20"
-        showFloatingLeaves={false}
+        showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
           {

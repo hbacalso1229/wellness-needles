@@ -74,18 +74,23 @@ export function HeroSection({
   }
 
   return (
-    <section className={`relative ${heightClass} flex items-center ${justifyClasses[alignment]} ${backgroundClass}`}>
-      {/* Background Image */}
+    <section
+      className={`relative ${heightClass} flex items-center ${justifyClasses[alignment]} ${
+        backgroundImage ? 'bg-primary' : backgroundClass
+      }`}
+    >
+      {/* Photo heroes: full image + light brand wash (not faded image on solid green) */}
       {backgroundImage && (
         <div className="absolute inset-0">
           <Image
             src={backgroundImage}
             alt="Hero background"
             fill
-            className="object-cover opacity-30"
+            sizes="100vw"
+            className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/65 via-primary/45 to-secondary/35" />
         </div>
       )}
       

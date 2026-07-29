@@ -3,9 +3,11 @@
 import { Brain, Heart, Zap, Shield, Target, Activity, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
 import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
-//a
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+
 export default function Acupuncture() {
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -17,6 +19,18 @@ export default function Acupuncture() {
         backgroundClass="bg-secondary"
         textColor="text-cream"
         heightClass="py-20"
+        showFloatingLeaves={true}
+        ctaWrapperClassName="xl:hidden"
+        ctaButtons={[
+          {
+            text: 'Schedule Your Treatment',
+            href: bookHref,
+            variant: 'gold',
+            external: isExternal,
+            target,
+            rel,
+          },
+        ]}
       />
 
       {/* How It Works Section */}
@@ -318,31 +332,6 @@ export default function Acupuncture() {
               </ul>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/modern_accupuncture.jpeg"
-            alt="Modern acupuncture treatment room"
-            fill
-            className="object-cover object-center opacity-20"
-          />
-          <div className="absolute inset-0 bg-primary/80"></div>
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
-            Experience the Benefits of Acupuncture
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Discover how this ancient healing art can help you achieve optimal health and wellness
-          </p>
-          <BookingCtaButton variant="gold">
-            Schedule Your Treatment
-          </BookingCtaButton>
         </div>
       </section>
     </div>
