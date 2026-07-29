@@ -3,18 +3,18 @@
 import { CheckCircle, MapPin } from 'lucide-react'
 
 export type ClinicLocationOption = {
-  id: string
-  label: string
-  formatted: {
-    street: string
-    city: string
-    county: string
-    postcode: string
+  readonly id: string
+  readonly label: string
+  readonly formatted: {
+    readonly street: string
+    readonly city: string
+    readonly county: string
+    readonly postcode: string
   }
 }
 
 type ClinicLocationCardsProps = {
-  locations: ClinicLocationOption[]
+  locations: ReadonlyArray<ClinicLocationOption>
   selectedId: string
   onSelect: (id: string) => void
   name?: string

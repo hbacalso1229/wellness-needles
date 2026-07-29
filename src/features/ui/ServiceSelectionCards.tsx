@@ -11,16 +11,16 @@ import {
 } from 'lucide-react'
 
 export type BookingServiceOption = {
-  id: string
-  name: string
-  duration: string
-  price: string
-  description: string
-  savings?: string
+  readonly id: string
+  readonly name: string
+  readonly duration: string
+  readonly price: string
+  readonly description: string
+  readonly savings?: string
 }
 
 type ServiceSelectionCardsProps = {
-  services: BookingServiceOption[]
+  services: ReadonlyArray<BookingServiceOption>
   selectedId: string
   onSelect: (id: string) => void
   name?: string

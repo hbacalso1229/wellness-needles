@@ -3,15 +3,15 @@
 import { CheckCircle, Droplets, Flame, Sparkles, type LucideIcon } from 'lucide-react'
 
 export type OptionalAddOn = {
-  id: string
-  name: string
-  price: string
-  description: string
+  readonly id: string
+  readonly name: string
+  readonly price: string
+  readonly description: string
 }
 
 type OptionalAddOnsProps = {
-  addOns: OptionalAddOn[]
-  selectedIds: string[]
+  addOns: ReadonlyArray<OptionalAddOn>
+  selectedIds: readonly string[]
   onToggle: (id: string) => void
 }
 
