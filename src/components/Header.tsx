@@ -19,6 +19,7 @@ function BookNowLabel() {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolledPastHero, setScrolledPastHero] = useState(false)
+  const [exploreBookInView, setExploreBookInView] = useState(false)
   const pathname = usePathname()
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
@@ -44,30 +45,74 @@ export default function Header() {
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Hide sticky while hero booking CTAs are still in view (avoids double Book CTAs on home).
+  // Hide sticky while hero CTAs are in view, or while Explore Book card is on screen (avoids double Book Now).
   const showStickyBookNow =
-    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero
+    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !exploreBookInView
 
   useEffect(() => {
     const updateScrollGate = () => {
       const threshold = Math.round(window.innerHeight * 0.55)
       setScrolledPastHero(window.scrollY > threshold)
     }
+
     updateScrollGate()
+    // Scroll restoration / HMR often jumps scrollY without firing a scroll event.
+    const rafId = window.requestAnimationFrame(updateScrollGate)
+    const timeoutId = window.setTimeout(updateScrollGate, 100)
+
     window.addEventListener('scroll', updateScrollGate, { passive: true })
     window.addEventListener('resize', updateScrollGate)
+    window.addEventListener('pageshow', updateScrollGate)
+
+    // More reliable than scroll %: show sticky once the home/page hero leaves view.
+    const hero = document.querySelector('main section')
+    let heroObserver: IntersectionObserver | undefined
+    if (hero) {
+      heroObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry) return
+          // Hero mostly out of view → allow sticky Book Now
+          if (entry.intersectionRatio < 0.35) {
+            setScrolledPastHero(true)
+          } else if (window.scrollY <= Math.round(window.innerHeight * 0.55)) {
+            setScrolledPastHero(false)
+          }
+        },
+        { threshold: [0, 0.35, 0.6, 1] }
+      )
+      heroObserver.observe(hero)
+    }
+
+    // Hide sticky while Explore "Book your session" card is visible (mobile duplicate).
+    const exploreBook = document.getElementById('explore-book-cta')
+    let exploreObserver: IntersectionObserver | undefined
+    if (exploreBook) {
+      exploreObserver = new IntersectionObserver(
+        ([entry]) => {
+          setExploreBookInView(Boolean(entry?.isIntersecting))
+        },
+        { threshold: 0.2 }
+      )
+      exploreObserver.observe(exploreBook)
+    } else {
+      setExploreBookInView(false)
+    }
+
     return () => {
+      window.cancelAnimationFrame(rafId)
+      window.clearTimeout(timeoutId)
       window.removeEventListener('scroll', updateScrollGate)
       window.removeEventListener('resize', updateScrollGate)
+      window.removeEventListener('pageshow', updateScrollGate)
+      heroObserver?.disconnect()
+      exploreObserver?.disconnect()
     }
-  }, [])
+  }, [pathname])
 
   // Close the drawer when navigating or resizing up to desktop nav.
   useEffect(() => {
     setIsMenuOpen(false)
-    setScrolledPastHero(window.scrollY > Math.round(window.innerHeight * 0.55))
   }, [pathname])
-
   useEffect(() => {
     const onResize = () => {
       if (window.matchMedia('(min-width: 1280px)').matches) {
