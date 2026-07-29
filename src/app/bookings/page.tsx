@@ -1,7 +1,7 @@
 'use client'
 
 import { Clock, CheckCircle, Phone, Mail, MapPin } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { CTAButton } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
@@ -32,8 +32,8 @@ export default function Bookings() {
   const { initialLabel, followUpLabel } = contactConfig.calendly.durations
 
   const [activeTab, setActiveTab] = useState('in-clinic')
-  const [selectedLocation, setSelectedLocation] = useState('')
-  const [selectedService, setSelectedService] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState('celbridge')
+  const [selectedService, setSelectedService] = useState('initial-consultation')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
@@ -136,8 +136,7 @@ export default function Bookings() {
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
     (service) =>
-      contactConfig.features.treatmentPackagesEnabled ||
-      !service.id.includes('package')
+      features.treatmentPackagesEnabled || !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
   const selectedServiceDetails = services.find((s) => s.id === selectedService)
@@ -146,9 +145,19 @@ export default function Bookings() {
     .filter((name): name is string => Boolean(name))
   const canOpenScheduler = Boolean(selectedLocation && selectedService)
 
+  useEffect(() => {
+    if (!features.treatmentPackagesEnabled && selectedService.includes('package')) {
+      setSelectedService(
+        activeTab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
+      )
+    }
+  }, [features.treatmentPackagesEnabled, selectedService, activeTab])
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    setSelectedService('')
+    setSelectedService(
+      tab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
+    )
     setSelectedAddOns([])
   }
 
@@ -233,20 +242,13 @@ export default function Bookings() {
                       Review services below, then continue to Fresha to choose a time.
                     </p>
                     {freshaReady ? (
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                      <div className="flex justify-center">
                         <a
                           href={features.freshaBookingUrl.trim()}
-                          {...getFreshaOpenAttrs('browser')}
+                          {...getFreshaOpenAttrs()}
                           className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
                         >
-                          Open in browser
-                        </a>
-                        <a
-                          href={features.freshaBookingUrl.trim()}
-                          {...getFreshaOpenAttrs('app')}
-                          className="border-2 border-primary text-primary px-8 py-3 rounded-full text-lg font-semibold hover:bg-primary hover:text-cream transition-all duration-300 inline-flex items-center justify-center"
-                        >
-                          Open in Fresha app
+                          Continue to Fresha
                         </a>
                       </div>
                     ) : (
@@ -289,7 +291,48 @@ export default function Bookings() {
                   </button>
                 </div>
 
-                {/* Clinic location */}
+                {/* Service first, then location (Fresha / Calendly flow) */}
+                <div className="mb-8">
+                  <h3 className="font-serif text-xl font-bold text-primary mb-4">
+                    Service
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {services.map((service) => (
+                      <label
+                        key={service.id}
+                        className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          selectedService === service.id
+                            ? 'border-primary bg-primary/5'
+                            : 'border-accent/20 hover:border-accent/40'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="pricing-service"
+                          value={service.id}
+                          checked={selectedService === service.id}
+                          onChange={(e) => setSelectedService(e.target.value)}
+                          className="sr-only"
+                        />
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-primary">{service.name}</h3>
+                          <div className="text-right">
+                            <span className="text-gold font-bold text-lg">{service.price}</span>
+                            {service.savings && (
+                              <div className="text-green-600 text-sm font-medium">{service.savings}</div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center text-sm text-secondary mb-2">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {service.duration}
+                        </div>
+                        <p className="text-sm text-secondary">{service.description}</p>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="mb-8">
                   <h3 className="font-serif text-xl font-bold text-primary mb-2 flex items-center">
                     <MapPin className="w-5 h-5 mr-2" />
@@ -329,43 +372,6 @@ export default function Bookings() {
                       </label>
                     ))}
                   </div>
-                </div>
-
-                {/* Services Pricing Display */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  {services.map((service) => (
-                    <label
-                      key={service.id}
-                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                        selectedService === service.id
-                          ? 'border-primary bg-primary/5'
-                          : 'border-accent/20 hover:border-accent/40'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="pricing-service"
-                        value={service.id}
-                        checked={selectedService === service.id}
-                        onChange={(e) => setSelectedService(e.target.value)}
-                        className="sr-only"
-                      />
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-primary">{service.name}</h3>
-                        <div className="text-right">
-                          <span className="text-gold font-bold text-lg">{service.price}</span>
-                          {service.savings && (
-                            <div className="text-green-600 text-sm font-medium">{service.savings}</div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center text-sm text-secondary mb-2">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {service.duration}
-                      </div>
-                      <p className="text-sm text-secondary">{service.description}</p>
-                    </label>
-                  ))}
                 </div>
 
                 {/* Add-ons Pricing Display */}
@@ -456,14 +462,14 @@ export default function Bookings() {
                         {activeTab === 'call-out' ? 'Home Visit' : 'In Clinic'}
                       </li>
                       <li>
+                        <span className="font-medium text-primary">Service / package:</span>{' '}
+                        {selectedServiceDetails?.name ?? 'Not selected'}
+                      </li>
+                      <li>
                         <span className="font-medium text-primary">Location:</span>{' '}
                         {selectedLocationDetails
                           ? `${selectedLocationDetails.label} — ${selectedLocationDetails.formatted.street}`
                           : 'Not selected'}
-                      </li>
-                      <li>
-                        <span className="font-medium text-primary">Service / package:</span>{' '}
-                        {selectedServiceDetails?.name ?? 'Not selected'}
                       </li>
                       <li>
                         <span className="font-medium text-primary">Add-ons:</span>{' '}
@@ -476,7 +482,7 @@ export default function Bookings() {
 
                   {!canOpenScheduler ? (
                     <p className="text-center text-sm text-secondary mb-4">
-                      Select a location and a service/package above to load the scheduling
+                      Select a service/package and a location above to load the scheduling
                       calendar. Those choices are prefilled into the Calendly booking.
                     </p>
                   ) : (

@@ -14,7 +14,7 @@ export function useBookingCtaHref() {
   const isExternal = isExternalBookingHref(href)
   const openAttrs =
     isExternal && hydrated
-      ? getFreshaOpenAttrs(features.freshaOpenTarget)
+      ? getFreshaOpenAttrs()
       : { target: '_blank' as const, rel: 'noopener noreferrer' }
 
   return {
@@ -24,6 +24,5 @@ export function useBookingCtaHref() {
     rel: openAttrs.rel,
     hydrated,
     freshaEnabled: features.freshaEnabled,
-    freshaOpenTarget: features.freshaOpenTarget,
   }
 }

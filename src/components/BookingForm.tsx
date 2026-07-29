@@ -251,7 +251,7 @@ export default function BookingForm() {
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
     (service) =>
-      contactConfig.features.treatmentPackagesEnabled || !service.id.includes('package')
+      features.treatmentPackagesEnabled || !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
 

@@ -123,10 +123,9 @@ Use when **Fresha booking** is enabled on `/admin` (mutually exclusive with Cale
 
 1. Copy your public Fresha booking link from Fresha.
 2. `/admin` → turn on **Fresha booking** → paste **Fresha booking URL**.
-3. Choose **Open Fresha in**: Browser (new tab) or Fresha app (when installed).
-4. Save → confirm **Book Now** and `/bookings` (**Open in browser** / **Open in Fresha app**).
+3. Save → confirm **Book Now** and `/bookings` (**Continue to Fresha**).
 
-Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin). On mobile, the OS may still open the Fresha app for `fresha.com` links even when “Browser” is selected.
+Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin). On phones with the Fresha app installed, the OS may open the app automatically via Universal/App Links; otherwise Fresha opens in the browser.
 
 ### Calendly setup checklist
 

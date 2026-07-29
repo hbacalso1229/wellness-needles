@@ -8,7 +8,6 @@ import {
   readBookingFeatures,
   writeBookingFeatures,
   type BookingFeatureFlags,
-  type FreshaOpenTarget,
 } from '@/lib/booking-features'
 
 export function useBookingFeatures() {
@@ -43,12 +42,15 @@ export function useBookingFeatures() {
     setFeaturesState(next)
   }, [])
 
-  const patchFeatures = useCallback(
-    (patch: Partial<BookingFeatureFlags>) => {
-      setFeatures({ ...features, ...patch })
-    },
-    [features, setFeatures]
-  )
+  // Merge against the latest state so consecutive patches do not overwrite
+  // each other via a stale closure.
+  const patchFeatures = useCallback((patch: Partial<BookingFeatureFlags>) => {
+    setFeaturesState((current) => {
+      const next = { ...current, ...patch }
+      writeBookingFeatures(next)
+      return next
+    })
+  }, [])
 
   const setFreshaEnabled = useCallback(
     (enabled: boolean) => {
@@ -111,9 +113,9 @@ export function useBookingFeatures() {
     [patchFeatures]
   )
 
-  const setFreshaOpenTarget = useCallback(
-    (openTarget: FreshaOpenTarget) => {
-      patchFeatures({ freshaOpenTarget: openTarget })
+  const setTreatmentPackagesEnabled = useCallback(
+    (enabled: boolean) => {
+      patchFeatures({ treatmentPackagesEnabled: enabled })
     },
     [patchFeatures]
   )
@@ -154,7 +156,7 @@ export function useBookingFeatures() {
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
-    setFreshaOpenTarget,
+    setTreatmentPackagesEnabled,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,

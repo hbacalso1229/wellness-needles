@@ -1,11 +1,11 @@
 import { contactConfig } from '@/lib/contact-config'
 
-export type FreshaOpenTarget = 'browser' | 'app'
-
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
   freshaEnabled: boolean
+  /** Show 5/10 session treatment packages on the bookings page. */
+  treatmentPackagesEnabled: boolean
   /** Fallback Calendly URL (packages / unknown service). */
   calendlySchedulingUrl: string
   /** Initial Consultation event (1h 45m). */
@@ -14,8 +14,6 @@ export type BookingFeatureFlags = {
   calendlyFollowUpUrl: string
   /** Fresha public booking page URL. */
   freshaBookingUrl: string
-  /** Prefer opening Fresha in browser tab or the Fresha app (when installed). */
-  freshaOpenTarget: FreshaOpenTarget
   /** Send legacy form submissions by email (Web3Forms). */
   bookingEmailEnabled: boolean
   /** Web3Forms access key from https://web3forms.com */
@@ -43,11 +41,11 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyEnabled: contactConfig.features.calendlyEnabled,
     bookingFormEnabled: contactConfig.features.bookingFormEnabled,
     freshaEnabled: contactConfig.features.freshaEnabled,
+    treatmentPackagesEnabled: contactConfig.features.treatmentPackagesEnabled,
     calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
     freshaBookingUrl: contactConfig.fresha.bookingUrl,
-    freshaOpenTarget: 'browser',
     // Shared deploys: env key alone is enough — email is on by default for all visitors.
     bookingEmailEnabled: Boolean(envAccessKey),
     bookingEmailAccessKey: envAccessKey,
@@ -138,19 +136,14 @@ export function isExternalBookingHref(href: string): boolean {
   return /^https?:\/\//i.test(href)
 }
 
-/** Anchor attributes for Fresha links (browser tab vs prefer app / same tab). */
-export function getFreshaOpenAttrs(
-  openTarget: FreshaOpenTarget = 'browser'
-): { target?: string; rel?: string } {
-  if (openTarget === 'app') {
-    // Same-tab navigation gives OS universal links a better chance to open the app.
-    return { target: '_self' }
-  }
-  return { target: '_blank', rel: 'noopener noreferrer' }
-}
-
-export function normalizeFreshaOpenTarget(value: unknown): FreshaOpenTarget {
-  return value === 'app' ? 'app' : 'browser'
+/**
+ * Anchor attributes for Fresha https links.
+ * Same-tab navigation lets the OS open the Fresha app via Universal/App Links
+ * when installed; otherwise Fresha loads in the browser. Sites cannot detect
+ * whether the app is installed.
+ */
+export function getFreshaOpenAttrs(): { target?: string; rel?: string } {
+  return { target: '_self' }
 }
 
 export function readBookingFeatures(): BookingFeatureFlags {
@@ -182,7 +175,6 @@ export function readBookingFeatures(): BookingFeatureFlags {
       parsed.freshaBookingUrl,
       defaults.freshaBookingUrl
     )
-    const freshaOpenTarget = normalizeFreshaOpenTarget(parsed.freshaOpenTarget)
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
         ? parsed.bookingEmailAccessKey.trim()
@@ -214,15 +206,20 @@ export function readBookingFeatures(): BookingFeatureFlags {
       calendlyEnabled = false
     }
 
+    const treatmentPackagesEnabled =
+      typeof parsed.treatmentPackagesEnabled === 'boolean'
+        ? parsed.treatmentPackagesEnabled
+        : defaults.treatmentPackagesEnabled
+
     return {
       calendlyEnabled,
       bookingFormEnabled,
       freshaEnabled,
+      treatmentPackagesEnabled,
       calendlySchedulingUrl: fallbackUrl,
       calendlyInitialUrl: initialUrl,
       calendlyFollowUpUrl: followUpUrl,
       freshaBookingUrl,
-      freshaOpenTarget,
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKey,
       bookingEmailTo: emailTo,
