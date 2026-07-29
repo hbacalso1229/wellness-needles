@@ -1,9 +1,16 @@
 'use client'
 
-import { CheckCircle, Phone, Mail } from 'lucide-react'
+import { Phone, Mail } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { CTAButton, OptionalAddOns, ClinicLocationCards, ServiceSelectionCards, HeroSection } from '../../features'
+import {
+  CTAButton,
+  OptionalAddOns,
+  ClinicLocationCards,
+  ServiceSelectionCards,
+  HeroSection,
+  TravelPolicyNotice,
+} from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
@@ -307,28 +314,15 @@ export default function Bookings() {
                       />
                     </div>
 
+                    {activeTab === 'call-out' && (
+                      <TravelPolicyNotice className="mb-8" />
+                    )}
+
                     <OptionalAddOns
                       addOns={addOns}
                       selectedIds={selectedAddOns}
                       onToggle={handleAddOnToggle}
                     />
-
-                    {/* Travel Policy for Home Visits */}
-                    {activeTab === 'call-out' && (
-                      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="font-semibold text-primary mb-2">Travel Policy:</h4>
-                        <div className="text-sm text-secondary space-y-1">
-                          <div className="flex items-center">
-                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                            Within 10 km included
-                          </div>
-                          <div className="flex items-center">
-                            <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                            Beyond 10 km: +€0.50/km or flat €15 travel fee
-                          </div>
-                        </div>
-                      </div>
-                    )}
 
                     {/* Practitioner Information */}
                     <div className="mt-8 p-6 bg-primary/5 border-2 border-primary rounded-lg">

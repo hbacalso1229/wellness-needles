@@ -43,11 +43,12 @@ export function useBookingFeatures() {
   }, [])
 
   // Merge against the latest state so consecutive patches do not overwrite
-  // each other via a stale closure.
+  // each other via a stale closure. Persist outside the updater to avoid
+  // sync CustomEvent → other components setState during render.
   const patchFeatures = useCallback((patch: Partial<BookingFeatureFlags>) => {
     setFeaturesState((current) => {
       const next = { ...current, ...patch }
-      writeBookingFeatures(next)
+      queueMicrotask(() => writeBookingFeatures(next))
       return next
     })
   }, [])
