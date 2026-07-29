@@ -437,13 +437,15 @@ export default function Bookings() {
             }
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <CTAButton
               href={contactConfig.phone.href}
-              className="bg-gold text-primary px-8 py-4 rounded-full text-lg font-semibold hover:bg-gold/90 transition-all duration-300 inline-flex items-center justify-center"
+              variant="gold"
+              showArrow={false}
+              className="inline-flex items-center justify-center"
             >
               <Phone className="w-5 h-5 mr-2" />
               Call {contactConfig.phone.displayText}
-            </a>
+            </CTAButton>
             <CTAButton 
               href="/contact" 
               variant="outline"

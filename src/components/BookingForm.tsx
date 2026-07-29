@@ -186,10 +186,10 @@ const homeVisitAddOns = [
 ]
 
 const inputClassName =
-  'w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent'
+  'w-full px-4 py-3 pr-10 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-white'
 
 const fieldErrorClassName =
-  'w-full px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
+  'w-full px-4 py-3 pr-10 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
 
 type FieldErrorKey =
   | 'service'
