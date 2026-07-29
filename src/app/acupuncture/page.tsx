@@ -141,6 +141,7 @@ export default function Acupuncture() {
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Zap}
                 title="Pain Relief"
                 description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
@@ -151,6 +152,7 @@ export default function Acupuncture() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Brain}
                 title="Stress Reduction"
                 description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
@@ -161,6 +163,7 @@ export default function Acupuncture() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Activity}
                 title="Improved Sleep"
                 description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
@@ -171,6 +174,7 @@ export default function Acupuncture() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Shield}
                 title="Immune Support"
                 description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
@@ -181,6 +185,7 @@ export default function Acupuncture() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Heart}
                 title="Digestive Health"
                 description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
@@ -191,6 +196,7 @@ export default function Acupuncture() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Target}
                 title="Hormonal Balance"
                 description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."

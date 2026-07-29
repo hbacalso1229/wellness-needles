@@ -3,7 +3,7 @@
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { HeroSection } from '../../features'
+import { FeatureCard, HeroSection } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function ChineseMedicine() {
@@ -170,62 +170,56 @@ export default function ChineseMedicine() {
           
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-xl font-semibold text-primary mb-4">
-                Acupuncture
-              </h3>
-              <p className="text-secondary mb-4">
-                Fine needles inserted at specific points to regulate Qi flow and 
-                promote healing throughout the body.
-              </p>
-              <Link href="/acupuncture" className="text-accent hover:text-primary font-medium">
-                Learn More →
-              </Link>
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                flippable
+                icon={Zap}
+                title="Acupuncture"
+                description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+                footer={
+                  <Link href="/acupuncture" className="text-accent hover:text-primary font-medium">
+                    Learn More →
+                  </Link>
+                }
+              />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-xl font-semibold text-primary mb-4">
-                Cupping Therapy
-              </h3>
-              <p className="text-secondary mb-4">
-                Gentle suction therapy that improves circulation, reduces inflammation, 
-                and releases muscle tension.
-              </p>
-              <span className="text-accent font-medium">Pain Relief</span>
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                flippable
+                icon={Heart}
+                title="Cupping Therapy"
+                description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+                footer={<span className="text-accent font-medium">Pain Relief</span>}
+              />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Brain className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-xl font-semibold text-primary mb-4">
-                Moxibustion
-              </h3>
-              <p className="text-secondary mb-4">
-                Therapeutic heat therapy using mugwort herb to warm acupuncture 
-                points and strengthen Yang energy.
-              </p>
-              <span className="text-accent font-medium">Energy Building</span>
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                flippable
+                icon={Brain}
+                title="Moxibustion"
+                description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+                footer={<span className="text-accent font-medium">Energy Building</span>}
+              />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-6 text-center shadow-sm card-emboss">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Circle className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-xl font-semibold text-primary mb-4">
-                Gua Sha
-              </h3>
-              <p className="text-secondary mb-4">
-                Gentle scraping technique that promotes circulation, reduces 
-                inflammation, and supports detoxification.
-              </p>
-              <span className="text-accent font-medium">Circulation</span>
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+              <FeatureCard
+                flippable
+                icon={Circle}
+                title="Gua Sha"
+                description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
+                gradientFrom="from-primary/10"
+                gradientTo="to-primary/10"
+                footer={<span className="text-accent font-medium">Circulation</span>}
+              />
             </div>
           </div>
 

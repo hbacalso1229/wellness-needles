@@ -200,6 +200,7 @@ export default function About() {
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Award}
                 title="Certified Expert"
                 description="Arkinth Garcia is licensed and certified in acupuncture and naturopathic medicine from Dublin's prestigious College of Naturopathic Medicine"
@@ -210,6 +211,7 @@ export default function About() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Clock}
                 title="Flexible Scheduling"
                 description="We offer convenient appointment times to fit your busy lifestyle and schedule"
@@ -220,6 +222,7 @@ export default function About() {
 
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
+                flippable
                 icon={Heart}
                 title="Personal Experience"
                 description="Having experienced the healing power of acupuncture firsthand, Arkinth brings both professional expertise and personal understanding to your care"
