@@ -210,7 +210,7 @@ export default function AdminPage() {
             <Toggle
               id="toggle-fresha"
               label="Fresha booking"
-              description="Book Now opens Fresha; the bookings page shows pricing plus a Fresha button."
+              description="Book now opens Fresha; the bookings page shows pricing plus a Fresha button."
               checked={features.freshaEnabled}
               onChange={setFreshaEnabled}
             />
@@ -443,7 +443,7 @@ export default function AdminPage() {
               <Toggle
                 id="toggle-booking-email"
                 label="Email appointment requests"
-                description="When enabled, Submit Appointment Request emails the booking details via Web3Forms."
+                description="When enabled, Submit appointment request emails the booking details via Web3Forms."
                 checked={features.bookingEmailEnabled}
                 onChange={setBookingEmailEnabled}
                 disabled={usingEnvAccessKey}

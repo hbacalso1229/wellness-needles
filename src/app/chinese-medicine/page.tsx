@@ -180,7 +180,7 @@ export default function ChineseMedicine() {
                 gradientTo="to-primary/10"
                 footer={
                   <Link href="/acupuncture" className="text-accent hover:text-primary font-medium">
-                    Learn More →
+                    Learn more →
                   </Link>
                 }
               />

@@ -118,7 +118,7 @@ export default function Contact() {
                         className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                       >
                         <option value="">Select a subject</option>
-                        <option value="appointment">Book an Appointment</option>
+                        <option value="appointment">Book an appointment</option>
                         <option value="general">General Inquiry</option>
                         <option value="treatment">Treatment Questions</option>
                         <option value="insurance">Insurance & Pricing</option>
@@ -148,7 +148,7 @@ export default function Contact() {
                     className="w-full bg-primary text-cream px-6 py-4 rounded-lg font-semibold hover:bg-secondary transition-colors duration-200 flex items-center justify-center"
                   >
                     <Send className="w-5 h-5 mr-2" />
-                    Send Message
+                    Send message
                   </button>
                 </form>
               </div>
@@ -285,7 +285,7 @@ export default function Contact() {
                       className="w-full !rounded-xl !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
                     >
                       <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                      Book an Appointment
+                      Book an appointment
                     </BookingCtaButton>
                     <button
                       type="button"
@@ -298,8 +298,8 @@ export default function Contact() {
                     >
                       <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
                       {contactConfig.features.liveChatEnabled
-                        ? 'Start Live Chat'
-                        : 'Live Chat (Coming Soon)'}
+                        ? 'Start live chat'
+                        : 'Live chat (coming soon)'}
                     </button>
                   </div>
                 </aside>
