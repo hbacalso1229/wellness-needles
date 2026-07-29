@@ -8,7 +8,7 @@ import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
-import { OptionalAddOns, ClinicLocationCards, ServiceSelectionCards } from '@/features'
+import { OptionalAddOns, ClinicLocationCards, ServiceSelectionCards, TravelPolicyNotice } from '@/features'
 
 type BookingService = {
   id: string
@@ -582,21 +582,7 @@ export default function BookingForm() {
               />
             </div>
 
-            {activeTab === 'call-out' && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-semibold text-primary mb-2">Travel Policy:</h4>
-                <div className="text-sm text-secondary space-y-1">
-                  <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 shrink-0" />
-                    Within 10 km included
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 shrink-0" />
-                    Beyond 10 km: +€0.50/km or flat €15 travel fee
-                  </div>
-                </div>
-              </div>
-            )}
+            {activeTab === 'call-out' && <TravelPolicyNotice />}
           </div>
         )}
 

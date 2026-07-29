@@ -20,8 +20,8 @@ export default function CalendlyEmbed({ url, className = '' }: CalendlyEmbedProp
         key={embedSrc}
         src={embedSrc}
         title="Schedule a booking"
-        className="w-full overflow-hidden rounded-lg border border-accent/20 bg-cream"
-        style={{ minWidth: '320px', height: '700px' }}
+        className="w-full overflow-hidden rounded-lg border border-accent/20 bg-cream min-h-[640px] md:min-h-[760px] h-[min(80vh,800px)]"
+        style={{ minWidth: '320px' }}
         loading="lazy"
       />
       <p className="mt-3 text-center text-sm text-secondary">

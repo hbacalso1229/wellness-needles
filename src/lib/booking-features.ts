@@ -239,9 +239,12 @@ export function writeBookingFeatures(features: BookingFeatureFlags): void {
       : features.bookingEmailAccessKey,
   }
   window.localStorage.setItem(BOOKING_FEATURES_STORAGE_KEY, JSON.stringify(toStore))
-  window.dispatchEvent(
-    new CustomEvent(BOOKING_FEATURES_EVENT, { detail: features })
-  )
+  // Defer so listeners (e.g. Header) do not setState while the writer is still rendering.
+  queueMicrotask(() => {
+    window.dispatchEvent(
+      new CustomEvent(BOOKING_FEATURES_EVENT, { detail: features })
+    )
+  })
 }
 
 export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean {
