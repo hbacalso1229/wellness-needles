@@ -207,10 +207,10 @@ export default function Bookings() {
                       Professional acupuncture treatments to support your health and wellness journey
                     </p>
                     {!calendlyEnabled && !freshaEnabled && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+                      <div className="bg-accent/5 border border-accent/20 rounded-xl p-6 max-w-2xl mx-auto">
                         <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
                           <Phone className="w-5 h-5 mr-2" />
-                          Ready to Book Your Appointment?
+                          Ready to book your appointment?
                         </h3>
                         <p className="text-secondary text-sm mb-4">
                           Call us directly to schedule your consultation and begin your path to better health
@@ -226,7 +226,7 @@ export default function Bookings() {
                     )}
 
                     {freshaEnabled && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto mt-6">
+                      <div className="bg-accent/5 border border-accent/20 rounded-xl p-6 max-w-2xl mx-auto mt-6">
                         <h3 className="font-semibold text-primary mb-3 text-center text-xl">
                           Book on Fresha
                         </h3>
