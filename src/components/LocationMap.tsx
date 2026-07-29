@@ -15,7 +15,7 @@ export default function LocationMap({
 
   return (
     <div className={className}>
-      <div className="aspect-video overflow-hidden rounded-lg border border-accent/20 bg-accent/10">
+      <div className="h-44 sm:h-48 overflow-hidden rounded-lg border border-accent/20 bg-accent/10">
         <iframe
           title={title}
           src={embedSrc}

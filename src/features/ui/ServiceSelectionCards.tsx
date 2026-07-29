@@ -1,0 +1,118 @@
+'use client'
+
+import {
+  CheckCircle,
+  ClipboardList,
+  Clock,
+  Package,
+  RefreshCw,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
+
+export type BookingServiceOption = {
+  id: string
+  name: string
+  duration: string
+  price: string
+  description: string
+  savings?: string
+}
+
+type ServiceSelectionCardsProps = {
+  services: BookingServiceOption[]
+  selectedId: string
+  onSelect: (id: string) => void
+  name?: string
+  hasError?: boolean
+  /** Larger price text (bookings pricing section). */
+  largePrice?: boolean
+}
+
+function iconForService(id: string): LucideIcon {
+  if (id.includes('package')) return Package
+  if (id.includes('follow-up') || id.includes('follow_up')) return RefreshCw
+  if (id.includes('initial')) return ClipboardList
+  return Sparkles
+}
+
+export function ServiceSelectionCards({
+  services,
+  selectedId,
+  onSelect,
+  name = 'booking-service',
+  hasError = false,
+  largePrice = false,
+}: ServiceSelectionCardsProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {services.map((service) => {
+        const selected = selectedId === service.id
+        const Icon = iconForService(service.id)
+
+        return (
+          <label
+            key={service.id}
+            className={`relative block p-4 border-2 rounded-lg cursor-pointer card-emboss ${
+              selected
+                ? 'border-primary bg-primary/5 shadow-sm'
+                : hasError
+                  ? 'border-red-400 hover:border-red-500'
+                  : 'border-accent/20 hover:border-accent/40 hover:bg-accent/5'
+            }`}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={service.id}
+              checked={selected}
+              onChange={() => onSelect(service.id)}
+              className="sr-only"
+            />
+            {selected && (
+              <CheckCircle
+                className="absolute top-3 right-3 w-5 h-5 text-primary"
+                aria-hidden
+              />
+            )}
+            <div className="flex items-start gap-3 pr-7">
+              <span
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                  selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
+                }`}
+              >
+                <Icon className="w-5 h-5" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-col gap-0.5 mb-2 sm:flex-row sm:justify-between sm:items-start sm:gap-3">
+                  <h3 className="font-semibold text-primary leading-snug min-w-0">
+                    {service.name}
+                  </h3>
+                  <div className="sm:text-right shrink-0">
+                    <span
+                      className={`font-serif font-bold text-primary ${
+                        largePrice ? 'text-2xl' : 'text-xl'
+                      }`}
+                    >
+                      {service.price}
+                    </span>
+                    {service.savings && (
+                      <div className="text-green-600 text-sm font-medium">
+                        {service.savings}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center text-sm text-secondary mb-2">
+                  <Clock className="w-4 h-4 mr-1 shrink-0" aria-hidden />
+                  {service.duration}
+                </div>
+                <p className="text-sm text-secondary">{service.description}</p>
+              </div>
+            </div>
+          </label>
+        )
+      })}
+    </div>
+  )
+}

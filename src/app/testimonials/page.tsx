@@ -131,7 +131,7 @@ export default function Testimonials() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-cream rounded-lg p-8 shadow-sm relative">
+              <div key={index} className="bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
                 <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
                 
                 {/* Rating */}
@@ -190,7 +190,7 @@ export default function Testimonials() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-accent/10 rounded-lg p-6 text-center">
+            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -205,7 +205,7 @@ export default function Testimonials() {
               </p>
             </div>
             
-            <div className="bg-accent/10 rounded-lg p-6 text-center">
+            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -220,7 +220,7 @@ export default function Testimonials() {
               </p>
             </div>
             
-            <div className="bg-accent/10 rounded-lg p-6 text-center">
+            <div className="bg-accent/10 rounded-lg p-6 text-center card-emboss">
               <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">

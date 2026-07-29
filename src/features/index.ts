@@ -5,5 +5,8 @@ export { FeatureCard } from './ui/FeatureCard'
 export { CTAButton } from './ui/CTAButton'
 export { ServiceCard } from './ui/ServiceCard'
 export { HeroSection  } from './ui/HeroSection'
+export { OptionalAddOns } from './ui/OptionalAddOns'
+export { ClinicLocationCards } from './ui/ClinicLocationCards'
+export { ServiceSelectionCards } from './ui/ServiceSelectionCards'
 
 

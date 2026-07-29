@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Calendar, CheckCircle, Clock, MapPin, User } from 'lucide-react'
+import { Calendar, CheckCircle, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
+import { OptionalAddOns, ClinicLocationCards, ServiceSelectionCards } from '@/features'
 
 type BookingService = {
   id: string
@@ -162,7 +163,7 @@ const inClinicAddOns = [
   {
     id: 'moxibustion',
     name: 'Moxibustion',
-    price: 'Free if required',
+    price: 'Free (if required)',
     description:
       'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
   },
@@ -178,7 +179,7 @@ const homeVisitAddOns = [
   {
     id: 'moxibustion',
     name: 'Moxibustion',
-    price: 'Free if required',
+    price: 'Free (if required)',
     description:
       'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
   },
@@ -531,48 +532,20 @@ export default function BookingForm() {
             </div>
 
             <div
-              className={`grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg ${
+              className={`rounded-lg ${
                 hasFieldError('service') ? 'ring-2 ring-red-400 p-1' : ''
               }`}
             >
-              {services.map((service) => (
-                <label
-                  key={service.id}
-                  className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                    selectedService === service.id
-                      ? 'border-primary bg-primary/5'
-                      : hasFieldError('service')
-                        ? 'border-red-400 hover:border-red-500'
-                        : 'border-accent/20 hover:border-accent/40'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="service"
-                    value={service.id}
-                    checked={selectedService === service.id}
-                    onChange={(e) => {
-                      setSelectedService(e.target.value)
-                      clearFieldError('service')
-                    }}
-                    className="sr-only"
-                  />
-                  <div className="flex justify-between items-start mb-2 gap-2">
-                    <h3 className="font-semibold text-primary">{service.name}</h3>
-                    <div className="text-right shrink-0">
-                      <span className="text-gold font-bold">{service.price}</span>
-                      {service.savings && (
-                        <div className="text-green-600 text-sm font-medium">{service.savings}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-secondary mb-2">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {service.duration}
-                  </div>
-                  <p className="text-sm text-secondary">{service.description}</p>
-                </label>
-              ))}
+              <ServiceSelectionCards
+                services={services}
+                selectedId={selectedService}
+                onSelect={(id) => {
+                  setSelectedService(id)
+                  clearFieldError('service')
+                }}
+                name="service"
+                hasError={hasFieldError('service')}
+              />
             </div>
 
             {activeTab === 'call-out' && (
@@ -591,36 +564,11 @@ export default function BookingForm() {
               </div>
             )}
 
-            <div>
-              <h3 className="font-serif text-xl font-bold text-primary mb-4">Optional Add-ons</h3>
-              <div className="grid grid-cols-1 gap-3">
-                {addOns.map((addOn) => (
-                  <label
-                    key={addOn.id}
-                    className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                      selectedAddOns.includes(addOn.id)
-                        ? 'border-primary bg-primary/5'
-                        : 'border-accent/20 hover:border-accent/40'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedAddOns.includes(addOn.id)}
-                      onChange={() => handleAddOnToggle(addOn.id)}
-                      className="sr-only"
-                    />
-                    <div className="flex justify-between items-start mb-2 gap-2">
-                      <h4 className="font-semibold text-primary">{addOn.name}</h4>
-                      <span className="text-gold font-bold shrink-0">+{addOn.price}</span>
-                    </div>
-                    <p className="text-sm text-secondary">{addOn.description}</p>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-secondary mt-2">
-                * Add-ons can only be booked in combination with an acupuncture session
-              </p>
-            </div>
+            <OptionalAddOns
+              addOns={addOns}
+              selectedIds={selectedAddOns}
+              onToggle={handleAddOnToggle}
+            />
 
             <div className="p-6 bg-primary/5 border-2 border-primary rounded-lg">
               <div className="text-center">
@@ -654,40 +602,20 @@ export default function BookingForm() {
                 : 'Select which clinic you will attend.'}
             </p>
             <div
-              className={`grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg ${
+              className={`rounded-lg ${
                 hasFieldError('location') ? 'ring-2 ring-red-400 p-1' : ''
               }`}
             >
-              {clinicLocations.map((location) => (
-                <label
-                  key={location.id}
-                  className={`block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                    selectedLocation === location.id
-                      ? 'border-primary bg-primary/5'
-                      : hasFieldError('location')
-                        ? 'border-red-400 hover:border-red-500'
-                        : 'border-accent/20 hover:border-accent/40'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="location"
-                    value={location.id}
-                    checked={selectedLocation === location.id}
-                    onChange={(e) => {
-                      setSelectedLocation(e.target.value)
-                      clearFieldError('location')
-                    }}
-                    className="sr-only"
-                  />
-                  <h4 className="font-semibold text-primary mb-1">{location.label}</h4>
-                  <p className="text-sm text-secondary">{location.formatted.street}</p>
-                  <p className="text-sm text-secondary">
-                    {location.formatted.city}, {location.formatted.county}{' '}
-                    {location.formatted.postcode}
-                  </p>
-                </label>
-              ))}
+              <ClinicLocationCards
+                locations={clinicLocations}
+                selectedId={selectedLocation}
+                onSelect={(id) => {
+                  setSelectedLocation(id)
+                  clearFieldError('location')
+                }}
+                name="location"
+                hasError={hasFieldError('location')}
+              />
             </div>
           </div>
         )}

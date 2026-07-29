@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { contactConfig } from '../lib/contact-config'
 import ContactInfo from './ContactInfo'
-import { BookingLink } from './BookingLink'
 
 export default function Footer() {
   return (
@@ -75,11 +74,6 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-4">Contact Info</h3>
             <ContactInfo className="text-cream/80" />
-            <div className="mt-6">
-              <BookingLink className="bg-gradient-to-r from-gold to-blue-light text-primary px-6 py-2 rounded-full text-sm font-medium hover:from-gold/90 hover:to-blue-light/90 transition-all duration-200 inline-block shadow-sm">
-                Book Appointment
-              </BookingLink>
-            </div>
           </div>
         </div>
 
