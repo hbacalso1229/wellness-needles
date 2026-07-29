@@ -434,7 +434,7 @@ export default function Bookings() {
                   {contactConfig.phone.displayText}
                 </CTAButton>
                 <CTAButton
-                  href="/contact"
+                  href={contactConfig.email.href}
                   variant="outline"
                   size="medium"
                   showArrow={false}
