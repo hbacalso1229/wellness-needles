@@ -1,38 +1,38 @@
+'use client'
+
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { HeroSection } from '../../features'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function ChineseMedicine() {
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20 bg-light-green text-cream relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/needles_candles_flowers_decor.jpeg"
-            alt="Traditional Chinese medicine setting with needles, candles, and flowers"
-            fill
-            className="object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-light-green/75"></div>
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
-              Traditional Chinese Medicine
-            </h1>
-            <p className="text-xl mb-8 opacity-90">
-              Ancient wisdom meets modern wellness in our holistic approach to health
-            </p>
-            <p className="text-lg opacity-80">
-              Discover the profound principles that have guided healing for over 3,000 years, 
-              offering a complete system of medicine that treats the whole person.
-            </p>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title="Traditional Chinese Medicine"
+        subtitle="Ancient wisdom meets modern wellness in our holistic approach to health"
+        description="Discover the profound principles that have guided healing for over 3,000 years, offering a complete system of medicine that treats the whole person."
+        backgroundImage="/needles_candles_flowers_decor.jpeg"
+        backgroundClass="bg-secondary"
+        textColor="text-cream"
+        heightClass="py-20"
+        showFloatingLeaves={true}
+        ctaWrapperClassName="xl:hidden"
+        ctaButtons={[
+          {
+            text: 'Begin Your Healing Journey',
+            href: bookHref,
+            variant: 'gold',
+            external: isExternal,
+            target,
+            rel,
+          },
+        ]}
+      />
 
       {/* Philosophy Section */}
       <section className="py-20 bg-cream">
@@ -132,16 +132,15 @@ export default function ChineseMedicine() {
               <div className="mt-6">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-light-green/10 to-gold/10 rounded-2xl blur-md"></div>
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-cream to-light-green/5 p-3">
-                    <div className="relative h-full rounded-xl overflow-hidden bg-white/50">
-                      <Image
-                        src="/accupuncture_cupping_therapy.jpeg"
-                        alt="Acupuncture and cupping therapy session"
-                        fill
-                        className="object-contain group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute inset-0 rounded-2xl border border-light-green/30 group-hover:border-light-green/50 transition-all duration-300"></div>
+                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/accupuncture_cupping_therapy.jpeg"
+                      alt="Acupuncture and cupping therapy session"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 rounded-2xl border border-light-green/30 group-hover:border-light-green/50 transition-all duration-300 pointer-events-none"></div>
                   </div>
                   {/* Traditional decorative elements */}
                   <div className="absolute -top-2 -right-2 text-light-green/70 animate-pulse">
@@ -345,21 +344,6 @@ export default function ChineseMedicine() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
-            Experience Traditional Chinese Medicine
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Discover how this ancient healing system can support your journey to optimal health
-          </p>
-          <BookingCtaButton variant="gold">
-            Begin Your Healing Journey
-          </BookingCtaButton>
         </div>
       </section>
     </div>

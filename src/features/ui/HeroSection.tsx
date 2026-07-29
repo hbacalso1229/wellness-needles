@@ -28,12 +28,14 @@ export interface HeroSectionProps {
   ctaButtons?: Array<{
     text: string
     href: string
-    variant?: 'primary' | 'secondary' | 'gold'
+    variant?: 'primary' | 'secondary' | 'gold' | 'outline'
     showArrow?: boolean
     external?: boolean
     target?: string
     rel?: string
   }>
+  /** Extra classes for the CTA button row (e.g. responsive visibility) */
+  ctaWrapperClassName?: string
   /** Whether to show floating leaf decorations */
   showFloatingLeaves?: boolean
   /** Custom height class */
@@ -53,6 +55,7 @@ export function HeroSection({
   textColor = 'text-cream',
   logo,
   ctaButtons = [],
+  ctaWrapperClassName = '',
   showFloatingLeaves = true,
   heightClass = 'min-h-screen',
   alignment = 'center',
@@ -71,18 +74,23 @@ export function HeroSection({
   }
 
   return (
-    <section className={`relative ${heightClass} flex items-center ${justifyClasses[alignment]} ${backgroundClass}`}>
-      {/* Background Image */}
+    <section
+      className={`relative ${heightClass} flex items-center ${justifyClasses[alignment]} ${
+        backgroundImage ? 'bg-primary' : backgroundClass
+      }`}
+    >
+      {/* Photo heroes: full image + light brand wash (not faded image on solid green) */}
       {backgroundImage && (
         <div className="absolute inset-0">
           <Image
             src={backgroundImage}
             alt="Hero background"
             fill
-            className="object-cover opacity-30"
+            sizes="100vw"
+            className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/65 via-primary/45 to-secondary/35" />
         </div>
       )}
       
@@ -146,7 +154,7 @@ export function HeroSection({
           
           {/* CTA Buttons */}
           {ctaButtons.length > 0 && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className={`flex flex-col sm:flex-row gap-4 justify-center ${ctaWrapperClassName}`}>
               {ctaButtons.map((button, index) => (
                 <CTAButton
                   key={index}

@@ -10,6 +10,7 @@ import {
   isValidEmailAddress,
   isValidFreshaBookingUrl,
 } from '@/lib/booking-features'
+import { HeroSection } from '@/features'
 
 function Toggle({
   id,
@@ -176,12 +177,14 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <section className="py-16 bg-accent text-cream">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">Admin</h1>
-          <p className="text-lg opacity-90">Booking feature settings</p>
-        </div>
-      </section>
+      <HeroSection
+        title="Admin"
+        subtitle="Booking feature settings"
+        backgroundClass="bg-jungle-gradient"
+        textColor="text-cream"
+        heightClass="py-20"
+        showFloatingLeaves={true}
+      />
 
       <section className="py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">

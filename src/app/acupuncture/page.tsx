@@ -3,9 +3,11 @@
 import { Brain, Heart, Zap, Shield, Target, Activity, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
 import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
-//a
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+
 export default function Acupuncture() {
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -17,6 +19,18 @@ export default function Acupuncture() {
         backgroundClass="bg-secondary"
         textColor="text-cream"
         heightClass="py-20"
+        showFloatingLeaves={true}
+        ctaWrapperClassName="xl:hidden"
+        ctaButtons={[
+          {
+            text: 'Schedule Your Treatment',
+            href: bookHref,
+            variant: 'gold',
+            external: isExternal,
+            target,
+            rel,
+          },
+        ]}
       />
 
       {/* How It Works Section */}
@@ -57,16 +71,15 @@ export default function Acupuncture() {
               <div className="mt-6">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-2xl blur-md"></div>
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-cream to-accent/5 p-3">
-                    <div className="relative h-full rounded-xl overflow-hidden bg-white/50">
-                      <Image
-                        src="/treatment_on_head.jpeg"
-                        alt="Acupuncture treatment on head"
-                        fill
-                        className="object-contain group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute inset-0 rounded-2xl border border-accent/30 group-hover:border-accent/50 transition-all duration-300"></div>
+                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/treatment_on_head.jpeg"
+                      alt="Acupuncture treatment on head"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 rounded-2xl border border-accent/30 group-hover:border-accent/50 transition-all duration-300 pointer-events-none"></div>
                   </div>
                   {/* Floating decorative elements */}
                   <div className="absolute -top-1 -right-1">
@@ -319,31 +332,6 @@ export default function Acupuncture() {
               </ul>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/modern_accupuncture.jpeg"
-            alt="Modern acupuncture treatment room"
-            fill
-            className="object-cover object-center opacity-20"
-          />
-          <div className="absolute inset-0 bg-primary/80"></div>
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
-            Experience the Benefits of Acupuncture
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Discover how this ancient healing art can help you achieve optimal health and wellness
-          </p>
-          <BookingCtaButton variant="gold">
-            Schedule Your Treatment
-          </BookingCtaButton>
         </div>
       </section>
     </div>

@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react'
 interface CTAButtonProps {
   href: string
   children: React.ReactNode
-  variant?: 'primary' | 'secondary' | 'gold'
+  variant?: 'primary' | 'secondary' | 'gold' | 'outline'
   size?: 'medium' | 'large'
   showArrow?: boolean
   className?: string
@@ -28,9 +28,10 @@ export function CTAButton({
   rel,
 }: CTAButtonProps) {
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-gold to-blue-primary text-primary hover:from-gold/90 hover:to-blue-primary/90',
+    primary: 'bg-primary text-cream hover:bg-secondary',
     secondary: 'border-2 border-cream text-cream hover:bg-cream hover:text-primary',
-    gold: 'bg-gold text-primary hover:bg-gold/90'
+    outline: 'border-2 border-primary text-primary bg-cream/80 hover:bg-primary hover:text-cream',
+    gold: 'bg-gradient-to-b from-[#e8c84a] to-gold text-primary hover:from-[#f0d45c] hover:to-[#c9a52f]',
   }
 
   const sizeClasses = {
@@ -38,7 +39,7 @@ export function CTAButton({
     large: 'px-8 py-4 text-lg'
   }
 
-  const classes = `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg ${className}`
+  const classes = `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-md ${className}`
   const isExternal = external || /^https?:\/\//i.test(href)
 
   if (isExternal) {

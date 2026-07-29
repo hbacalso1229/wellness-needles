@@ -3,7 +3,7 @@
 import { CheckCircle, Phone, Mail } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { CTAButton, OptionalAddOns, ClinicLocationCards, ServiceSelectionCards } from '../../features'
+import { CTAButton, OptionalAddOns, ClinicLocationCards, ServiceSelectionCards, HeroSection } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
@@ -172,32 +172,16 @@ export default function Bookings() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20 bg-accent text-cream relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/treatment_in_progress_bed.jpeg"
-            alt="Peaceful acupuncture treatment environment"
-            fill
-            className="object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-accent/75"></div>
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
-              Book Your Appointment
-            </h1>
-            <p className="text-xl mb-8 opacity-90">
-              Take the first step towards better health and wellness
-            </p>
-            <p className="text-lg opacity-80">
-              Schedule your consultation with our experienced practitioner and 
-              begin your journey to optimal health today.
-            </p>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title="Book Your Appointment"
+        subtitle="Take the first step towards better health and wellness"
+        description="Schedule your consultation with our experienced practitioner and begin your journey to optimal health today."
+        backgroundImage="/treatment_in_progress_bed.jpeg"
+        backgroundClass="bg-primary"
+        textColor="text-cream"
+        heightClass="py-20"
+        showFloatingLeaves={true}
+      />
 
       {/* Booking Form or Pricing Display */}
       <section className="py-20 bg-cream">
@@ -462,9 +446,9 @@ export default function Bookings() {
             </a>
             <CTAButton 
               href="/contact" 
-              variant="secondary"
+              variant="outline"
               showArrow={false}
-              className="inline-flex items-center justify-center text-primary"
+              className="inline-flex items-center justify-center"
             >
               <Mail className="w-5 h-5 mr-2" />
               Send Message

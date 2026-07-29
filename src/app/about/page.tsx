@@ -3,9 +3,11 @@
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
 import Image from 'next/image'
 import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function About() {
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -13,10 +15,20 @@ export default function About() {
         title="About Wellness Needles"
         subtitle="Dedicated to bringing you the finest in traditional Chinese medicine and acupuncture therapy"
         description="Our practice combines ancient healing wisdom with modern understanding to provide comprehensive wellness solutions tailored to your unique needs."
-        
-        
+        backgroundImage="/treatment_in_progress_2.jpeg"
         heightClass="py-20"
-        showFloatingLeaves={false}
+        showFloatingLeaves={true}
+        ctaWrapperClassName="xl:hidden"
+        ctaButtons={[
+          {
+            text: 'Schedule Your Consultation',
+            href: bookHref,
+            variant: 'gold',
+            external: isExternal,
+            target,
+            rel,
+          },
+        ]}
       />
 
       {/* Our Story Section */}
@@ -88,32 +100,31 @@ export default function About() {
                 <div className="mt-6">
                   <div className="relative group">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl blur-sm"></div>
-                    <div className="relative h-64 rounded-xl overflow-visible shadow-xl bg-cream/50 p-2">
-                      <div className="relative h-full rounded-lg overflow-hidden">
-                        <Image
-                          src="/looking_after_patient.jpeg"
-                          alt="Caring for patient during treatment"
-                          fill
-                          className="object-contain group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="absolute inset-0 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-all duration-300"></div>
-                      {/* Floating leaf decorations */}
-                      <div className="absolute -top-1 -right-1 z-20">
-                        <PulsingLeaf 
-                          size="small"
-                          color="text-primary/60 group-hover:text-primary"
-                          rotation={12}
-                        />
-                      </div>
-                      <div className="absolute -bottom-1 -left-1 z-20">
-                        <PulsingLeaf 
-                          size="small"
-                          color="text-accent/60 group-hover:text-accent"
-                          rotation={-45}
-                          animationDelay="0.7s"
-                        />
-                      </div>
+                    <div className="relative h-64 rounded-xl overflow-hidden shadow-xl">
+                      <Image
+                        src="/looking_after_patient.jpeg"
+                        alt="Caring for patient during treatment"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-all duration-300 pointer-events-none"></div>
+                    </div>
+                    {/* Floating leaf decorations */}
+                    <div className="absolute -top-1 -right-1 z-20">
+                      <PulsingLeaf 
+                        size="small"
+                        color="text-primary/60 group-hover:text-primary"
+                        rotation={12}
+                      />
+                    </div>
+                    <div className="absolute -bottom-1 -left-1 z-20">
+                      <PulsingLeaf 
+                        size="small"
+                        color="text-accent/60 group-hover:text-accent"
+                        rotation={-45}
+                        animationDelay="0.7s"
+                      />
                     </div>
                   </div>
                 </div>
@@ -220,31 +231,6 @@ export default function About() {
               gradientTo="to-accent/10"
             />
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/treatment_in_progress_2.jpeg"
-            alt="Professional acupuncture treatment"
-            fill
-            className="object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-primary/80"></div>
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
-            Ready to Experience Our Care?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Take the first step towards better health with experienced, compassionate care
-          </p>
-          <BookingCtaButton variant="gold">
-            Schedule Your Consultation
-          </BookingCtaButton>
         </div>
       </section>
     </div>

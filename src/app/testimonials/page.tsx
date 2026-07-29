@@ -3,8 +3,11 @@
 import { Star, Quote, Heart, CheckCircle } from 'lucide-react'
 import { CTAButton, DecorativeImageCard, HeroSection } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function Testimonials() {
+  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+
   const testimonials = [
     {
       name: "Sarah Mitchell",
@@ -63,10 +66,22 @@ export default function Testimonials() {
         title="Patient Testimonials"
         subtitle="Stories inspired by the kinds of healing journeys acupuncture can support"
         description="Explore illustrative examples of how traditional Chinese medicine may help improve quality of life. Real patient reviews will be shared here with consent."
-        backgroundClass="bg-accent"
+        backgroundImage="/modern_accupuncture.jpeg"
+        backgroundClass="bg-primary"
         textColor="text-cream"
         heightClass="py-20"
-        showFloatingLeaves={false}
+        showFloatingLeaves={true}
+        ctaWrapperClassName="xl:hidden"
+        ctaButtons={[
+          {
+            text: 'Book Your First Session',
+            href: bookHref,
+            variant: 'gold',
+            external: isExternal,
+            target,
+            rel,
+          },
+        ]}
       />
 
       {/* Success Stories with Images */}
@@ -89,6 +104,7 @@ export default function Testimonials() {
               description="Real results from our specialized alopecia treatment program, showing significant hair regrowth through targeted acupuncture therapy."
               gradientFrom="from-primary/10"
               gradientTo="to-gold/10"
+              objectFit="contain"
               leafColors={{
                 topRight: 'text-gold/70',
                 bottomLeft: 'text-accent/70'
@@ -103,6 +119,7 @@ export default function Testimonials() {
               description="Remarkable skin healing achieved through acupuncture and holistic treatment approaches, demonstrating the power of traditional medicine."
               gradientFrom="from-secondary/10"
               gradientTo="to-light-green/10"
+              objectFit="contain"
               leafColors={{
                 topRight: 'text-light-green/70',
                 bottomLeft: 'text-secondary/70'
@@ -249,28 +266,13 @@ export default function Testimonials() {
             and how acupuncture has improved your life.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <CTAButton href="/contact" variant="primary">
+            <CTAButton href="/contact" variant="gold">
               Share Your Story
             </CTAButton>
-            <BookingCtaButton variant="secondary" showArrow={false}>
+            <BookingCtaButton variant="outline" showArrow={false}>
               Start Your Journey
             </BookingCtaButton>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
-            Ready to Write Your Success Story?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join hundreds of patients who have found healing and wellness through acupuncture
-          </p>
-          <BookingCtaButton variant="gold">
-            Book Your First Session
-          </BookingCtaButton>
         </div>
       </section>
     </div>
