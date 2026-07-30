@@ -200,7 +200,44 @@ const fieldErrorClassName =
   'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
 
 const dateInputClassName = `${inputClassName} booking-date-input`
-const dateInputErrorClassName = `${fieldErrorClassName} booking-date-input`
+/** Keep 1px border + inset ring so mobile date inputs don’t grow past the card. */
+const dateInputErrorClassName =
+  `${inputClassName} booking-date-input !border-red-500 ring-2 ring-inset ring-red-400 focus:ring-red-400 bg-red-50/40`
+
+function RequiredMark() {
+  return (
+    <span className="text-red-600" aria-hidden="true">
+      *
+    </span>
+  )
+}
+
+/** Mobile-only validation copy (desktop keeps toast). */
+function FieldInlineError({
+  id,
+  message,
+  always = false,
+}: {
+  id?: string
+  message?: string
+  /** Show on all breakpoints (e.g. DOB picker reject). */
+  always?: boolean
+}) {
+  if (!message) return null
+  return (
+    <p
+      id={id}
+      className={`mt-2 text-sm text-red-600 max-w-full break-words ${always ? '' : 'md:hidden'}`}
+      role="alert"
+    >
+      {message}
+    </p>
+  )
+}
+
+function isMobileViewport(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+}
 
 type FieldErrorKey =
   | 'service'
@@ -299,6 +336,9 @@ export default function BookingForm() {
     variant: 'success' | 'error'
   } | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Set<FieldErrorKey>>(new Set())
+  const [fieldErrorMessages, setFieldErrorMessages] = useState<
+    Partial<Record<FieldErrorKey, string>>
+  >({})
   const [activeTab, setActiveTab] = useState('in-clinic')
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
   const [selectedService, setSelectedService] = useState('initial-consultation')
@@ -339,6 +379,7 @@ export default function BookingForm() {
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
+  const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
 
   const clearFieldError = (key: FieldErrorKey) => {
     setFieldErrors((prev) => {
@@ -347,10 +388,38 @@ export default function BookingForm() {
       next.delete(key)
       return next
     })
+    setFieldErrorMessages((prev) => {
+      if (!(key in prev)) return prev
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }
+
+  const clearAllFieldErrors = () => {
+    setFieldErrors(new Set())
+    setFieldErrorMessages({})
   }
 
   const showErrorToast = (message: string | string[]) => {
     setToast({ message, variant: 'error' })
+  }
+
+  const reportValidationErrors = (error: {
+    messages: string[]
+    fields: FieldErrorKey[]
+  }) => {
+    setFieldErrors(new Set(error.fields))
+    const byField: Partial<Record<FieldErrorKey, string>> = {}
+    error.fields.forEach((field, index) => {
+      byField[field] = error.messages[index]
+    })
+    setFieldErrorMessages(byField)
+    // Desktop: toast summary. Mobile: inline messages only.
+    if (!isMobileViewport()) {
+      showErrorToast(error.messages)
+    }
+    focusFirstInvalidField(error.fields)
   }
 
   const handleTabChange = (tab: string) => {
@@ -376,6 +445,10 @@ export default function BookingForm() {
         dateOfBirth: '',
       })
       setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+      setFieldErrorMessages((prev) => ({
+        ...prev,
+        dateOfBirth: 'Date of birth cannot be in the future.',
+      }))
       return
     }
     if (name === 'dateOfBirth') {
@@ -483,23 +556,21 @@ export default function BookingForm() {
   const handleNext = () => {
     const error = validateStep(currentStep)
     if (error) {
-      setFieldErrors(new Set(error.fields))
-      showErrorToast(error.messages)
-      focusFirstInvalidField(error.fields)
+      reportValidationErrors(error)
       return
     }
-    setFieldErrors(new Set())
+    clearAllFieldErrors()
     setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1))
   }
 
   const handleBack = () => {
-    setFieldErrors(new Set())
+    clearAllFieldErrors()
     setCurrentStep((s) => Math.max(s - 1, 0))
   }
 
   const resetForm = () => {
     setCurrentStep(0)
-    setFieldErrors(new Set())
+    clearAllFieldErrors()
     setActiveTab('in-clinic')
     setSelectedLocation('celbridge')
     setSelectedService('initial-consultation')
@@ -523,9 +594,7 @@ export default function BookingForm() {
   const handleSubmit = async () => {
     const error = validateStep(3)
     if (error) {
-      setFieldErrors(new Set(error.fields))
-      showErrorToast(error.messages)
-      focusFirstInvalidField(error.fields)
+      reportValidationErrors(error)
       return
     }
 
@@ -550,7 +619,7 @@ export default function BookingForm() {
       ...formData,
     }
 
-    setFieldErrors(new Set())
+    clearAllFieldErrors()
     console.log('Booking submitted:', payload)
 
     if (features.bookingEmailEnabled) {
@@ -676,6 +745,7 @@ export default function BookingForm() {
                 hasError={hasFieldError('service')}
               />
             </div>
+            <FieldInlineError message={fieldErrorMessage('service')} />
 
             {activeTab === 'call-out' && <TravelPolicyNotice />}
           </div>
@@ -707,6 +777,7 @@ export default function BookingForm() {
                 hasError={hasFieldError('location')}
               />
             </div>
+            <FieldInlineError message={fieldErrorMessage('location')} />
           </div>
         )}
 
@@ -717,28 +788,37 @@ export default function BookingForm() {
               Pick your preferred date and time. We will confirm within 24 hours.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="min-w-0 w-full overflow-hidden">
+              <div className="min-w-0 w-full max-w-full">
                 <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
-                  Preferred Date *
+                  Preferred Date <RequiredMark />
                 </label>
-                <input
-                  type="date"
-                  id="booking-date"
-                  value={selectedDate}
-                  onChange={(e) => {
-                    const nextDate = e.target.value
-                    setSelectedDate(nextDate)
-                    clearFieldError('date')
-                    if (selectedTime && isPastTimeSlot(nextDate, selectedTime)) {
-                      setSelectedTime('')
-                      clearFieldError('time')
+                <div className="booking-date-field">
+                  <input
+                    type="date"
+                    id="booking-date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      const nextDate = e.target.value
+                      setSelectedDate(nextDate)
+                      clearFieldError('date')
+                      if (selectedTime && isPastTimeSlot(nextDate, selectedTime)) {
+                        setSelectedTime('')
+                        clearFieldError('time')
+                      }
+                    }}
+                    min={todayDateInputValue()}
+                    aria-invalid={hasFieldError('date')}
+                    aria-describedby={
+                      fieldErrorMessage('date') ? 'booking-date-error' : undefined
                     }
-                  }}
-                  min={todayDateInputValue()}
-                  aria-invalid={hasFieldError('date')}
-                  className={
-                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
-                  }
+                    className={
+                      hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
+                    }
+                  />
+                </div>
+                <FieldInlineError
+                  id="booking-date-error"
+                  message={fieldErrorMessage('date')}
                 />
               </div>
               <div className="min-w-0 w-full">
@@ -746,7 +826,7 @@ export default function BookingForm() {
                   id="booking-time-label"
                   className="block text-sm font-medium text-primary mb-2"
                 >
-                  Preferred Time *
+                  Preferred Time <RequiredMark />
                 </p>
                 <div
                   id="booking-time"
@@ -754,6 +834,9 @@ export default function BookingForm() {
                   role="group"
                   aria-labelledby="booking-time-label"
                   aria-invalid={hasFieldError('time')}
+                  aria-describedby={
+                    fieldErrorMessage('time') ? 'booking-time-error' : undefined
+                  }
                   className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 outline-none ${
                     hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
                   }`}
@@ -783,6 +866,10 @@ export default function BookingForm() {
                     )
                   })}
                 </div>
+                <FieldInlineError
+                  id="booking-time-error"
+                  message={fieldErrorMessage('time')}
+                />
               </div>
             </div>
 
@@ -801,10 +888,10 @@ export default function BookingForm() {
                 <User className="w-5 h-5 mr-2" />
                 Personal Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
+                <div className="min-w-0">
                   <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-2">
-                    First Name *
+                    First Name <RequiredMark />
                   </label>
                   <input
                     type="text"
@@ -813,12 +900,19 @@ export default function BookingForm() {
                     value={formData.firstName}
                     onChange={handleChange}
                     aria-invalid={hasFieldError('firstName')}
+                    aria-describedby={
+                      fieldErrorMessage('firstName') ? 'firstName-error' : undefined
+                    }
                     className={hasFieldError('firstName') ? fieldErrorClassName : inputClassName}
                   />
+                  <FieldInlineError
+                    id="firstName-error"
+                    message={fieldErrorMessage('firstName')}
+                  />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-2">
-                    Last Name *
+                    Last Name <RequiredMark />
                   </label>
                   <input
                     type="text"
@@ -827,12 +921,19 @@ export default function BookingForm() {
                     value={formData.lastName}
                     onChange={handleChange}
                     aria-invalid={hasFieldError('lastName')}
+                    aria-describedby={
+                      fieldErrorMessage('lastName') ? 'lastName-error' : undefined
+                    }
                     className={hasFieldError('lastName') ? fieldErrorClassName : inputClassName}
                   />
+                  <FieldInlineError
+                    id="lastName-error"
+                    message={fieldErrorMessage('lastName')}
+                  />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                    Email Address *
+                    Email Address <RequiredMark />
                   </label>
                   <input
                     type="email"
@@ -841,12 +942,16 @@ export default function BookingForm() {
                     value={formData.email}
                     onChange={handleChange}
                     aria-invalid={hasFieldError('email')}
+                    aria-describedby={
+                      fieldErrorMessage('email') ? 'email-error' : undefined
+                    }
                     className={hasFieldError('email') ? fieldErrorClassName : inputClassName}
                   />
+                  <FieldInlineError id="email-error" message={fieldErrorMessage('email')} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="phone" className="block text-sm font-medium text-primary mb-2">
-                    Phone Number *
+                    Phone Number <RequiredMark />
                   </label>
                   <input
                     type="tel"
@@ -858,43 +963,55 @@ export default function BookingForm() {
                     inputMode="tel"
                     autoComplete="tel"
                     aria-invalid={hasFieldError('phone')}
+                    aria-describedby={
+                      fieldErrorMessage('phone') ? 'phone-error' : undefined
+                    }
                     className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
                   />
+                  <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
-                <div className="md:col-span-2 min-w-0 w-full overflow-hidden">
+                <div className="md:col-span-2 min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
                     Date of Birth
                   </label>
-                  <input
-                    type="date"
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    onBlur={(e) => {
-                      const value = e.target.value
-                      if (isFutureDateInputValue(value)) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          dateOfBirth: '',
-                        }))
-                        setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+                  <div className="booking-date-field">
+                    <input
+                      type="date"
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      onBlur={(e) => {
+                        const value = e.target.value
+                        if (isFutureDateInputValue(value)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            dateOfBirth: '',
+                          }))
+                          setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+                          setFieldErrorMessages((prev) => ({
+                            ...prev,
+                            dateOfBirth: 'Date of birth cannot be in the future.',
+                          }))
+                        }
+                      }}
+                      max={todayDateInputValue()}
+                      aria-invalid={hasFieldError('dateOfBirth')}
+                      aria-describedby={
+                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
                       }
-                    }}
-                    max={todayDateInputValue()}
-                    aria-invalid={hasFieldError('dateOfBirth')}
-                    aria-describedby={
-                      hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
-                    }
-                    className={
-                      hasFieldError('dateOfBirth') ? dateInputErrorClassName : dateInputClassName
-                    }
+                      className={
+                        hasFieldError('dateOfBirth')
+                          ? dateInputErrorClassName
+                          : dateInputClassName
+                      }
+                    />
+                  </div>
+                  <FieldInlineError
+                    id="dateOfBirth-error"
+                    message={fieldErrorMessage('dateOfBirth')}
+                    always
                   />
-                  {hasFieldError('dateOfBirth') && (
-                    <p id="dateOfBirth-error" className="mt-2 text-sm text-red-600" role="alert">
-                      Date of birth cannot be in the future.
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
@@ -907,7 +1024,7 @@ export default function BookingForm() {
                     htmlFor="chiefComplaint"
                     className="block text-sm font-medium text-primary mb-2"
                   >
-                    What brings you in today? (Main concern or condition) *
+                    What brings you in today? (Main concern or condition) <RequiredMark />
                   </label>
                   <textarea
                     id="chiefComplaint"
@@ -916,8 +1033,17 @@ export default function BookingForm() {
                     onChange={handleChange}
                     rows={3}
                     aria-invalid={hasFieldError('chiefComplaint')}
+                    aria-describedby={
+                      fieldErrorMessage('chiefComplaint')
+                        ? 'chiefComplaint-error'
+                        : undefined
+                    }
                     className={`${hasFieldError('chiefComplaint') ? fieldErrorClassName : inputClassName} resize-none`}
                     placeholder="Please describe your symptoms or reason for seeking treatment..."
+                  />
+                  <FieldInlineError
+                    id="chiefComplaint-error"
+                    message={fieldErrorMessage('chiefComplaint')}
                   />
                 </div>
                 <div>

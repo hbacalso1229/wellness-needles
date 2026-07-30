@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -20,10 +20,12 @@ function BookNowLabel() {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolledPastHero, setScrolledPastHero] = useState(false)
-  const [exploreBookInView, setExploreBookInView] = useState(false)
+  const [inlineBookCtaInView, setInlineBookCtaInView] = useState(false)
   const pathname = usePathname()
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
+  const inlineBookHideTimerRef = useRef<number | null>(null)
+  const heroShowTimerRef = useRef<number | null>(null)
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -42,20 +44,44 @@ export default function Header() {
   const bookNowMobileClassName =
     'inline-flex items-center justify-center gap-2 w-full px-3 py-2.5 mt-4 bg-gradient-to-b from-[#e8c84a] to-gold text-primary text-center rounded-full font-bold normal-case shadow-md shadow-primary/20 card-emboss transition-all duration-200 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:-translate-y-0.5'
   const bookNowStickyClassName =
-    'inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-7 py-2.5 rounded-full text-sm font-bold normal-case shadow-lg shadow-primary/25 card-emboss transition-all duration-200 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:-translate-y-0.5'
+    'sticky-book-fab-btn inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-7 py-2.5 rounded-full text-sm font-bold normal-case shadow-lg shadow-primary/25 whitespace-nowrap hover:from-[#f0d45c] hover:to-[#c9a52f]'
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Hide sticky while hero CTAs are in view, or while Explore Book card is on screen (avoids double Book Now).
+  // Hide sticky while hero CTAs are in view, or while an inline/sidebar book CTA is on screen.
   const showStickyBookNow =
-    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !exploreBookInView
+    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !inlineBookCtaInView
 
   useEffect(() => {
-    setExploreBookInView(false)
+    setInlineBookCtaInView(false)
+    if (inlineBookHideTimerRef.current) {
+      window.clearTimeout(inlineBookHideTimerRef.current)
+      inlineBookHideTimerRef.current = null
+    }
+    if (heroShowTimerRef.current) {
+      window.clearTimeout(heroShowTimerRef.current)
+      heroShowTimerRef.current = null
+    }
 
     const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
     const isHeroVisible = (hero: HTMLElement) =>
       window.getComputedStyle(hero).display !== 'none'
+
+    const setPastHeroSmooth = (past: boolean) => {
+      if (heroShowTimerRef.current) {
+        window.clearTimeout(heroShowTimerRef.current)
+        heroShowTimerRef.current = null
+      }
+      if (past) {
+        // Brief delay before revealing FAB so scroll past hero edges doesn't flicker.
+        heroShowTimerRef.current = window.setTimeout(() => {
+          setScrolledPastHero(true)
+          heroShowTimerRef.current = null
+        }, 120)
+      } else {
+        setScrolledPastHero(false)
+      }
+    }
 
     // One-shot recheck after mount/navigation (scroll restoration / HMR).
     const syncFromHeroRect = () => {
@@ -69,8 +95,8 @@ export default function Header() {
       const visible =
         Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
       const ratio = Math.max(0, visible) / Math.max(rect.height, 1)
-      if (ratio < 0.2) setScrolledPastHero(true)
-      else if (ratio > 0.55) setScrolledPastHero(false)
+      if (ratio < 0.15) setPastHeroSmooth(true)
+      else if (ratio > 0.6) setPastHeroSmooth(false)
     }
     const rafId = window.requestAnimationFrame(syncFromHeroRect)
     const timeoutId = window.setTimeout(syncFromHeroRect, 100)
@@ -85,33 +111,54 @@ export default function Header() {
         ([entry]) => {
           if (!entry) return
           const ratio = entry.intersectionRatio
-          if (ratio < 0.2) setScrolledPastHero(true)
-          else if (ratio > 0.55) setScrolledPastHero(false)
+          if (ratio < 0.15) setPastHeroSmooth(true)
+          else if (ratio > 0.6) setPastHeroSmooth(false)
         },
-        { threshold: [0, 0.2, 0.55, 1] }
+        { threshold: [0, 0.15, 0.6, 1] }
       )
       heroObserver.observe(hero)
     } else {
       setScrolledPastHero(true)
     }
 
-    // Explore book gate with hysteresis + rootMargin (avoids mid-scroll flicker).
-    const exploreBook = document.getElementById('explore-book-cta')
-    let exploreObserver: IntersectionObserver | undefined
-    if (exploreBook) {
-      exploreObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry) return
-          const ratio = entry.intersectionRatio
-          if (ratio >= 0.35) setExploreBookInView(true)
-          else if (ratio <= 0.05) setExploreBookInView(false)
+    // Hide floating Book now when Explore card or sticky sidebars are on screen.
+    const inlineBookTargets = document.querySelectorAll('[data-hide-sticky-book]')
+    const inlineBookInView = new Set<Element>()
+    let inlineBookObserver: IntersectionObserver | undefined
+
+    const setInlineInViewSmooth = (inView: boolean) => {
+      if (inlineBookHideTimerRef.current) {
+        window.clearTimeout(inlineBookHideTimerRef.current)
+        inlineBookHideTimerRef.current = null
+      }
+      if (inView) {
+        // Hide FAB promptly when a page CTA enters view.
+        setInlineBookCtaInView(true)
+      } else {
+        // Delay reveal so scrolling past the CTA boundary stays smooth.
+        inlineBookHideTimerRef.current = window.setTimeout(() => {
+          setInlineBookCtaInView(false)
+          inlineBookHideTimerRef.current = null
+        }, 220)
+      }
+    }
+
+    if (inlineBookTargets.length > 0) {
+      inlineBookObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const ratio = entry.intersectionRatio
+            if (ratio >= 0.28) inlineBookInView.add(entry.target)
+            else if (ratio <= 0.08) inlineBookInView.delete(entry.target)
+          }
+          setInlineInViewSmooth(inlineBookInView.size > 0)
         },
         {
-          threshold: [0, 0.05, 0.35, 1],
-          rootMargin: '0px 0px -12% 0px',
+          threshold: [0, 0.08, 0.28, 1],
+          rootMargin: '0px 0px -10% 0px',
         }
       )
-      exploreObserver.observe(exploreBook)
+      inlineBookTargets.forEach((el) => inlineBookObserver?.observe(el))
     }
 
     return () => {
@@ -119,8 +166,14 @@ export default function Header() {
       window.clearTimeout(timeoutId)
       window.removeEventListener('pageshow', syncFromHeroRect)
       window.removeEventListener('resize', syncFromHeroRect)
+      if (inlineBookHideTimerRef.current) {
+        window.clearTimeout(inlineBookHideTimerRef.current)
+      }
+      if (heroShowTimerRef.current) {
+        window.clearTimeout(heroShowTimerRef.current)
+      }
       heroObserver?.disconnect()
-      exploreObserver?.disconnect()
+      inlineBookObserver?.disconnect()
     }
   }, [pathname])
 
@@ -246,10 +299,8 @@ export default function Header() {
 
       <div className="xl:hidden fixed bottom-8 left-1/2 z-40 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] pointer-events-none">
         <div
-          className={`transition-opacity duration-300 ${
-            showStickyBookNow
-              ? 'opacity-100 pointer-events-auto'
-              : 'opacity-0 pointer-events-none'
+          className={`sticky-book-fab ${
+            showStickyBookNow ? 'sticky-book-fab--visible' : 'sticky-book-fab--hidden'
           }`}
           aria-hidden={!showStickyBookNow}
         >

@@ -337,7 +337,10 @@ export default function Contact() {
             </div>
 
             {/* Quick Actions — below details on mobile, sticky sidebar on desktop */}
-            <aside className="order-2 lg:order-2 w-full mt-6 lg:mt-0 lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss">
+            <aside
+              data-hide-sticky-book
+              className="order-2 lg:order-2 w-full mt-6 lg:mt-0 lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss"
+            >
               <h3 className="font-semibold text-base text-primary mb-2">Ready to schedule?</h3>
               <p className="text-sm text-secondary mb-4">
                 Book online or reach out if you have a question.
