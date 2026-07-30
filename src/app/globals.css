@@ -101,6 +101,25 @@ body {
   overflow-x: hidden;
 }
 
+/* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
+@media (max-width: 767px) {
+  [data-hide-mobile-hero='true'] {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
+
+  /* Pull the first content block up once the hero is gone */
+  [data-hide-mobile-hero='true'] + section {
+    padding-top: 2rem;
+  }
+}
+
 .jungle-gradient {
   background: var(--jungle-gradient);
 }
