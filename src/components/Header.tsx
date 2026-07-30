@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Calendar, Menu, X } from 'lucide-react'
+import { ArrowRight, Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 function BookNowLabel() {
@@ -12,6 +12,7 @@ function BookNowLabel() {
     <>
       <Calendar className="w-4 h-4 shrink-0" aria-hidden />
       Book now
+      <ArrowRight className="w-4 h-4 shrink-0" aria-hidden />
     </>
   )
 }
