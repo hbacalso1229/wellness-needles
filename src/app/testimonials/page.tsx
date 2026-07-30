@@ -222,7 +222,10 @@ export default function Testimonials() {
             </div>
 
             {/* Share CTA — below stories on mobile, sticky sidebar on desktop */}
-            <aside className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
+            <aside
+              data-hide-sticky-book
+              className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24"
+            >
               <h3 className="font-semibold text-base text-primary mb-2">
                 Share your success story
               </h3>

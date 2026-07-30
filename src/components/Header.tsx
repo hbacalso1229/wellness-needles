@@ -20,7 +20,7 @@ function BookNowLabel() {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolledPastHero, setScrolledPastHero] = useState(false)
-  const [exploreBookInView, setExploreBookInView] = useState(false)
+  const [inlineBookCtaInView, setInlineBookCtaInView] = useState(false)
   const pathname = usePathname()
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
@@ -46,12 +46,12 @@ export default function Header() {
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Hide sticky while hero CTAs are in view, or while Explore Book card is on screen (avoids double Book Now).
+  // Hide sticky while hero CTAs are in view, or while an inline/sidebar book CTA is on screen.
   const showStickyBookNow =
-    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !exploreBookInView
+    !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !inlineBookCtaInView
 
   useEffect(() => {
-    setExploreBookInView(false)
+    setInlineBookCtaInView(false)
 
     const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
     const isHeroVisible = (hero: HTMLElement) =>
@@ -95,23 +95,26 @@ export default function Header() {
       setScrolledPastHero(true)
     }
 
-    // Explore book gate with hysteresis + rootMargin (avoids mid-scroll flicker).
-    const exploreBook = document.getElementById('explore-book-cta')
-    let exploreObserver: IntersectionObserver | undefined
-    if (exploreBook) {
-      exploreObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry) return
-          const ratio = entry.intersectionRatio
-          if (ratio >= 0.35) setExploreBookInView(true)
-          else if (ratio <= 0.05) setExploreBookInView(false)
+    // Hide floating Book now when Explore card or sticky sidebars are on screen.
+    const inlineBookTargets = document.querySelectorAll('[data-hide-sticky-book]')
+    const inlineBookInView = new Set<Element>()
+    let inlineBookObserver: IntersectionObserver | undefined
+    if (inlineBookTargets.length > 0) {
+      inlineBookObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const ratio = entry.intersectionRatio
+            if (ratio >= 0.35) inlineBookInView.add(entry.target)
+            else if (ratio <= 0.05) inlineBookInView.delete(entry.target)
+          }
+          setInlineBookCtaInView(inlineBookInView.size > 0)
         },
         {
           threshold: [0, 0.05, 0.35, 1],
           rootMargin: '0px 0px -12% 0px',
         }
       )
-      exploreObserver.observe(exploreBook)
+      inlineBookTargets.forEach((el) => inlineBookObserver?.observe(el))
     }
 
     return () => {
@@ -120,7 +123,7 @@ export default function Header() {
       window.removeEventListener('pageshow', syncFromHeroRect)
       window.removeEventListener('resize', syncFromHeroRect)
       heroObserver?.disconnect()
-      exploreObserver?.disconnect()
+      inlineBookObserver?.disconnect()
     }
   }, [pathname])
 
