@@ -143,11 +143,12 @@ export default function ChineseMedicine() {
             subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
           />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+          {/* Mobile: horizontal scroll carousel | md+: compact 2x2 */}
+          <div className="mx-auto max-w-2xl flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4">
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
                 flippable
+                compact
                 icon={Zap}
                 title="Acupuncture"
                 description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
@@ -159,6 +160,7 @@ export default function ChineseMedicine() {
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
                 flippable
+                compact
                 icon={Heart}
                 title="Cupping Therapy"
                 description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
@@ -170,6 +172,7 @@ export default function ChineseMedicine() {
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
                 flippable
+                compact
                 icon={Brain}
                 title="Moxibustion"
                 description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
@@ -181,6 +184,7 @@ export default function ChineseMedicine() {
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
                 flippable
+                compact
                 icon={Circle}
                 title="Gua Sha"
                 description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
