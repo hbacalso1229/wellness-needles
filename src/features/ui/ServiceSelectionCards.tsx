@@ -53,12 +53,12 @@ export function ServiceSelectionCards({
         return (
           <label
             key={service.id}
-            className={`relative block p-4 border-2 rounded-lg cursor-pointer card-emboss ${
+            className={`relative block p-4 rounded-xl cursor-pointer transition-all duration-200 ${
               selected
-                ? 'border-primary bg-primary/5 shadow-sm'
+                ? 'border-2 border-primary bg-primary/5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
                 : hasError
-                  ? 'border-red-400 hover:border-red-500'
-                  : 'border-accent/20 hover:border-accent/40 hover:bg-accent/5'
+                  ? 'border-2 border-red-400 bg-white hover:border-red-500'
+                  : 'border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
             }`}
           >
             <input
