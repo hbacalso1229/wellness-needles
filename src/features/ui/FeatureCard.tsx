@@ -45,7 +45,7 @@ export function FeatureCard({
 
   const iconCircle = (
     <div
-      className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} ${hoverFrom} ${hoverTo} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 transition-all duration-300`}
+      className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} ${hoverFrom} ${hoverTo} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 transition-all duration-300 shadow-[0_8px_20px_rgba(74,124,42,0.28),0_2px_8px_rgba(45,80,22,0.14)]`}
     >
       <Icon className="w-10 h-10 text-primary" />
     </div>

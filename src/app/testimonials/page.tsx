@@ -269,7 +269,7 @@ export default function Testimonials() {
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
                   </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
+                  <p className="text-primary font-medium">Video coming soon</p>
                 </div>
               </div>
               <h3 className="font-semibold text-primary mb-2">Pain Relief Success</h3>
@@ -284,7 +284,7 @@ export default function Testimonials() {
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
                   </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
+                  <p className="text-primary font-medium">Video coming soon</p>
                 </div>
               </div>
               <h3 className="font-semibold text-primary mb-2">Fertility Journey</h3>
@@ -299,7 +299,7 @@ export default function Testimonials() {
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
                   </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
+                  <p className="text-primary font-medium">Video coming soon</p>
                 </div>
               </div>
               <h3 className="font-semibold text-primary mb-2">Stress Management</h3>

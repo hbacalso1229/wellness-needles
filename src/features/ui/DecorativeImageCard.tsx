@@ -77,7 +77,7 @@ export function DecorativeImageCard({
         // Wide tile frame; show the full collage (these assets are portrait — side space is expected).
         <div className="relative">
           <div
-            className={`relative flex h-80 w-full items-center justify-center rounded-xl overflow-hidden shadow-lg bg-white border-2 ${borderClass}`}
+            className={`relative flex h-80 w-full items-center justify-center rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] bg-white border-2 ${borderClass}`}
           >
             <Image
               src={src}
@@ -97,7 +97,7 @@ export function DecorativeImageCard({
       ) : (
         <div className="relative">
           <div
-            className={`relative h-72 w-full rounded-xl overflow-hidden shadow-lg bg-gradient-to-br ${gradientFrom} ${gradientTo}`}
+            className={`relative h-72 w-full rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] bg-gradient-to-br ${gradientFrom} ${gradientTo}`}
           >
             <Image
               src={src}
