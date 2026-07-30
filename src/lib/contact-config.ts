@@ -77,19 +77,19 @@ export const contactConfig = {
     // Fallback / packages when a service-specific URL is missing.
     // Create as "Scheduled Booking" so the public URL ends with /scheduled-booking.
     schedulingUrl: 'https://calendly.com/hbacalso1229/scheduled-booking',
-    // Initial Consultation — Calendly event duration must be 1 hr 45 min (105), 15-min start increments.
+    // Initial Consultation — Calendly event duration must be 1 hr 15 min (75), 15-min start increments.
     initialConsultationUrl: 'https://calendly.com/hbacalso1229/initial-consultation',
-    // Follow-up — Calendly event duration must be 1 hr 15 min (75), 15-min start increments.
+    // Follow-up — Calendly event duration must be 45 min, 15-min start increments.
     followUpUrl: 'https://calendly.com/hbacalso1229/follow-up',
     durations: {
       /** Minutes blocked on the calendar for Initial */
-      initialMinutes: 105,
+      initialMinutes: 75,
       /** Minutes blocked on the calendar for Follow-up */
-      followUpMinutes: 75,
+      followUpMinutes: 45,
       /** Start-time grid (Calendly + legacy preferred-time picker) */
       slotIncrementMinutes: 15,
-      initialLabel: '1 hour 45 minutes',
-      followUpLabel: '1 hour 15 minutes',
+      initialLabel: '1 hour 15 minutes',
+      followUpLabel: '45 minutes',
     },
   },
   fresha: {

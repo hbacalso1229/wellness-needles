@@ -272,7 +272,7 @@ Sections (in order):
 6. Reset to defaults / Open bookings
 7. **No auth** — linked from Header. Setup checklists live in README (not in the UI).
 
-**Calendly one-time setup:** see [README → Calendly setup checklist](README.md#calendly-setup-checklist). Create two event types (Initial **1h 45m**, Follow-up **1h 15m**, 15-min starts). Defaults: `contactConfig.calendly.initialConsultationUrl` / `followUpUrl` (overridable on `/admin`).
+**Calendly one-time setup:** see [README → Calendly setup checklist](README.md#calendly-setup-checklist). Create two event types (Initial **1h 15m**, Follow-up **45m**, 15-min starts). Defaults: `contactConfig.calendly.initialConsultationUrl` / `followUpUrl` (overridable on `/admin`).
 
 **Fresha setup:** see [README → Fresha setup checklist](README.md#fresha-setup-checklist).
 

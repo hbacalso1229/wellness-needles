@@ -34,8 +34,8 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - `features.freshaEnabled` — default `false`; when on, Book Now opens Fresha
 
 - **Calendly**:
-  - `calendly.initialConsultationUrl` — Initial (1h 45m / 105 min, 15-min starts)
-  - `calendly.followUpUrl` — Follow-up (1h 15m / 75 min, 15-min starts)
+  - `calendly.initialConsultationUrl` — Initial (1h 15m / 75 min, 15-min starts)
+  - `calendly.followUpUrl` — Follow-up (45 min, 15-min starts)
   - `calendly.schedulingUrl` — fallback / packages default
   - `calendly.durations` — labels + minute constants
   - Overridable on `/admin` when Calendly mode is on (Initial + Follow-up URLs)

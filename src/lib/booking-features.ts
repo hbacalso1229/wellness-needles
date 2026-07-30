@@ -8,9 +8,9 @@ export type BookingFeatureFlags = {
   treatmentPackagesEnabled: boolean
   /** Fallback Calendly URL (packages / unknown service). */
   calendlySchedulingUrl: string
-  /** Initial Consultation event (1h 45m). */
+  /** Initial Consultation event (1h 15m). */
   calendlyInitialUrl: string
-  /** Follow-up event (1h 15m). */
+  /** Follow-up event (45m). */
   calendlyFollowUpUrl: string
   /** Fresha public booking page URL. */
   freshaBookingUrl: string
@@ -107,7 +107,7 @@ function readFreshaUrl(value: unknown, fallback: string): string {
 
 /**
  * Pick the Calendly event URL for the selected service so Initial/Follow-up
- * block the correct calendar duration (105 vs 75 minutes).
+ * block the correct calendar duration (75 vs 45 minutes).
  */
 export function resolveCalendlyUrlForService(
   features: Pick<
