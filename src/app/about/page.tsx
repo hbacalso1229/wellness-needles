@@ -81,7 +81,7 @@ export default function About() {
             </div>
 
             {/* Mission / Vision / Values + image tile */}
-            <div className="bg-accent/5 rounded-lg p-6 sm:p-8">
+            <div className="bg-cream rounded-lg p-6 sm:p-8">
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <div className="bg-primary rounded-full p-3 shrink-0">
@@ -114,34 +114,6 @@ export default function About() {
                     <p className="text-secondary">
                       Authenticity, compassion, and dedication to the highest standards of care
                     </p>
-                  </div>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl blur-sm"></div>
-                  <div className="relative h-48 rounded-xl overflow-hidden shadow-xl">
-                    <Image
-                      src="/looking_after_patient.jpeg"
-                      alt="Caring for patient during treatment"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-all duration-300 pointer-events-none"></div>
-                  </div>
-                  <div className="absolute -top-1 -right-1 z-20">
-                    <PulsingLeaf
-                      size="small"
-                      color="text-primary/60 group-hover:text-primary"
-                      rotation={12}
-                    />
-                  </div>
-                  <div className="absolute -bottom-1 -left-1 z-20">
-                    <PulsingLeaf
-                      size="small"
-                      color="text-accent/60 group-hover:text-accent"
-                      rotation={-45}
-                      animationDelay="0.7s"
-                    />
                   </div>
                 </div>
               </div>

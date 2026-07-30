@@ -63,20 +63,20 @@ export function ServiceCard({
           aria-hidden="true"
         >
           <Leaf
-            className="absolute right-0 top-1 h-9 w-9 text-cream/[0.12] rotate-[28deg]"
-            strokeWidth={1.25}
+            className="absolute right-2 top-2 h-8 w-8 text-cream/40 rotate-[28deg]"
+            strokeWidth={1.5}
           />
           <Leaf
-            className="absolute right-8 top-8 h-6 w-6 text-cream/[0.1] -rotate-12"
-            strokeWidth={1.25}
+            className="absolute right-8 top-10 h-4 w-4 text-cream/40 -rotate-12"
+            strokeWidth={1.5}
           />
           <Leaf
-            className="absolute right-1 bottom-24 h-7 w-7 text-cream/[0.1] rotate-[40deg]"
-            strokeWidth={1.25}
+            className="absolute right-2 bottom-24 h-8 w-8 text-cream/40 rotate-[40deg]"
+            strokeWidth={1.5}
           />
           <Leaf
-            className="absolute left-3 bottom-10 h-5 w-5 text-cream/[0.08] -rotate-45"
-            strokeWidth={1.25}
+            className="absolute left-3 bottom-10 h-4 w-4 text-cream/40 -rotate-45"
+            strokeWidth={1.5}
           />
         </div>
       ) : null}
