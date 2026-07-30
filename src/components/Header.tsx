@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Calendar, Menu, X } from 'lucide-react'
+import { ArrowRight, Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 function BookNowLabel() {
@@ -12,6 +12,7 @@ function BookNowLabel() {
     <>
       <Calendar className="w-4 h-4 shrink-0" aria-hidden />
       Book now
+      <ArrowRight className="w-4 h-4 shrink-0" aria-hidden />
     </>
   )
 }
@@ -52,11 +53,16 @@ export default function Header() {
   useEffect(() => {
     setExploreBookInView(false)
 
+    const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
+    const isHeroVisible = (hero: HTMLElement) =>
+      window.getComputedStyle(hero).display !== 'none'
+
     // One-shot recheck after mount/navigation (scroll restoration / HMR).
     const syncFromHeroRect = () => {
-      const hero = document.querySelector('main section')
-      if (!hero) {
-        setScrolledPastHero(window.scrollY > Math.round(window.innerHeight * 0.55))
+      const hero = getPageHero()
+      if (!hero || !isHeroVisible(hero)) {
+        // Hidden mobile heroes must not reserve a scroll gate or layout gap.
+        setScrolledPastHero(true)
         return
       }
       const rect = hero.getBoundingClientRect()
@@ -69,11 +75,12 @@ export default function Header() {
     const rafId = window.requestAnimationFrame(syncFromHeroRect)
     const timeoutId = window.setTimeout(syncFromHeroRect, 100)
     window.addEventListener('pageshow', syncFromHeroRect)
+    window.addEventListener('resize', syncFromHeroRect)
 
     // Hero gate with hysteresis (no competing scroll% listener).
-    const hero = document.querySelector('main section')
+    const hero = getPageHero()
     let heroObserver: IntersectionObserver | undefined
-    if (hero) {
+    if (hero && isHeroVisible(hero)) {
       heroObserver = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return
@@ -84,6 +91,8 @@ export default function Header() {
         { threshold: [0, 0.2, 0.55, 1] }
       )
       heroObserver.observe(hero)
+    } else {
+      setScrolledPastHero(true)
     }
 
     // Explore book gate with hysteresis + rootMargin (avoids mid-scroll flicker).
@@ -109,6 +118,7 @@ export default function Header() {
       window.cancelAnimationFrame(rafId)
       window.clearTimeout(timeoutId)
       window.removeEventListener('pageshow', syncFromHeroRect)
+      window.removeEventListener('resize', syncFromHeroRect)
       heroObserver?.disconnect()
       exploreObserver?.disconnect()
     }

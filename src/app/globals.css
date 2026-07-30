@@ -73,6 +73,24 @@ body {
   @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
 }
 
+/* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
+@media (max-width: 767px) {
+  [data-hide-mobile-hero='true'] {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
+
+  /* Pull the first content block up once the hero is gone */
+  [data-hide-mobile-hero='true'] + section {
+    padding-top: 2rem;
+  }
+}
+
 .jungle-gradient {
   background: var(--jungle-gradient);
 }
