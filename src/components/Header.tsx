@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -21,6 +22,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolledPastHero, setScrolledPastHero] = useState(false)
   const [inlineBookCtaInView, setInlineBookCtaInView] = useState(false)
+  const [fabMounted, setFabMounted] = useState(false)
   const pathname = usePathname()
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
@@ -48,9 +50,13 @@ export default function Header() {
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Hide sticky while hero CTAs are in view, or while an inline/sidebar book CTA is on screen.
+  // Keep FAB at the viewport bottom, including over the footer (booking CTA always available).
   const showStickyBookNow =
     !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !inlineBookCtaInView
+
+  useEffect(() => {
+    setFabMounted(true)
+  }, [])
 
   useEffect(() => {
     setInlineBookCtaInView(false)
@@ -297,34 +303,40 @@ export default function Header() {
         </nav>
       </header>
 
-      <div className="xl:hidden fixed bottom-8 left-1/2 z-40 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] pointer-events-none">
-        <div
-          className={`sticky-book-fab ${
-            showStickyBookNow ? 'sticky-book-fab--visible' : 'sticky-book-fab--hidden'
-          }`}
-          aria-hidden={!showStickyBookNow}
-        >
-          {bookExternal ? (
-            <a
-              href={bookHref}
-              target={bookTarget}
-              rel={bookRel}
-              className={bookNowStickyClassName}
-              tabIndex={showStickyBookNow ? 0 : -1}
+      {fabMounted &&
+        createPortal(
+          <div
+            className="sticky-book-fab-root xl:hidden"
+            aria-hidden={!showStickyBookNow}
+          >
+            <div
+              className={`sticky-book-fab ${
+                showStickyBookNow ? 'sticky-book-fab--visible' : 'sticky-book-fab--hidden'
+              }`}
             >
-              <BookNowLabel />
-            </a>
-          ) : (
-            <Link
-              href={bookHref}
-              className={bookNowStickyClassName}
-              tabIndex={showStickyBookNow ? 0 : -1}
-            >
-              <BookNowLabel />
-            </Link>
-          )}
-        </div>
-      </div>
+              {bookExternal ? (
+                <a
+                  href={bookHref}
+                  target={bookTarget}
+                  rel={bookRel}
+                  className={bookNowStickyClassName}
+                  tabIndex={showStickyBookNow ? 0 : -1}
+                >
+                  <BookNowLabel />
+                </a>
+              ) : (
+                <Link
+                  href={bookHref}
+                  className={bookNowStickyClassName}
+                  tabIndex={showStickyBookNow ? 0 : -1}
+                >
+                  <BookNowLabel />
+                </Link>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   )
 }

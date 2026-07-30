@@ -242,27 +242,41 @@ select:-webkit-autofill:active {
   width: 303px !important;
 }
 
-/* Sticky mobile Book now — override global * { transition: all } for a clean fade/slide */
+/* Sticky mobile Book now — pinned to the visual viewport bottom (no transform on the fixed root) */
+.sticky-book-fab-root {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  /* Avoid transform/filter here — they break position:fixed on some mobile browsers */
+  transform: none !important;
+}
+
 .sticky-book-fab {
-  transform: translate3d(0, 12px, 0);
   opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 10px, 0);
   transition:
-    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
-  will-change: opacity, transform;
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .sticky-book-fab--visible {
-  transform: translate3d(0, 0, 0);
   opacity: 1;
   pointer-events: auto;
+  transform: translate3d(0, 0, 0);
 }
 
 .sticky-book-fab--hidden {
-  transform: translate3d(0, 12px, 0);
   opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 10px, 0);
 }
 
 .sticky-book-fab-btn {
