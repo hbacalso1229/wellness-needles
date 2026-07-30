@@ -50,7 +50,7 @@ export default function Header() {
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Keep FAB at the viewport bottom, including over the footer (booking CTA always available).
+  // Keep FAB at the viewport bottom, including over the footer.
   const showStickyBookNow =
     !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !inlineBookCtaInView
 
@@ -104,9 +104,21 @@ export default function Header() {
     const syncFromHeroRect = () => {
       if (cancelled) return
       const hero = getPageHero()
-      if (!hero || !isHeroDisplayed(hero)) {
+      if (!hero) {
         // Don't show sticky while we haven't bound a hero yet (App Router timing).
         setScrolledPastHero(false)
+        return
+      }
+      if (!isHeroDisplayed(hero)) {
+        // Hidden mobile heroes must not reserve a scroll gate.
+        heroObserver?.disconnect()
+        heroObserver = undefined
+        setScrolledPastHero(true)
+        return
+      }
+      // Re-bind when a mobile-hidden hero becomes visible (resize / orientation).
+      if (!heroObserver) {
+        bindHeroObserver(hero)
         return
       }
       setPastHeroSmooth(!isHeroOnScreen(hero))
@@ -128,7 +140,12 @@ export default function Header() {
 
     const tryBindHero = (): boolean => {
       const hero = getPageHero()
-      if (!hero || !isHeroDisplayed(hero)) return false
+      if (!hero) return false
+      if (!isHeroDisplayed(hero)) {
+        heroObserver?.disconnect()
+        setScrolledPastHero(true)
+        return true
+      }
       bindHeroObserver(hero)
       return true
     }

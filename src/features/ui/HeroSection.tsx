@@ -47,6 +47,8 @@ export interface HeroSectionProps {
   alignment?: 'left' | 'center' | 'right'
   /** Additional custom content to render */
   children?: ReactNode
+  /** Hide hero below md breakpoint (default true; Home opts out) */
+  hideOnMobile?: boolean
 }
 
 export function HeroSection({
@@ -63,6 +65,7 @@ export function HeroSection({
   heightClass = '',
   alignment = 'center',
   children,
+  hideOnMobile = true,
 }: HeroSectionProps) {
   const alignmentClasses = {
     left: 'text-left',
@@ -77,7 +80,8 @@ export function HeroSection({
   }
 
   const sectionClassName = [
-    'page-hero relative flex items-center overflow-x-hidden',
+    'page-hero relative items-center overflow-x-hidden',
+    hideOnMobile ? 'max-md:hidden md:flex' : 'flex',
     justifyClasses[alignment],
     backgroundImage ? 'bg-primary' : backgroundClass,
     heightClass,
@@ -86,7 +90,11 @@ export function HeroSection({
     .join(' ')
 
   return (
-    <section data-page-hero="" className={sectionClassName}>
+    <section
+      data-page-hero=""
+      data-hide-mobile-hero={hideOnMobile ? 'true' : undefined}
+      className={sectionClassName}
+    >
       {/* Photo heroes: full image + light brand wash (not faded image on solid green) */}
       {backgroundImage && (
         <div className="absolute inset-0">
