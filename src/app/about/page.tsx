@@ -2,7 +2,7 @@
 
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
 import Image from 'next/image'
-import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function About() {
@@ -159,14 +159,10 @@ export default function About() {
       {/* Why Choose Us Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Why Choose Wellness Needles?
-            </h2>
-            <p className="text-lg text-secondary">
-              Committed to providing the highest quality care with authentic traditional practices and personal experience
-            </p>
-          </div>
+          <SectionHeading
+            title="Why Choose Wellness Needles?"
+            subtitle="Committed to providing the highest quality care with authentic traditional practices and personal experience"
+          />
 
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">

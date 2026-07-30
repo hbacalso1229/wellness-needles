@@ -10,6 +10,7 @@ import {
   ServiceSelectionCards,
   HeroSection,
   TravelPolicyNotice,
+  SectionHeading,
 } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
@@ -200,12 +201,12 @@ export default function Bookings() {
               ) : (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
-                    <h2 className="font-serif text-3xl font-bold text-primary mb-4">
-                      Our Services & Pricing
-                    </h2>
-                    <p className="text-lg text-secondary mb-6">
-                      Professional acupuncture treatments to support your health and wellness journey
-                    </p>
+                    <SectionHeading
+                      title="Our Services & Pricing"
+                      subtitle="Professional acupuncture treatments to support your health and wellness journey"
+                      titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                      className="text-center mb-6"
+                    />
                     {!calendlyEnabled && !freshaEnabled && (
                       <div className="bg-accent/5 border border-accent/20 rounded-xl p-6 max-w-2xl mx-auto">
                         <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">

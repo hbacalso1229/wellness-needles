@@ -1,7 +1,7 @@
 'use client'
 
 import { Star, Quote, Heart, CheckCircle } from 'lucide-react'
-import { CTAButton, DecorativeImageCard, HeroSection } from '../../features'
+import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -87,14 +87,10 @@ export default function Testimonials() {
       {/* Success Stories with Images */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Treatment Success Stories
-            </h2>
-            <p className="text-lg text-secondary">
-              Visual evidence of our patients&apos; healing journeys
-            </p>
-          </div>
+          <SectionHeading
+            title="Treatment Success Stories"
+            subtitle="Visual evidence of our patients' healing journeys"
+          />
           
           {/* Mobile: horizontal scroll carousel | md: 2-col */}
           <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12">
@@ -146,18 +142,15 @@ export default function Testimonials() {
       {/* Testimonials Grid */}
       <section className="py-20 bg-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Success Stories
-            </h2>
-            <p className="text-lg text-secondary">
-              Illustrative examples of common treatment journeys
-            </p>
-            <p className="mt-4 max-w-3xl mx-auto text-sm text-secondary bg-cream/80 border border-accent/20 rounded-lg px-4 py-3">
-              These stories are illustrative examples for educational purposes and are not attributed
-              to verified patients. Genuine reviews will be published here once consent is obtained.
-            </p>
-          </div>
+          <SectionHeading
+            title="Success Stories"
+            subtitle="Illustrative examples of common treatment journeys"
+            className="text-center mb-4"
+          />
+          <p className="mb-16 max-w-3xl mx-auto text-sm text-secondary bg-cream/80 border border-accent/20 rounded-lg px-4 py-3 text-center">
+            These stories are illustrative examples for educational purposes and are not attributed
+            to verified patients. Genuine reviews will be published here once consent is obtained.
+          </p>
 
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
             <div className="min-w-0">
@@ -252,14 +245,10 @@ export default function Testimonials() {
       {/* Video Testimonials Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Video Testimonials
-            </h2>
-            <p className="text-lg text-secondary">
-              Watch our patients share their healing experiences
-            </p>
-          </div>
+          <SectionHeading
+            title="Video Testimonials"
+            subtitle="Watch our patients share their healing experiences"
+          />
           
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">

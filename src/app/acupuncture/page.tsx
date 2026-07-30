@@ -1,15 +1,82 @@
 'use client'
 
-import { Brain, Heart, Zap, Shield, Target, Activity, CheckCircle } from 'lucide-react'
-import { FeatureCard, HeroSection } from '../../features'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
+import {
+  Brain,
+  Heart,
+  Zap,
+  Shield,
+  Target,
+  Activity,
+  Check,
+  Wind,
+  Apple,
+  Flower2,
+  BookOpen,
+  ShieldCheck,
+  HandHeart,
+  Venus,
+  type LucideIcon,
+} from 'lucide-react'
+import { FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+  'group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
 
-const researchCardClass =
-  'snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+const conditions: {
+  title: string
+  icon: LucideIcon
+  items: string[]
+}[] = [
+  {
+    title: 'Pain Management',
+    icon: Activity,
+    items: [
+      'Chronic back pain',
+      'Neck and shoulder pain',
+      'Arthritis',
+      'Migraines and headaches',
+      'Fibromyalgia',
+    ],
+  },
+  {
+    title: 'Mental Health',
+    icon: Brain,
+    items: ['Anxiety and stress', 'Depression', 'Insomnia', 'PTSD', 'Addiction recovery'],
+  },
+  {
+    title: "Women's Health",
+    icon: Venus,
+    items: [
+      'Fertility support',
+      'Menstrual irregularities',
+      'Menopause symptoms',
+      'Pregnancy support',
+      'PCOS',
+    ],
+  },
+  {
+    title: 'Digestive Issues',
+    icon: Apple,
+    items: ['IBS', 'Acid reflux', 'Bloating', 'Constipation', 'Nausea'],
+  },
+  {
+    title: 'Respiratory',
+    icon: Wind,
+    items: ['Asthma', 'Allergies', 'Sinusitis', 'Chronic cough', 'Bronchitis'],
+  },
+  {
+    title: 'General Wellness',
+    icon: Flower2,
+    items: [
+      'Immune support',
+      'Energy enhancement',
+      'Anti-aging',
+      'Weight management',
+      'Preventive care',
+    ],
+  },
+]
 
 export default function Acupuncture() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -42,15 +109,10 @@ export default function Acupuncture() {
       {/* How It Works Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              How Acupuncture Works
-            </h2>
-            <p className="text-lg text-secondary max-w-3xl mx-auto">
-              Acupuncture works by stimulating specific points on the body to restore
-              the natural flow of energy and promote healing
-            </p>
-          </div>
+          <SectionHeading
+            title="How Acupuncture Works"
+            subtitle="Acupuncture works by stimulating specific points on the body to restore the natural flow of energy and promote healing"
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             <div>
@@ -105,16 +167,11 @@ export default function Acupuncture() {
       {/* Benefits Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Benefits of Acupuncture
-            </h2>
-            <p className="text-lg text-secondary">
-              Experience comprehensive healing with proven benefits for mind and body
-            </p>
-          </div>
+          <SectionHeading
+            title="Benefits of Acupuncture"
+            subtitle="Experience comprehensive healing with proven benefits for mind and body"
+          />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
               <FeatureCard
@@ -183,7 +240,6 @@ export default function Acupuncture() {
             </div>
           </div>
 
-          {/* Swipe hint — mobile only */}
           <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
             <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
             <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
@@ -194,93 +250,35 @@ export default function Acupuncture() {
       </section>
 
       {/* Conditions Treated */}
-      <section className="py-20 bg-secondary/5">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Conditions We Treat
-            </h2>
-            <p className="text-lg text-secondary">
-              Acupuncture can effectively address a wide range of health conditions
-            </p>
-          </div>
+          <SectionHeading
+            title="Conditions We Treat"
+            subtitle="Acupuncture can effectively address a wide range of health conditions"
+          />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Pain Management</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Chronic back pain</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Neck and shoulder pain</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Arthritis</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Migraines and headaches</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Fibromyalgia</li>
-              </ul>
-            </div>
-
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Mental Health</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Anxiety and stress</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Depression</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Insomnia</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> PTSD</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Addiction recovery</li>
-              </ul>
-            </div>
-
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Women&apos;s Health</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Fertility support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Menstrual irregularities</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Menopause symptoms</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Pregnancy support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> PCOS</li>
-              </ul>
-            </div>
-
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Digestive Issues</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> IBS</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Acid reflux</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Bloating</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Constipation</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Nausea</li>
-              </ul>
-            </div>
-
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Respiratory</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Asthma</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Allergies</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Sinusitis</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Chronic cough</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Bronchitis</li>
-              </ul>
-            </div>
-
-            <div className={conditionCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">General Wellness</h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-2 text-secondary">
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Immune support</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Energy enhancement</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Anti-aging</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Weight management</li>
-                <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Preventive care</li>
-              </ul>
-            </div>
+            {conditions.map(({ title, icon: Icon, items }) => (
+              <div key={title} className={conditionCardClass}>
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
+                  <Icon className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
+                </div>
+                <h3 className="font-serif text-lg font-semibold text-primary mb-2">{title}</h3>
+                <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                <ul className="space-y-2.5 text-secondary">
+                  {items.map((item) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
+                        <Check className="h-3 w-3 text-accent" strokeWidth={2.5} />
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          {/* Swipe hint — mobile only */}
           <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
             <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
             <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
@@ -291,92 +289,87 @@ export default function Acupuncture() {
       </section>
 
       {/* Research Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Scientific Evidence
-            </h2>
-            <p className="text-lg text-secondary">
-              Modern research validates what traditional practitioners have known for millennia
-            </p>
-          </div>
+          <SectionHeading
+            title="Scientific Evidence"
+            subtitle="Modern research validates what traditional practitioners have known for millennia"
+          />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
-            <div className={researchCardClass}>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
-                Clinical Research
-              </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-3 text-secondary">
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Over 3,000 published studies on acupuncture effectiveness</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>WHO recognizes acupuncture for treating 43+ conditions</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>NIH supports acupuncture for pain management</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Meta-analyses show significant benefits for chronic pain</span>
-                </li>
-              </ul>
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 pt-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative pt-7 group">
+              <div className="absolute left-1/2 top-0 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-105">
+                <BookOpen className="h-6 w-6 text-cream" strokeWidth={1.75} />
+              </div>
+              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:border-primary/25 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
+                <div className="flex flex-1 flex-col px-6 pb-6 pt-12 text-center sm:px-8">
+                  <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                    Clinical Research
+                  </h3>
+                  <div className="mx-auto mb-5 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                  <ul className="space-y-3 text-left text-secondary">
+                    {[
+                      'Over 3,000 published studies on acupuncture effectiveness',
+                      'WHO recognizes acupuncture for treating 43+ conditions',
+                      'NIH supports acupuncture for pain management',
+                      'Meta-analyses show significant benefits for chronic pain',
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                          <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center justify-center gap-2 bg-accent/15 px-4 py-3 text-sm font-medium text-primary transition-colors duration-300 group-hover:bg-accent/25">
+                  <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+                  Evidence-based. Time-tested.
+                </div>
+              </div>
             </div>
 
-            <div className={researchCardClass}>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
-                Safety Profile
-              </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <ul className="space-y-3 text-secondary">
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Extremely low risk of adverse effects when performed by licensed practitioners</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>No drug interactions or side effects</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Safe for all ages, including children and pregnant women</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Can be used alongside conventional medical treatments</span>
-                </li>
-              </ul>
+            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative pt-7 group">
+              <div className="absolute left-1/2 top-0 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-105">
+                <ShieldCheck className="h-6 w-6 text-cream" strokeWidth={1.75} />
+              </div>
+              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:border-primary/25 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
+                <div className="flex flex-1 flex-col px-6 pb-6 pt-12 text-center sm:px-8">
+                  <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                    Safety Profile
+                  </h3>
+                  <div className="mx-auto mb-5 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                  <ul className="space-y-3 text-left text-secondary">
+                    {[
+                      'Extremely low risk of adverse effects when performed by licensed practitioners',
+                      'No drug interactions or side effects',
+                      'Safe for all ages, including children and pregnant women',
+                      'Can be used alongside conventional medical treatments',
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                          <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center justify-center gap-2 bg-accent/15 px-4 py-3 text-sm font-medium text-primary transition-colors duration-300 group-hover:bg-accent/25">
+                  <HandHeart className="h-4 w-4 shrink-0" aria-hidden />
+                  Safe. Gentle. Natural.
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Swipe hint — mobile only */}
           <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
             <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
             <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
             </svg>
           </div>
-        </div>
-      </section>
-
-      {/* Closing Book CTA */}
-      <section className="py-16 bg-secondary/5 border-t border-accent/20">
-        <div className="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-3">
-            Ready to try acupuncture?
-          </h2>
-          <p className="text-lg text-secondary mb-8">
-            Book a session and take the next step toward balanced, lasting relief.
-          </p>
-          <BookingCtaButton variant="gold" className="!rounded-full">
-            Schedule your treatment
-          </BookingCtaButton>
         </div>
       </section>
     </div>

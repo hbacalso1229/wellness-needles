@@ -2,7 +2,7 @@
 
 import { Calendar, Clock, Send, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
-import { HeroSection } from '../../features'
+import { HeroSection, SectionHeading } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
 import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
@@ -312,14 +312,11 @@ export default function Contact() {
       {/* FAQ Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-lg text-secondary">
-              Quick answers to common questions
-            </p>
-          </div>
+          <SectionHeading
+            title="Frequently Asked Questions"
+            subtitle="Quick answers to common questions"
+            titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+          />
 
           {/* Mobile: horizontal scroll carousel | sm+: stacked */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-col sm:overflow-visible sm:pb-0 sm:gap-6">
@@ -359,14 +356,12 @@ export default function Contact() {
       {contactConfig.features.mapIntegrationEnabled && (
         <section id="find-us" className="pt-12 pb-6 bg-secondary/5 scroll-mt-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="font-serif text-2xl font-bold text-primary mb-2">
-                Find Us
-              </h2>
-              <p className="text-base text-secondary">
-                Visit us in Celbridge or Carlow
-              </p>
-            </div>
+            <SectionHeading
+              title="Find Us"
+              subtitle="Visit us in Celbridge or Carlow"
+              titleClassName="font-serif text-2xl font-bold text-primary mb-3"
+              className="text-center mb-8"
+            />
 
             {/* Mobile: horizontal scroll carousel | md: 2-col */}
             <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-6">
