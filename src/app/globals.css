@@ -184,13 +184,56 @@ body {
 }
 
 /* Native date inputs can overflow card bounds on mobile WebKit */
-input[type='date'],
-input.booking-date-input {
+.booking-date-field {
+  min-width: 0;
+  width: 100%;
   max-width: 100%;
+  overflow: hidden;
+  border-radius: 0.5rem;
 }
 
-input[type='date']::-webkit-calendar-picker-indicator {
+input[type='date'],
+input.booking-date-input {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+input.booking-date-input::-webkit-datetime-edit,
+input.booking-date-input::-webkit-datetime-edit-fields-wrapper,
+input.booking-date-input::-webkit-datetime-edit-text,
+input.booking-date-input::-webkit-datetime-edit-month-field,
+input.booking-date-input::-webkit-datetime-edit-day-field,
+input.booking-date-input::-webkit-datetime-edit-year-field {
+  min-width: 0;
+  padding: 0;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input.booking-date-input::-webkit-calendar-picker-indicator {
   margin-left: 0;
+  flex-shrink: 0;
+}
+
+/* Chrome/Edge/Safari paint autofilled fields blue/yellow — keep brand white */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--primary-green);
+  caret-color: var(--primary-green);
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 99999s ease-in-out 0s !important;
 }
 
 /* Keep hCaptcha at native width — constrained parents can squash the logo column */

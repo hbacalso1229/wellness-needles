@@ -200,7 +200,17 @@ const fieldErrorClassName =
   'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
 
 const dateInputClassName = `${inputClassName} booking-date-input`
-const dateInputErrorClassName = `${fieldErrorClassName} booking-date-input`
+/** Keep 1px border + inset ring so mobile date inputs don’t grow past the card. */
+const dateInputErrorClassName =
+  `${inputClassName} booking-date-input !border-red-500 ring-2 ring-inset ring-red-400 focus:ring-red-400 bg-red-50/40`
+
+function RequiredMark() {
+  return (
+    <span className="text-red-600" aria-hidden="true">
+      *
+    </span>
+  )
+}
 
 type FieldErrorKey =
   | 'service'
@@ -717,36 +727,38 @@ export default function BookingForm() {
               Pick your preferred date and time. We will confirm within 24 hours.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="min-w-0 w-full overflow-hidden">
+              <div className="min-w-0 w-full max-w-full">
                 <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
-                  Preferred Date *
+                  Preferred Date <RequiredMark />
                 </label>
-                <input
-                  type="date"
-                  id="booking-date"
-                  value={selectedDate}
-                  onChange={(e) => {
-                    const nextDate = e.target.value
-                    setSelectedDate(nextDate)
-                    clearFieldError('date')
-                    if (selectedTime && isPastTimeSlot(nextDate, selectedTime)) {
-                      setSelectedTime('')
-                      clearFieldError('time')
+                <div className="booking-date-field">
+                  <input
+                    type="date"
+                    id="booking-date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      const nextDate = e.target.value
+                      setSelectedDate(nextDate)
+                      clearFieldError('date')
+                      if (selectedTime && isPastTimeSlot(nextDate, selectedTime)) {
+                        setSelectedTime('')
+                        clearFieldError('time')
+                      }
+                    }}
+                    min={todayDateInputValue()}
+                    aria-invalid={hasFieldError('date')}
+                    className={
+                      hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
                     }
-                  }}
-                  min={todayDateInputValue()}
-                  aria-invalid={hasFieldError('date')}
-                  className={
-                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
-                  }
-                />
+                  />
+                </div>
               </div>
               <div className="min-w-0 w-full">
                 <p
                   id="booking-time-label"
                   className="block text-sm font-medium text-primary mb-2"
                 >
-                  Preferred Time *
+                  Preferred Time <RequiredMark />
                 </p>
                 <div
                   id="booking-time"
@@ -801,10 +813,10 @@ export default function BookingForm() {
                 <User className="w-5 h-5 mr-2" />
                 Personal Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
+                <div className="min-w-0">
                   <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-2">
-                    First Name *
+                    First Name <RequiredMark />
                   </label>
                   <input
                     type="text"
@@ -818,7 +830,7 @@ export default function BookingForm() {
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-2">
-                    Last Name *
+                    Last Name <RequiredMark />
                   </label>
                   <input
                     type="text"
@@ -832,7 +844,7 @@ export default function BookingForm() {
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                    Email Address *
+                    Email Address <RequiredMark />
                   </label>
                   <input
                     type="email"
@@ -846,7 +858,7 @@ export default function BookingForm() {
                 </div>
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-primary mb-2">
-                    Phone Number *
+                    Phone Number <RequiredMark />
                   </label>
                   <input
                     type="tel"
@@ -861,37 +873,45 @@ export default function BookingForm() {
                     className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
                   />
                 </div>
-                <div className="md:col-span-2 min-w-0 w-full overflow-hidden">
+                <div className="md:col-span-2 min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
                     Date of Birth
                   </label>
-                  <input
-                    type="date"
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    onBlur={(e) => {
-                      const value = e.target.value
-                      if (isFutureDateInputValue(value)) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          dateOfBirth: '',
-                        }))
-                        setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+                  <div className="booking-date-field">
+                    <input
+                      type="date"
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      onBlur={(e) => {
+                        const value = e.target.value
+                        if (isFutureDateInputValue(value)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            dateOfBirth: '',
+                          }))
+                          setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+                        }
+                      }}
+                      max={todayDateInputValue()}
+                      aria-invalid={hasFieldError('dateOfBirth')}
+                      aria-describedby={
+                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
                       }
-                    }}
-                    max={todayDateInputValue()}
-                    aria-invalid={hasFieldError('dateOfBirth')}
-                    aria-describedby={
-                      hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
-                    }
-                    className={
-                      hasFieldError('dateOfBirth') ? dateInputErrorClassName : dateInputClassName
-                    }
-                  />
+                      className={
+                        hasFieldError('dateOfBirth')
+                          ? dateInputErrorClassName
+                          : dateInputClassName
+                      }
+                    />
+                  </div>
                   {hasFieldError('dateOfBirth') && (
-                    <p id="dateOfBirth-error" className="mt-2 text-sm text-red-600" role="alert">
+                    <p
+                      id="dateOfBirth-error"
+                      className="mt-2 text-sm text-red-600 max-w-full break-words"
+                      role="alert"
+                    >
                       Date of birth cannot be in the future.
                     </p>
                   )}
@@ -907,7 +927,7 @@ export default function BookingForm() {
                     htmlFor="chiefComplaint"
                     className="block text-sm font-medium text-primary mb-2"
                   >
-                    What brings you in today? (Main concern or condition) *
+                    What brings you in today? (Main concern or condition) <RequiredMark />
                   </label>
                   <textarea
                     id="chiefComplaint"
