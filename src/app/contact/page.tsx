@@ -59,7 +59,7 @@ export default function Contact() {
     subject: '',
     message: '',
   })
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null)
+  const [openFaqIndexes, setOpenFaqIndexes] = useState<Set<number>>(() => new Set())
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -385,39 +385,56 @@ export default function Contact() {
 
           <div className="flex flex-col gap-4 sm:gap-6">
             {faqs.map((faq, index) => {
-              const isOpen = openFaqIndex === index
+              const isOpen = openFaqIndexes.has(index)
               return (
-                <div key={faq.question} className={interactiveCardClass}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between gap-3 text-left"
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-answer-${index}`}
-                    id={`faq-question-${index}`}
-                    onClick={() =>
-                      setOpenFaqIndex((prev) => (prev === index ? null : index))
-                    }
-                  >
-                    <h3 className="font-semibold text-lg text-primary pr-1">{faq.question}</h3>
+                <button
+                  key={faq.question}
+                  type="button"
+                  className={`${interactiveCardClass} w-full text-left cursor-pointer`}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${index}`}
+                  id={`faq-question-${index}`}
+                  onClick={() =>
+                    setOpenFaqIndexes((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(index)) next.delete(index)
+                      else next.add(index)
+                      return next
+                    })
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-lg text-primary mb-2">{faq.question}</h3>
+                      <div className="h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                    </div>
                     <ChevronRight
-                      className={`h-5 w-5 shrink-0 text-primary/70 transition-transform duration-300 ${
+                      className={`diagnosis-accordion-chevron h-5 w-5 shrink-0 text-secondary/50 ${
                         isOpen ? 'rotate-90 text-primary' : ''
                       }`}
                       strokeWidth={1.75}
                       aria-hidden
                     />
-                  </button>
-
+                  </div>
                   <div
                     id={`faq-answer-${index}`}
                     role="region"
                     aria-labelledby={`faq-question-${index}`}
-                    className={isOpen ? 'mt-3 block' : 'hidden'}
+                    className={`diagnosis-accordion-panel grid ${
+                      isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                    }`}
                   >
-                    <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                    <p className="text-secondary">{faq.answer}</p>
+                    <div className="overflow-hidden">
+                      <p
+                        className={`pt-3 text-secondary diagnosis-accordion-body ${
+                          isOpen ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        {faq.answer}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
