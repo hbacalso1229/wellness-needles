@@ -454,7 +454,7 @@ export default function Bookings() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl !px-3 text-xs sm:text-sm font-bold gap-1.5 !whitespace-nowrap"
+                  className="w-full !rounded-full !px-3 text-xs sm:text-sm font-bold gap-1.5 !whitespace-nowrap"
                 >
                   <Phone className="w-3.5 h-3.5 shrink-0" aria-hidden />
                   {contactConfig.phone.displayText}
@@ -464,7 +464,7 @@ export default function Bookings() {
                   variant="outline"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl text-sm font-medium gap-2"
+                  className="w-full !rounded-full text-sm font-medium gap-2"
                 >
                   <Mail className="w-4 h-4 shrink-0" aria-hidden />
                   Send message

@@ -231,7 +231,7 @@ export default function Testimonials() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl text-sm font-bold gap-2"
+                  className="w-full !rounded-full text-sm font-bold gap-2"
                 >
                   Share your story
                 </CTAButton>
@@ -239,7 +239,7 @@ export default function Testimonials() {
                   variant="outline"
                   showArrow={false}
                   size="medium"
-                  className="w-full !rounded-xl text-sm font-medium"
+                  className="w-full !rounded-full text-sm font-medium"
                 >
                   Start your journey
                 </BookingCtaButton>

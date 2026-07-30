@@ -282,7 +282,7 @@ export default function Contact() {
                       variant="gold"
                       size="medium"
                       showArrow={false}
-                      className="w-full !rounded-xl !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                      className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
                     >
                       <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
                       Book an appointment
@@ -290,7 +290,7 @@ export default function Contact() {
                     <button
                       type="button"
                       disabled={!contactConfig.features.liveChatEnabled}
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
                         contactConfig.features.liveChatEnabled
                           ? 'bg-cream text-primary border border-accent/30 hover:border-primary hover:shadow-md'
                           : 'bg-cream text-gray-400 border border-gray-200 cursor-not-allowed opacity-80'
