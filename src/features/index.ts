@@ -9,5 +9,6 @@ export { OptionalAddOns } from './ui/OptionalAddOns'
 export { ClinicLocationCards } from './ui/ClinicLocationCards'
 export { ServiceSelectionCards } from './ui/ServiceSelectionCards'
 export { TravelPolicyNotice } from './ui/TravelPolicyNotice'
+export { SectionHeading } from './ui/SectionHeading'
 
 

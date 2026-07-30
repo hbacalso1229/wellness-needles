@@ -10,6 +10,7 @@ import {
   ServiceSelectionCards,
   HeroSection,
   TravelPolicyNotice,
+  SectionHeading,
 } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
@@ -29,6 +30,9 @@ type BookingService = {
   description: string
   savings?: string
 }
+
+const panelClass =
+  'bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
 
 export default function Bookings() {
   const { features } = useBookingFeatures()
@@ -196,22 +200,31 @@ export default function Bookings() {
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
             <div className="min-w-0 order-1 lg:order-1">
               {bookingFormEnabled ? (
-                <BookingForm />
+                <div>
+                  <SectionHeading
+                    title="Book an appointment"
+                    subtitle="Choose your service and preferred time to get started"
+                    titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                    className="text-center mb-10"
+                  />
+                  <BookingForm />
+                </div>
               ) : (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
-                    <h2 className="font-serif text-3xl font-bold text-primary mb-4">
-                      Our Services & Pricing
-                    </h2>
-                    <p className="text-lg text-secondary mb-6">
-                      Professional acupuncture treatments to support your health and wellness journey
-                    </p>
+                    <SectionHeading
+                      title="Our services & pricing"
+                      subtitle="Professional acupuncture treatments to support your health and wellness journey"
+                      titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                      className="text-center mb-6"
+                    />
                     {!calendlyEnabled && !freshaEnabled && (
-                      <div className="bg-accent/5 border border-accent/20 rounded-xl p-6 max-w-2xl mx-auto">
-                        <h3 className="font-semibold text-primary mb-3 flex items-center justify-center">
+                      <div className={`${panelClass} max-w-2xl mx-auto`}>
+                        <h3 className="font-semibold text-primary mb-2 flex items-center justify-center">
                           <Phone className="w-5 h-5 mr-2" />
                           Ready to book your appointment?
                         </h3>
+                        <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-4">
                           Call us directly to schedule your consultation and begin your path to better health
                         </p>
@@ -226,10 +239,11 @@ export default function Bookings() {
                     )}
 
                     {freshaEnabled && (
-                      <div className="bg-accent/5 border border-accent/20 rounded-xl p-6 max-w-2xl mx-auto mt-6">
-                        <h3 className="font-semibold text-primary mb-3 text-center text-xl">
+                      <div className={`${panelClass} max-w-2xl mx-auto mt-6`}>
+                        <h3 className="font-semibold text-primary mb-2 text-center text-xl">
                           Book on Fresha
                         </h3>
+                        <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-4 text-center">
                           Review services below, then continue to Fresha to choose a time.
                         </p>
@@ -257,7 +271,7 @@ export default function Bookings() {
                   </div>
 
                   {/* Tab Navigation for Pricing */}
-                  <div className="bg-accent/5 rounded-lg p-8">
+                  <div className={`${panelClass} !p-6 sm:!p-8`}>
                     <div className="flex border-b border-accent/20 mb-6">
                       <button
                         type="button"
@@ -268,7 +282,7 @@ export default function Bookings() {
                             : 'border-transparent text-secondary hover:text-primary'
                         }`}
                       >
-                        In Clinic Services
+                        In clinic services
                       </button>
                       <button
                         type="button"
@@ -279,15 +293,14 @@ export default function Bookings() {
                             : 'border-transparent text-secondary hover:text-primary'
                         }`}
                       >
-                        Home Visit Services
+                        Home visit services
                       </button>
                     </div>
 
                     {/* Service first, then location (Fresha / Calendly flow) */}
                     <div className="mb-8">
-                      <h3 className="font-serif text-xl font-bold text-primary mb-4">
-                        Service
-                      </h3>
+                      <h3 className="font-serif text-xl font-bold text-primary mb-2">Service</h3>
+                      <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <ServiceSelectionCards
                         services={services}
                         selectedId={selectedService}
@@ -299,8 +312,11 @@ export default function Bookings() {
 
                     <div className="mb-8">
                       <h3 className="font-serif text-xl font-bold text-primary mb-2">
-                        {activeTab === 'call-out' ? 'Nearest Clinic / Service Area' : 'Clinic Location'}
+                        {activeTab === 'call-out'
+                          ? 'Nearest clinic / service area'
+                          : 'Clinic location'}
                       </h3>
+                      <div className="mb-2 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <p className="text-sm text-secondary mb-4">
                         {activeTab === 'call-out'
                           ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
@@ -325,9 +341,9 @@ export default function Bookings() {
                     />
 
                     {/* Practitioner Information */}
-                    <div className="mt-8 p-6 bg-primary/5 border-2 border-primary rounded-lg">
+                    <div className={`mt-8 ${panelClass}`}>
                       <div className="text-center">
-                        <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border-2 border-primary/20">
+                        <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden border border-accent/25">
                           <Image
                             src="/Arkinth_clinic_founder.jpeg"
                             alt="Arkinth Garcia - Naturopath & Acupuncturist"
@@ -337,6 +353,7 @@ export default function Bookings() {
                           />
                         </div>
                         <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
+                        <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
                         <p className="text-secondary text-sm">
                           Qualified from the College of Naturopathic Medicine, Dublin. Specializing in
@@ -347,21 +364,23 @@ export default function Bookings() {
                   </div>
 
                   {calendlyEnabled && !freshaEnabled && (
-                    <div className="bg-accent/5 border border-accent/20 rounded-xl p-5 sm:p-6">
+                    <div className={`${panelClass} !p-5 sm:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
                         <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
                           Schedule a booking
                         </h3>
+                        <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-sm text-secondary">
                           Pick a time — your selections above are included with the booking.
                         </p>
                       </div>
 
                       {canOpenScheduler && (
-                        <div className="mb-5 rounded-xl border border-accent/25 bg-cream p-4 max-w-2xl mx-auto">
-                          <p className="font-semibold text-primary mb-3 text-center text-sm sm:text-base">
+                        <div className="mb-5 rounded-xl border border-accent/15 bg-cream p-4 max-w-2xl mx-auto shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
+                          <p className="font-semibold text-primary mb-2 text-center text-sm sm:text-base">
                             Your booking summary
                           </p>
+                          <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                             <div>
                               <dt className="text-xs font-medium uppercase tracking-wide text-secondary/80 mb-0.5">
@@ -443,7 +462,7 @@ export default function Bookings() {
             {/* Contact CTA — below form on mobile, sticky sidebar on desktop */}
             <aside className="order-2 lg:order-2 w-full mt-6 lg:mt-0 lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss">
               <h3 className="font-semibold text-base text-primary mb-2">
-                Ready to Schedule?
+                Ready to schedule?
               </h3>
               <p className="text-sm text-secondary mb-4">
                 Prefer to call or message us instead.
@@ -454,7 +473,7 @@ export default function Bookings() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl !px-3 text-xs sm:text-sm font-bold gap-1.5 !whitespace-nowrap"
+                  className="w-full !rounded-full !px-3 text-xs sm:text-sm font-bold gap-1.5 !whitespace-nowrap"
                 >
                   <Phone className="w-3.5 h-3.5 shrink-0" aria-hidden />
                   {contactConfig.phone.displayText}
@@ -464,7 +483,7 @@ export default function Bookings() {
                   variant="outline"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl text-sm font-medium gap-2"
+                  className="w-full !rounded-full text-sm font-medium gap-2"
                 >
                   <Mail className="w-4 h-4 shrink-0" aria-hidden />
                   Send message

@@ -2,7 +2,7 @@
 
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
 import Image from 'next/image'
-import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 export default function About() {
@@ -81,7 +81,7 @@ export default function About() {
             </div>
 
             {/* Mission / Vision / Values + image tile */}
-            <div className="bg-accent/5 rounded-lg p-6 sm:p-8">
+            <div className="bg-cream rounded-lg p-6 sm:p-8">
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <div className="bg-primary rounded-full p-3 shrink-0">
@@ -114,34 +114,6 @@ export default function About() {
                     <p className="text-secondary">
                       Authenticity, compassion, and dedication to the highest standards of care
                     </p>
-                  </div>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl blur-sm"></div>
-                  <div className="relative h-48 rounded-xl overflow-hidden shadow-xl">
-                    <Image
-                      src="/looking_after_patient.jpeg"
-                      alt="Caring for patient during treatment"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 rounded-xl border border-primary/20 group-hover:border-primary/40 transition-all duration-300 pointer-events-none"></div>
-                  </div>
-                  <div className="absolute -top-1 -right-1 z-20">
-                    <PulsingLeaf
-                      size="small"
-                      color="text-primary/60 group-hover:text-primary"
-                      rotation={12}
-                    />
-                  </div>
-                  <div className="absolute -bottom-1 -left-1 z-20">
-                    <PulsingLeaf
-                      size="small"
-                      color="text-accent/60 group-hover:text-accent"
-                      rotation={-45}
-                      animationDelay="0.7s"
-                    />
                   </div>
                 </div>
               </div>
@@ -187,14 +159,10 @@ export default function About() {
       {/* Why Choose Us Section */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Why Choose Wellness Needles?
-            </h2>
-            <p className="text-lg text-secondary">
-              Committed to providing the highest quality care with authentic traditional practices and personal experience
-            </p>
-          </div>
+          <SectionHeading
+            title="Why Choose Wellness Needles?"
+            subtitle="Committed to providing the highest quality care with authentic traditional practices and personal experience"
+          />
 
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">

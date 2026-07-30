@@ -24,7 +24,8 @@ function iconForAddOn(id: string): LucideIcon {
 export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOnsProps) {
   return (
     <div>
-      <h3 className="font-serif text-xl font-bold text-primary mb-4">Optional Add-ons</h3>
+      <h3 className="font-serif text-xl font-bold text-primary mb-2">Optional add-ons</h3>
+      <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {addOns.map((addOn) => {
           const selected = selectedIds.includes(addOn.id)
@@ -33,10 +34,10 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           return (
             <label
               key={addOn.id}
-              className={`relative block p-4 border-2 rounded-lg cursor-pointer card-emboss ${
+              className={`relative block p-4 rounded-xl cursor-pointer transition-all duration-200 ${
                 selected
-                  ? 'border-primary bg-primary/5 shadow-sm'
-                  : 'border-accent/20 hover:border-accent/40 hover:bg-accent/5'
+                  ? 'border-2 border-primary bg-primary/5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+                  : 'border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
               }`}
             >
               <input

@@ -8,21 +8,25 @@ export function QuickLinksSection() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
   return (
-    <section className="relative py-20 bg-cream overflow-hidden">
+    <section className="relative py-20 bg-cream">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-14">
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-4">
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-primary mb-3">
             Explore the Clinic
           </h2>
+          <div className="flex flex-col items-center gap-1.5 mb-4" aria-hidden="true">
+            <Leaf className="w-4 h-4 text-primary" strokeWidth={1.75} />
+            <div className="h-0.5 w-14 rounded-full bg-gold" />
+          </div>
           <p className="text-lg text-secondary">
             Find treatments, stories, and booking in one place.
           </p>
         </div>
 
         {/* Mobile: snap row of all cards | Desktop: 4-col grid */}
-        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-4 lg:gap-6 lg:items-stretch">
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:contents lg:overflow-visible lg:pb-0">
-            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0">
+        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-4 lg:gap-6 lg:items-stretch lg:py-3">
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:contents lg:overflow-visible lg:pb-0">
+            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0 py-1">
               <ServiceCard
                 compact
                 href="/acupuncture"
@@ -33,7 +37,7 @@ export function QuickLinksSection() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0">
+            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0 py-1">
               <ServiceCard
                 compact
                 href="/chinese-medicine"
@@ -44,7 +48,7 @@ export function QuickLinksSection() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0">
+            <div className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0 py-1">
               <ServiceCard
                 compact
                 href="/testimonials"
@@ -57,7 +61,7 @@ export function QuickLinksSection() {
 
             <div
               id="explore-book-cta"
-              className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0"
+              className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0 py-1"
             >
               <ServiceCard
                 compact

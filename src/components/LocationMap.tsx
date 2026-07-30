@@ -9,13 +9,13 @@ export default function LocationMap({
   query,
   title,
   directionsUrl,
-  className = ''
+  className = '',
 }: LocationMapProps) {
   const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
 
   return (
     <div className={className}>
-      <div className="h-44 sm:h-48 overflow-hidden rounded-lg border border-accent/20 bg-accent/10">
+      <div className="relative h-44 sm:h-48 overflow-hidden rounded-lg border border-accent/20 bg-accent/10">
         <iframe
           title={title}
           src={embedSrc}

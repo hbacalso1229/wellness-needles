@@ -44,7 +44,7 @@ export const contactConfig = {
   },
   email: {
     address: "info@wellnessneedles.ie",
-    href: "mailto:info@wellnessneedles.ie", 
+    href: "mailto:info@wellnessneedles.ie?subject=Appointment%20enquiry",
     icon: Mail
   },
   socialMedia: {

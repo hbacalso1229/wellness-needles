@@ -1,7 +1,7 @@
 'use client'
 
-import { Star, Quote, Heart, CheckCircle } from 'lucide-react'
-import { CTAButton, DecorativeImageCard, HeroSection } from '../../features'
+import { Star, Quote, Heart, CheckCircle, User } from 'lucide-react'
+import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -87,14 +87,10 @@ export default function Testimonials() {
       {/* Success Stories with Images */}
       <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Treatment Success Stories
-            </h2>
-            <p className="text-lg text-secondary">
-              Visual evidence of our patients&apos; healing journeys
-            </p>
-          </div>
+          <SectionHeading
+            title="Treatment Success Stories"
+            subtitle="Visual evidence of our patients' healing journeys"
+          />
           
           {/* Mobile: horizontal scroll carousel | md: 2-col */}
           <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12">
@@ -144,55 +140,63 @@ export default function Testimonials() {
       </section>
 
       {/* Testimonials Grid */}
-      <section className="py-20 bg-accent/5">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Success Stories
-            </h2>
-            <p className="text-lg text-secondary">
-              Illustrative examples of common treatment journeys
-            </p>
-            <p className="mt-4 max-w-3xl mx-auto text-sm text-secondary bg-cream/80 border border-accent/20 rounded-lg px-4 py-3">
-              These stories are illustrative examples for educational purposes and are not attributed
-              to verified patients. Genuine reviews will be published here once consent is obtained.
-            </p>
-          </div>
+          <SectionHeading
+            title="Success Stories"
+            subtitle="Illustrative examples of common treatment journeys"
+            className="text-center mb-4"
+          />
+          <p className="mb-16 max-w-3xl mx-auto text-sm text-secondary bg-white border border-accent/20 rounded-lg px-4 py-3 text-center shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
+            These stories are illustrative examples for educational purposes and are not attributed
+            to verified patients. Genuine reviews will be published here once consent is obtained.
+          </p>
 
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
             <div className="min-w-0">
               {/* Mobile: horizontal scroll carousel | md: 2-col */}
               <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
                 {testimonials.map((testimonial, index) => (
-                  <div key={index} className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 shadow-sm relative card-emboss">
+                  <div
+                    key={index}
+                    className="group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative bg-white rounded-xl p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]"
+                  >
                     <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
-                    
-                    {/* Rating */}
-                    <div className="flex items-center mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 text-gold fill-current" />
-                      ))}
-                    </div>
-                    
+
                     {/* Testimonial Text */}
                     <p className="text-secondary mb-6 italic">
                       &quot;{testimonial.text}&quot;
                     </p>
-                    
+
                     {/* Patient Info */}
                     <div className="border-t border-accent/20 pt-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold text-primary">
-                            {testimonial.name}
-                          </h4>
-                          <p className="text-sm text-secondary">
-                            {testimonial.condition}
-                          </p>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20"
+                            aria-hidden="true"
+                          >
+                            <User className="h-5 w-5 text-secondary/50" strokeWidth={1.75} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <h4 className="font-semibold text-primary truncate">
+                                {testimonial.name}
+                              </h4>
+                              <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
+                                {[...Array(testimonial.rating)].map((_, i) => (
+                                  <Star key={i} className="w-3.5 h-3.5 text-gold fill-current" />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-sm text-secondary truncate">
+                              {testimonial.condition}
+                            </p>
+                          </div>
                         </div>
-                        <Heart className="w-6 h-6 text-accent" />
+                        <Heart className="w-6 h-6 shrink-0 text-secondary/40 transition-colors duration-300 group-hover:text-accent" />
                       </div>
-                      
+
                       <div className="mt-4 space-y-2">
                         <div className="flex items-center text-sm text-secondary">
                           <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
@@ -220,7 +224,7 @@ export default function Testimonials() {
             {/* Share CTA — below stories on mobile, sticky sidebar on desktop */}
             <aside className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
               <h3 className="font-semibold text-base text-primary mb-2">
-                Share Your Success Story
+                Share your success story
               </h3>
               <p className="text-sm text-secondary mb-4">
                 Experienced healing through our treatments? We&apos;d love to hear your journey.
@@ -231,7 +235,7 @@ export default function Testimonials() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-xl text-sm font-bold gap-2"
+                  className="w-full !rounded-full text-sm font-bold gap-2"
                 >
                   Share your story
                 </CTAButton>
@@ -239,7 +243,7 @@ export default function Testimonials() {
                   variant="outline"
                   showArrow={false}
                   size="medium"
-                  className="w-full !rounded-xl text-sm font-medium"
+                  className="w-full !rounded-full text-sm font-medium"
                 >
                   Start your journey
                 </BookingCtaButton>
@@ -250,63 +254,46 @@ export default function Testimonials() {
       </section>
 
       {/* Video Testimonials Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
-              Video Testimonials
-            </h2>
-            <p className="text-lg text-secondary">
-              Watch our patients share their healing experiences
-            </p>
-          </div>
-          
+          <SectionHeading
+            title="Video Testimonials"
+            subtitle="Watch our patients share their healing experiences"
+          />
+
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
-              <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
+            {[
+              {
+                title: 'Pain Relief Success',
+                description: 'Watch how acupuncture helped resolve chronic pain issues',
+              },
+              {
+                title: 'Fertility Journey',
+                description: 'A couple shares their fertility success story with acupuncture',
+              },
+              {
+                title: 'Stress Management',
+                description: 'Learn how acupuncture transformed mental wellness',
+              },
+            ].map((video) => (
+              <div
+                key={video.title}
+                className="group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]"
+              >
+                <div className="bg-primary/10 rounded-lg aspect-video mb-4 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300 motion-safe:group-hover:scale-110">
+                      <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1" />
+                    </div>
+                    <p className="text-primary font-medium">Video coming soon</p>
                   </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
                 </div>
+                <h3 className="font-semibold text-primary mb-2">{video.title}</h3>
+                <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                <p className="text-secondary text-sm">{video.description}</p>
               </div>
-              <h3 className="font-semibold text-primary mb-2">Pain Relief Success</h3>
-              <p className="text-secondary text-sm">
-                Watch how acupuncture helped resolve chronic pain issues
-              </p>
-            </div>
-
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
-              <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
-                  </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
-                </div>
-              </div>
-              <h3 className="font-semibold text-primary mb-2">Fertility Journey</h3>
-              <p className="text-secondary text-sm">
-                A couple shares their fertility success story with acupuncture
-              </p>
-            </div>
-
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/10 rounded-lg p-6 text-center card-emboss">
-              <div className="bg-primary/20 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1"></div>
-                  </div>
-                  <p className="text-primary font-medium">Video Coming Soon</p>
-                </div>
-              </div>
-              <h3 className="font-semibold text-primary mb-2">Stress Management</h3>
-              <p className="text-secondary text-sm">
-                Learn how acupuncture transformed mental wellness
-              </p>
-            </div>
+            ))}
           </div>
 
           {/* Swipe hint — mobile only */}
