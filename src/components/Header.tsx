@@ -145,12 +145,11 @@ export default function Header() {
     }
 
     const main = document.querySelector('main')
-    const mutationObserver =
-      main &&
-      new MutationObserver(() => {
-        if (tryBindHero()) mutationObserver.disconnect()
+    let mutationObserver: MutationObserver | null = null
+    if (main) {
+      mutationObserver = new MutationObserver(() => {
+        if (tryBindHero()) mutationObserver?.disconnect()
       })
-    if (main && mutationObserver) {
       mutationObserver.observe(main, { childList: true, subtree: true })
     }
 
