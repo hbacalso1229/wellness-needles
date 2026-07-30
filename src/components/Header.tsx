@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import { ArrowRight, Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -21,6 +22,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolledPastHero, setScrolledPastHero] = useState(false)
   const [inlineBookCtaInView, setInlineBookCtaInView] = useState(false)
+  const [fabMounted, setFabMounted] = useState(false)
   const pathname = usePathname()
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
@@ -48,12 +50,18 @@ export default function Header() {
 
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-  // Hide sticky while hero CTAs are in view, or while an inline/sidebar book CTA is on screen.
+  // Keep FAB at the viewport bottom, including over the footer (booking CTA always available).
   const showStickyBookNow =
     !isMenuOpen && !onBookingOrAdmin && scrolledPastHero && !inlineBookCtaInView
 
   useEffect(() => {
+    setFabMounted(true)
+  }, [])
+
+  useEffect(() => {
     setInlineBookCtaInView(false)
+    // Hide sticky until we confirm the page hero has scrolled away (avoids double CTAs).
+    setScrolledPastHero(false)
     if (inlineBookHideTimerRef.current) {
       window.clearTimeout(inlineBookHideTimerRef.current)
       inlineBookHideTimerRef.current = null
@@ -63,19 +71,29 @@ export default function Header() {
       heroShowTimerRef.current = null
     }
 
+    let cancelled = false
+    let heroObserver: IntersectionObserver | undefined
+    const retryTimers: number[] = []
+
     const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
-    const isHeroVisible = (hero: HTMLElement) =>
+    const isHeroDisplayed = (hero: HTMLElement) =>
       window.getComputedStyle(hero).display !== 'none'
 
+    /** Hero still overlaps the viewport — keep sticky Book now hidden. */
+    const isHeroOnScreen = (hero: HTMLElement) => {
+      const rect = hero.getBoundingClientRect()
+      return rect.bottom > 0 && rect.top < window.innerHeight
+    }
+
     const setPastHeroSmooth = (past: boolean) => {
+      if (cancelled) return
       if (heroShowTimerRef.current) {
         window.clearTimeout(heroShowTimerRef.current)
         heroShowTimerRef.current = null
       }
       if (past) {
-        // Brief delay before revealing FAB so scroll past hero edges doesn't flicker.
         heroShowTimerRef.current = window.setTimeout(() => {
-          setScrolledPastHero(true)
+          if (!cancelled) setScrolledPastHero(true)
           heroShowTimerRef.current = null
         }, 120)
       } else {
@@ -83,43 +101,63 @@ export default function Header() {
       }
     }
 
-    // One-shot recheck after mount/navigation (scroll restoration / HMR).
     const syncFromHeroRect = () => {
+      if (cancelled) return
       const hero = getPageHero()
-      if (!hero || !isHeroVisible(hero)) {
-        // Hidden mobile heroes must not reserve a scroll gate or layout gap.
-        setScrolledPastHero(true)
+      if (!hero || !isHeroDisplayed(hero)) {
+        // Don't show sticky while we haven't bound a hero yet (App Router timing).
+        setScrolledPastHero(false)
         return
       }
-      const rect = hero.getBoundingClientRect()
-      const visible =
-        Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
-      const ratio = Math.max(0, visible) / Math.max(rect.height, 1)
-      if (ratio < 0.15) setPastHeroSmooth(true)
-      else if (ratio > 0.6) setPastHeroSmooth(false)
+      setPastHeroSmooth(!isHeroOnScreen(hero))
     }
+
+    const bindHeroObserver = (hero: HTMLElement) => {
+      heroObserver?.disconnect()
+      heroObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry || cancelled) return
+          // Fully out of view only — full-viewport heroes still count as intersecting.
+          setPastHeroSmooth(!entry.isIntersecting)
+        },
+        { threshold: [0, 0.001, 0.01] }
+      )
+      heroObserver.observe(hero)
+      setPastHeroSmooth(!isHeroOnScreen(hero))
+    }
+
+    const tryBindHero = (): boolean => {
+      const hero = getPageHero()
+      if (!hero || !isHeroDisplayed(hero)) return false
+      bindHeroObserver(hero)
+      return true
+    }
+
+    // App Router: page content (and hero) may mount after this effect runs.
+    if (!tryBindHero()) {
+      ;[50, 100, 200, 400, 800].forEach((ms) => {
+        retryTimers.push(
+          window.setTimeout(() => {
+            if (!cancelled) tryBindHero()
+          }, ms)
+        )
+      })
+    }
+
+    const main = document.querySelector('main')
+    let mutationObserver: MutationObserver | null = null
+    if (main) {
+      mutationObserver = new MutationObserver(() => {
+        if (tryBindHero()) mutationObserver?.disconnect()
+      })
+      mutationObserver.observe(main, { childList: true, subtree: true })
+    }
+
     const rafId = window.requestAnimationFrame(syncFromHeroRect)
     const timeoutId = window.setTimeout(syncFromHeroRect, 100)
     window.addEventListener('pageshow', syncFromHeroRect)
     window.addEventListener('resize', syncFromHeroRect)
-
-    // Hero gate with hysteresis (no competing scroll% listener).
-    const hero = getPageHero()
-    let heroObserver: IntersectionObserver | undefined
-    if (hero && isHeroVisible(hero)) {
-      heroObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry) return
-          const ratio = entry.intersectionRatio
-          if (ratio < 0.15) setPastHeroSmooth(true)
-          else if (ratio > 0.6) setPastHeroSmooth(false)
-        },
-        { threshold: [0, 0.15, 0.6, 1] }
-      )
-      heroObserver.observe(hero)
-    } else {
-      setScrolledPastHero(true)
-    }
+    window.addEventListener('scroll', syncFromHeroRect, { passive: true })
 
     // Hide floating Book now when Explore card or sticky sidebars are on screen.
     const inlineBookTargets = document.querySelectorAll('[data-hide-sticky-book]')
@@ -132,10 +170,8 @@ export default function Header() {
         inlineBookHideTimerRef.current = null
       }
       if (inView) {
-        // Hide FAB promptly when a page CTA enters view.
         setInlineBookCtaInView(true)
       } else {
-        // Delay reveal so scrolling past the CTA boundary stays smooth.
         inlineBookHideTimerRef.current = window.setTimeout(() => {
           setInlineBookCtaInView(false)
           inlineBookHideTimerRef.current = null
@@ -162,10 +198,13 @@ export default function Header() {
     }
 
     return () => {
+      cancelled = true
       window.cancelAnimationFrame(rafId)
       window.clearTimeout(timeoutId)
+      retryTimers.forEach((id) => window.clearTimeout(id))
       window.removeEventListener('pageshow', syncFromHeroRect)
       window.removeEventListener('resize', syncFromHeroRect)
+      window.removeEventListener('scroll', syncFromHeroRect)
       if (inlineBookHideTimerRef.current) {
         window.clearTimeout(inlineBookHideTimerRef.current)
       }
@@ -174,6 +213,7 @@ export default function Header() {
       }
       heroObserver?.disconnect()
       inlineBookObserver?.disconnect()
+      mutationObserver?.disconnect()
     }
   }, [pathname])
 
@@ -297,34 +337,40 @@ export default function Header() {
         </nav>
       </header>
 
-      <div className="xl:hidden fixed bottom-8 left-1/2 z-40 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] pointer-events-none">
-        <div
-          className={`sticky-book-fab ${
-            showStickyBookNow ? 'sticky-book-fab--visible' : 'sticky-book-fab--hidden'
-          }`}
-          aria-hidden={!showStickyBookNow}
-        >
-          {bookExternal ? (
-            <a
-              href={bookHref}
-              target={bookTarget}
-              rel={bookRel}
-              className={bookNowStickyClassName}
-              tabIndex={showStickyBookNow ? 0 : -1}
+      {fabMounted &&
+        createPortal(
+          <div
+            className="sticky-book-fab-root xl:hidden"
+            aria-hidden={!showStickyBookNow}
+          >
+            <div
+              className={`sticky-book-fab ${
+                showStickyBookNow ? 'sticky-book-fab--visible' : 'sticky-book-fab--hidden'
+              }`}
             >
-              <BookNowLabel />
-            </a>
-          ) : (
-            <Link
-              href={bookHref}
-              className={bookNowStickyClassName}
-              tabIndex={showStickyBookNow ? 0 : -1}
-            >
-              <BookNowLabel />
-            </Link>
-          )}
-        </div>
-      </div>
+              {bookExternal ? (
+                <a
+                  href={bookHref}
+                  target={bookTarget}
+                  rel={bookRel}
+                  className={bookNowStickyClassName}
+                  tabIndex={showStickyBookNow ? 0 : -1}
+                >
+                  <BookNowLabel />
+                </a>
+              ) : (
+                <Link
+                  href={bookHref}
+                  className={bookNowStickyClassName}
+                  tabIndex={showStickyBookNow ? 0 : -1}
+                >
+                  <BookNowLabel />
+                </Link>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   )
 }

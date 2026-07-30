@@ -69,7 +69,6 @@ export default function Testimonials() {
         backgroundImage="/modern_accupuncture.jpeg"
         backgroundClass="bg-primary"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[

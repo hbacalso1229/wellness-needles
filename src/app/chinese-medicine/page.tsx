@@ -1,18 +1,41 @@
 'use client'
 
-import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight } from 'lucide-react'
+import { useState } from 'react'
+import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const diagnosisCardClass =
-  'group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group w-full bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-[transform,box-shadow,border-color] duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+
+const diagnosisMethods = [
+  {
+    title: 'Pulse Diagnosis',
+    body: 'Practitioners feel the pulse at multiple positions to assess the quality, strength, and rhythm, revealing information about organ function and energy flow.',
+  },
+  {
+    title: 'Tongue Examination',
+    body: 'The color, coating, texture, and shape of the tongue provide insights into internal organ systems and overall constitutional health.',
+  },
+  {
+    title: 'Observation',
+    body: 'Visual assessment of complexion, eyes, body build, movement, and overall vitality to understand constitutional strengths and imbalances.',
+  },
+  {
+    title: 'Questioning & Listening',
+    body: 'Detailed inquiry about symptoms, lifestyle, emotions, and listening to voice quality and breathing patterns to complete the diagnostic picture.',
+  },
+] as const
 
 const principleIconClass =
   'rounded-full p-2 flex-shrink-0 shadow-[0_8px_20px_rgba(74,124,42,0.28),0_2px_8px_rgba(45,80,22,0.14)]'
 
 export default function ChineseMedicine() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+  const [openDiagnosisIndexes, setOpenDiagnosisIndexes] = useState<Set<number>>(
+    () => new Set()
+  )
 
   return (
     <div className="min-h-screen">
@@ -24,7 +47,6 @@ export default function ChineseMedicine() {
         backgroundImage="/needles_candles_flowers_decor.jpeg"
         backgroundClass="bg-secondary"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
@@ -212,51 +234,60 @@ export default function ChineseMedicine() {
             subtitle="Traditional Chinese Medicine uses unique diagnostic techniques to understand your health"
           />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
-            <div className={diagnosisCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Pulse Diagnosis</h3>
-              <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <p className="text-secondary">
-                Practitioners feel the pulse at multiple positions to assess the quality,
-                strength, and rhythm, revealing information about organ function and energy flow.
-              </p>
-            </div>
-
-            <div className={diagnosisCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Tongue Examination</h3>
-              <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <p className="text-secondary">
-                The color, coating, texture, and shape of the tongue provide insights
-                into internal organ systems and overall constitutional health.
-              </p>
-            </div>
-
-            <div className={diagnosisCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Observation</h3>
-              <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <p className="text-secondary">
-                Visual assessment of complexion, eyes, body build, movement, and overall
-                vitality to understand constitutional strengths and imbalances.
-              </p>
-            </div>
-
-            <div className={diagnosisCardClass}>
-              <h3 className="font-semibold text-lg text-primary mb-2">Questioning & Listening</h3>
-              <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <p className="text-secondary">
-                Detailed inquiry about symptoms, lifestyle, emotions, and listening to
-                voice quality and breathing patterns to complete the diagnostic picture.
-              </p>
-            </div>
-          </div>
-
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
+          <div className="grid grid-cols-1 md:grid-cols-2 md:items-stretch gap-5 md:gap-8">
+            {diagnosisMethods.map((method, index) => {
+              const isOpen = openDiagnosisIndexes.has(index)
+              return (
+                <button
+                  key={method.title}
+                  type="button"
+                  className={`${diagnosisCardClass} md:h-full`}
+                  aria-expanded={isOpen}
+                  aria-controls={`diagnosis-body-${index}`}
+                  id={`diagnosis-title-${index}`}
+                  onClick={() =>
+                    setOpenDiagnosisIndexes((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(index)) next.delete(index)
+                      else next.add(index)
+                      return next
+                    })
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1 text-left">
+                      <h3 className="font-semibold text-lg text-primary mb-2">{method.title}</h3>
+                      <div className="h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                    </div>
+                    <ChevronRight
+                      className={`diagnosis-accordion-chevron h-5 w-5 shrink-0 text-secondary/50 ${
+                        isOpen ? 'rotate-90 text-primary' : ''
+                      }`}
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                  </div>
+                  <div
+                    id={`diagnosis-body-${index}`}
+                    role="region"
+                    aria-labelledby={`diagnosis-title-${index}`}
+                    className={`diagnosis-accordion-panel grid ${
+                      isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <p
+                        className={`pt-3 text-left text-secondary diagnosis-accordion-body ${
+                          isOpen ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        {method.body}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </div>
       </section>

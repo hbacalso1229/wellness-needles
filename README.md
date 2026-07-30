@@ -136,8 +136,8 @@ Use when **Calendly booking embed** is the chosen live booking UI on `/admin` (m
 
 | Service | Event duration (blocks availability) | Start-time increments | Default Share URL slug |
 |---------|--------------------------------------|------------------------|-------------------------|
-| Initial Consultation | **1 hour 45 minutes** (105 min) | **15 minutes** | `/initial-consultation` |
-| Follow-up | **1 hour 15 minutes** (75 min) | **15 minutes** | `/follow-up` |
+| Initial Consultation | **1 hour 15 minutes** (75 min) | **15 minutes** | `/initial-consultation` |
+| Follow-up | **45 minutes** (45 min) | **15 minutes** | `/follow-up` |
 
 1. Create both event types in Calendly → Event types → New Event Type (One-on-One) under **one** Calendly user (not one account per clinic).
 2. Set duration and start-time increments as in the table above (slug is case-sensitive).

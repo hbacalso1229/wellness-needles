@@ -10,6 +10,7 @@ import {
   isValidEmailAddress,
   isValidFreshaBookingUrl,
 } from '@/lib/booking-features'
+import { contactConfig } from '@/lib/contact-config'
 import { HeroSection } from '@/features'
 
 function Toggle({
@@ -182,7 +183,6 @@ export default function AdminPage() {
         subtitle="Booking feature settings"
         backgroundClass="bg-jungle-gradient"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
       />
 
@@ -326,9 +326,15 @@ export default function AdminPage() {
               <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-5">
                 <p className="text-sm text-secondary">
                   Use two event types so Initial blocks{' '}
-                  <span className="font-medium text-primary">1 hour 45 minutes</span> and Follow-up
-                  blocks <span className="font-medium text-primary">1 hour 15 minutes</span> (15-minute
-                  start times). See README for the full checklist.
+                  <span className="font-medium text-primary">
+                    {contactConfig.calendly.durations.initialLabel}
+                  </span>{' '}
+                  and Follow-up blocks{' '}
+                  <span className="font-medium text-primary">
+                    {contactConfig.calendly.durations.followUpLabel}
+                  </span>{' '}
+                  ({contactConfig.calendly.durations.slotIncrementMinutes}-minute start times). See
+                  README for the full checklist.
                 </p>
                 <p className="text-sm text-secondary">
                   Celbridge and Carlow share one schedule: use a single Calendly user and connect both

@@ -8,13 +8,11 @@ export function HeroSection() {
 
   return (
     <ReusableHeroSection
-      hideOnMobile={false}
       title="Wellness Needles"
       subtitle="Experience authentic acupuncture and naturopathic medicine with Arkinth Garcia"
       description="Specializing in pain management, mental health, digestive issues, fertility support, and holistic wellness through traditional Chinese medicine"
       backgroundClass="bg-jungle-gradient"
       textColor="text-cream"
-      heightClass="min-h-screen"
       logo={{
         src: "/logo_wellness.jpeg",
         alt: "Wellness Needles Logo",

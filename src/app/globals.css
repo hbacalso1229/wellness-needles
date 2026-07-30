@@ -50,6 +50,20 @@ body {
   transition: all 0.3s ease;
 }
 
+.diagnosis-accordion-panel {
+  transition: grid-template-rows 0.85s cubic-bezier(0.33, 1, 0.32, 1) !important;
+}
+
+.diagnosis-accordion-chevron {
+  transition:
+    transform 0.75s cubic-bezier(0.33, 1, 0.32, 1),
+    color 0.5s ease !important;
+}
+
+.diagnosis-accordion-body {
+  transition: opacity 0.7s cubic-bezier(0.33, 1, 0.32, 1) !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -73,22 +87,18 @@ body {
   @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
 }
 
-/* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
-@media (max-width: 767px) {
-  [data-hide-mobile-hero='true'] {
-    display: none !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-    border: none !important;
-  }
-
-  /* Pull the first content block up once the hero is gone */
-  [data-hide-mobile-hero='true'] + section {
-    padding-top: 2rem;
-  }
+/* Page heroes: fill exactly the space below the fixed header (h-16 / 4rem) on all devices */
+.page-hero {
+  box-sizing: border-box;
+  width: 100%;
+  /* Prefer dynamic viewport height so the hero matches the device screen */
+  height: calc(100vh - 4rem);
+  height: calc(100dvh - 4rem);
+  min-height: calc(100svh - 4rem);
+  max-height: calc(100dvh - 4rem);
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overflow-x: hidden;
 }
 
 .jungle-gradient {
@@ -242,27 +252,41 @@ select:-webkit-autofill:active {
   width: 303px !important;
 }
 
-/* Sticky mobile Book now — override global * { transition: all } for a clean fade/slide */
+/* Sticky mobile Book now — pinned to the visual viewport bottom (no transform on the fixed root) */
+.sticky-book-fab-root {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  /* Avoid transform/filter here — they break position:fixed on some mobile browsers */
+  transform: none !important;
+}
+
 .sticky-book-fab {
-  transform: translate3d(0, 12px, 0);
   opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 10px, 0);
   transition:
-    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
-  will-change: opacity, transform;
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .sticky-book-fab--visible {
-  transform: translate3d(0, 0, 0);
   opacity: 1;
   pointer-events: auto;
+  transform: translate3d(0, 0, 0);
 }
 
 .sticky-book-fab--hidden {
-  transform: translate3d(0, 12px, 0);
   opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 10px, 0);
 }
 
 .sticky-book-fab-btn {

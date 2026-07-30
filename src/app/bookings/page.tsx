@@ -190,7 +190,6 @@ export default function Bookings() {
         backgroundImage="/treatment_in_progress_bed.jpeg"
         backgroundClass="bg-primary"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
       />
 
