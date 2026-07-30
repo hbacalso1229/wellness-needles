@@ -47,6 +47,8 @@ export interface HeroSectionProps {
   alignment?: 'left' | 'center' | 'right'
   /** Additional custom content to render */
   children?: ReactNode
+  /** Hide hero below md breakpoint (default true; Home opts out) */
+  hideOnMobile?: boolean
 }
 
 export function HeroSection({
@@ -62,7 +64,8 @@ export function HeroSection({
   showFloatingLeaves = true,
   heightClass = 'min-h-screen',
   alignment = 'center',
-  children
+  children,
+  hideOnMobile = true,
 }: HeroSectionProps) {
   const alignmentClasses = {
     left: 'text-left',
@@ -78,7 +81,7 @@ export function HeroSection({
 
   return (
     <section
-      className={`relative ${heightClass} flex items-center ${justifyClasses[alignment]} ${
+      className={`${hideOnMobile ? 'hidden md:flex' : 'flex'} relative ${heightClass} items-center ${justifyClasses[alignment]} ${
         backgroundImage ? 'bg-primary' : backgroundClass
       }`}
     >
