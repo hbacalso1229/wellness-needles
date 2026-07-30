@@ -24,7 +24,6 @@ export default function ChineseMedicine() {
         backgroundImage="/needles_candles_flowers_decor.jpeg"
         backgroundClass="bg-secondary"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[

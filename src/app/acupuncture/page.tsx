@@ -91,7 +91,6 @@ export default function Acupuncture() {
         backgroundImage="/accupuncture_cupping_therapy.jpeg"
         backgroundClass="bg-secondary"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[

@@ -41,14 +41,12 @@ export interface HeroSectionProps {
   ctaWrapperClassName?: string
   /** Whether to show floating leaf decorations */
   showFloatingLeaves?: boolean
-  /** Custom height class */
+  /** Optional height utility classes (viewport fit is handled by `.page-hero`) */
   heightClass?: string
   /** Custom content alignment */
   alignment?: 'left' | 'center' | 'right'
   /** Additional custom content to render */
   children?: ReactNode
-  /** Hide hero below md breakpoint (default true; Home opts out) */
-  hideOnMobile?: boolean
 }
 
 export function HeroSection({
@@ -62,10 +60,9 @@ export function HeroSection({
   ctaButtons = [],
   ctaWrapperClassName = '',
   showFloatingLeaves = true,
-  heightClass = 'min-h-screen',
+  heightClass = '',
   alignment = 'center',
   children,
-  hideOnMobile = true,
 }: HeroSectionProps) {
   const alignmentClasses = {
     left: 'text-left',
@@ -79,16 +76,17 @@ export function HeroSection({
     right: 'justify-end'
   }
 
+  const sectionClassName = [
+    'page-hero relative flex items-center overflow-x-hidden',
+    justifyClasses[alignment],
+    backgroundImage ? 'bg-primary' : backgroundClass,
+    heightClass,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <section
-      data-page-hero=""
-      data-hide-mobile-hero={hideOnMobile ? 'true' : undefined}
-      className={`${
-        hideOnMobile ? 'max-md:hidden md:flex' : 'flex'
-      } relative ${heightClass} items-center ${justifyClasses[alignment]} ${
-        backgroundImage ? 'bg-primary' : backgroundClass
-      }`}
-    >
+    <section data-page-hero="" className={sectionClassName}>
       {/* Photo heroes: full image + light brand wash (not faded image on solid green) */}
       {backgroundImage && (
         <div className="absolute inset-0">
@@ -104,12 +102,14 @@ export function HeroSection({
         </div>
       )}
       
-      {/* Content Container */}
-      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} py-20`}>
+      {/* Content Container — compact on short mobile viewports so the hero fits exactly */}
+      <div
+        className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} py-8 sm:py-12 md:py-16 max-md:overflow-y-auto max-md:max-h-full`}
+      >
         {/* Logo Section */}
         {logo && (
-          <div className="mb-8">
-            <div className="relative mx-auto w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
+          <div className="mb-4 sm:mb-6 md:mb-8">
+            <div className="relative mx-auto w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
               {logo.showGlow && (
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-accent/30 rounded-full blur-xl"></div>
               )}
@@ -146,18 +146,18 @@ export function HeroSection({
         
         {/* Text Content */}
         <div className={`${alignment === 'center' ? 'max-w-4xl mx-auto' : 'max-w-4xl'}`}>
-          <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-3 sm:mb-4 md:mb-6">
             {title}
           </h1>
           
           {subtitle && (
-            <p className="text-lg md:text-xl lg:text-2xl mb-8 font-light">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 font-light">
               {subtitle}
             </p>
           )}
           
           {description && (
-            <p className="text-lg mb-12 opacity-90 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-12 opacity-90 max-w-2xl mx-auto">
               {description}
             </p>
           )}
@@ -223,7 +223,7 @@ export function HeroSection({
           <div className="absolute bottom-32 right-16 opacity-40">
             <PulsingLeaf color={textColor.replace('text-', 'text-').split('/')[0]} animationDelay="1s" />
           </div>
-          <div className="absolute top-1/3 right-20 opacity-50">
+          <div className="absolute top-1/3 right-20 opacity-50 max-sm:hidden">
             <PulsingLeaf 
               size="large" 
               color={textColor.replace('text-', 'text-').split('/')[0]} 

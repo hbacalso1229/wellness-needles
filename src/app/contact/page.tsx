@@ -84,7 +84,6 @@ export default function Contact() {
         subtitle="We're here to answer your questions and help you start your wellness journey"
         description="Reach out to us for appointments, questions about our treatments, or to learn more about how acupuncture can benefit your health."
         backgroundImage="/clinic_decor.jpeg"
-        heightClass="py-20"
       />
 
       {/* Contact Information — bookings-style sticky layout */}

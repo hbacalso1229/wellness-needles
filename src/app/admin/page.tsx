@@ -182,7 +182,6 @@ export default function AdminPage() {
         subtitle="Booking feature settings"
         backgroundClass="bg-jungle-gradient"
         textColor="text-cream"
-        heightClass="py-20"
         showFloatingLeaves={true}
       />
 
