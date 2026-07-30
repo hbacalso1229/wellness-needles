@@ -201,7 +201,7 @@ export default function ChineseMedicine() {
       </section>
 
       {/* Diagnosis Methods */}
-      <section className="py-20 bg-secondary/5">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="TCM Diagnostic Methods"
@@ -258,7 +258,7 @@ export default function ChineseMedicine() {
       </section>
 
       {/* Integration with Modern Medicine */}
-      <section className="py-20 bg-cream">
+      <section className="py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Integrative Approach"

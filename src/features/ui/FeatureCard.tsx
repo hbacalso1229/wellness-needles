@@ -28,9 +28,9 @@ export function FeatureCard({
 
   const iconCircle = (
     <div
-      className="group/icon rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-white transition-all duration-300 ease-out will-change-transform shadow-[0_4px_12px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)] motion-safe:hover:-translate-y-2 motion-safe:hover:scale-110 motion-safe:group-hover:-translate-y-2 motion-safe:group-hover:scale-110 hover:shadow-[0_20px_40px_rgba(74,124,42,0.4),0_8px_16px_rgba(45,80,22,0.22)] group-hover:shadow-[0_20px_40px_rgba(74,124,42,0.4),0_8px_16px_rgba(45,80,22,0.22)]"
+      className="group/icon rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-5 bg-white transition-[transform,box-shadow,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform shadow-[0_4px_12px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)] motion-safe:hover:-translate-y-3 motion-safe:hover:scale-125 motion-safe:group-hover:-translate-y-3 motion-safe:group-hover:scale-125 hover:shadow-[0_28px_56px_rgba(74,124,42,0.38),0_12px_24px_rgba(45,80,22,0.2)] group-hover:shadow-[0_28px_56px_rgba(74,124,42,0.38),0_12px_24px_rgba(45,80,22,0.2)]"
     >
-      <Icon className="w-10 h-10 text-secondary/70 transition-all duration-300 ease-out group-hover/icon:text-primary group-hover:text-primary motion-safe:group-hover/icon:scale-110 motion-safe:group-hover:scale-110" />
+      <Icon className="w-8 h-8 text-secondary/70 transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/icon:text-primary group-hover:text-primary motion-safe:group-hover/icon:scale-110 motion-safe:group-hover:scale-110" />
     </div>
   )
 
