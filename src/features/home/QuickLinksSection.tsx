@@ -61,7 +61,6 @@ export function QuickLinksSection() {
 
             <div
               id="explore-book-cta"
-              data-hide-sticky-book
               className="snap-start shrink-0 w-[72vw] sm:w-[48vw] lg:w-auto lg:min-w-0 py-1"
             >
               <ServiceCard

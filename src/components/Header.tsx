@@ -92,11 +92,6 @@ export default function Header() {
       return hero.getClientRects().length > 0
     }
 
-    const isHeroOnScreen = (hero: HTMLElement) => {
-      // Past the fixed header (h-16) counts as “scrolled past”
-      return hero.getBoundingClientRect().bottom > 64
-    }
-
     const setPastHeroSmooth = (past: boolean) => {
       if (cancelled) return
       if (heroShowTimerRef.current) {
@@ -117,12 +112,13 @@ export default function Header() {
       if (observedHero === hero && heroObserver) return
       heroObserver?.disconnect()
       observedHero = hero
+      // Shrink root top by header height so “under the nav” counts as left.
       heroObserver = new IntersectionObserver(
         ([entry]) => {
           if (!entry || cancelled) return
           setPastHeroSmooth(!entry.isIntersecting)
         },
-        { threshold: [0, 0.01, 0.1] }
+        { threshold: [0, 0.01], rootMargin: '-64px 0px 0px 0px' }
       )
       heroObserver.observe(hero)
     }
@@ -144,7 +140,12 @@ export default function Header() {
       }
 
       bindHeroObserver(hero)
-      setPastHeroSmooth(!isHeroOnScreen(hero))
+
+      const rect = hero.getBoundingClientRect()
+      const scrolledPast =
+        rect.bottom <= 64 ||
+        window.scrollY >= Math.max(hero.offsetTop + hero.offsetHeight - 64, 1)
+      setPastHeroSmooth(scrolledPast)
     }
 
     syncStickyGate()
@@ -170,7 +171,9 @@ export default function Header() {
     mobileHeroMq.addEventListener('change', onMobileHeroMq)
     window.addEventListener('pageshow', syncStickyGate)
     window.addEventListener('resize', syncStickyGate)
-    window.addEventListener('scroll', syncStickyGate, { passive: true })
+    // capture: true — some mobile browsers scroll a nested scroller, not window
+    window.addEventListener('scroll', syncStickyGate, { passive: true, capture: true })
+    document.addEventListener('scroll', syncStickyGate, { passive: true, capture: true })
 
     // Hide floating Book now when Explore card or sticky sidebars are on screen.
     const inlineBookTargets = document.querySelectorAll('[data-hide-sticky-book]')
@@ -217,7 +220,8 @@ export default function Header() {
       mobileHeroMq.removeEventListener('change', onMobileHeroMq)
       window.removeEventListener('pageshow', syncStickyGate)
       window.removeEventListener('resize', syncStickyGate)
-      window.removeEventListener('scroll', syncStickyGate)
+      window.removeEventListener('scroll', syncStickyGate, true)
+      document.removeEventListener('scroll', syncStickyGate, true)
       if (inlineBookHideTimerRef.current) {
         window.clearTimeout(inlineBookHideTimerRef.current)
       }
