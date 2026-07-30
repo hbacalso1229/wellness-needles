@@ -98,7 +98,7 @@ body {
   max-height: calc(100dvh - 4rem);
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
