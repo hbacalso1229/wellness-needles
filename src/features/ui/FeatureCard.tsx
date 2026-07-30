@@ -57,9 +57,10 @@ export function FeatureCard({
         className={`text-center group rounded-lg bg-cream/80 p-6 shadow-sm card-emboss ${className}`}
       >
         {iconCircle}
-        <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
+        <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
           {title}
         </h3>
+        <div className="mx-auto mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
         <p className="text-secondary">{description}</p>
         {footer ? <div className="mt-4">{footer}</div> : null}
       </div>
@@ -106,9 +107,10 @@ export function FeatureCard({
             }}
           >
             {iconCircle}
-            <h3 className="font-serif text-2xl font-semibold text-primary mb-3">
+            <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
               {title}
             </h3>
+            <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
             <p className="text-xs text-secondary/60 tracking-wide">
               Tap to learn more
             </p>
@@ -123,9 +125,10 @@ export function FeatureCard({
               transform: 'rotateY(180deg) translateZ(1px)',
             }}
           >
-            <h3 className="font-serif text-xl font-semibold text-primary mb-4">
+            <h3 className="font-serif text-xl font-semibold text-primary mb-2">
               {title}
             </h3>
+            <div className="mx-auto mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
             <p className="text-secondary text-sm leading-relaxed">
               {description}
             </p>
