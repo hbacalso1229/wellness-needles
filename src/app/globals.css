@@ -198,3 +198,44 @@ input[type='date']::-webkit-calendar-picker-indicator {
   max-width: none !important;
   width: 303px !important;
 }
+
+/* Sticky mobile Book now — override global * { transition: all } for a clean fade/slide */
+.sticky-book-fab {
+  transform: translate3d(0, 12px, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: opacity, transform;
+}
+
+.sticky-book-fab--visible {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sticky-book-fab--hidden {
+  transform: translate3d(0, 12px, 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sticky-book-fab-btn {
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky-book-fab {
+    transition: opacity 0.15s ease !important;
+    transform: none !important;
+  }
+
+  .sticky-book-fab--hidden {
+    transform: none !important;
+  }
+}
