@@ -250,6 +250,39 @@ function isValidIrishPhone(value: string): boolean {
   return false
 }
 
+/** Live format for Irish numbers: `086 054 3085` or `+353 86 054 3085`. */
+function formatIrishPhoneInput(raw: string): string {
+  const startsWithPlus = raw.trimStart().startsWith('+')
+  const digits = raw.replace(/\D/g, '')
+
+  // International: +353 / 353 / 00353 → +353 XX XXX XXXX
+  const isIntl =
+    startsWithPlus || digits.startsWith('353') || digits.startsWith('00353')
+
+  if (isIntl) {
+    let local = digits
+    if (local.startsWith('00353')) local = local.slice(5)
+    else if (local.startsWith('353')) local = local.slice(3)
+    // Drop trunk 0 if user typed +353 0…
+    if (local.startsWith('0')) local = local.slice(1)
+    local = local.slice(0, 9)
+
+    const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
+      (g) => g.length > 0
+    )
+    return groups.length > 0 ? `+353 ${groups.join(' ')}` : '+353'
+  }
+
+  // National: 0XX XXX XXXX (max 10 digits)
+  const national = digits.slice(0, 10)
+  const groups = [
+    national.slice(0, 3),
+    national.slice(3, 6),
+    national.slice(6, 10),
+  ].filter((g) => g.length > 0)
+  return groups.join(' ')
+}
+
 export default function BookingForm() {
   const { features } = useBookingFeatures()
   const [currentStep, setCurrentStep] = useState(0)
@@ -277,10 +310,8 @@ export default function BookingForm() {
     allergies: '',
   })
   const [hCaptchaToken, setHCaptchaToken] = useState('')
-  const [hCaptchaStatus, setHCaptchaStatus] = useState<'idle' | 'verified' | 'error'>('idle')
-  const [hCaptchaMessage, setHCaptchaMessage] = useState('')
-  const [hCaptchaHighlight, setHCaptchaHighlight] = useState(false)
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
+  const [hCaptchaError, setHCaptchaError] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
 
   const showSecurityCheck = isBookingEmailConfigured(features)
@@ -289,9 +320,8 @@ export default function BookingForm() {
 
   const resetHCaptcha = () => {
     setHCaptchaToken('')
-    setHCaptchaStatus('idle')
-    setHCaptchaMessage('')
-    setHCaptchaHighlight(false)
+    setHCaptchaReady(false)
+    setHCaptchaError('')
     hCaptchaRef.current?.resetCaptcha()
   }
 
@@ -329,9 +359,11 @@ export default function BookingForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const name = e.target.name as FieldErrorKey
+    const value =
+      e.target.name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     })
     if (
       name === 'firstName' ||
@@ -507,17 +539,15 @@ export default function BookingForm() {
       }
 
       if (!hCaptchaToken.trim()) {
-        setHCaptchaHighlight(true)
-        setHCaptchaStatus('error')
-        setHCaptchaMessage('Please complete the security check to send your request.')
-        showErrorToast('Please complete the security check to send your request.')
+        setHCaptchaError('Please complete the security check to send your request.')
         document.getElementById('booking-security-check')?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         })
-        document.getElementById('booking-security-check')?.focus()
         return
       }
+
+      setHCaptchaError('')
 
       setIsSubmitting(true)
       try {
@@ -531,7 +561,9 @@ export default function BookingForm() {
             result.message ||
               'Could not send the booking email. Please try again or call the clinic.'
           )
-          resetHCaptcha()
+          setHCaptchaToken('')
+          setHCaptchaError('')
+          hCaptchaRef.current?.resetCaptcha()
           return
         }
       } finally {
@@ -814,6 +846,7 @@ export default function BookingForm() {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
+                    max={todayDateInputValue()}
                     className={dateInputClassName}
                   />
                 </div>
@@ -902,25 +935,17 @@ export default function BookingForm() {
             </p>
 
             {showSecurityCheck && currentStep === 3 && (
-              <div
-                id="booking-security-check"
-                tabIndex={-1}
-                className={`rounded-xl border bg-white p-5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] outline-none transition-colors ${
-                  hCaptchaHighlight
-                    ? 'border-red-400'
-                    : 'border-accent/15'
-                }`}
-              >
-                <h3 className="font-semibold text-primary mb-2">Quick security check</h3>
-                <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                <p className="text-sm text-secondary mb-4">
-                  Confirm you&apos;re human before we send your appointment request.
-                </p>
-
-                <div className="booking-hcaptcha-host w-full min-w-0">
+              <div id="booking-security-check" className="w-full min-w-0 space-y-2">
+                <div
+                  className={`booking-hcaptcha-host flex justify-center w-full rounded-lg p-1 transition-colors ${
+                    hCaptchaError
+                      ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
+                      : ''
+                  }`}
+                >
                   {!hCaptchaReady && (
                     <div
-                      className="mb-0 h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
+                      className="h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
                       aria-hidden="true"
                     />
                   )}
@@ -938,38 +963,26 @@ export default function BookingForm() {
                         onLoad={() => setHCaptchaReady(true)}
                         onVerify={(token) => {
                           setHCaptchaToken(token)
-                          setHCaptchaStatus('verified')
-                          setHCaptchaMessage('Verified — you can submit your request')
-                          setHCaptchaHighlight(false)
+                          setHCaptchaError('')
                         }}
                         onExpire={() => {
                           setHCaptchaToken('')
-                          setHCaptchaStatus('error')
-                          setHCaptchaMessage('Security check expired. Please verify again.')
+                          setHCaptchaError('Security check expired. Please verify again.')
                         }}
                         onError={() => {
                           setHCaptchaToken('')
-                          setHCaptchaStatus('error')
-                          setHCaptchaMessage('Security check failed to load. Please try again.')
                           setHCaptchaReady(true)
+                          setHCaptchaError('Security check failed to load. Please try again.')
                         }}
                       />
                     </div>
                   </div>
                 </div>
-
-                <p
-                  className={`mt-3 text-sm ${
-                    hCaptchaStatus === 'verified'
-                      ? 'text-primary'
-                      : hCaptchaStatus === 'error'
-                        ? 'text-red-700'
-                        : 'text-secondary/70'
-                  }`}
-                  aria-live="polite"
-                >
-                  {hCaptchaMessage || 'Complete the check above to continue.'}
-                </p>
+                {hCaptchaError ? (
+                  <p className="text-center text-sm text-red-700" role="alert">
+                    {hCaptchaError}
+                  </p>
+                ) : null}
               </div>
             )}
           </div>
