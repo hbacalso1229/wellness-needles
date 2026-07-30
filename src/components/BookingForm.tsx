@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
@@ -9,6 +10,9 @@ import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
 import { OptionalAddOns, ClinicLocationCards, ServiceSelectionCards, TravelPolicyNotice } from '@/features'
+
+/** Web3Forms free-plan hCaptcha sitekey (enable hCaptcha in the Web3Forms dashboard). */
+const WEB3FORMS_HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
 
 type BookingService = {
   id: string
@@ -272,9 +276,24 @@ export default function BookingForm() {
     medications: '',
     allergies: '',
   })
+  const [hCaptchaToken, setHCaptchaToken] = useState('')
+  const [hCaptchaStatus, setHCaptchaStatus] = useState<'idle' | 'verified' | 'error'>('idle')
+  const [hCaptchaMessage, setHCaptchaMessage] = useState('')
+  const [hCaptchaHighlight, setHCaptchaHighlight] = useState(false)
+  const [hCaptchaReady, setHCaptchaReady] = useState(false)
+  const hCaptchaRef = useRef<HCaptcha>(null)
 
+  const showSecurityCheck = isBookingEmailConfigured(features)
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
+
+  const resetHCaptcha = () => {
+    setHCaptchaToken('')
+    setHCaptchaStatus('idle')
+    setHCaptchaMessage('')
+    setHCaptchaHighlight(false)
+    hCaptchaRef.current?.resetCaptcha()
+  }
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
     (service) =>
@@ -441,6 +460,7 @@ export default function BookingForm() {
       medications: '',
       allergies: '',
     })
+    resetHCaptcha()
   }
 
   const handleSubmit = async () => {
@@ -486,14 +506,32 @@ export default function BookingForm() {
         return
       }
 
+      if (!hCaptchaToken.trim()) {
+        setHCaptchaHighlight(true)
+        setHCaptchaStatus('error')
+        setHCaptchaMessage('Please complete the security check to send your request.')
+        showErrorToast('Please complete the security check to send your request.')
+        document.getElementById('booking-security-check')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+        document.getElementById('booking-security-check')?.focus()
+        return
+      }
+
       setIsSubmitting(true)
       try {
-        const result = await sendBookingRequestEmail(payload, latestFeatures)
+        const result = await sendBookingRequestEmail(
+          payload,
+          latestFeatures,
+          hCaptchaToken
+        )
         if (!result.ok) {
           showErrorToast(
             result.message ||
               'Could not send the booking email. Please try again or call the clinic.'
           )
+          resetHCaptcha()
           return
         }
       } finally {
@@ -862,6 +900,78 @@ export default function BookingForm() {
             <p className="text-sm text-secondary text-center">
               We will contact you within 24 hours to confirm your appointment.
             </p>
+
+            {showSecurityCheck && currentStep === 3 && (
+              <div
+                id="booking-security-check"
+                tabIndex={-1}
+                className={`rounded-xl border bg-white p-5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] outline-none transition-colors ${
+                  hCaptchaHighlight
+                    ? 'border-red-400'
+                    : 'border-accent/15'
+                }`}
+              >
+                <h3 className="font-semibold text-primary mb-2">Quick security check</h3>
+                <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                <p className="text-sm text-secondary mb-4">
+                  Confirm you&apos;re human before we send your appointment request.
+                </p>
+
+                <div className="booking-hcaptcha-host w-full min-w-0">
+                  {!hCaptchaReady && (
+                    <div
+                      className="mb-0 h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div
+                    className={`inline-block max-w-full overflow-x-auto ${
+                      hCaptchaReady ? '' : 'sr-only'
+                    }`}
+                  >
+                    <div className="min-h-[78px] min-w-[303px]">
+                      <HCaptcha
+                        ref={hCaptchaRef}
+                        sitekey={WEB3FORMS_HCAPTCHA_SITEKEY}
+                        size="normal"
+                        reCaptchaCompat={false}
+                        onLoad={() => setHCaptchaReady(true)}
+                        onVerify={(token) => {
+                          setHCaptchaToken(token)
+                          setHCaptchaStatus('verified')
+                          setHCaptchaMessage('Verified — you can submit your request')
+                          setHCaptchaHighlight(false)
+                        }}
+                        onExpire={() => {
+                          setHCaptchaToken('')
+                          setHCaptchaStatus('error')
+                          setHCaptchaMessage('Security check expired. Please verify again.')
+                        }}
+                        onError={() => {
+                          setHCaptchaToken('')
+                          setHCaptchaStatus('error')
+                          setHCaptchaMessage('Security check failed to load. Please try again.')
+                          setHCaptchaReady(true)
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <p
+                  className={`mt-3 text-sm ${
+                    hCaptchaStatus === 'verified'
+                      ? 'text-primary'
+                      : hCaptchaStatus === 'error'
+                        ? 'text-red-700'
+                        : 'text-secondary/70'
+                  }`}
+                  aria-live="polite"
+                >
+                  {hCaptchaMessage || 'Complete the check above to continue.'}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </BookingStepper>
