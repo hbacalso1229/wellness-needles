@@ -81,6 +81,11 @@ function todayDateInputValue(): string {
   return `${y}-${m}-${d}`
 }
 
+/** YYYY-MM-DD string compare — native mobile pickers often ignore `max`. */
+function isFutureDateInputValue(dateStr: string): boolean {
+  return Boolean(dateStr) && dateStr > todayDateInputValue()
+}
+
 function isPastTimeSlot(dateStr: string, slot: string): boolean {
   if (!dateStr || dateStr !== todayDateInputValue()) return false
   const now = new Date()
@@ -206,6 +211,7 @@ type FieldErrorKey =
   | 'lastName'
   | 'email'
   | 'phone'
+  | 'dateOfBirth'
   | 'chiefComplaint'
 
 const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
@@ -217,6 +223,7 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   lastName: 'lastName',
   email: 'email',
   phone: 'phone',
+  dateOfBirth: 'dateOfBirth',
   chiefComplaint: 'chiefComplaint',
 }
 
@@ -358,12 +365,26 @@ export default function BookingForm() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const name = e.target.name as FieldErrorKey
+    const name = e.target.name
     const value =
-      e.target.name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
+      name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
+
+    // Mobile WebKit often allows future dates despite `max` — reject them.
+    if (name === 'dateOfBirth' && isFutureDateInputValue(value)) {
+      setFormData({
+        ...formData,
+        dateOfBirth: '',
+      })
+      setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+      return
+    }
+    if (name === 'dateOfBirth') {
+      clearFieldError('dateOfBirth')
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: value,
+      [name]: value,
     })
     if (
       name === 'firstName' ||
@@ -442,6 +463,10 @@ export default function BookingForm() {
         messages.push(
           'Please enter a valid Irish phone number (e.g. 086 054 3085 or +353 86 054 3085).'
         )
+      }
+      if (formData.dateOfBirth && isFutureDateInputValue(formData.dateOfBirth)) {
+        fields.push('dateOfBirth')
+        messages.push('Date of birth cannot be in the future.')
       }
       if (!formData.chiefComplaint.trim()) {
         fields.push('chiefComplaint')
@@ -846,9 +871,30 @@ export default function BookingForm() {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
+                    onBlur={(e) => {
+                      const value = e.target.value
+                      if (isFutureDateInputValue(value)) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          dateOfBirth: '',
+                        }))
+                        setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
+                      }
+                    }}
                     max={todayDateInputValue()}
-                    className={dateInputClassName}
+                    aria-invalid={hasFieldError('dateOfBirth')}
+                    aria-describedby={
+                      hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
+                    }
+                    className={
+                      hasFieldError('dateOfBirth') ? dateInputErrorClassName : dateInputClassName
+                    }
                   />
+                  {hasFieldError('dateOfBirth') && (
+                    <p id="dateOfBirth-error" className="mt-2 text-sm text-red-600" role="alert">
+                      Date of birth cannot be in the future.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

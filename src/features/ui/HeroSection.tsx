@@ -81,7 +81,11 @@ export function HeroSection({
 
   return (
     <section
-      className={`${hideOnMobile ? 'hidden md:flex' : 'flex'} relative ${heightClass} items-center ${justifyClasses[alignment]} ${
+      data-page-hero=""
+      data-hide-mobile-hero={hideOnMobile ? 'true' : undefined}
+      className={`${
+        hideOnMobile ? 'max-md:hidden md:flex' : 'flex'
+      } relative ${heightClass} items-center ${justifyClasses[alignment]} ${
         backgroundImage ? 'bg-primary' : backgroundClass
       }`}
     >
