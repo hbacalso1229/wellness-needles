@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, Clock, Send, MessageCircle, ChevronRight, type LucideIcon } from 'lucide-react'
+import { Calendar, Send, MessageCircle, ChevronRight, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { HeroSection, SectionHeading } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
@@ -87,253 +87,287 @@ export default function Contact() {
         heightClass="py-20"
       />
 
-      {/* Contact Information */}
+      {/* Contact Information — bookings-style sticky layout */}
       <section className="py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className={`grid grid-cols-1 gap-12 ${
-              contactConfig.features.contactFormEnabled ? 'lg:grid-cols-2' : 'lg:grid-cols-1'
-            }`}
-          >
-            {contactConfig.features.contactFormEnabled && (
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
+            <div className="min-w-0 order-1 lg:order-1 space-y-10">
               <div>
-                <h2 className="font-serif text-3xl font-bold text-primary mb-8">
-                  Send us a message
-                </h2>
+                <SectionHeading
+                  title="Get in touch"
+                  subtitle="Reach us by phone, email, or visit one of our clinics"
+                  titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                  className="text-center mb-10"
+                />
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-primary mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                        placeholder="Your full name"
-                      />
-                    </div>
+                {contactConfig.features.contactFormEnabled && (
+                  <div className={`${interactiveCardClass} mb-8`}>
+                    <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                      Send us a message
+                    </h3>
+                    <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
 
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-primary mb-2">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                        placeholder="(555) 123-4567"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="subject"
-                        className="block text-sm font-medium text-primary mb-2"
-                      >
-                        Subject *
-                      </label>
-                      <select
-                        id="subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                      >
-                        <option value="">Select a subject</option>
-                        <option value="appointment">Book an appointment</option>
-                        <option value="general">General Inquiry</option>
-                        <option value="treatment">Treatment Questions</option>
-                        <option value="insurance">Insurance & Pricing</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-primary mb-2">
-                      Message *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
-                      placeholder="Tell us how we can help you..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-primary text-cream px-6 py-4 rounded-lg font-semibold hover:bg-secondary transition-colors duration-200 flex items-center justify-center"
-                  >
-                    <Send className="w-5 h-5 mr-2" />
-                    Send message
-                  </button>
-                </form>
-              </div>
-            )}
-
-            <div
-              className={
-                contactConfig.features.contactFormEnabled ? '' : 'max-w-5xl mx-auto w-full'
-              }
-            >
-              <SectionHeading
-                title="Get in Touch"
-                subtitle="Reach us by phone, email, or visit one of our clinics"
-                titleClassName="font-serif text-3xl font-bold text-primary mb-3"
-                className="text-center mb-10"
-              />
-
-              <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
-                <div className="min-w-0 space-y-4">
-                  <ContactDetailCard icon={contactConfig.phone.icon} title="Phone">
-                    <a
-                      href={contactConfig.phone.href}
-                      className="mb-2 block font-semibold text-primary hover:text-secondary transition-colors"
-                    >
-                      {contactConfig.phone.displayText}
-                    </a>
-                    <p className="text-secondary text-sm">
-                      Call us during business hours for immediate assistance
-                    </p>
-                  </ContactDetailCard>
-
-                  <ContactDetailCard icon={contactConfig.email.icon} title="Email">
-                    <a
-                      href={contactConfig.email.href}
-                      className="mb-2 block font-semibold text-primary hover:text-secondary transition-colors"
-                    >
-                      {contactConfig.email.address}
-                    </a>
-                    <p className="text-secondary text-sm">We respond to emails within 24 hours</p>
-                  </ContactDetailCard>
-
-                  <ContactDetailCard icon={contactConfig.address.icon} title="Clinics">
-                    {contactConfig.features.mapIntegrationEnabled ? (
-                      <>
-                        <p className="text-secondary mb-2">
-                          <span className="font-semibold text-primary">Celbridge</span>
-                          {' and '}
-                          <span className="font-semibold text-primary">Carlow</span>
-                        </p>
-                        <a
-                          href="#find-us"
-                          className="text-sm font-medium text-accent hover:text-primary transition-colors"
-                        >
-                          See maps and directions
-                        </a>
-                        <p className="text-secondary text-sm mt-2">Convenient parking available</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-secondary mb-2 space-y-3">
-                          {contactConfig.address.locations.map((location) => (
-                            <div key={location.full}>
-                              <a
-                                href={location.directionsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block hover:text-primary transition-colors"
-                              >
-                                <div>{location.formatted.street}</div>
-                                <div className="font-semibold text-primary">
-                                  {location.formatted.city}
-                                </div>
-                                <div>
-                                  {location.formatted.county} {location.formatted.postcode}
-                                </div>
-                              </a>
-                            </div>
-                          ))}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label
+                            htmlFor="name"
+                            className="block text-sm font-medium text-primary mb-2"
+                          >
+                            Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                            placeholder="Your full name"
+                          />
                         </div>
-                        <p className="text-secondary text-sm">Convenient parking available</p>
-                      </>
-                    )}
-                  </ContactDetailCard>
 
-                  <ContactDetailCard icon={Clock} title="Business Hours">
-                    <div className="text-secondary space-y-1">
-                      <p>
-                        Monday - Friday:{' '}
-                        <span className="font-semibold text-primary">9:00 AM - 7:00 PM</span>
-                      </p>
-                      <p>
-                        Saturday:{' '}
-                        <span className="font-semibold text-primary">10:00 AM - 4:00 PM</span>
-                      </p>
-                      <p>
-                        Sunday: <span className="font-semibold text-primary">Closed</span>
-                      </p>
-                    </div>
-                    <p className="text-secondary text-sm mt-2">
+                        <div>
+                          <label
+                            htmlFor="email"
+                            className="block text-sm font-medium text-primary mb-2"
+                          >
+                            Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                            placeholder="your@email.com"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label
+                            htmlFor="phone"
+                            className="block text-sm font-medium text-primary mb-2"
+                          >
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                            placeholder="(555) 123-4567"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="subject"
+                            className="block text-sm font-medium text-primary mb-2"
+                          >
+                            Subject *
+                          </label>
+                          <select
+                            id="subject"
+                            name="subject"
+                            value={formData.subject}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                          >
+                            <option value="">Select a subject</option>
+                            <option value="appointment">Book an appointment</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="treatment">Treatment Questions</option>
+                            <option value="insurance">Insurance & Pricing</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="message"
+                          className="block text-sm font-medium text-primary mb-2"
+                        >
+                          Message *
+                        </label>
+                        <textarea
+                          id="message"
+                          name="message"
+                          value={formData.message}
+                          onChange={handleChange}
+                          required
+                          rows={6}
+                          className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                          placeholder="Tell us how we can help you..."
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full bg-primary text-cream px-6 py-4 rounded-lg font-semibold hover:bg-secondary transition-colors duration-200 flex items-center justify-center"
+                      >
+                        <Send className="w-5 h-5 mr-2" />
+                        Send message
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 lg:items-start">
+                  {/* Business hours — left on desktop */}
+                  <div>
+                    <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                      Business hours
+                    </h3>
+                    <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                    <ul className="space-y-0">
+                      {(
+                        [
+                          ['Monday', 'monday'],
+                          ['Tuesday', 'tuesday'],
+                          ['Wednesday', 'wednesday'],
+                          ['Thursday', 'thursday'],
+                          ['Friday', 'friday'],
+                          ['Saturday', 'saturday'],
+                          ['Sunday', 'sunday'],
+                        ] as const
+                      ).map(([label, key]) => (
+                        <li
+                          key={key}
+                          className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
+                        >
+                          <span className="text-secondary shrink-0 w-28">{label}</span>
+                          <span
+                            className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
+                            aria-hidden="true"
+                          />
+                          <span className="font-semibold text-primary shrink-0 text-right">
+                            {contactConfig.businessInfo.hours[key]}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-secondary text-sm mt-4">
                       {contactConfig.businessInfo.emergencyNote}
                     </p>
-                  </ContactDetailCard>
-                </div>
-
-                {/* Quick Actions — below details on mobile, sticky sidebar on desktop */}
-                <aside className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24">
-                  <h3 className="font-semibold text-base text-primary mb-3">Quick Actions</h3>
-                  <div className="space-y-2.5">
-                    <BookingCtaButton
-                      variant="gold"
-                      size="medium"
-                      showArrow={false}
-                      className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
-                    >
-                      <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                      Book an appointment
-                    </BookingCtaButton>
-                    <button
-                      type="button"
-                      disabled={!contactConfig.features.liveChatEnabled}
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
-                        contactConfig.features.liveChatEnabled
-                          ? 'bg-cream text-primary border border-accent/30 hover:border-primary hover:shadow-md'
-                          : 'bg-cream text-gray-400 border border-gray-200 cursor-not-allowed opacity-80'
-                      }`}
-                    >
-                      <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
-                      {contactConfig.features.liveChatEnabled
-                        ? 'Start live chat'
-                        : 'Live chat (coming soon)'}
-                    </button>
                   </div>
-                </aside>
+
+                  {/* Phone, email, clinics — right on desktop */}
+                  <div className="space-y-4">
+                    <ContactDetailCard icon={contactConfig.phone.icon} title="Phone">
+                      <p className="text-secondary text-sm mb-2">
+                        Call us during business hours for immediate assistance
+                      </p>
+                      <a
+                        href={contactConfig.phone.href}
+                        className="block font-semibold text-primary hover:text-secondary transition-colors"
+                      >
+                        {contactConfig.phone.displayText}
+                      </a>
+                    </ContactDetailCard>
+
+                    <ContactDetailCard icon={contactConfig.email.icon} title="Email">
+                      <p className="text-secondary text-sm mb-2">
+                        We respond to emails within 24 hours
+                      </p>
+                      <a
+                        href={contactConfig.email.href}
+                        className="block font-semibold text-primary hover:text-secondary transition-colors"
+                      >
+                        {contactConfig.email.address}
+                      </a>
+                    </ContactDetailCard>
+
+                    <ContactDetailCard icon={contactConfig.address.icon} title="Clinics">
+                      {contactConfig.features.mapIntegrationEnabled ? (
+                        <>
+                          <p className="text-secondary text-sm mb-2">Find us</p>
+                          <p className="mb-2">
+                            <span className="font-semibold text-primary">Celbridge</span>
+                            {' and '}
+                            <span className="font-semibold text-primary">Carlow</span>
+                          </p>
+                          <a
+                            href="#find-us"
+                            className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                          >
+                            See maps and directions
+                          </a>
+                          <p className="text-secondary text-sm mt-2">Convenient parking available</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-secondary text-sm mb-2">Find us</p>
+                          <div className="text-secondary mb-2 space-y-3">
+                            {contactConfig.address.locations.map((location) => (
+                              <div key={location.full}>
+                                <a
+                                  href={location.directionsUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block hover:text-primary transition-colors"
+                                >
+                                  <div>{location.formatted.street}</div>
+                                  <div className="font-semibold text-primary">
+                                    {location.formatted.city}
+                                  </div>
+                                  <div>
+                                    {location.formatted.county} {location.formatted.postcode}
+                                  </div>
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-secondary text-sm">Convenient parking available</p>
+                        </>
+                      )}
+                    </ContactDetailCard>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Quick Actions — below details on mobile, sticky sidebar on desktop */}
+            <aside className="order-2 lg:order-2 w-full mt-6 lg:mt-0 lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss">
+              <h3 className="font-semibold text-base text-primary mb-2">Ready to schedule?</h3>
+              <p className="text-sm text-secondary mb-4">
+                Book online or reach out if you have a question.
+              </p>
+              <div className="space-y-2.5">
+                <BookingCtaButton
+                  variant="gold"
+                  size="medium"
+                  showArrow={false}
+                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                >
+                  <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
+                  Book an appointment
+                </BookingCtaButton>
+                <button
+                  type="button"
+                  disabled={!contactConfig.features.liveChatEnabled}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
+                    contactConfig.features.liveChatEnabled
+                      ? 'bg-cream text-primary border border-accent/30 hover:border-primary hover:shadow-md'
+                      : 'bg-cream text-gray-400 border border-gray-200 cursor-not-allowed opacity-80'
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
+                  {contactConfig.features.liveChatEnabled
+                    ? 'Start live chat'
+                    : 'Live chat (coming soon)'}
+                </button>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
