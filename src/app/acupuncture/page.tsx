@@ -1,9 +1,15 @@
 'use client'
 
 import { Brain, Heart, Zap, Shield, Target, Activity, CheckCircle } from 'lucide-react'
-import Image from 'next/image'
-import { PulsingLeaf, FeatureCard, HeroSection } from '../../features'
+import { FeatureCard, HeroSection } from '../../features'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+
+const conditionCardClass =
+  'snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+
+const researchCardClass =
+  'snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
 
 export default function Acupuncture() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -41,82 +47,53 @@ export default function Acupuncture() {
               How Acupuncture Works
             </h2>
             <p className="text-lg text-secondary max-w-3xl mx-auto">
-              Acupuncture works by stimulating specific points on the body to restore 
+              Acupuncture works by stimulating specific points on the body to restore
               the natural flow of energy and promote healing
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-6">
+              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
                 Traditional Chinese Medicine Perspective
               </h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-secondary">
                 <p>
-                  According to traditional Chinese medicine, acupuncture works by regulating 
-                  the flow of Qi (pronounced &quot;chee&quot;) - the vital energy that flows through 
+                  According to traditional Chinese medicine, acupuncture works by regulating
+                  the flow of Qi (pronounced &quot;chee&quot;) - the vital energy that flows through
                   specific pathways called meridians in the body.
                 </p>
                 <p>
-                  When Qi becomes blocked or imbalanced, illness and pain can result. 
-                  Acupuncture helps restore this balance by stimulating specific points 
+                  When Qi becomes blocked or imbalanced, illness and pain can result.
+                  Acupuncture helps restore this balance by stimulating specific points
                   along the meridians with fine, sterile needles.
                 </p>
                 <p>
-                  This ancient understanding has guided successful treatments for thousands 
+                  This ancient understanding has guided successful treatments for thousands
                   of years and continues to provide a framework for holistic healing.
                 </p>
               </div>
-              {/* Treatment Image */}
-              <div className="mt-6">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-2xl blur-md"></div>
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
-                    <Image
-                      src="/treatment_on_head.jpeg"
-                      alt="Acupuncture treatment on head"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 rounded-2xl border border-accent/30 group-hover:border-accent/50 transition-all duration-300 pointer-events-none"></div>
-                  </div>
-                  {/* Floating decorative elements */}
-                  <div className="absolute -top-1 -right-1">
-                    <PulsingLeaf 
-                      size="small"
-                      color="text-accent/70"
-                      rotation={12}
-                    />
-                  </div>
-                  <div className="absolute -bottom-1 -left-1">
-                    <PulsingLeaf 
-                      size="small"
-                      color="text-secondary/70"
-                      rotation={-45}
-                      animationDelay="0.5s"
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
+
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-6">
+              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
                 Modern Scientific Understanding
               </h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-secondary">
                 <p>
-                  Modern research shows that acupuncture stimulates the nervous system, 
-                  releasing natural pain-relieving chemicals like endorphins and affecting 
+                  Modern research shows that acupuncture stimulates the nervous system,
+                  releasing natural pain-relieving chemicals like endorphins and affecting
                   neurotransmitter levels.
                 </p>
                 <p>
-                  Studies using MRI and other imaging techniques show that acupuncture 
-                  can influence brain activity, reduce inflammation, and improve blood 
+                  Studies using MRI and other imaging techniques show that acupuncture
+                  can influence brain activity, reduce inflammation, and improve blood
                   circulation to treated areas.
                 </p>
                 <p>
-                  The World Health Organization recognizes acupuncture as effective for 
+                  The World Health Organization recognizes acupuncture as effective for
                   treating numerous conditions, bridging ancient wisdom with modern medicine.
                 </p>
               </div>
@@ -126,7 +103,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-accent/5">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl font-bold text-primary mb-4">
@@ -136,7 +113,7 @@ export default function Acupuncture() {
               Experience comprehensive healing with proven benefits for mind and body
             </p>
           </div>
-          
+
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
             <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
@@ -217,7 +194,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Conditions Treated */}
-      <section className="py-20 bg-cream">
+      <section className="py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl font-bold text-primary mb-4">
@@ -227,11 +204,12 @@ export default function Acupuncture() {
               Acupuncture can effectively address a wide range of health conditions
             </p>
           </div>
-          
+
           {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">Pain Management</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">Pain Management</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Chronic back pain</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Neck and shoulder pain</li>
@@ -241,8 +219,9 @@ export default function Acupuncture() {
               </ul>
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">Mental Health</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">Mental Health</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Anxiety and stress</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Depression</li>
@@ -252,8 +231,9 @@ export default function Acupuncture() {
               </ul>
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">Women&apos;s Health</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">Women&apos;s Health</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Fertility support</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Menstrual irregularities</li>
@@ -263,8 +243,9 @@ export default function Acupuncture() {
               </ul>
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">Digestive Issues</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">Digestive Issues</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> IBS</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Acid reflux</li>
@@ -274,8 +255,9 @@ export default function Acupuncture() {
               </ul>
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">Respiratory</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">Respiratory</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Asthma</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Allergies</li>
@@ -285,8 +267,9 @@ export default function Acupuncture() {
               </ul>
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-accent/5 rounded-lg p-6 card-emboss">
-              <h3 className="font-semibold text-lg text-primary mb-4">General Wellness</h3>
+            <div className={conditionCardClass}>
+              <h3 className="font-semibold text-lg text-primary mb-2">General Wellness</h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-2 text-secondary">
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Immune support</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" /> Energy enhancement</li>
@@ -308,7 +291,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Research Section */}
-      <section className="py-20 bg-light-green/10">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl font-bold text-primary mb-4">
@@ -318,13 +301,14 @@ export default function Acupuncture() {
               Modern research validates what traditional practitioners have known for millennia
             </p>
           </div>
-          
+
           {/* Mobile: horizontal scroll carousel | md: 2-col */}
           <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 card-emboss">
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
+            <div className={researchCardClass}>
+              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
                 Clinical Research
               </h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-3 text-secondary">
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
@@ -344,11 +328,12 @@ export default function Acupuncture() {
                 </li>
               </ul>
             </div>
-            
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-cream rounded-lg p-8 card-emboss">
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-4">
+
+            <div className={researchCardClass}>
+              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
                 Safety Profile
               </h3>
+              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <ul className="space-y-3 text-secondary">
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
@@ -377,6 +362,21 @@ export default function Acupuncture() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
             </svg>
           </div>
+        </div>
+      </section>
+
+      {/* Closing Book CTA */}
+      <section className="py-16 bg-secondary/5 border-t border-accent/20">
+        <div className="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-3">
+            Ready to try acupuncture?
+          </h2>
+          <p className="text-lg text-secondary mb-8">
+            Book a session and take the next step toward balanced, lasting relief.
+          </p>
+          <BookingCtaButton variant="gold" className="!rounded-full">
+            Schedule your treatment
+          </BookingCtaButton>
         </div>
       </section>
     </div>
