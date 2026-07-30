@@ -388,7 +388,7 @@ export default function Contact() {
                 <div key={faq.question} className={interactiveCardClass}>
                   <button
                     type="button"
-                    className="flex w-full items-start justify-between gap-3 text-left sm:cursor-default"
+                    className="flex w-full items-center justify-between gap-3 text-left"
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${index}`}
                     id={`faq-question-${index}`}
@@ -398,9 +398,10 @@ export default function Contact() {
                   >
                     <h3 className="font-semibold text-lg text-primary pr-1">{faq.question}</h3>
                     <ChevronRight
-                      className={`mt-0.5 h-5 w-5 shrink-0 text-secondary/60 transition-transform duration-300 sm:hidden ${
+                      className={`h-5 w-5 shrink-0 text-primary/70 transition-transform duration-300 ${
                         isOpen ? 'rotate-90 text-primary' : ''
                       }`}
+                      strokeWidth={1.75}
                       aria-hidden
                     />
                   </button>
@@ -409,7 +410,7 @@ export default function Contact() {
                     id={`faq-answer-${index}`}
                     role="region"
                     aria-labelledby={`faq-question-${index}`}
-                    className={`${isOpen ? 'mt-3 block' : 'hidden'} sm:mt-3 sm:block`}
+                    className={isOpen ? 'mt-3 block' : 'hidden'}
                   >
                     <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                     <p className="text-secondary">{faq.answer}</p>

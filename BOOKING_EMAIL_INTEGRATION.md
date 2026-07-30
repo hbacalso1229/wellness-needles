@@ -21,9 +21,29 @@ Flow:
 
 1. Client completes the stepper and submits.
 2. App validates fields (including Irish phone + email format).
-3. If booking email is enabled and configured, `POST` to `https://api.web3forms.com/submit`.
-4. Clinic receives an email with visit type, location, service, add-ons, schedule, and health details.
-5. Success toast is shown (or an error toast if send fails). Form resets after success.
+3. On the final step, when booking email is configured, the client completes an **hCaptcha** security check.
+4. If booking email is enabled and configured, `POST` to `https://api.web3forms.com/submit` (includes `h-captcha-response`).
+5. Clinic receives an email with visit type, location, service, add-ons, schedule, and health details.
+6. Success toast is shown (or an error toast if send fails). Form resets after success.
+
+---
+
+## Spam protection (hCaptcha)
+
+Legacy email submits use **Web3Forms hCaptcha** (interactive checkbox on the final step).
+
+### UX on `/bookings`
+- Panel title: **Quick security check**
+- Shown only when booking email is configured (same gate as sending mail)
+- Reserved space while the widget loads; verified / expired / error messages under the widget
+- Submit without solving → toast + panel highlight; failed send resets the captcha (tokens are one-time)
+
+### Dashboard (required)
+1. Open [Web3Forms dashboard](https://app.web3forms.com) and select the booking form / access key
+2. Set spam protection to **hCaptcha** (enable / make mandatory)
+3. Save — without this, the client widget alone is not enforced server-side
+
+Site uses the Web3Forms free hCaptcha sitekey in code (`BookingForm.tsx`). Paid plans can use a custom sitekey if you change that constant.
 
 ---
 
@@ -88,9 +108,11 @@ Create a key at [web3forms.com](https://web3forms.com) for the inbox that should
 
 1. Enable **Legacy stepper form** on `/admin`.
 2. Ensure email is ready (env key **or** Admin key + recipient).
-3. Open `/bookings`, complete a test booking, submit.
-4. Confirm success toast and inbox delivery (check spam).
-5. If email is on but the key/recipient is missing, submit shows an error toast (not a false “submitted” success).
+3. Enable **hCaptcha** for that access key in the Web3Forms dashboard.
+4. Open `/bookings`, complete a test booking, solve the security check, submit.
+5. Confirm success toast and inbox delivery (check spam).
+6. If email is on but the key/recipient is missing, submit shows an error toast (not a false “submitted” success).
+7. Submit without solving captcha → error toast asking to complete the security check.
 
 ---
 
@@ -116,8 +138,10 @@ Web3Forms free plan (as of their public pricing): ~**250 submissions / month**, 
 
 | Symptom | Fix |
 |---------|-----|
+| Toast: please complete the security check | Solve hCaptcha on the final step; enable hCaptcha in Web3Forms dashboard |
 | Toast: email enabled but not configured | Add access key + valid recipient (Admin) or set env key and redeploy |
-| Toast: could not send email | Check key, Web3Forms dashboard, network, free-plan quota |
+| Toast: could not send email | Check key, Web3Forms dashboard, network, free-plan quota; reset captcha and retry |
+| Captcha missing on final step | Email is not configured — panel only shows when email can send |
 | No email, but success toast | Email is **off** — only toast (+ console.log); enable email or set env key |
 | Works locally, not on another device | localStorage is per browser; set `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on the host |
 | Wrong inbox | Update **Recipient email** in Admin (and match Web3Forms linked email) |
@@ -128,8 +152,8 @@ Web3Forms free plan (as of their public pricing): ~**250 submissions / month**, 
 ## Related files
 
 - [`src/app/admin/page.tsx`](src/app/admin/page.tsx) — toggles + recipient / local key
-- [`src/components/BookingForm.tsx`](src/components/BookingForm.tsx) — submit → send email
-- [`src/lib/send-booking-email.ts`](src/lib/send-booking-email.ts) — Web3Forms API call
+- [`src/components/BookingForm.tsx`](src/components/BookingForm.tsx) — submit → hCaptcha + send email
+- [`src/lib/send-booking-email.ts`](src/lib/send-booking-email.ts) — Web3Forms API call (`h-captcha-response`)
 - [`src/lib/booking-features.ts`](src/lib/booking-features.ts) — flags, env key, localStorage
 - [`src/hooks/useBookingFeatures.ts`](src/hooks/useBookingFeatures.ts) — React hook
 - [`.env.example`](.env.example) — env template

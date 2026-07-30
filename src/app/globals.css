@@ -174,3 +174,9 @@ input.booking-date-input {
 input[type='date']::-webkit-calendar-picker-indicator {
   margin-left: 0;
 }
+
+/* Keep hCaptcha at native width — constrained parents can squash the logo column */
+.booking-hcaptcha-host iframe {
+  max-width: none !important;
+  width: 303px !important;
+}

@@ -50,17 +50,31 @@ function formatBookingMessage(payload: BookingEmailPayload): string {
 
 export type SendBookingEmailResult =
   | { ok: true }
-  | { ok: false; reason: 'disabled' | 'not-configured' | 'request-failed'; message?: string }
+  | {
+      ok: false
+      reason: 'disabled' | 'not-configured' | 'captcha-required' | 'request-failed'
+      message?: string
+    }
 
 export async function sendBookingRequestEmail(
   payload: BookingEmailPayload,
-  features: BookingFeatureFlags = readBookingFeatures()
+  features: BookingFeatureFlags = readBookingFeatures(),
+  hCaptchaToken?: string
 ): Promise<SendBookingEmailResult> {
   if (!features.bookingEmailEnabled) {
     return { ok: false, reason: 'disabled' }
   }
   if (!isBookingEmailConfigured(features)) {
     return { ok: false, reason: 'not-configured' }
+  }
+
+  const token = hCaptchaToken?.trim() ?? ''
+  if (!token) {
+    return {
+      ok: false,
+      reason: 'captcha-required',
+      message: 'Please complete the security check to send your request.',
+    }
   }
 
   try {
@@ -78,6 +92,7 @@ export async function sendBookingRequestEmail(
         replyto: payload.email,
         to: features.bookingEmailTo.trim(),
         message: formatBookingMessage(payload),
+        'h-captcha-response': token,
         // Structured fields for Web3Forms dashboard
         visit_type: payload.serviceType,
         location: payload.locationLabel || '',
