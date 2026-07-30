@@ -16,38 +16,21 @@ interface FeatureCardProps {
   footer?: ReactNode
 }
 
-const hoverFromClasses: Record<string, string> = {
-  'from-accent/10': 'group-hover:from-accent/20',
-  'from-blue-light/10': 'group-hover:from-blue-light/20',
-  'from-primary/10': 'group-hover:from-primary/20',
-}
-
-const hoverToClasses: Record<string, string> = {
-  'to-blue-light/10': 'group-hover:to-blue-light/20',
-  'to-accent/10': 'group-hover:to-accent/20',
-  'to-blue-primary/10': 'group-hover:to-blue-primary/20',
-  'to-primary/10': 'group-hover:to-primary/20',
-}
-
 export function FeatureCard({
   icon: Icon,
   title,
   description,
-  gradientFrom = 'from-accent/10',
-  gradientTo = 'to-blue-light/10',
   className = '',
   flippable = false,
   footer,
 }: FeatureCardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
-  const hoverFrom = hoverFromClasses[gradientFrom] ?? ''
-  const hoverTo = hoverToClasses[gradientTo] ?? ''
 
   const iconCircle = (
     <div
-      className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} ${hoverFrom} ${hoverTo} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 transition-all duration-300 shadow-[0_8px_20px_rgba(74,124,42,0.28),0_2px_8px_rgba(45,80,22,0.14)]`}
+      className="group/icon rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-white transition-all duration-300 ease-out will-change-transform shadow-[0_4px_12px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)] motion-safe:hover:-translate-y-2 motion-safe:hover:scale-110 motion-safe:group-hover:-translate-y-2 motion-safe:group-hover:scale-110 hover:shadow-[0_20px_40px_rgba(74,124,42,0.4),0_8px_16px_rgba(45,80,22,0.22)] group-hover:shadow-[0_20px_40px_rgba(74,124,42,0.4),0_8px_16px_rgba(45,80,22,0.22)]"
     >
-      <Icon className="w-10 h-10 text-primary" />
+      <Icon className="w-10 h-10 text-secondary/70 transition-all duration-300 ease-out group-hover/icon:text-primary group-hover:text-primary motion-safe:group-hover/icon:scale-110 motion-safe:group-hover:scale-110" />
     </div>
   )
 
@@ -86,7 +69,7 @@ export function FeatureCard({
         aria-label={
           isFlipped
             ? `${title}. Tap to hide description.`
-            : `${title}. Tap to learn more.`
+            : `${title}. Learn more.`
         }
         onClick={toggle}
         onKeyDown={onKeyDown}
@@ -112,7 +95,7 @@ export function FeatureCard({
             </h3>
             <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
             <p className="text-xs text-secondary/60 tracking-wide">
-              Tap to learn more
+              Learn more
             </p>
           </div>
 
