@@ -220,16 +220,16 @@ export default function Testimonials() {
               </div>
             </div>
 
-            {/* Share CTA — below stories on mobile, sticky sidebar on desktop */}
+            {/* Share CTA — desktop sticky sidebar */}
             <aside
               data-hide-sticky-book
-              className="w-full mt-8 lg:mt-0 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss lg:sticky lg:top-24"
+              className="hidden lg:block order-2 w-full rounded-xl border border-accent/15 bg-accent/10 p-5 lg:sticky lg:top-24"
             >
-              <h3 className="font-semibold text-base text-primary mb-2">
+              <h3 className="mb-1 text-base font-semibold text-primary">
                 Share your success story
               </h3>
-              <p className="text-sm text-secondary mb-4">
-                Experienced healing through our treatments? We&apos;d love to hear your journey.
+              <p className="mb-4 text-sm text-secondary">
+                We&apos;d love to hear how treatment helped you.
               </p>
               <div className="space-y-2.5">
                 <CTAButton
@@ -237,7 +237,7 @@ export default function Testimonials() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-full text-sm font-bold gap-2"
+                  className="w-full !rounded-full text-sm font-bold gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                 >
                   Share your story
                 </CTAButton>
@@ -245,9 +245,9 @@ export default function Testimonials() {
                   variant="outline"
                   showArrow={false}
                   size="medium"
-                  className="w-full !rounded-full text-sm font-medium"
+                  className="w-full !rounded-full text-sm font-medium transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                 >
-                  Start your journey
+                  Book an appointment
                 </BookingCtaButton>
               </div>
             </aside>
