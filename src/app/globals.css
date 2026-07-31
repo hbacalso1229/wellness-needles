@@ -71,11 +71,15 @@ body {
   transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-.feature-card-modal[open] {
-  animation: feature-card-modal-in 0.2s ease-out;
+.feature-card-modal {
+  animation: feature-card-modal-backdrop-in 0.4s ease-out;
 }
 
-@keyframes feature-card-modal-in {
+.feature-card-modal > [role='dialog'] {
+  animation: feature-card-modal-panel-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes feature-card-modal-backdrop-in {
   from {
     opacity: 0;
   }
@@ -84,12 +88,24 @@ body {
   }
 }
 
+@keyframes feature-card-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feature-card-flip {
     transition: none !important;
   }
 
-  .feature-card-modal[open] {
+  .feature-card-modal,
+  .feature-card-modal > [role='dialog'] {
     animation: none;
   }
 }
