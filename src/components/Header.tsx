@@ -152,7 +152,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50 overflow-visible">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
-        <div className="relative flex items-center justify-between gap-2 sm:gap-3 h-16 overflow-visible">
+        <div className="relative flex items-center gap-2 sm:gap-3 h-16 overflow-visible">
           {/* Mobile: logo + brand leftmost, vertically centered in the bar */}
           <Link
             href="/"
@@ -176,7 +176,7 @@ export default function Header() {
           {/* Tablet + desktop: logo + wordmark on the left */}
           <Link
             href="/"
-            className="relative z-[60] hidden md:flex items-center gap-3 sm:gap-4 min-w-0 shrink"
+            className="relative z-[60] hidden md:flex items-center gap-3 sm:gap-4 min-w-0 shrink xl:shrink-0"
           >
             <span className="relative shrink-0 translate-y-1.5 md:translate-y-2">
               <span className="relative block size-14 md:size-16 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
@@ -190,13 +190,13 @@ export default function Header() {
                 />
               </span>
             </span>
-            <span className="font-serif text-base sm:text-xl font-medium text-primary truncate tracking-wide">
+            <span className="font-serif text-base sm:text-xl font-medium text-primary tracking-wide truncate xl:overflow-visible">
               Wellness Needles
             </span>
           </Link>
 
-          {/* Desktop Navigation + Book now */}
-          <div className="hidden xl:flex items-center gap-x-5 2xl:gap-x-7 min-w-0 shrink">
+          {/* Desktop Navigation — left-aligned after brand */}
+          <div className="hidden xl:flex items-center gap-x-3 xl:gap-x-4 2xl:gap-x-5 min-w-0">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -207,22 +207,27 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            {showHeaderBook &&
-              (bookExternal ? (
+          </div>
+
+          {/* Desktop Book — stays right */}
+          {showHeaderBook && (
+            <div className="hidden xl:block ml-auto shrink-0">
+              {bookExternal ? (
                 <a
                   href={bookHref}
                   target={bookTarget}
                   rel={bookRel}
-                  className={`${bookNowClassName} shrink-0`}
+                  className={bookNowClassName}
                 >
                   <BookNowLabel />
                 </a>
               ) : (
-                <Link href={bookHref} className={`${bookNowClassName} shrink-0`}>
+                <Link href={bookHref} className={bookNowClassName}>
                   <BookNowLabel />
                 </Link>
-              ))}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Mobile / tablet: Book now + menu */}
           <div className="xl:hidden ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
