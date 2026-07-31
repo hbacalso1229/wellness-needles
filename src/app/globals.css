@@ -178,7 +178,7 @@ body {
   @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
 }
 
-/* Page heroes: compact below desktop; full viewport from lg (1024px) up */
+/* Page heroes: content-sized by default */
 .page-hero {
   box-sizing: border-box;
   width: 100%;
@@ -191,15 +191,27 @@ body {
   overflow-y: visible;
 }
 
-/* Full-viewport heroes: Home only — min-height so short/landscape tablets don't clip CTAs */
-@media (min-width: 1024px) {
-  .page-hero:not([data-hide-mobile-hero='true']) {
-    min-height: calc(100svh - 4rem);
+/*
+ * Home hero:
+ * - Mobile: height follows content (no forced vh/screen height — that caused multi-scroll empty space).
+ * - Tablet+: exact one-screen lock (this is the balanced layout you liked).
+ */
+.page-hero[data-home-hero='true'] {
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+@media (min-width: 768px) {
+  .page-hero[data-home-hero='true'] {
+    height: calc(100dvh - 4rem);
     min-height: calc(100dvh - 4rem);
-    height: auto;
-    max-height: none;
-    overflow-x: hidden;
-    overflow-y: visible;
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
   }
 }
 

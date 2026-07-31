@@ -19,6 +19,7 @@ function BookNowLabel({ compact = false }: { compact?: boolean }) {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
+  const [hideHeaderBook, setHideHeaderBook] = useState(() => pathname === '/')
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
 
@@ -79,7 +80,51 @@ export default function Header() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  const headerBookCta = !onBookingOrAdmin && (
+  // Home hero “Begin your journey” is already a book CTA — hide header Book on mobile/tablet while it’s visible.
+  useEffect(() => {
+    if (pathname !== '/') {
+      setHideHeaderBook(false)
+      return
+    }
+
+    setHideHeaderBook(true)
+
+    let cancelled = false
+    let observer: IntersectionObserver | undefined
+    const timers: number[] = []
+
+    const bind = () => {
+      const target = document.querySelector('[data-hide-header-book]')
+      if (!target || cancelled) return false
+      observer?.disconnect()
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!cancelled) setHideHeaderBook(Boolean(entry?.isIntersecting))
+        },
+        { threshold: [0, 0.15, 0.4], rootMargin: '-64px 0px 0px 0px' }
+      )
+      observer.observe(target)
+      return true
+    }
+
+    if (!bind()) {
+      ;[50, 100, 200, 400, 800].forEach((ms) => {
+        timers.push(
+          window.setTimeout(() => {
+            if (!cancelled) bind()
+          }, ms)
+        )
+      })
+    }
+
+    return () => {
+      cancelled = true
+      timers.forEach((id) => window.clearTimeout(id))
+      observer?.disconnect()
+    }
+  }, [pathname])
+
+  const headerBookCta = !onBookingOrAdmin && !hideHeaderBook && (
     bookExternal ? (
       <a
         href={bookHref}
@@ -100,13 +145,33 @@ export default function Header() {
     <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50 overflow-visible">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
         <div className="relative flex items-center justify-between gap-2 sm:gap-3 h-16 overflow-visible">
-          {/* Logo — larger mark floats down onto the hero */}
+          {/* Mobile: logo + brand leftmost, vertically centered in the bar */}
           <Link
             href="/"
-            className="relative z-[60] flex items-center gap-3 sm:gap-4 min-w-0 shrink"
+            className="relative z-[60] flex items-center gap-3 min-w-0 shrink md:hidden"
           >
-            <span className="relative shrink-0 translate-y-1 sm:translate-y-1.5 md:translate-y-2">
-              <span className="relative block size-12 sm:size-14 md:size-16 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
+            <span className="relative block size-11 shrink-0 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_6px_18px_rgba(45,80,22,0.22)] aspect-square">
+              <Image
+                src="/logo_wellness.jpeg"
+                alt=""
+                fill
+                sizes="44px"
+                className="object-cover object-center"
+                priority
+              />
+            </span>
+            <span className="font-serif text-base font-medium text-primary truncate tracking-wide">
+              Wellness Needles
+            </span>
+          </Link>
+
+          {/* Tablet + desktop: logo + wordmark on the left */}
+          <Link
+            href="/"
+            className="relative z-[60] hidden md:flex items-center gap-3 sm:gap-4 min-w-0 shrink"
+          >
+            <span className="relative shrink-0 translate-y-1.5 md:translate-y-2">
+              <span className="relative block size-14 md:size-16 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
@@ -151,7 +216,7 @@ export default function Header() {
           </div>
 
           {/* Mobile / tablet: Book now + menu */}
-          <div className="xl:hidden flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="xl:hidden ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
             {headerBookCta}
             <button
               type="button"
