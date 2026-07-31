@@ -15,6 +15,12 @@ export interface HeroSectionProps {
   description?: string
   /** Background image source */
   backgroundImage?: string
+  /** Extra classes for the background Image (e.g. scale / object-position) */
+  backgroundImageClassName?: string
+  /** Soft blurred fill behind a zoomed-out image (avoids solid color edges) */
+  backgroundBlurFill?: boolean
+  /** Overlay gradient classes over the background image */
+  backgroundOverlayClassName?: string
   /** Background overlay color/gradient class */
   backgroundClass?: string
   /** Text color class (defaults to text-cream for dark backgrounds) */
@@ -56,6 +62,9 @@ export function HeroSection({
   subtitle,
   description,
   backgroundImage,
+  backgroundImageClassName = 'object-cover object-center',
+  backgroundBlurFill = false,
+  backgroundOverlayClassName = 'bg-gradient-to-br from-primary/65 via-primary/45 to-secondary/35',
   backgroundClass = 'bg-jungle-gradient',
   textColor = 'text-cream',
   logo,
@@ -83,7 +92,7 @@ export function HeroSection({
     'page-hero relative items-center overflow-x-hidden',
     hideOnMobile ? 'max-xl:hidden xl:flex' : 'flex',
     justifyClasses[alignment],
-    backgroundImage ? 'bg-primary' : backgroundClass,
+    backgroundImage ? '' : backgroundClass,
     heightClass,
   ]
     .filter(Boolean)
@@ -95,29 +104,42 @@ export function HeroSection({
       data-hide-mobile-hero={hideOnMobile ? 'true' : undefined}
       className={sectionClassName}
     >
-      {/* Photo heroes: full image + light brand wash (not faded image on solid green) */}
+      {/* Photo heroes: full-bleed image + optional readability wash */}
       {backgroundImage && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 overflow-hidden">
+          {backgroundBlurFill ? (
+            <Image
+              src={backgroundImage}
+              alt=""
+              fill
+              sizes="100vw"
+              aria-hidden
+              className="object-cover object-center scale-110 blur-2xl opacity-90"
+              priority
+            />
+          ) : null}
           <Image
             src={backgroundImage}
             alt="Hero background"
             fill
             sizes="100vw"
-            className="object-cover object-center"
+            className={backgroundImageClassName}
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/65 via-primary/45 to-secondary/35" />
+          <div className={`absolute inset-0 ${backgroundOverlayClassName}`} />
         </div>
       )}
       
-      {/* Content Container — compact below lg; roomy inside full-viewport desktop heroes */}
+      {/* Content Container — compact banners on inner pages; roomy inside full-viewport Home */}
       <div
-        className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} py-8 sm:py-10 lg:py-16`}
+        className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} ${
+          hideOnMobile ? 'py-8 sm:py-10 xl:py-12' : 'py-8 sm:py-10 xl:py-16'
+        }`}
       >
         {/* Logo Section */}
         {logo && (
-          <div className="mb-3 sm:mb-4 lg:mb-8">
-            <div className="relative mx-auto w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-48 lg:h-48">
+          <div className="mb-3 sm:mb-4 xl:mb-8">
+            <div className="relative mx-auto w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 xl:w-48 xl:h-48">
               {logo.showGlow && (
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-accent/30 rounded-full blur-xl"></div>
               )}
@@ -154,18 +176,18 @@ export function HeroSection({
         
         {/* Text Content */}
         <div className={`${alignment === 'center' ? 'max-w-4xl mx-auto' : 'max-w-4xl'}`}>
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-2 sm:mb-3 lg:mb-6">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold mb-2 sm:mb-3 xl:mb-6">
             {title}
           </h1>
           
           {subtitle && (
-            <p className="text-sm sm:text-base md:text-lg lg:text-2xl mb-3 sm:mb-4 lg:mb-8 font-light">
+            <p className="text-sm sm:text-base md:text-lg xl:text-2xl mb-3 sm:mb-4 xl:mb-8 font-light">
               {subtitle}
             </p>
           )}
           
           {description && (
-            <p className="text-sm sm:text-base md:text-lg mb-5 sm:mb-6 lg:mb-12 opacity-90 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg mb-5 sm:mb-6 xl:mb-12 opacity-90 max-w-2xl mx-auto">
               {description}
             </p>
           )}
@@ -222,8 +244,8 @@ export function HeroSection({
         </div>
       </div>
       
-      {/* Floating Leaf Elements — desktop full-viewport heroes only */}
-      {showFloatingLeaves && (
+      {/* Floating Leaf Elements — Home full-viewport heroes only (skip short inner banners) */}
+      {showFloatingLeaves && !hideOnMobile && (
         <>
           <div className="absolute top-20 left-10 opacity-40 hidden lg:block">
             <PulsingLeaf size="large" color={textColor.replace('text-', 'text-').split('/')[0]} />

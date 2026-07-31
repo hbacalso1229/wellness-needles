@@ -24,7 +24,7 @@ export default function About() {
         title="About Wellness Needles"
         subtitle="Dedicated to bringing you the finest in traditional Chinese medicine and acupuncture therapy"
         description="Our practice combines ancient healing wisdom with modern understanding to provide comprehensive wellness solutions tailored to your unique needs."
-        backgroundImage="/treatment_in_progress_2.jpeg"
+        backgroundImage="/hero_wellness_acupuncture.jpeg"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
@@ -40,7 +40,7 @@ export default function About() {
       />
 
       {/* Our Story Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top row: Practitioner (left) + Mission/Vision (right) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch mb-12">

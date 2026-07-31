@@ -853,7 +853,7 @@ export default function BookingForm() {
                           setSelectedTime(slot)
                           clearFieldError('time')
                         }}
-                        className={`px-1.5 py-2 rounded-lg text-[11px] sm:text-xs md:text-sm font-medium whitespace-nowrap transition-colors ${
+                        className={`min-h-11 px-2 py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
                           selected
                             ? 'bg-primary text-cream'
                             : past

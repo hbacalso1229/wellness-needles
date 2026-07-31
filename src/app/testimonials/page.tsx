@@ -84,7 +84,7 @@ export default function Testimonials() {
       />
 
       {/* Success Stories with Images */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Treatment Success Stories"
@@ -151,7 +151,7 @@ export default function Testimonials() {
             to verified patients. Genuine reviews will be published here once consent is obtained.
           </p>
 
-          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
+          <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
             <div className="min-w-0">
               {/* Mobile: horizontal scroll carousel | md: 2-col */}
               <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
@@ -223,7 +223,7 @@ export default function Testimonials() {
             {/* Share CTA — desktop sticky sidebar */}
             <aside
               data-hide-sticky-book
-              className="hidden lg:block order-2 w-full rounded-xl border border-accent/15 bg-accent/10 p-5 lg:sticky lg:top-24"
+              className="hidden xl:block order-2 w-full rounded-xl border border-accent/15 bg-accent/10 p-5 xl:sticky xl:top-24"
             >
               <h3 className="mb-1 text-base font-semibold text-primary">
                 Share your success story

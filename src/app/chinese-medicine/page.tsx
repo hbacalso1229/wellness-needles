@@ -44,7 +44,7 @@ export default function ChineseMedicine() {
         title="Traditional Chinese Medicine"
         subtitle="Ancient wisdom meets modern wellness in our holistic approach to health"
         description="Discover the profound principles that have guided healing for over 3,000 years, offering a complete system of medicine that treats the whole person."
-        backgroundImage="/needles_candles_flowers_decor.jpeg"
+        backgroundImage="/hero_wellness_acupuncture.jpeg"
         backgroundClass="bg-secondary"
         textColor="text-cream"
         showFloatingLeaves={true}
@@ -62,7 +62,7 @@ export default function ChineseMedicine() {
       />
 
       {/* Philosophy Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="The Philosophy of TCM"

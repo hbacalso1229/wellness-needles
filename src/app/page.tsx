@@ -1,15 +1,19 @@
 import {
   HeroSection,
-  FeaturesSection,
-  QuickLinksSection,
+  BenefitsSection,
+  ServicesSection,
+  PractitionerSection,
+  BookingSection,
 } from '../features/home'
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <HeroSection />
-      <FeaturesSection />
-      <QuickLinksSection />
+      <BenefitsSection />
+      <ServicesSection />
+      <PractitionerSection />
+      <BookingSection />
     </div>
   )
 }

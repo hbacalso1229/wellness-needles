@@ -83,14 +83,14 @@ export default function Contact() {
         title="Contact Us"
         subtitle="We're here to answer your questions and help you start your wellness journey"
         description="Reach out to us for appointments, questions about our treatments, or to learn more about how acupuncture can benefit your health."
-        backgroundImage="/clinic_decor.jpeg"
+        backgroundImage="/hero_wellness_acupuncture.jpeg"
       />
 
       {/* Contact Information — bookings-style sticky layout */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
-            <div className="min-w-0 order-1 lg:order-1 space-y-10">
+          <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
+            <div className="min-w-0 order-1 xl:order-1 space-y-10">
               <div>
                 <SectionHeading
                   title="Get in touch"
@@ -338,7 +338,7 @@ export default function Contact() {
             {/* Quick book — desktop sticky sidebar */}
             <aside
               data-hide-sticky-book
-              className="hidden lg:block order-2 w-full lg:sticky lg:top-24 rounded-xl border border-accent/15 bg-accent/10 p-5"
+              className="hidden xl:block order-2 w-full xl:sticky xl:top-24 rounded-xl border border-accent/15 bg-accent/10 p-5"
             >
               <h3 className="mb-1 text-base font-semibold text-primary">
                 Prefer to book online?
@@ -449,11 +449,11 @@ export default function Contact() {
               className="text-center mb-8"
             />
 
-            <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {contactConfig.address.locations.map((location) => (
                 <div
                   key={location.full}
-                  className={`snap-start shrink-0 w-[80vw] sm:w-[65vw] md:w-auto ${interactiveCardClass}`}
+                  className={interactiveCardClass}
                 >
                   <h3 className="font-semibold text-base text-primary mb-2">{location.label}</h3>
                   <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -471,22 +471,6 @@ export default function Contact() {
                   />
                 </div>
               ))}
-            </div>
-
-            <div
-              className="mt-3 flex items-center justify-center gap-1.5 md:hidden"
-              aria-hidden="true"
-            >
-              <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-              <svg
-                className="w-3.5 h-3.5 text-secondary/50"
-                fill="none"
-                viewBox="0 0 16 16"
-                stroke="currentColor"
-                strokeWidth={1.8}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-              </svg>
             </div>
           </div>
         </section>

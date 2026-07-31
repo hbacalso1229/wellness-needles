@@ -1,4 +1,6 @@
 // Home Page Sections
 export { HeroSection } from './HeroSection'
-export { FeaturesSection } from './FeaturesSection'
-export { QuickLinksSection } from './QuickLinksSection'
+export { BenefitsSection } from './BenefitsSection'
+export { ServicesSection } from './ServicesSection'
+export { PractitionerSection } from './PractitionerSection'
+export { BookingSection } from './BookingSection'

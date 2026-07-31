@@ -48,6 +48,29 @@ export default function Header() {
   const bookNowStickyClassName =
     'sticky-book-fab-btn inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-7 py-2.5 rounded-full text-sm font-bold normal-case shadow-lg shadow-primary/25 whitespace-nowrap hover:from-[#f0d45c] hover:to-[#c9a52f]'
 
+  const isNavActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href)
+
+  const navLinkClass = (href: string) => {
+    const active = isNavActive(href)
+    return [
+      'text-sm font-medium whitespace-nowrap transition-colors duration-200',
+      active
+        ? 'text-accent border-b-2 border-accent pb-0.5'
+        : 'text-secondary hover:text-primary',
+    ].join(' ')
+  }
+
+  const mobileNavLinkClass = (href: string) => {
+    const active = isNavActive(href)
+    return [
+      'block px-3 py-2.5 text-base font-medium rounded-md transition-colors duration-200',
+      active
+        ? 'text-accent bg-accent/10 border-l-2 border-accent'
+        : 'text-secondary hover:text-primary hover:bg-accent/10',
+    ].join(' ')
+  }
+
   const onBookingOrAdmin =
     pathname.startsWith('/bookings') || pathname.startsWith('/admin')
   // Mobile + tablet (< xl): fixed bottom CTA. Desktop uses header Book now.
@@ -250,51 +273,54 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3 h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 min-w-0 shrink">
-              <div className="relative shrink-0">
-                <Image
-                  src="/logo_wellness.jpeg"
-                  alt="Wellness Needles Logo"
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover ring-2 ring-blue-light/20"
-                />
-              </div>
-              <span className="font-serif text-lg sm:text-xl font-semibold text-primary truncate">
+      <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50 overflow-visible">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+          <div className="relative flex items-center justify-between gap-3 h-16 overflow-visible">
+            {/* Logo — larger mark floats down onto the hero */}
+            <Link
+              href="/"
+              className="relative z-[60] flex items-center gap-4 min-w-0 shrink"
+            >
+              <span className="relative shrink-0 translate-y-1 sm:translate-y-1.5 md:translate-y-2">
+                <span className="relative block size-12 sm:size-14 md:size-16 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
+                  <Image
+                    src="/logo_wellness.jpeg"
+                    alt="Wellness Needles Logo"
+                    fill
+                    sizes="64px"
+                    className="object-cover object-center"
+                    priority
+                  />
+                </span>
+              </span>
+              <span className="font-serif text-lg sm:text-xl font-medium text-primary truncate tracking-wide">
                 Wellness Needles
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden xl:flex items-center gap-x-4 2xl:gap-x-6 min-w-0">
+            {/* Desktop Navigation + Book now */}
+            <div className="hidden xl:flex items-center gap-x-5 2xl:gap-x-7 min-w-0 shrink">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-sm font-medium text-primary hover:text-secondary transition-colors duration-200 whitespace-nowrap"
+                  className={navLinkClass(item.href)}
+                  aria-current={isNavActive(item.href) ? 'page' : undefined}
                 >
                   {item.label}
                 </Link>
               ))}
-            </div>
-
-            {/* CTA Button */}
-            <div className="hidden xl:flex shrink-0">
               {bookExternal ? (
                 <a
                   href={bookHref}
                   target={bookTarget}
                   rel={bookRel}
-                  className={bookNowClassName}
+                  className={`${bookNowClassName} shrink-0`}
                 >
                   <BookNowLabel />
                 </a>
               ) : (
-                <Link href={bookHref} className={bookNowClassName}>
+                <Link href={bookHref} className={`${bookNowClassName} shrink-0`}>
                   <BookNowLabel />
                 </Link>
               )}
@@ -305,7 +331,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-primary hover:text-secondary p-1"
+                className="text-primary hover:text-secondary inline-flex items-center justify-center min-h-11 min-w-11 p-2.5 -mr-1"
                 aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-navigation"
@@ -323,7 +349,8 @@ export default function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block px-3 py-2.5 text-base font-medium text-primary hover:text-secondary hover:bg-accent/10 rounded-md transition-colors duration-200"
+                    className={mobileNavLinkClass(item.href)}
+                    aria-current={isNavActive(item.href) ? 'page' : undefined}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.label}

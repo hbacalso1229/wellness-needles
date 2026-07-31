@@ -179,8 +179,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-cream">
       <HeroSection
-        title="Admin"
-        subtitle="Booking feature settings"
+        title="Booking feature settings"
         backgroundClass="bg-jungle-gradient"
         textColor="text-cream"
         showFloatingLeaves={true}
