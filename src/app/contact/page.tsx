@@ -335,39 +335,36 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Quick Actions — desktop sticky sidebar only (mobile uses sticky Book now) */}
+            {/* Quick book — desktop sticky sidebar */}
             <aside
               data-hide-sticky-book
-              className="hidden lg:block order-2 w-full lg:sticky lg:top-24 p-5 rounded-xl bg-accent/15 shadow-lg shadow-primary/15 border border-accent/20 card-emboss"
+              className="hidden lg:block order-2 w-full lg:sticky lg:top-24 rounded-xl border border-accent/15 bg-accent/10 p-5"
             >
-              <h3 className="font-semibold text-base text-primary mb-2">Ready to schedule?</h3>
-              <p className="text-sm text-secondary mb-4">
-                Book online or reach out if you have a question.
+              <h3 className="mb-1 text-base font-semibold text-primary">
+                Prefer to book online?
+              </h3>
+              <p className="mb-4 text-sm text-secondary">
+                Pick a time that works — it only takes a minute.
               </p>
               <div className="space-y-2.5">
                 <BookingCtaButton
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 card-emboss hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
                 >
                   <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
                   Book an appointment
                 </BookingCtaButton>
-                <button
-                  type="button"
-                  disabled={!contactConfig.features.liveChatEnabled}
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 card-emboss shadow-md shadow-primary/10 ${
-                    contactConfig.features.liveChatEnabled
-                      ? 'bg-cream text-primary border border-accent/30 hover:border-primary hover:shadow-md'
-                      : 'bg-cream text-gray-400 border border-gray-200 cursor-not-allowed opacity-80'
-                  }`}
-                >
-                  <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
-                  {contactConfig.features.liveChatEnabled
-                    ? 'Start live chat'
-                    : 'Live chat (coming soon)'}
-                </button>
+                {contactConfig.features.liveChatEnabled && (
+                  <button
+                    type="button"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-cream px-4 py-2.5 text-sm font-medium text-primary shadow-md shadow-primary/10 transition-all duration-200 hover:border-primary hover:shadow-md"
+                  >
+                    <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
+                    Start live chat
+                  </button>
+                )}
               </div>
             </aside>
           </div>
