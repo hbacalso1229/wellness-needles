@@ -48,7 +48,7 @@ export default function Header() {
     return [
       'text-sm font-medium whitespace-nowrap transition-colors duration-200',
       active
-        ? 'text-accent border-b-2 border-accent pb-0.5'
+        ? 'text-primary border-b-2 border-gold pb-0.5'
         : 'text-secondary hover:text-primary',
     ].join(' ')
   }
@@ -58,7 +58,7 @@ export default function Header() {
     return [
       'block px-3 py-2.5 text-base font-medium rounded-md transition-colors duration-200',
       active
-        ? 'text-accent bg-accent/10 border-l-2 border-accent'
+        ? 'text-primary bg-gold/10 border-l-2 border-gold'
         : 'text-secondary hover:text-primary hover:bg-accent/10',
     ].join(' ')
   }
