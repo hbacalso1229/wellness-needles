@@ -7,27 +7,27 @@ import ContactInfo from './ContactInfo'
 export default function Footer() {
   return (
     <footer
-      className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-primary/20 text-cream"
+      className="relative overflow-hidden bg-primary text-cream"
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <Leaf
-          className="absolute right-4 top-10 h-8 w-8 text-cream/40 rotate-[28deg]"
+          className="absolute right-4 top-10 h-8 w-8 text-cream/25 rotate-[28deg]"
           strokeWidth={1.5}
         />
         <Leaf
-          className="absolute right-20 top-24 h-4 w-4 text-cream/40 -rotate-12 hidden sm:block"
+          className="absolute right-20 top-24 h-4 w-4 text-cream/20 -rotate-12 hidden sm:block"
           strokeWidth={1.5}
         />
         <Leaf
-          className="absolute right-10 bottom-24 h-8 w-8 text-cream/50 rotate-[40deg]"
+          className="absolute right-10 bottom-24 h-8 w-8 text-cream/25 rotate-[40deg]"
           strokeWidth={1.5}
         />
         <Leaf
-          className="absolute left-8 bottom-14 h-4 w-4 text-cream/40 -rotate-45"
+          className="absolute left-8 bottom-14 h-4 w-4 text-cream/20 -rotate-45"
           strokeWidth={1.5}
         />
         <Leaf
-          className="absolute left-[42%] top-12 h-4 w-4 text-cream/40 rotate-[15deg] hidden md:block"
+          className="absolute left-[42%] top-12 h-4 w-4 text-cream/20 rotate-[15deg] hidden md:block"
           strokeWidth={1.5}
         />
       </div>
@@ -43,7 +43,7 @@ export default function Footer() {
                   alt="Wellness Needles Logo"
                   width={40}
                   height={40}
-                  className="rounded-full object-cover ring-2 ring-blue-light/30"
+                  className="rounded-full object-cover ring-2 ring-cream/30"
                 />
               </div>
               <span className="font-serif text-xl font-semibold">
