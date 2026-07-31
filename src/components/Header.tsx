@@ -11,7 +11,7 @@ function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
     <>
       <Calendar className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} shrink-0`} aria-hidden />
-      Book now
+      Book Appointment
     </>
   )
 }
