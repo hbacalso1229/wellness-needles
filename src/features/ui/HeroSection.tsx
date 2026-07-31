@@ -47,7 +47,7 @@ export interface HeroSectionProps {
   alignment?: 'left' | 'center' | 'right'
   /** Additional custom content to render */
   children?: ReactNode
-  /** Hide hero below md breakpoint (default true; Home opts out) */
+  /** Hide hero while the burger nav is showing (below xl; Home opts out) */
   hideOnMobile?: boolean
 }
 
@@ -81,7 +81,7 @@ export function HeroSection({
 
   const sectionClassName = [
     'page-hero relative items-center overflow-x-hidden',
-    hideOnMobile ? 'max-md:hidden md:flex' : 'flex',
+    hideOnMobile ? 'max-xl:hidden xl:flex' : 'flex',
     justifyClasses[alignment],
     backgroundImage ? 'bg-primary' : backgroundClass,
     heightClass,

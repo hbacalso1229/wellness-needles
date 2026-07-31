@@ -111,8 +111,8 @@ body {
   }
 }
 
-/* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
-@media (max-width: 767px) {
+/* Non-home heroes: hide while burger nav is showing (below xl / 1280px) */
+@media (max-width: 1279px) {
   [data-hide-mobile-hero='true'] {
     display: none !important;
     height: 0 !important;

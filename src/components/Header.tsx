@@ -74,7 +74,7 @@ export default function Header() {
     let heroObserver: IntersectionObserver | undefined
     let observedHero: HTMLElement | null = null
     const retryTimers: number[] = []
-    const mobileHeroMq = window.matchMedia('(max-width: 767px)')
+    const mobileHeroMq = window.matchMedia('(max-width: 1279px)')
 
     const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
 

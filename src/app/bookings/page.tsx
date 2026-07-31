@@ -458,37 +458,37 @@ export default function Bookings() {
               )}
             </div>
 
-            {/* Quick call/email — sticky on desktop */}
+            {/* Quick call/email — compact on mobile/tablet; sticky sidebar on desktop */}
             <aside
               data-hide-sticky-book
-              className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 sm:mt-8 sm:w-full sm:p-5 lg:mt-0 lg:sticky lg:top-24"
+              className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 lg:mt-0 lg:w-full lg:p-5 lg:sticky lg:top-24"
             >
-              <h3 className="mb-0.5 text-sm font-semibold text-primary sm:mb-1 sm:text-base">
+              <h3 className="mb-0.5 text-sm font-semibold text-primary lg:mb-1 lg:text-base">
                 Prefer to call or email?
               </h3>
-              <p className="mb-3 whitespace-nowrap text-[11px] leading-snug text-secondary sm:mb-4 sm:whitespace-normal sm:text-sm sm:leading-normal">
+              <p className="mb-3 whitespace-nowrap text-[11px] leading-snug text-secondary lg:mb-4 lg:whitespace-normal lg:text-sm lg:leading-normal">
                 Skip the form — we’ll help you book.
               </p>
-              <div className="flex flex-col gap-2.5 sm:gap-3">
+              <div className="flex flex-col gap-2.5 lg:gap-3">
                 <div>
                   <CTAButton
                     href={contactConfig.phone.href}
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-bold gap-1.5 sm:!py-2.5 sm:!text-sm sm:gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-bold gap-1.5 lg:!py-2.5 lg:!text-sm lg:gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
                   >
-                    <Phone className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
+                    <Phone className="h-3.5 w-3.5 shrink-0 lg:h-4 lg:w-4" aria-hidden />
                     Call Now
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-[11px] text-secondary sm:mt-2 sm:text-xs">
+                  <p className="mt-1.5 text-center text-[11px] text-secondary lg:mt-2 lg:text-xs">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 sm:gap-3" aria-hidden="true">
+                <div className="flex items-center gap-2.5 lg:gap-3" aria-hidden="true">
                   <div className="h-px flex-1 bg-accent/25" />
-                  <span className="text-[10px] font-medium uppercase tracking-wide text-secondary sm:text-xs">
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-secondary lg:text-xs">
                     Or
                   </span>
                   <div className="h-px flex-1 bg-accent/25" />
@@ -500,12 +500,12 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 sm:!py-2.5 sm:!text-sm sm:gap-2 transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 lg:!py-2.5 lg:!text-sm lg:gap-2 transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
                   >
-                    <Mail className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
+                    <Mail className="h-3.5 w-3.5 shrink-0 lg:h-4 lg:w-4" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-[11px] text-secondary sm:mt-2 sm:text-xs">
+                  <p className="mt-1.5 text-center text-[11px] text-secondary lg:mt-2 lg:text-xs">
                     We reply within 24 hours
                   </p>
                 </div>
