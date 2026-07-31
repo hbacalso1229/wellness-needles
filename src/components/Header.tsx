@@ -80,7 +80,7 @@ export default function Header() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Home hero “Begin your journey” is already a book CTA — hide header Book on mobile/tablet while it’s visible.
+  // Home page book CTAs (hero + booking section) — hide header Book while any is in view.
   useEffect(() => {
     if (pathname !== '/') {
       setHideHeaderBook(false)
@@ -92,30 +92,36 @@ export default function Header() {
     let cancelled = false
     let observer: IntersectionObserver | undefined
     const timers: number[] = []
+    const intersecting = new Set<Element>()
 
     const bind = () => {
-      const target = document.querySelector('[data-hide-header-book]')
-      if (!target || cancelled) return false
+      const targets = document.querySelectorAll('[data-hide-header-book]')
+      if (targets.length === 0 || cancelled) return false
       observer?.disconnect()
+      intersecting.clear()
       observer = new IntersectionObserver(
-        ([entry]) => {
-          if (!cancelled) setHideHeaderBook(Boolean(entry?.isIntersecting))
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) intersecting.add(entry.target)
+            else intersecting.delete(entry.target)
+          }
+          if (!cancelled) setHideHeaderBook(intersecting.size > 0)
         },
         { threshold: [0, 0.15, 0.4], rootMargin: '-64px 0px 0px 0px' }
       )
-      observer.observe(target)
+      targets.forEach((target) => observer!.observe(target))
       return true
     }
 
-    if (!bind()) {
-      ;[50, 100, 200, 400, 800].forEach((ms) => {
-        timers.push(
-          window.setTimeout(() => {
-            if (!cancelled) bind()
-          }, ms)
-        )
-      })
-    }
+    // Re-bind on retries so late-mounted markers (e.g. booking section) are included.
+    bind()
+    ;[50, 100, 200, 400, 800].forEach((ms) => {
+      timers.push(
+        window.setTimeout(() => {
+          if (!cancelled) bind()
+        }, ms)
+      )
+    })
 
     return () => {
       cancelled = true
@@ -124,7 +130,9 @@ export default function Header() {
     }
   }, [pathname])
 
-  const headerBookCta = !onBookingOrAdmin && !hideHeaderBook && (
+  const showHeaderBook = !onBookingOrAdmin && !hideHeaderBook
+
+  const headerBookCta = showHeaderBook && (
     bookExternal ? (
       <a
         href={bookHref}
@@ -199,20 +207,21 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            {bookExternal ? (
-              <a
-                href={bookHref}
-                target={bookTarget}
-                rel={bookRel}
-                className={`${bookNowClassName} shrink-0`}
-              >
-                <BookNowLabel />
-              </a>
-            ) : (
-              <Link href={bookHref} className={`${bookNowClassName} shrink-0`}>
-                <BookNowLabel />
-              </Link>
-            )}
+            {showHeaderBook &&
+              (bookExternal ? (
+                <a
+                  href={bookHref}
+                  target={bookTarget}
+                  rel={bookRel}
+                  className={`${bookNowClassName} shrink-0`}
+                >
+                  <BookNowLabel />
+                </a>
+              ) : (
+                <Link href={bookHref} className={`${bookNowClassName} shrink-0`}>
+                  <BookNowLabel />
+                </Link>
+              ))}
           </div>
 
           {/* Mobile / tablet: Book now + menu */}
