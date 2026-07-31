@@ -47,7 +47,7 @@ export function HeroSection() {
               >
                 <span className="h-px flex-1 bg-light-green/85" />
                 <Leaf
-                  className="mx-2.5 h-3.5 w-3.5 shrink-0 rotate-[40deg] text-light-green"
+                  className="mx-2.5 h-3.5 w-3.5 shrink-0 -rotate-[30deg] text-light-green"
                   strokeWidth={1.6}
                 />
                 <span className="h-px flex-1 bg-light-green/85" />
