@@ -86,7 +86,7 @@ export function FeatureCard({
   }, [modalOpen])
   const iconCircle = (
     <div
-      className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,box-shadow,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform shadow-[0_4px_12px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)] motion-safe:hover:-translate-y-3 motion-safe:hover:scale-125 motion-safe:group-hover:-translate-y-3 motion-safe:group-hover:scale-125 hover:shadow-[0_28px_56px_rgba(74,124,42,0.38),0_12px_24px_rgba(45,80,22,0.2)] group-hover:shadow-[0_28px_56px_rgba(74,124,42,0.38),0_12px_24px_rgba(45,80,22,0.2)] ${
+      className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-safe:hover:-translate-y-3 motion-safe:hover:scale-125 motion-safe:group-hover:-translate-y-3 motion-safe:group-hover:scale-125 ${
         compact ? 'h-14 w-14 mb-3' : 'h-16 w-16 mb-5'
       }`}
     >
@@ -165,7 +165,7 @@ export function FeatureCard({
             <X className="h-5 w-5" strokeWidth={1.75} />
           </button>
 
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white">
             <Icon className="h-8 w-8 text-secondary/70" strokeWidth={1.75} />
           </div>
           <h3 id={titleId} className="font-serif text-2xl font-semibold text-primary mb-2 pr-6">
