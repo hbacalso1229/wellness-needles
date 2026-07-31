@@ -187,17 +187,17 @@ export default function Bookings() {
         title="Book Your Appointment"
         subtitle="Take the first step towards better health and wellness"
         description="Schedule your consultation with our experienced practitioner and begin your journey to optimal health today."
-        backgroundImage="/treatment_in_progress_bed.jpeg"
+        backgroundImage="/hero_wellness_acupuncture.jpeg"
         backgroundClass="bg-primary"
         textColor="text-cream"
         showFloatingLeaves={true}
       />
 
       {/* Booking Form or Pricing Display */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(16rem,18rem)] lg:gap-8 lg:items-start">
-            <div className="min-w-0 order-1 lg:order-1">
+          <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
+            <div className="min-w-0 order-1 xl:order-1">
               {bookingFormEnabled ? (
                 <div>
                   <SectionHeading
@@ -460,35 +460,34 @@ export default function Bookings() {
 
             {/* Quick call/email — compact on mobile/tablet; sticky sidebar on desktop */}
             <aside
-              data-hide-sticky-book
-              className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 lg:mt-0 lg:w-full lg:p-5 lg:sticky lg:top-24"
+              className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 xl:mt-0 xl:w-full xl:p-5 xl:sticky xl:top-24"
             >
-              <h3 className="mb-0.5 text-sm font-semibold text-primary lg:mb-1 lg:text-base">
+              <h3 className="mb-0.5 text-sm font-semibold text-primary xl:mb-1 xl:text-base">
                 Prefer to call or email?
               </h3>
-              <p className="mb-3 whitespace-nowrap text-[11px] leading-snug text-secondary lg:mb-4 lg:whitespace-normal lg:text-sm lg:leading-normal">
+              <p className="mb-3 text-xs leading-snug text-secondary xl:mb-4 xl:text-sm xl:leading-normal">
                 Skip the form — we’ll help you book.
               </p>
-              <div className="flex flex-col gap-2.5 lg:gap-3">
+              <div className="flex flex-col gap-2.5 xl:gap-3">
                 <div>
                   <CTAButton
                     href={contactConfig.phone.href}
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-bold gap-1.5 lg:!py-2.5 lg:!text-sm lg:gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-4 !py-3 !text-sm !font-bold gap-2 min-h-11 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
                   >
-                    <Phone className="h-3.5 w-3.5 shrink-0 lg:h-4 lg:w-4" aria-hidden />
+                    <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-[11px] text-secondary lg:mt-2 lg:text-xs">
+                  <p className="mt-1.5 text-center text-xs text-secondary xl:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 lg:gap-3" aria-hidden="true">
+                <div className="flex items-center gap-2.5 xl:gap-3" aria-hidden="true">
                   <div className="h-px flex-1 bg-accent/25" />
-                  <span className="text-[10px] font-medium uppercase tracking-wide text-secondary lg:text-xs">
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-secondary xl:text-xs">
                     Or
                   </span>
                   <div className="h-px flex-1 bg-accent/25" />
@@ -500,12 +499,12 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-3 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 lg:!py-2.5 lg:!text-sm lg:gap-2 transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-4 !py-3 !text-sm !font-medium gap-2 min-h-11 bg-cream/80 transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
                   >
-                    <Mail className="h-3.5 w-3.5 shrink-0 lg:h-4 lg:w-4" aria-hidden />
+                    <Mail className="h-4 w-4 shrink-0" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-[11px] text-secondary lg:mt-2 lg:text-xs">
+                  <p className="mt-1.5 text-center text-xs text-secondary xl:mt-2">
                     We reply within 24 hours
                   </p>
                 </div>

@@ -56,7 +56,7 @@ export default function BookingStepper({
               >
                 <div className="flex flex-col items-center text-center min-w-[4.5rem]">
                   <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold border-2 transition-colors ${
+                    className={`booking-step-indicator flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold border-2 ${
                       current
                         ? 'border-primary bg-primary text-cream'
                         : done
@@ -67,7 +67,7 @@ export default function BookingStepper({
                     {done ? <Check className="h-4 w-4" aria-hidden /> : index + 1}
                   </span>
                   <span
-                    className={`mt-2 text-xs font-medium ${
+                    className={`booking-step-indicator mt-2 text-xs font-medium ${
                       current ? 'text-primary' : 'text-secondary'
                     }`}
                   >
@@ -76,7 +76,7 @@ export default function BookingStepper({
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`mx-2 h-0.5 flex-1 ${
+                    className={`booking-step-connector mx-2 h-0.5 flex-1 ${
                       done ? 'bg-primary' : 'bg-accent/20'
                     }`}
                     aria-hidden
@@ -100,7 +100,7 @@ export default function BookingStepper({
             return (
               <span
                 key={step.id}
-                className={`h-2.5 w-2.5 rounded-full ${
+                className={`booking-step-indicator h-2.5 w-2.5 rounded-full ${
                   current
                     ? 'bg-primary scale-125'
                     : done
@@ -124,7 +124,9 @@ export default function BookingStepper({
           {activeStep?.title}
         </h2>
 
-        <div className="min-h-[12rem]">{children}</div>
+        <div key={currentStep} className="booking-step-panel min-h-[12rem]">
+          {children}
+        </div>
 
         {/* Step nav — in-flow on all breakpoints so buttons stay visible with the form */}
         <div className="mt-8 flex items-center justify-between gap-3">

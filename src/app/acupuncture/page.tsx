@@ -11,9 +11,7 @@ import {
   Wind,
   Apple,
   Flower2,
-  BookOpen,
   ShieldCheck,
-  HandHeart,
   Venus,
   type LucideIcon,
 } from 'lucide-react'
@@ -106,7 +104,7 @@ export default function Acupuncture() {
       />
 
       {/* How It Works Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="How Acupuncture Works"
@@ -171,79 +169,60 @@ export default function Acupuncture() {
             subtitle="Experience comprehensive healing with proven benefits for mind and body"
           />
 
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Zap}
-                title="Pain Relief"
-                description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-3">
+            <FeatureCard
+              flippable
+              icon={Zap}
+              title="Pain Relief"
+              description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Brain}
-                title="Stress Reduction"
-                description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
+            <FeatureCard
+              flippable
+              icon={Brain}
+              title="Stress Reduction"
+              description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Activity}
-                title="Improved Sleep"
-                description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
+            <FeatureCard
+              flippable
+              icon={Activity}
+              title="Improved Sleep"
+              description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Shield}
-                title="Immune Support"
-                description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
+            <FeatureCard
+              flippable
+              icon={Shield}
+              title="Immune Support"
+              description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Heart}
-                title="Digestive Health"
-                description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
+            <FeatureCard
+              flippable
+              icon={Heart}
+              title="Digestive Health"
+              description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
-              <FeatureCard
-                flippable
-                icon={Target}
-                title="Hormonal Balance"
-                description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
+            <FeatureCard
+              flippable
+              icon={Target}
+              title="Hormonal Balance"
+              description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
           </div>
         </div>
       </section>
@@ -288,87 +267,37 @@ export default function Acupuncture() {
       </section>
 
       {/* Research Section */}
-      <section className="py-20 bg-secondary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeading
             title="Scientific Evidence"
             subtitle="Modern research validates what traditional practitioners have known for millennia"
           />
 
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 pt-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative pt-7 group">
-              <div className="absolute left-1/2 top-0 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-105">
-                <BookOpen className="h-6 w-6 text-cream" strokeWidth={1.75} />
-              </div>
-              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:border-primary/25 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
-                <div className="flex flex-1 flex-col px-6 pb-6 pt-12 text-center sm:px-8">
-                  <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
-                    Clinical Research
-                  </h3>
-                  <div className="mx-auto mb-5 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                  <ul className="space-y-3 text-left text-secondary">
-                    {[
-                      'Over 3,000 published studies on acupuncture effectiveness',
-                      'WHO recognizes acupuncture for treating 43+ conditions',
-                      'NIH supports acupuncture for pain management',
-                      'Meta-analyses show significant benefits for chronic pain',
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
-                          <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex items-center justify-center gap-2 bg-accent/15 px-4 py-3 text-sm font-medium text-primary transition-colors duration-300 group-hover:bg-accent/25">
-                  <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-                  Evidence-based. Time-tested.
-                </div>
-              </div>
-            </div>
-
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative pt-7 group">
-              <div className="absolute left-1/2 top-0 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary shadow-md shadow-primary/25 transition-transform duration-300 group-hover:scale-105">
-                <ShieldCheck className="h-6 w-6 text-cream" strokeWidth={1.75} />
-              </div>
-              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:border-primary/25 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
-                <div className="flex flex-1 flex-col px-6 pb-6 pt-12 text-center sm:px-8">
-                  <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
-                    Safety Profile
-                  </h3>
-                  <div className="mx-auto mb-5 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                  <ul className="space-y-3 text-left text-secondary">
-                    {[
-                      'Extremely low risk of adverse effects when performed by licensed practitioners',
-                      'No drug interactions or side effects',
-                      'Safe for all ages, including children and pregnant women',
-                      'Can be used alongside conventional medical treatments',
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
-                          <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex items-center justify-center gap-2 bg-accent/15 px-4 py-3 text-sm font-medium text-primary transition-colors duration-300 group-hover:bg-accent/25">
-                  <HandHeart className="h-4 w-4 shrink-0" aria-hidden />
-                  Safe. Gentle. Natural.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          <p className="text-secondary leading-relaxed mb-6">
+            Acupuncture is supported by thousands of published studies, recognized by the WHO for
+            dozens of conditions, and backed by NIH guidance for pain care — with a strong safety
+            profile when delivered by trained practitioners.
+          </p>
+          <ul className="mx-auto max-w-xl space-y-3 text-left text-secondary">
+            {[
+              'WHO recognizes acupuncture for treating 43+ conditions',
+              'Meta-analyses show significant benefits for chronic pain',
+              'Low risk of adverse effects; no drug interactions',
+              'Safe alongside conventional medical treatments',
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                  <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 inline-flex items-center justify-center gap-2 text-sm font-medium text-primary">
+            <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+            Evidence-based. Safe. Gentle.
+          </p>
         </div>
       </section>
     </div>

@@ -64,6 +64,97 @@ body {
   transition: opacity 0.7s cubic-bezier(0.33, 1, 0.32, 1) !important;
 }
 
+/* Feature card 3D flip — override global * { transition: all 0.3s } */
+.feature-card-flip {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.feature-card-modal[open] {
+  animation: feature-card-modal-in 0.2s ease-out;
+}
+
+@keyframes feature-card-modal-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card-flip {
+    transition: none !important;
+  }
+
+  .feature-card-modal[open] {
+    animation: none;
+  }
+}
+
+/* Booking form stepper — slower progress + step panel enter */
+.booking-step-indicator {
+  transition:
+    background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.booking-step-connector {
+  transition: background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.booking-step-panel {
+  animation: booking-step-in 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes booking-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-step-indicator,
+  .booking-step-connector {
+    transition: none !important;
+  }
+
+  .booking-step-panel {
+    animation: none;
+  }
+}
+
+/* Route page enter — remounted by app/template.tsx on each navigation */
+.page-enter {
+  animation: page-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -87,7 +178,7 @@ body {
   @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
 }
 
-/* Page heroes: compact below desktop; full viewport from lg (1024px) up */
+/* Page heroes: content-sized by default */
 .page-hero {
   box-sizing: border-box;
   width: 100%;
@@ -100,12 +191,25 @@ body {
   overflow-y: visible;
 }
 
-@media (min-width: 1024px) {
-  .page-hero {
-    /* Fill exactly the space below the fixed header (h-16 / 4rem) */
-    height: calc(100vh - 4rem);
+/*
+ * Home hero:
+ * - Mobile: height follows content (no forced vh/screen height — that caused multi-scroll empty space).
+ * - Tablet+: exact one-screen lock (this is the balanced layout you liked).
+ */
+.page-hero[data-home-hero='true'] {
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+@media (min-width: 768px) {
+  .page-hero[data-home-hero='true'] {
     height: calc(100dvh - 4rem);
-    min-height: calc(100svh - 4rem);
+    min-height: calc(100dvh - 4rem);
     max-height: calc(100dvh - 4rem);
     overflow: hidden;
   }
@@ -126,7 +230,7 @@ body {
 
   /* Pull the first content block up once the hero is gone */
   [data-hide-mobile-hero='true'] + section {
-    padding-top: 2rem;
+    padding-top: 1.5rem;
   }
 }
 
@@ -279,64 +383,4 @@ select:-webkit-autofill:active {
 .booking-hcaptcha-host iframe {
   max-width: none !important;
   width: 303px !important;
-}
-
-/* Sticky mobile Book now — pinned to the visual viewport bottom */
-.sticky-book-fab-root {
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  top: auto !important;
-  z-index: 40;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  width: 100%;
-  margin: 0 !important;
-  padding: 0 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
-  pointer-events: none;
-  /* Avoid transform/filter here — they create a containing block and break fixed positioning */
-  transform: none !important;
-  filter: none !important;
-  perspective: none !important;
-}
-
-.sticky-book-fab {
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(0, 10px, 0);
-  transition:
-    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
-}
-
-.sticky-book-fab--visible {
-  opacity: 1 !important;
-  pointer-events: auto;
-  transform: translate3d(0, 0, 0);
-}
-
-.sticky-book-fab--hidden {
-  opacity: 0 !important;
-  pointer-events: none;
-  transform: translate3d(0, 10px, 0);
-}
-
-.sticky-book-fab-btn {
-  transition:
-    background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sticky-book-fab {
-    transition: opacity 0.15s ease !important;
-    transform: none !important;
-  }
-
-  .sticky-book-fab--hidden {
-    transform: none !important;
-  }
 }

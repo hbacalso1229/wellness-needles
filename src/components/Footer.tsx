@@ -6,7 +6,9 @@ import ContactInfo from './ContactInfo'
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-primary/20 text-cream">
+    <footer
+      className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-primary/20 text-cream"
+    >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <Leaf
           className="absolute right-4 top-10 h-8 w-8 text-cream/40 rotate-[28deg]"
@@ -70,24 +72,24 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               <li>
-                <Link href="/about" className="text-cream/80 hover:text-cream transition-colors">
+                <Link href="/about" className="inline-block py-2 text-cream/80 hover:text-cream transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/acupuncture" className="text-cream/80 hover:text-cream transition-colors">
+                <Link href="/acupuncture" className="inline-block py-2 text-cream/80 hover:text-cream transition-colors">
                   Why Acupuncture
                 </Link>
               </li>
               <li>
-                <Link href="/chinese-medicine" className="text-cream/80 hover:text-cream transition-colors">
+                <Link href="/chinese-medicine" className="inline-block py-2 text-cream/80 hover:text-cream transition-colors">
                   Chinese Medicine
                 </Link>
               </li>
               <li>
-                <Link href="/testimonials" className="text-cream/80 hover:text-cream transition-colors">
+                <Link href="/testimonials" className="inline-block py-2 text-cream/80 hover:text-cream transition-colors">
                   Testimonials
                 </Link>
               </li>
