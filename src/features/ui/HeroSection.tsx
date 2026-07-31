@@ -41,7 +41,7 @@ export interface HeroSectionProps {
   ctaWrapperClassName?: string
   /** Whether to show floating leaf decorations */
   showFloatingLeaves?: boolean
-  /** Optional height utility classes (viewport fit is handled by `.page-hero`) */
+  /** Optional height utility classes (viewport fit on lg+ is handled by `.page-hero`) */
   heightClass?: string
   /** Custom content alignment */
   alignment?: 'left' | 'center' | 'right'
@@ -110,14 +110,14 @@ export function HeroSection({
         </div>
       )}
       
-      {/* Content Container — compact on short mobile viewports so the hero fits exactly */}
+      {/* Content Container — compact below lg; roomy inside full-viewport desktop heroes */}
       <div
-        className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} py-8 sm:py-12 md:py-16 max-md:overflow-y-auto max-md:max-h-full`}
+        className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} py-8 sm:py-10 lg:py-16`}
       >
         {/* Logo Section */}
         {logo && (
-          <div className="mb-4 sm:mb-6 md:mb-8">
-            <div className="relative mx-auto w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
+          <div className="mb-3 sm:mb-4 lg:mb-8">
+            <div className="relative mx-auto w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-48 lg:h-48">
               {logo.showGlow && (
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-accent/30 rounded-full blur-xl"></div>
               )}
@@ -154,18 +154,18 @@ export function HeroSection({
         
         {/* Text Content */}
         <div className={`${alignment === 'center' ? 'max-w-4xl mx-auto' : 'max-w-4xl'}`}>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-3 sm:mb-4 md:mb-6">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-2 sm:mb-3 lg:mb-6">
             {title}
           </h1>
           
           {subtitle && (
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 font-light">
+            <p className="text-sm sm:text-base md:text-lg lg:text-2xl mb-3 sm:mb-4 lg:mb-8 font-light">
               {subtitle}
             </p>
           )}
           
           {description && (
-            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-12 opacity-90 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg mb-5 sm:mb-6 lg:mb-12 opacity-90 max-w-2xl mx-auto">
               {description}
             </p>
           )}
@@ -222,16 +222,16 @@ export function HeroSection({
         </div>
       </div>
       
-      {/* Floating Leaf Elements */}
+      {/* Floating Leaf Elements — desktop full-viewport heroes only */}
       {showFloatingLeaves && (
         <>
-          <div className="absolute top-20 left-10 opacity-40">
+          <div className="absolute top-20 left-10 opacity-40 hidden lg:block">
             <PulsingLeaf size="large" color={textColor.replace('text-', 'text-').split('/')[0]} />
           </div>
-          <div className="absolute bottom-32 right-16 opacity-40">
+          <div className="absolute bottom-32 right-16 opacity-40 hidden lg:block">
             <PulsingLeaf color={textColor.replace('text-', 'text-').split('/')[0]} animationDelay="1s" />
           </div>
-          <div className="absolute top-1/3 right-20 opacity-50 max-sm:hidden">
+          <div className="absolute top-1/3 right-20 opacity-50 hidden lg:block">
             <PulsingLeaf 
               size="large" 
               color={textColor.replace('text-', 'text-').split('/')[0]} 
