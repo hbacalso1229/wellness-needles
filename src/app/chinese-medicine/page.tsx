@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
+import { FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const diagnosisCardClass =
@@ -164,59 +164,40 @@ export default function ChineseMedicine() {
             subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
           />
 
-          <SnapCarousel
-            slideCount={4}
-            ariaLabel="TCM treatment methods carousel"
-            trackClassName="mx-auto max-w-2xl flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4"
-          >
-            <div className={snapSlideClassName}>
-              <FeatureCard
-                flippable
-                compact
-                icon={Zap}
-                title="Acupuncture"
-                description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
-
-            <div className={snapSlideClassName}>
-              <FeatureCard
-                flippable
-                compact
-                icon={Heart}
-                title="Cupping Therapy"
-                description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
-
-            <div className={snapSlideClassName}>
-              <FeatureCard
-                flippable
-                compact
-                icon={Brain}
-                title="Moxibustion"
-                description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
-
-            <div className={snapSlideClassName}>
-              <FeatureCard
-                flippable
-                compact
-                icon={Circle}
-                title="Gua Sha"
-                description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
-                gradientFrom="from-primary/10"
-                gradientTo="to-primary/10"
-              />
-            </div>
-          </SnapCarousel>
+          <div className="grid grid-cols-2 gap-2.5 md:gap-8">
+            <FeatureCard
+              flippable
+              icon={Zap}
+              title="Acupuncture"
+              description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
+            <FeatureCard
+              flippable
+              icon={Heart}
+              title="Cupping Therapy"
+              description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
+            <FeatureCard
+              flippable
+              icon={Brain}
+              title="Moxibustion"
+              description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
+            <FeatureCard
+              flippable
+              icon={Circle}
+              title="Gua Sha"
+              description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
+              gradientFrom="from-primary/10"
+              gradientTo="to-primary/10"
+            />
+          </div>
         </div>
       </section>
 
