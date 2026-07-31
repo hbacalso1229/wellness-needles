@@ -226,7 +226,30 @@ export default function Contact() {
                       Business hours
                     </h3>
                     <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                    <ul className="space-y-0">
+                    <ul className="space-y-0 lg:hidden">
+                      {(
+                        [
+                          ['Monday - Friday', 'monday'],
+                          ['Saturday', 'saturday'],
+                          ['Sunday', 'sunday'],
+                        ] as const
+                      ).map(([label, key]) => (
+                        <li
+                          key={key}
+                          className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
+                        >
+                          <span className="text-secondary shrink-0 min-w-[7.5rem]">{label}</span>
+                          <span
+                            className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
+                            aria-hidden="true"
+                          />
+                          <span className="font-semibold text-primary shrink-0 text-right">
+                            {contactConfig.businessInfo.hours[key]}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <ul className="hidden lg:block space-y-0">
                       {(
                         [
                           ['Monday', 'monday'],

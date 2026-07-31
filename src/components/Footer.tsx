@@ -49,7 +49,8 @@ export default function Footer() {
             <p className="text-sm md:text-base text-cream/80 mb-3 md:mb-6 max-w-md leading-snug">
               {contactConfig.businessInfo.tagline} {contactConfig.businessInfo.description}
             </p>
-            <div className="flex">
+            <div>
+              <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-4">Follow us</h3>
               <a
                 href={contactConfig.socialMedia.facebook.url}
                 target="_blank"
@@ -57,10 +58,15 @@ export default function Footer() {
                 className="text-cream/80 hover:text-cream transition-colors inline-flex items-center gap-2"
                 aria-label="Visit our Facebook page"
               >
-                <svg className="w-4 h-4 md:w-5 md:h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 shrink-0 fill-current"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
-                <span className="text-sm">{contactConfig.socialMedia.facebook.displayName}</span>
+                <span className="text-sm md:text-base">{contactConfig.socialMedia.facebook.displayName}</span>
               </a>
             </div>
           </div>
