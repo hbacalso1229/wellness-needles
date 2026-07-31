@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
@@ -61,6 +61,9 @@ const TIME_SLOTS = [
   '5:45 PM',
   '6:00 PM',
 ]
+
+/** Mobile Preferred Time preview / step size (6 rows × 2 cols). */
+const MOBILE_TIME_PREVIEW = 12
 
 function parseSlotToMinutes(slot: string): number {
   const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
@@ -345,6 +348,12 @@ export default function BookingForm() {
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const [selectedDate, setSelectedDate] = useState(todayDateInputValue)
   const [selectedTime, setSelectedTime] = useState('')
+  const [visibleTimeCount, setVisibleTimeCount] = useState(MOBILE_TIME_PREVIEW)
+  const [isMobileTimeCollapse, setIsMobileTimeCollapse] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  const [timeGridMaxHeight, setTimeGridMaxHeight] = useState<number | null>(null)
+  const timeGridRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -360,6 +369,22 @@ export default function BookingForm() {
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const sync = () => {
+      const mobile = mq.matches
+      setIsMobileTimeCollapse(mobile)
+      if (!mobile) setVisibleTimeCount(MOBILE_TIME_PREVIEW)
+    }
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    if (currentStep !== 2) setVisibleTimeCount(MOBILE_TIME_PREVIEW)
+  }, [currentStep])
 
   const showSecurityCheck = isBookingEmailConfigured(features)
   const clinicLocations = contactConfig.address.locations
@@ -377,6 +402,48 @@ export default function BookingForm() {
       features.treatmentPackagesEnabled || !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
+
+  const selectedTimeIndex = selectedTime ? TIME_SLOTS.indexOf(selectedTime) : -1
+  const minVisibleTimeCount =
+    selectedTimeIndex < 0
+      ? MOBILE_TIME_PREVIEW
+      : Math.min(
+          TIME_SLOTS.length,
+          Math.ceil((selectedTimeIndex + 1) / MOBILE_TIME_PREVIEW) * MOBILE_TIME_PREVIEW
+        )
+  const effectiveVisibleTimeCount = isMobileTimeCollapse
+    ? Math.min(TIME_SLOTS.length, Math.max(visibleTimeCount, minVisibleTimeCount))
+    : TIME_SLOTS.length
+  const canShowMoreTimes =
+    isMobileTimeCollapse && effectiveVisibleTimeCount < TIME_SLOTS.length
+  const canShowLessTimes =
+    isMobileTimeCollapse && effectiveVisibleTimeCount > MOBILE_TIME_PREVIEW
+
+  useLayoutEffect(() => {
+    if (!isMobileTimeCollapse) {
+      setTimeGridMaxHeight(null)
+      return
+    }
+    const grid = timeGridRef.current
+    if (!grid) return
+
+    const measure = () => {
+      const buttons = grid.querySelectorAll<HTMLElement>('[data-time-slot]')
+      const lastVisible = buttons[effectiveVisibleTimeCount - 1]
+      if (!lastVisible) {
+        setTimeGridMaxHeight(null)
+        return
+      }
+      const gridTop = grid.getBoundingClientRect().top
+      const lastBottom = lastVisible.getBoundingClientRect().bottom
+      setTimeGridMaxHeight(Math.ceil(lastBottom - gridTop))
+    }
+
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(grid)
+    return () => ro.disconnect()
+  }, [isMobileTimeCollapse, effectiveVisibleTimeCount, selectedDate])
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
   const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
@@ -577,6 +644,7 @@ export default function BookingForm() {
     setSelectedAddOns([])
     setSelectedDate(todayDateInputValue())
     setSelectedTime('')
+    setVisibleTimeCount(MOBILE_TIME_PREVIEW)
     setFormData({
       firstName: '',
       lastName: '',
@@ -837,35 +905,103 @@ export default function BookingForm() {
                   aria-describedby={
                     fieldErrorMessage('time') ? 'booking-time-error' : undefined
                   }
-                  className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 outline-none ${
+                  className={`outline-none ${
                     hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
                   }`}
                 >
-                  {TIME_SLOTS.map((slot) => {
-                    const past = isPastTimeSlot(selectedDate, slot)
-                    const selected = selectedTime === slot
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        disabled={past}
-                        onClick={() => {
-                          setSelectedTime(slot)
-                          clearFieldError('time')
-                        }}
-                        className={`min-h-11 px-2 py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
-                          selected
-                            ? 'bg-primary text-cream'
-                            : past
-                              ? 'bg-accent/10 text-secondary/40 cursor-not-allowed'
-                              : 'bg-white border border-accent/30 text-primary hover:border-primary'
-                        }`}
-                      >
-                        {slot}
-                      </button>
-                    )
-                  })}
+                  <div
+                    ref={timeGridRef}
+                    className={`booking-time-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 ${
+                      isMobileTimeCollapse ? 'booking-time-grid--collapsible' : ''
+                    }`}
+                    style={
+                      isMobileTimeCollapse
+                        ? {
+                            maxHeight:
+                              timeGridMaxHeight ??
+                              // 6 rows × min-h-11 + 5 gaps — avoids flash before measure
+                              'calc(6 * 2.75rem + 5 * 0.5rem)',
+                          }
+                        : undefined
+                    }
+                  >
+                    {TIME_SLOTS.map((slot, index) => {
+                      const past = isPastTimeSlot(selectedDate, slot)
+                      const selected = selectedTime === slot
+                      const clipped =
+                        isMobileTimeCollapse && index >= effectiveVisibleTimeCount
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          data-time-slot=""
+                          disabled={past || clipped}
+                          tabIndex={clipped ? -1 : undefined}
+                          aria-hidden={clipped || undefined}
+                          onClick={() => {
+                            const slotIndex = TIME_SLOTS.indexOf(slot)
+                            if (slotIndex >= 0) {
+                              setVisibleTimeCount((count) =>
+                                Math.max(
+                                  count,
+                                  Math.min(
+                                    TIME_SLOTS.length,
+                                    Math.ceil((slotIndex + 1) / MOBILE_TIME_PREVIEW) *
+                                      MOBILE_TIME_PREVIEW
+                                  )
+                                )
+                              )
+                            }
+                            setSelectedTime(slot)
+                            clearFieldError('time')
+                          }}
+                          className={`min-h-11 px-2 py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                            clipped
+                              ? 'pointer-events-none opacity-0'
+                              : selected
+                                ? 'bg-primary text-cream'
+                                : past
+                                  ? 'bg-accent/10 text-secondary/40 cursor-not-allowed'
+                                  : 'bg-white border border-accent/30 text-primary hover:border-primary'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
+                {canShowMoreTimes || canShowLessTimes ? (
+                  <div className="mt-2 flex gap-2">
+                    {canShowLessTimes ? (
+                      <button
+                        type="button"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center text-sm font-medium text-primary underline-offset-2 transition-opacity duration-200 hover:underline"
+                        onClick={() =>
+                          setVisibleTimeCount((count) =>
+                            Math.max(minVisibleTimeCount, count - MOBILE_TIME_PREVIEW)
+                          )
+                        }
+                      >
+                        Show less
+                      </button>
+                    ) : null}
+                    {canShowMoreTimes ? (
+                      <button
+                        type="button"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center text-sm font-medium text-primary underline-offset-2 transition-opacity duration-200 hover:underline"
+                        aria-expanded={effectiveVisibleTimeCount < TIME_SLOTS.length}
+                        onClick={() =>
+                          setVisibleTimeCount((count) =>
+                            Math.min(TIME_SLOTS.length, count + MOBILE_TIME_PREVIEW)
+                          )
+                        }
+                      >
+                        Show more
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
                 <FieldInlineError
                   id="booking-time-error"
                   message={fieldErrorMessage('time')}

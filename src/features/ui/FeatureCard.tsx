@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { LucideIcon, X } from 'lucide-react'
+import { LucideIcon, X, ChevronRight } from 'lucide-react'
 
 interface FeatureCardProps {
   icon: LucideIcon
@@ -37,21 +37,53 @@ export function FeatureCard({
 }: FeatureCardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalClosing, setModalClosing] = useState(false)
   const [portalReady, setPortalReady] = useState(false)
   const [backdropArmed, setBackdropArmed] = useState(false)
   const teaserRef = useRef<HTMLButtonElement>(null)
   const scrollYRef = useRef(0)
   const wasModalOpenRef = useRef(false)
+  const closeTimerRef = useRef<number | null>(null)
+  const modalClosingRef = useRef(false)
   const titleId = useId()
   const descId = useId()
+
+  const MODAL_CLOSE_MS = 360
 
   useEffect(() => {
     setPortalReady(true)
   }, [])
 
+  const closeModal = () => {
+    if (!modalOpen || modalClosingRef.current) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      modalClosingRef.current = false
+      setModalClosing(false)
+      setModalOpen(false)
+      return
+    }
+
+    modalClosingRef.current = true
+    setBackdropArmed(false)
+    setModalClosing(true)
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+    }
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null
+      modalClosingRef.current = false
+      setModalOpen(false)
+      setModalClosing(false)
+    }, MODAL_CLOSE_MS)
+  }
+
   useEffect(() => {
     if (!modalOpen) {
       setBackdropArmed(false)
+      setModalClosing(false)
+      modalClosingRef.current = false
       if (wasModalOpenRef.current) {
         wasModalOpenRef.current = false
         const y = scrollYRef.current
@@ -65,19 +97,21 @@ export function FeatureCard({
 
     wasModalOpenRef.current = true
     setBackdropArmed(false)
-    const arm = window.setTimeout(() => setBackdropArmed(true), 400)
+    const arm = window.setTimeout(() => {
+      if (!modalClosingRef.current) setBackdropArmed(true)
+    }, 400)
 
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
-        setModalOpen(false)
+        closeModal()
       }
     }
 
     // Modal is mobile-only — close if viewport crosses to tablet/desktop flip UI
     const mq = window.matchMedia('(min-width: 768px)')
     const onViewportChange = () => {
-      if (mq.matches) setModalOpen(false)
+      if (mq.matches) closeModal()
     }
     onViewportChange()
     mq.addEventListener('change', onViewportChange)
@@ -88,22 +122,27 @@ export function FeatureCard({
 
     return () => {
       window.clearTimeout(arm)
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = null
+      }
       mq.removeEventListener('change', onViewportChange)
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = overflow
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lock/listeners tied to open; closeModal uses refs
   }, [modalOpen])
   const iconCircle = (
     <div
       className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:motion-safe:hover:-translate-y-3 md:motion-safe:hover:scale-125 md:motion-safe:group-hover:-translate-y-3 md:motion-safe:group-hover:scale-125 ${
         compact
-          ? 'h-10 w-10 mb-2 md:h-14 md:w-14 md:mb-3'
+          ? 'h-9 w-9 mb-1.5 md:h-14 md:w-14 md:mb-3'
           : 'h-11 w-11 mb-2 md:h-16 md:w-16 md:mb-5'
       }`}
     >
       <Icon
         className={`text-secondary/70 transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/icon:text-primary group-hover:text-primary md:motion-safe:group-hover/icon:scale-110 md:motion-safe:group-hover:scale-110 ${
-          compact ? 'h-5 w-5 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
+          compact ? 'h-4 w-4 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
         }`}
       />
     </div>
@@ -150,11 +189,12 @@ export function FeatureCard({
   }
 
   const openModal = () => {
+    if (modalClosingRef.current) return
     scrollYRef.current = window.scrollY
+    setModalClosing(false)
     setModalOpen(true)
   }
 
-  const closeModal = () => setModalOpen(false)
   const minH = compact ? 'min-h-[200px]' : 'min-h-[280px]'
   const facePad = compact ? 'p-4' : 'p-6'
   const titleClass = compact
@@ -167,10 +207,10 @@ export function FeatureCard({
     createPortal(
       <div
         className={`feature-card-modal fixed inset-0 z-[200] grid min-h-[100dvh] w-full place-items-center bg-black/50 p-4 ${
-          backdropArmed ? '' : 'pointer-events-none'
-        }`}
+          modalClosing ? 'feature-card-modal--closing' : ''
+        } ${backdropArmed && !modalClosing ? '' : 'pointer-events-none'}`}
         role="presentation"
-        onClick={backdropArmed ? closeModal : undefined}
+        onClick={backdropArmed && !modalClosing ? closeModal : undefined}
       >
         <div
           role="dialog"
@@ -183,7 +223,8 @@ export function FeatureCard({
           <button
             type="button"
             onClick={closeModal}
-            className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-secondary hover:bg-accent/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            disabled={modalClosing}
+            className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-secondary hover:bg-accent/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none"
             aria-label="Close"
           >
             <X className="h-4 w-4" strokeWidth={1.75} />
@@ -213,13 +254,30 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className="flex h-full min-h-[7rem] w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 p-2.5 sm:p-3 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          className={`flex h-full w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+            compact
+              ? 'min-h-[5.75rem] p-2'
+              : 'min-h-[7rem] p-2.5 sm:p-3'
+          }`}
         >
           {iconCircle}
-          <h3 className="font-serif text-sm sm:text-base font-semibold text-primary mb-1.5 min-h-[2.25rem] flex items-center justify-center leading-snug line-clamp-2 px-0.5">
+          <h3
+            className={`font-serif font-semibold text-primary flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
+              compact
+                ? 'mb-1 text-xs sm:text-sm min-h-[2rem]'
+                : 'mb-1 text-sm sm:text-base min-h-[2.25rem]'
+            }`}
+          >
             {title}
           </h3>
-          <div className="mx-auto h-0.5 w-7 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+          <span
+            className={`inline-flex items-center gap-0.5 text-secondary/60 tracking-wide ${
+              compact ? 'text-[0.65rem]' : 'text-xs'
+            }`}
+          >
+            Learn more
+            <ChevronRight className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} aria-hidden />
+          </span>
         </button>
         {modal}
       </div>

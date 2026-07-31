@@ -19,7 +19,7 @@ import { FeatureCard, HeroSection, SectionHeading, SnapCarousel } from '../../fe
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'group snap-start shrink-0 w-[min(62vw,14.5rem)] sm:w-[min(46vw,16.5rem)] md:w-auto bg-white rounded-xl p-3 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
 
 const conditions: {
   title: string
@@ -242,16 +242,16 @@ export default function Acupuncture() {
           >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
-                <div className="mb-2 md:mb-4 flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
-                  <Icon className="h-3.5 w-3.5 md:h-5 md:w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
+                <div className="mb-2.5 md:mb-4 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
+                  <Icon className="h-4 w-4 md:h-5 md:w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
                 </div>
-                <h3 className="font-serif text-[0.95rem] md:text-lg font-semibold text-primary mb-1 md:mb-2 leading-snug">{title}</h3>
-                <div className="mb-2 md:mb-4 h-0.5 w-7 md:w-10 rounded-full bg-gold" aria-hidden="true" />
-                <ul className="space-y-0.5 md:space-y-2.5 text-[0.8125rem] md:text-base text-secondary leading-snug">
+                <h3 className="font-serif text-base md:text-lg font-semibold text-primary mb-1.5 md:mb-2 leading-snug">{title}</h3>
+                <div className="mb-2.5 md:mb-4 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
+                <ul className="space-y-1 md:space-y-2.5 text-sm md:text-base text-secondary leading-snug">
                   {items.map((item) => (
-                    <li key={item} className="flex items-center gap-1.5 md:gap-2.5">
-                      <span className="flex h-3.5 w-3.5 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
-                        <Check className="h-2 w-2 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
+                    <li key={item} className="flex items-center gap-2 md:gap-2.5">
+                      <span className="flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
+                        <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
                       </span>
                       {item}
                     </li>
