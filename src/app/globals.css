@@ -87,22 +87,32 @@ body {
   @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
 }
 
-/* Page heroes: fill exactly the space below the fixed header (h-16 / 4rem) on all devices */
+/* Page heroes: compact below desktop; full viewport from lg (1024px) up */
 .page-hero {
   box-sizing: border-box;
   width: 100%;
-  /* Prefer dynamic viewport height so the hero matches the device screen */
-  height: calc(100vh - 4rem);
-  height: calc(100dvh - 4rem);
-  min-height: calc(100svh - 4rem);
-  max-height: calc(100dvh - 4rem);
+  height: auto;
+  min-height: 0;
+  max-height: none;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
-/* Non-home heroes: fully remove from layout below md (Tailwind hidden alone can fight min-h/py) */
-@media (max-width: 767px) {
+@media (min-width: 1024px) {
+  .page-hero {
+    /* Fill exactly the space below the fixed header (h-16 / 4rem) */
+    height: calc(100vh - 4rem);
+    height: calc(100dvh - 4rem);
+    min-height: calc(100svh - 4rem);
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
+  }
+}
+
+/* Non-home heroes: hide while burger nav is showing (below xl / 1280px) */
+@media (max-width: 1279px) {
   [data-hide-mobile-hero='true'] {
     display: none !important;
     height: 0 !important;

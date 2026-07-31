@@ -1,19 +1,21 @@
 name: Deploy — Production
 
-# Triggers on push to main (after PR from dev is merged).
+# Runs after CI succeeds on main (merge / push).
 # Also supports manual trigger via workflow_dispatch for hotfixes.
 # Add required reviewers in: Repo Settings → Environments → production
 # to enforce a manual approval gate before production deploys.
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy_production:
     name: Build & Deploy to Production (Vercel)
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -22,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

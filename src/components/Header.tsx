@@ -33,8 +33,8 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
     { href: '/acupuncture', label: 'Why Acupuncture' },
-    { href: '/testimonials', label: 'Testimonials' },
     { href: '/chinese-medicine', label: 'Chinese Medicine' },
+    { href: '/testimonials', label: 'Testimonials' },
     // { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
     { href: '/bookings', label: 'Bookings' },
@@ -74,7 +74,7 @@ export default function Header() {
     let heroObserver: IntersectionObserver | undefined
     let observedHero: HTMLElement | null = null
     const retryTimers: number[] = []
-    const mobileHeroMq = window.matchMedia('(max-width: 767px)')
+    const mobileHeroMq = window.matchMedia('(max-width: 1279px)')
 
     const getPageHero = () => document.querySelector<HTMLElement>('[data-page-hero]')
 

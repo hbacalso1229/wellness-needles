@@ -5,6 +5,15 @@ import Image from 'next/image'
 import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
+/** Drop official logos into /public/insurance/{slug}.svg (or .png) when available. */
+const insurers = [
+  { name: 'Aviva', slug: 'aviva' },
+  { name: 'Laya Healthcare', slug: 'laya' },
+  { name: 'HSF Health Plan', slug: 'hsf' },
+  { name: 'Vhi', slug: 'vhi' },
+  { name: 'GloHealth', slug: 'glohealth' },
+] as const
+
 export default function About() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
@@ -152,6 +161,39 @@ export default function About() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Insurance */}
+      <section className="py-20 bg-accent/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Insurance"
+            subtitle="We are a registered professional acupuncture clinic"
+          />
+          <div className="mx-auto max-w-3xl space-y-4 text-center text-secondary">
+            <p>
+              You may be able to claim acupuncture treatment through your health insurance,
+              depending on your provider and level of cover.
+            </p>
+            <p>
+              Please check with your insurer before your appointment. We will provide a receipt
+              for your claim after treatment.
+            </p>
+          </div>
+
+          <ul className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
+            {insurers.map((insurer) => (
+              <li
+                key={insurer.slug}
+                className="flex min-h-[4.5rem] items-center justify-center rounded-xl border border-accent/20 bg-cream px-3 py-4 text-center shadow-sm shadow-primary/5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/10"
+              >
+                <span className="text-sm font-semibold leading-snug text-primary">
+                  {insurer.name}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
