@@ -15,11 +15,11 @@ import {
   Venus,
   type LucideIcon,
 } from 'lucide-react'
-import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
+import { FeatureCard, HeroSection, SectionHeading, SnapCarousel } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  `group ${snapSlideClassName} bg-white rounded-xl p-5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`
+  'group snap-start shrink-0 w-[min(62vw,14.5rem)] sm:w-[min(46vw,16.5rem)] md:w-auto bg-white rounded-xl p-3 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
 
 const conditions: {
   title: string
@@ -111,9 +111,9 @@ export default function Acupuncture() {
             subtitle="Acupuncture works by stimulating specific points on the body to restore the natural flow of energy and promote healing"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-10 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Traditional Chinese Medicine Perspective
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -136,7 +136,7 @@ export default function Acupuncture() {
             </div>
 
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Modern Scientific Understanding
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -162,14 +162,14 @@ export default function Acupuncture() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Benefits of Acupuncture"
             subtitle="Experience comprehensive healing with proven benefits for mind and body"
           />
 
-          <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-8 lg:grid-cols-3">
             <FeatureCard
               flippable
               icon={Zap}
@@ -228,7 +228,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Conditions Treated */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Conditions We Treat"
@@ -238,20 +238,20 @@ export default function Acupuncture() {
           <SnapCarousel
             slideCount={conditions.length}
             ariaLabel="Conditions carousel"
-            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
           >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
-                  <Icon className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
+                <div className="mb-2 md:mb-4 flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
+                  <Icon className="h-3.5 w-3.5 md:h-5 md:w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-primary mb-2">{title}</h3>
-                <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                <ul className="space-y-2 text-secondary md:space-y-2.5">
+                <h3 className="font-serif text-[0.95rem] md:text-lg font-semibold text-primary mb-1 md:mb-2 leading-snug">{title}</h3>
+                <div className="mb-2 md:mb-4 h-0.5 w-7 md:w-10 rounded-full bg-gold" aria-hidden="true" />
+                <ul className="space-y-0.5 md:space-y-2.5 text-[0.8125rem] md:text-base text-secondary leading-snug">
                   {items.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
-                        <Check className="h-3 w-3 text-accent" strokeWidth={2.5} />
+                    <li key={item} className="flex items-center gap-1.5 md:gap-2.5">
+                      <span className="flex h-3.5 w-3.5 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
+                        <Check className="h-2 w-2 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
                       </span>
                       {item}
                     </li>

@@ -34,19 +34,19 @@ const benefits = [
 
 export function BenefitsSection() {
   return (
-    <section className="py-20 bg-cream">
+    <section className="py-12 md:py-16 lg:py-20 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           title="Why acupuncture works"
           subtitle="Gentle needles, lasting change — supporting your body’s own capacity to heal"
-          titleClassName="font-serif text-4xl md:text-5xl font-bold text-primary mb-3"
-          className="text-center"
+          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2 md:mb-3"
         />
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 md:gap-6 lg:gap-8">
           {benefits.map((benefit) => (
             <FeatureCard
               key={benefit.title}
+              compact
               icon={benefit.icon}
               title={benefit.title}
               description={benefit.description}
@@ -56,7 +56,7 @@ export function BenefitsSection() {
           ))}
         </div>
 
-        <p className="mt-10 text-center">
+        <p className="mt-8 md:mt-10 text-center">
           <Link
             href="/acupuncture"
             className="text-primary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"

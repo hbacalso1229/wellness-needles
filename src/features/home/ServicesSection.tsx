@@ -34,16 +34,15 @@ const services = [
 
 export function ServicesSection() {
   return (
-    <section className="py-20 bg-accent/10">
+    <section className="py-12 md:py-16 lg:py-20 bg-accent/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           title="How we can help"
           subtitle="Traditional Chinese medicine therapies chosen for your unique needs"
-          titleClassName="font-serif text-4xl md:text-5xl font-bold text-primary mb-3"
-          className="text-center"
+          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2 md:mb-3"
         />
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-6 max-w-4xl mx-auto">
           {services.map((service) => (
             <FeatureCard
               key={service.title}
@@ -57,7 +56,7 @@ export function ServicesSection() {
           ))}
         </div>
 
-        <p className="mt-10 text-center">
+        <p className="mt-8 md:mt-10 text-center">
           <Link
             href="/chinese-medicine"
             className="text-primary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"

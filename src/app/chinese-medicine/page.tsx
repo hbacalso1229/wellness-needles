@@ -7,7 +7,7 @@ import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassN
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const diagnosisCardClass =
-  'group w-full bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-[transform,box-shadow,border-color] duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+  'group w-full bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-[transform,box-shadow,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
 
 const diagnosisMethods = [
   {
@@ -68,13 +68,13 @@ export default function ChineseMedicine() {
             subtitle="Traditional Chinese Medicine is based on the understanding that health comes from balance and harmony within the body and with nature"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Core Principles
               </h3>
               <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className={`bg-primary ${principleIconClass}`}>
                     <Circle className="w-6 h-6 text-cream" />
@@ -130,7 +130,7 @@ export default function ChineseMedicine() {
             </div>
 
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Holistic Approach
               </h3>
               <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -157,7 +157,7 @@ export default function ChineseMedicine() {
       </section>
 
       {/* Treatment Methods */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="TCM Treatment Methods"
@@ -167,7 +167,7 @@ export default function ChineseMedicine() {
           <SnapCarousel
             slideCount={4}
             ariaLabel="TCM treatment methods carousel"
-            trackClassName="mx-auto max-w-2xl flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4"
+            trackClassName="mx-auto max-w-2xl flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4"
           >
             <div className={snapSlideClassName}>
               <FeatureCard
@@ -221,14 +221,14 @@ export default function ChineseMedicine() {
       </section>
 
       {/* Diagnosis Methods */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="TCM Diagnostic Methods"
             subtitle="Traditional Chinese Medicine uses unique diagnostic techniques to understand your health"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 md:items-stretch gap-5 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:items-stretch gap-2.5 md:gap-8">
             {diagnosisMethods.map((method, index) => {
               const isOpen = openDiagnosisIndexes.has(index)
               return (
@@ -248,13 +248,15 @@ export default function ChineseMedicine() {
                     })
                   }
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1 text-left">
-                      <h3 className="font-semibold text-lg text-primary mb-2">{method.title}</h3>
-                      <div className="h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                      <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">
+                        {method.title}
+                      </h3>
+                      <div className="h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
                     </div>
                     <ChevronRight
-                      className={`diagnosis-accordion-chevron h-5 w-5 shrink-0 text-secondary/50 ${
+                      className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
                         isOpen ? 'rotate-90 text-primary' : ''
                       }`}
                       strokeWidth={1.75}
@@ -271,7 +273,7 @@ export default function ChineseMedicine() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-3 text-left text-secondary diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-left text-sm md:text-base text-secondary leading-snug diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >
@@ -287,16 +289,16 @@ export default function ChineseMedicine() {
       </section>
 
       {/* Integration with Modern Medicine */}
-      <section className="py-20 bg-secondary/5">
+      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Integrative Approach"
             subtitle="Combining the best of traditional wisdom with modern medical understanding"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Complementary Care
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -319,12 +321,12 @@ export default function ChineseMedicine() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
-              <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+            <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Evidence-Based Practice
               </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <div className="space-y-4 text-secondary">
+              <div className="mb-3 md:mb-4 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
+              <div className="space-y-3 md:space-y-4 text-sm md:text-base text-secondary leading-snug">
                 <p>
                   While respecting traditional knowledge, we stay current with modern
                   research on TCM practices, ensuring our treatments meet both traditional

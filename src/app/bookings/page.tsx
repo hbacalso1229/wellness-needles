@@ -32,7 +32,7 @@ type BookingService = {
 }
 
 const panelClass =
-  'bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+  'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
 
 export default function Bookings() {
   const { features } = useBookingFeatures()
@@ -203,7 +203,7 @@ export default function Bookings() {
                   <SectionHeading
                     title="Book an appointment"
                     subtitle="Choose your service and preferred time to get started"
-                    titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                    titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
                   <BookingForm />
@@ -214,7 +214,7 @@ export default function Bookings() {
                     <SectionHeading
                       title="Our services & pricing"
                       subtitle="Professional acupuncture treatments to support your health and wellness journey"
-                      titleClassName="font-serif text-3xl font-bold text-primary mb-3"
+                      titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                       className="text-center mb-6"
                     />
                     {!calendlyEnabled && !freshaEnabled && (
@@ -270,7 +270,7 @@ export default function Bookings() {
                   </div>
 
                   {/* Tab Navigation for Pricing */}
-                  <div className={`${panelClass} !p-6 sm:!p-8`}>
+                  <div className={`${panelClass} !p-3.5 sm:!p-6 md:!p-8`}>
                     <div className="flex border-b border-accent/20 mb-6">
                       <button
                         type="button"
@@ -363,7 +363,7 @@ export default function Bookings() {
                   </div>
 
                   {calendlyEnabled && !freshaEnabled && (
-                    <div className={`${panelClass} !p-5 sm:!p-6`}>
+                    <div className={`${panelClass} !p-3.5 sm:!p-5 md:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
                         <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
                           Schedule a booking

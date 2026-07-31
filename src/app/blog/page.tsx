@@ -79,7 +79,7 @@ export default function Blog() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20 bg-earth text-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-earth text-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
@@ -97,10 +97,10 @@ export default function Blog() {
       </section>
 
       {/* Featured Post */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-primary mb-4">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-3 md:mb-4">
               Featured Article
             </h2>
           </div>
@@ -169,10 +169,10 @@ export default function Blog() {
       </section>
 
       {/* Blog Posts Grid */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-bold text-primary mb-4">
+          <div className="text-center mb-8 md:mb-12 lg:mb-16">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4">
               Latest Articles
             </h2>
             <p className="text-lg text-secondary">
@@ -236,9 +236,9 @@ export default function Blog() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-20 bg-secondary text-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-secondary text-cream">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
             Stay Connected with Wellness
           </h2>
           <p className="text-xl mb-8 opacity-90">
@@ -263,9 +263,9 @@ export default function Blog() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-primary text-cream">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl font-bold mb-6">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
             Ready to Begin Your Wellness Journey?
           </h2>
           <p className="text-xl mb-8 opacity-90">

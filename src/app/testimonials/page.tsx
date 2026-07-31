@@ -94,9 +94,9 @@ export default function Testimonials() {
           <SnapCarousel
             slideCount={2}
             ariaLabel="Success stories carousel"
-            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12"
           >
-            <div className={snapSlideClassName}>
+            <div className="snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(55vw,22rem)] md:w-auto">
               <DecorativeImageCard
                 src="/alopecia_treatment_before_after.jpeg"
                 alt="Alopecia treatment before and after results"
@@ -113,7 +113,7 @@ export default function Testimonials() {
               />
             </div>
 
-            <div className={snapSlideClassName}>
+            <div className="snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(55vw,22rem)] md:w-auto">
               <DecorativeImageCard
                 src="/skin_treatment_before_after.jpeg"
                 alt="Skin treatment before and after results"
@@ -134,14 +134,14 @@ export default function Testimonials() {
       </section>
 
       {/* Testimonials Grid */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Success Stories"
             subtitle="Illustrative examples of common treatment journeys"
             className="text-center mb-4"
           />
-          <p className="mb-16 max-w-3xl mx-auto text-sm text-secondary bg-white border border-accent/20 rounded-lg px-4 py-3 text-center shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
+          <p className="mb-8 md:mb-16 max-w-3xl mx-auto text-sm text-secondary bg-white border border-accent/20 rounded-lg px-4 py-3 text-center shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
             These stories are illustrative examples for educational purposes and are not attributed
             to verified patients. Genuine reviews will be published here once consent is obtained.
           </p>
@@ -151,17 +151,17 @@ export default function Testimonials() {
               <SnapCarousel
                 slideCount={testimonials.length}
                 ariaLabel="Patient stories carousel"
-                trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8"
+                trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8"
               >
                 {testimonials.map((testimonial, index) => (
                   <div
                     key={index}
-                    className={`group ${snapSlideClassName} relative bg-white rounded-xl p-6 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+                    className={`group ${snapSlideClassName} relative bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
                   >
-                    <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
+                    <Quote className="absolute top-3 right-3 md:top-6 md:right-6 w-6 h-6 md:w-8 md:h-8 text-accent/30" />
 
                     {/* Testimonial Text */}
-                    <p className="text-secondary mb-6 italic">
+                    <p className="text-secondary mb-4 md:mb-6 italic text-sm md:text-base leading-snug">
                       &quot;{testimonial.text}&quot;
                     </p>
 
@@ -245,7 +245,7 @@ export default function Testimonials() {
       </section>
 
       {/* Video Testimonials Section */}
-      <section className="py-20 bg-secondary/5">
+      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Video Testimonials"
@@ -255,7 +255,7 @@ export default function Testimonials() {
           <SnapCarousel
             slideCount={3}
             ariaLabel="Video testimonials carousel"
-            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
           >
             {[
               {
@@ -273,7 +273,7 @@ export default function Testimonials() {
             ].map((video) => (
               <div
                 key={video.title}
-                className={`group ${snapSlideClassName} bg-white rounded-xl p-5 md:p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+                className={`group ${snapSlideClassName} bg-white rounded-xl p-3.5 md:p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
               >
                 <div className="bg-primary/10 rounded-lg aspect-video mb-4 flex items-center justify-center">
                   <div className="text-center">

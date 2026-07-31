@@ -74,25 +74,36 @@ export function FeatureCard({
       }
     }
 
+    // Modal is mobile-only — close if viewport crosses to tablet/desktop flip UI
+    const mq = window.matchMedia('(min-width: 768px)')
+    const onViewportChange = () => {
+      if (mq.matches) setModalOpen(false)
+    }
+    onViewportChange()
+    mq.addEventListener('change', onViewportChange)
+
     document.addEventListener('keydown', onKeyDown)
     const { overflow } = document.body.style
     document.body.style.overflow = 'hidden'
 
     return () => {
       window.clearTimeout(arm)
+      mq.removeEventListener('change', onViewportChange)
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = overflow
     }
   }, [modalOpen])
   const iconCircle = (
     <div
-      className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-safe:hover:-translate-y-3 motion-safe:hover:scale-125 motion-safe:group-hover:-translate-y-3 motion-safe:group-hover:scale-125 ${
-        compact ? 'h-14 w-14 mb-3' : 'h-16 w-16 mb-5'
+      className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:motion-safe:hover:-translate-y-3 md:motion-safe:hover:scale-125 md:motion-safe:group-hover:-translate-y-3 md:motion-safe:group-hover:scale-125 ${
+        compact
+          ? 'h-10 w-10 mb-2 md:h-14 md:w-14 md:mb-3'
+          : 'h-11 w-11 mb-2 md:h-16 md:w-16 md:mb-5'
       }`}
     >
       <Icon
-        className={`text-secondary/70 transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/icon:text-primary group-hover:text-primary motion-safe:group-hover/icon:scale-110 motion-safe:group-hover:scale-110 ${
-          compact ? 'h-7 w-7' : 'h-8 w-8'
+        className={`text-secondary/70 transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/icon:text-primary group-hover:text-primary md:motion-safe:group-hover/icon:scale-110 md:motion-safe:group-hover:scale-110 ${
+          compact ? 'h-5 w-5 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
         }`}
       />
     </div>
@@ -100,15 +111,28 @@ export function FeatureCard({
 
   const staticCard = (
     <div
-      className={`text-center group rounded-lg bg-cream/80 p-6 shadow-sm card-emboss ${className}`}
+      className={`text-center group rounded-lg bg-cream/80 shadow-sm card-emboss ${
+        compact ? 'p-4 md:p-5' : 'p-5 md:p-6'
+      } ${className}`}
     >
       {iconCircle}
-      <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+      <h3
+        className={`font-serif font-semibold text-primary mb-1.5 md:mb-2 ${
+          compact ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'
+        }`}
+      >
         {title}
       </h3>
-      <div className="mx-auto mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-      <p className="text-secondary">{description}</p>
-      {footer ? <div className="mt-4">{footer}</div> : null}
+      <div
+        className={`mx-auto h-0.5 rounded-full bg-gold ${
+          compact ? 'mb-3 w-8 md:mb-4 md:w-10' : 'mb-3 w-9 md:mb-4 md:w-10'
+        }`}
+        aria-hidden="true"
+      />
+      <p className={`text-secondary ${compact ? 'text-sm md:text-base leading-snug' : ''}`}>
+        {description}
+      </p>
+      {footer ? <div className="mt-3 md:mt-4">{footer}</div> : null}
     </div>
   )
 
@@ -153,26 +177,26 @@ export function FeatureCard({
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className="relative max-h-[min(90dvh,32rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-cream p-6 text-center shadow-[0_20px_48px_rgba(45,80,22,0.25)] pointer-events-auto"
+          className="relative max-h-[min(90dvh,32rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-cream px-4 pb-4 pt-3 text-center shadow-[0_20px_48px_rgba(45,80,22,0.25)] pointer-events-auto"
           onClick={(event) => event.stopPropagation()}
         >
           <button
             type="button"
             onClick={closeModal}
-            className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-secondary hover:bg-accent/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-secondary hover:bg-accent/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Close"
           >
-            <X className="h-5 w-5" strokeWidth={1.75} />
+            <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
 
-          <h3 id={titleId} className="font-serif text-2xl font-semibold text-primary mb-2 pr-6">
+          <h3 id={titleId} className="font-serif text-lg font-semibold text-primary mb-1.5 pr-8 leading-snug">
             {title}
           </h3>
-          <div className="mx-auto mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-          <p id={descId} className="text-secondary leading-relaxed">
+          <div className="mx-auto mb-2.5 h-0.5 w-8 rounded-full bg-gold" aria-hidden="true" />
+          <p id={descId} className="text-secondary text-sm leading-snug">
             {description}
           </p>
-          {footer ? <div className="mt-4">{footer}</div> : null}
+          {footer ? <div className="mt-3">{footer}</div> : null}
         </div>
       </div>,
       document.body,
@@ -189,13 +213,13 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className="flex h-full min-h-[9.5rem] w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 p-4 sm:p-5 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          className="flex h-full min-h-[7rem] w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 p-2.5 sm:p-3 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
         >
           {iconCircle}
-          <h3 className="font-serif text-lg sm:text-xl font-semibold text-primary mb-2 min-h-[2.75rem] flex items-center justify-center leading-snug line-clamp-2 px-1">
+          <h3 className="font-serif text-sm sm:text-base font-semibold text-primary mb-1.5 min-h-[2.25rem] flex items-center justify-center leading-snug line-clamp-2 px-0.5">
             {title}
           </h3>
-          <div className="mx-auto h-0.5 w-10 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+          <div className="mx-auto h-0.5 w-7 shrink-0 rounded-full bg-gold" aria-hidden="true" />
         </button>
         {modal}
       </div>
