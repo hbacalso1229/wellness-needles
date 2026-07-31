@@ -7,7 +7,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Modern tropical/jungle design system (CSS variables + Tailwind)
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
-- Bookings via **Calendly embed** (default), **Fresha** (Admin toggle), or **legacy stepper form**
+- Bookings via **Calendly embed** (default), **Fresha** (Admin toggle), or **legacy stepper form** (appointment *request* only — see [BOOKING_PROCESS.md](BOOKING_PROCESS.md))
 - Legacy form emails via **Web3Forms** (`NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys)
 - Feature flags in `contact-config.ts`, overridable on `/admin` (browser localStorage)
 - SEO-ready meta tags and semantic HTML
@@ -131,6 +131,8 @@ Use when **Fresha booking** is the chosen live booking UI on `/admin` (mutually 
 Default placeholder: `src/lib/contact-config.ts` → `fresha.bookingUrl` (replace or override in Admin). On phones with the Fresha app installed, the OS may open the app automatically via Universal/App Links; otherwise Fresha opens in the browser.
 
 ### Calendly setup checklist
+
+Full real-world model + ops notes: [BOOKING_PROCESS.md](BOOKING_PROCESS.md).
 
 Use when **Calendly booking embed** is the chosen live booking UI on `/admin` (mutually exclusive with Fresha and the legacy form). Create **two** event types so the calendar blocks the correct length after a booking:
 

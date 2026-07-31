@@ -668,7 +668,7 @@ export default function BookingForm() {
     resetForm()
     setToast({
       message:
-        'Thank you! Your appointment request has been submitted. We will contact you within 24 hours to confirm your booking.',
+        'Thank you! Your appointment request has been submitted. We will contact you within 24 hours to confirm — your preferred time is not locked until then.',
       variant: 'success',
     })
   }
@@ -785,7 +785,7 @@ export default function BookingForm() {
           <div className="space-y-6">
             <p className="text-sm text-secondary flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-primary shrink-0" />
-              Pick your preferred date and time. We will confirm within 24 hours.
+              Pick your preferred date and time. This is a request only — we will confirm within 24 hours.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="min-w-0 w-full max-w-full">
@@ -1103,7 +1103,7 @@ export default function BookingForm() {
             </div>
 
             <p className="text-sm text-secondary text-center">
-              We will contact you within 24 hours to confirm your appointment.
+              Submitting sends an appointment request. We will contact you within 24 hours to confirm.
             </p>
 
             {showSecurityCheck && currentStep === 3 && (

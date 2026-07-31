@@ -201,8 +201,8 @@ export default function Bookings() {
               {bookingFormEnabled ? (
                 <div>
                   <SectionHeading
-                    title="Book an appointment"
-                    subtitle="Choose your service and preferred time to get started"
+                    title="Request an appointment"
+                    subtitle="Share your preferred service and time — we will confirm by email or phone. This does not lock a calendar slot."
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
@@ -244,7 +244,8 @@ export default function Bookings() {
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-4 text-center">
-                          Review services below, then continue to Fresha to choose a time.
+                          Review services below, then continue to Fresha to pick a time and
+                          confirm your booking.
                         </p>
                         {freshaReady ? (
                           <div className="flex justify-center">
@@ -366,11 +367,12 @@ export default function Bookings() {
                     <div className={`${panelClass} !p-3.5 sm:!p-5 md:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
                         <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
-                          Schedule a booking
+                          Confirm your booking
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-sm text-secondary">
-                          Pick a time — your selections above are included with the booking.
+                          Pick a time in the calendar below to confirm your appointment.
+                          Your selections above are included with the booking.
                         </p>
                       </div>
 
@@ -466,7 +468,7 @@ export default function Bookings() {
                 Prefer to call or email?
               </h3>
               <p className="mb-3 text-xs leading-snug text-secondary xl:mb-4 xl:text-sm xl:leading-normal">
-                Skip the form — we’ll help you book.
+                We can help you book by phone or email.
               </p>
               <div className="flex flex-col gap-2.5 xl:gap-3">
                 <div>
