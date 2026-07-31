@@ -10,7 +10,7 @@ import {
 } from 'react'
 
 const COMPACT_SLIDE =
-  'snap-start shrink-0 w-[min(78vw,20rem)] sm:w-[min(55vw,22rem)] md:w-auto'
+  'snap-start shrink-0 w-[min(68vw,16rem)] sm:w-[min(50vw,18rem)] md:w-auto'
 
 type SnapCarouselProps = {
   children: ReactNode

@@ -2,7 +2,9 @@
 
 This site is a **static Next.js export** (`output: 'export'`), so booking emails are sent from the browser via [Web3Forms](https://web3forms.com) — no backend API route required.
 
-Legacy stepper form submissions go to the configured inbox (default `info@wellnessneedles.ie`) when email is configured. **Calendly bookings do not use Web3Forms.**
+Legacy stepper form submissions go to the configured inbox (default `info@wellnessneedles.ie`) when email is configured. **Calendly / Fresha confirmed bookings do not use Web3Forms.**
+
+For the real-world booking model and Calendly/Fresha ops checklist, see [BOOKING_PROCESS.md](BOOKING_PROCESS.md).
 
 Setup checklists for shared deploys live in [README → Production deployment](README.md#production-deployment). Admin UI is intentionally lean (recipient / local key only).
 

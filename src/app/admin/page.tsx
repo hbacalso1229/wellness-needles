@@ -209,7 +209,7 @@ export default function AdminPage() {
             <Toggle
               id="toggle-fresha"
               label="Fresha booking"
-              description="Book now opens Fresha; the bookings page shows pricing plus a Fresha button."
+              description="Confirmed bookings on Fresha. Book now opens Fresha; the bookings page shows pricing plus a Fresha button. Use instead of Calendly, not both."
               checked={features.freshaEnabled}
               onChange={setFreshaEnabled}
             />
@@ -217,15 +217,15 @@ export default function AdminPage() {
             <Toggle
               id="toggle-calendly"
               label="Calendly booking embed"
-              description="Show the Calendly scheduler on the bookings page (service, location, and add-ons tagged into the booking)."
+              description="Confirmed bookings via Calendly on the bookings page (primary mode). Service, location, and add-ons are tagged into the event. See BOOKING_PROCESS.md for setup."
               checked={features.calendlyEnabled}
               onChange={setCalendlyEnabled}
             />
 
             <Toggle
               id="toggle-legacy-form"
-              label="Legacy stepper form"
-              description="Show the multi-step booking form (Service → Location → Date & Time → Details)."
+              label="Legacy stepper form (appointment request)"
+              description="Show a multi-step request form (not a confirmed calendar booking). Prefer Fresha or Calendly for live scheduling."
               checked={features.bookingFormEnabled}
               onChange={setBookingFormEnabled}
             />
