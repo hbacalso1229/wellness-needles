@@ -15,11 +15,11 @@ import {
   Venus,
   type LucideIcon,
 } from 'lucide-react'
-import { FeatureCard, HeroSection, SectionHeading } from '../../features'
+import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  `group ${snapSlideClassName} bg-white rounded-xl p-5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`
 
 const conditions: {
   title: string
@@ -235,7 +235,11 @@ export default function Acupuncture() {
             subtitle="Acupuncture can effectively address a wide range of health conditions"
           />
 
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+          <SnapCarousel
+            slideCount={conditions.length}
+            ariaLabel="Conditions carousel"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+          >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
@@ -243,7 +247,7 @@ export default function Acupuncture() {
                 </div>
                 <h3 className="font-serif text-lg font-semibold text-primary mb-2">{title}</h3>
                 <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                <ul className="space-y-2.5 text-secondary">
+                <ul className="space-y-2 text-secondary md:space-y-2.5">
                   {items.map((item) => (
                     <li key={item} className="flex items-center gap-2.5">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
@@ -255,14 +259,7 @@ export default function Acupuncture() {
                 </ul>
               </div>
             ))}
-          </div>
-
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          </SnapCarousel>
         </div>
       </section>
 

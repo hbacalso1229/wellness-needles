@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { FeatureCard, HeroSection, SectionHeading } from '../../features'
+import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const diagnosisCardClass =
@@ -28,8 +28,7 @@ const diagnosisMethods = [
   },
 ] as const
 
-const principleIconClass =
-  'rounded-full p-2 flex-shrink-0 shadow-[0_8px_20px_rgba(74,124,42,0.28),0_2px_8px_rgba(45,80,22,0.14)]'
+const principleIconClass = 'rounded-full p-2 flex-shrink-0'
 
 export default function ChineseMedicine() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -165,9 +164,12 @@ export default function ChineseMedicine() {
             subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
           />
 
-          {/* Mobile: horizontal scroll carousel | md+: compact 2x2 */}
-          <div className="mx-auto max-w-2xl flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+          <SnapCarousel
+            slideCount={4}
+            ariaLabel="TCM treatment methods carousel"
+            trackClassName="mx-auto max-w-2xl flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-auto md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-4"
+          >
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 compact
@@ -179,7 +181,7 @@ export default function ChineseMedicine() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 compact
@@ -191,7 +193,7 @@ export default function ChineseMedicine() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 compact
@@ -203,7 +205,7 @@ export default function ChineseMedicine() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 compact
@@ -214,15 +216,7 @@ export default function ChineseMedicine() {
                 gradientTo="to-primary/10"
               />
             </div>
-          </div>
-
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          </SnapCarousel>
         </div>
       </section>
 
