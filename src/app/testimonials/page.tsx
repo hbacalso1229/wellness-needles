@@ -222,7 +222,6 @@ export default function Testimonials() {
 
             {/* Share CTA — desktop sticky sidebar */}
             <aside
-              data-hide-sticky-book
               className="hidden xl:block order-2 w-full rounded-xl border border-accent/15 bg-accent/10 p-5 xl:sticky xl:top-24"
             >
               <h3 className="mb-1 text-base font-semibold text-primary">

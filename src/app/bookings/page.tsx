@@ -460,7 +460,6 @@ export default function Bookings() {
 
             {/* Quick call/email — compact on mobile/tablet; sticky sidebar on desktop */}
             <aside
-              data-hide-sticky-book
               className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 xl:mt-0 xl:w-full xl:p-5 xl:sticky xl:top-24"
             >
               <h3 className="mb-0.5 text-sm font-semibold text-primary xl:mb-1 xl:text-base">

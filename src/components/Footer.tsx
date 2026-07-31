@@ -7,8 +7,7 @@ import ContactInfo from './ContactInfo'
 export default function Footer() {
   return (
     <footer
-      data-hide-sticky-book
-      className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-primary/20 text-cream pb-[calc(5rem+env(safe-area-inset-bottom,0px))] xl:pb-0"
+      className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-primary/20 text-cream"
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <Leaf

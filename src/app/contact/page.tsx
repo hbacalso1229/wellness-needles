@@ -337,7 +337,6 @@ export default function Contact() {
 
             {/* Quick book — desktop sticky sidebar */}
             <aside
-              data-hide-sticky-book
               className="hidden xl:block order-2 w-full xl:sticky xl:top-24 rounded-xl border border-accent/15 bg-accent/10 p-5"
             >
               <h3 className="mb-1 text-base font-semibold text-primary">
