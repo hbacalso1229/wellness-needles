@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { LucideIcon, X } from 'lucide-react'
+import { LucideIcon, X, ChevronRight } from 'lucide-react'
 
 interface FeatureCardProps {
   icon: LucideIcon
@@ -265,15 +265,19 @@ export function FeatureCard({
             className={`font-serif font-semibold text-primary flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
               compact
                 ? 'mb-1 text-xs sm:text-sm min-h-[2rem]'
-                : 'mb-1.5 text-sm sm:text-base min-h-[2.25rem]'
+                : 'mb-1 text-sm sm:text-base min-h-[2.25rem]'
             }`}
           >
             {title}
           </h3>
-          <div
-            className={`mx-auto shrink-0 rounded-full bg-gold ${compact ? 'h-0.5 w-6' : 'h-0.5 w-7'}`}
-            aria-hidden="true"
-          />
+          <span
+            className={`inline-flex items-center gap-0.5 text-secondary/60 tracking-wide ${
+              compact ? 'text-[0.65rem]' : 'text-xs'
+            }`}
+          >
+            Learn more
+            <ChevronRight className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} aria-hidden />
+          </span>
         </button>
         {modal}
       </div>
