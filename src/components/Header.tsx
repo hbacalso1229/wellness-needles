@@ -16,9 +16,15 @@ function BookNowLabel({ compact = false }: { compact?: boolean }) {
   )
 }
 
+function normalizePathname(path: string | null) {
+  if (!path || path === '/') return '/'
+  return path.endsWith('/') ? path.slice(0, -1) : path
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = normalizePathname(usePathname())
+  const [navReady, setNavReady] = useState(false)
   const [hideHeaderBook, setHideHeaderBook] = useState(() => pathname === '/')
   const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
     useBookingCtaHref()
@@ -40,8 +46,15 @@ export default function Header() {
   const bookNowHeaderMobileClassName =
     'inline-flex items-center justify-center gap-1.5 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold normal-case shadow-md shadow-primary/20 whitespace-nowrap transition-all duration-200 hover:from-[#f0d45c] hover:to-[#c9a52f]'
 
-  const isNavActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href)
+  // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
+  useEffect(() => {
+    setNavReady(true)
+  }, [])
+
+  const isNavActive = (href: string) => {
+    if (!navReady) return false
+    return href === '/' ? pathname === '/' : pathname.startsWith(href)
+  }
 
   const navLinkClass = (href: string) => {
     const active = isNavActive(href)

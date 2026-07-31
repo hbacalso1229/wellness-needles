@@ -96,7 +96,7 @@ export default function Testimonials() {
             ariaLabel="Success stories carousel"
             trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12"
           >
-            <div className="snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(55vw,22rem)] md:w-auto">
+            <div className={snapSlideClassName}>
               <DecorativeImageCard
                 src="/alopecia_treatment_before_after.jpeg"
                 alt="Alopecia treatment before and after results"
@@ -113,7 +113,7 @@ export default function Testimonials() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(55vw,22rem)] md:w-auto">
+            <div className={snapSlideClassName}>
               <DecorativeImageCard
                 src="/skin_treatment_before_after.jpeg"
                 alt="Skin treatment before and after results"

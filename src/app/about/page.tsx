@@ -1,18 +1,69 @@
 'use client'
 
+import { useState } from 'react'
+import NextImage from 'next/image'
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
-import Image from 'next/image'
 import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
-/** Drop official logos into /public/insurance/{slug}.svg (or .png) when available. */
+/** Known logo files only — avoid requesting missing .svg/.png (404 spam). */
 const insurers = [
-  { name: 'Aviva', slug: 'aviva' },
-  { name: 'Laya Healthcare', slug: 'laya' },
-  { name: 'HSF Health Plan', slug: 'hsf' },
-  { name: 'Vhi', slug: 'vhi' },
-  { name: 'GloHealth', slug: 'glohealth' },
+  {
+    name: 'Aviva',
+    slug: 'aviva',
+    href: 'https://www.aviva.ie/',
+    logo: '/insurance/aviva.svg',
+  },
+  {
+    name: 'Laya Healthcare',
+    slug: 'laya',
+    href: 'https://www.layahealthcare.ie/',
+    logo: '/insurance/laya.png',
+  },
+  {
+    name: 'HSF Health Plan',
+    slug: 'hsf',
+    href: 'https://www.hsf.ie/',
+    logo: '/insurance/hsf.png',
+  },
+  {
+    name: 'Vhi',
+    slug: 'vhi',
+    href: 'https://www.vhi.ie/',
+    logo: '/insurance/vhi.png',
+  },
+  // GloHealth brand retired; use Irish Life Health mark (successor)
+  {
+    name: 'GloHealth',
+    slug: 'glohealth',
+    href: 'https://www.irishlifehealth.ie/',
+    logo: '/insurance/glohealth.svg',
+  },
 ] as const
+
+function InsurerLogo({
+  name,
+  logo,
+}: {
+  name: string
+  logo: string | null
+}) {
+  const [failed, setFailed] = useState(false)
+
+  if (!logo || failed) {
+    return <span className="text-sm font-semibold leading-snug text-primary">{name}</span>
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- local brand assets; svg preferred when listed
+    <img
+      src={logo}
+      alt=""
+      className="max-h-12 w-auto max-w-[9rem] object-contain sm:max-h-14 sm:max-w-[10rem]"
+      onError={() => setFailed(true)}
+    />
+  )
+}
 
 export default function About() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -56,7 +107,7 @@ export default function About() {
                 <div className="relative group mb-4 inline-block">
                   <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-accent/20 rounded-full blur-md"></div>
                   <div className="w-28 h-28 bg-accent rounded-full mx-auto overflow-hidden relative border-4 border-cream shadow-xl">
-                    <Image
+                    <NextImage
                       src="/Arkinth_clinic_founder.jpeg"
                       alt="Arkinth Garcia - Naturopath & Acupuncturist"
                       width={112}
@@ -182,15 +233,18 @@ export default function About() {
             </p>
           </div>
 
-          <ul className="mt-6 md:mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
+          <ul className="mt-6 md:mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-6 sm:gap-x-10 md:gap-x-12">
             {insurers.map((insurer) => (
-              <li
-                key={insurer.slug}
-                className="flex min-h-[4.5rem] items-center justify-center rounded-xl border border-accent/20 bg-cream px-3 py-4 text-center shadow-sm shadow-primary/5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/10"
-              >
-                <span className="text-sm font-semibold leading-snug text-primary">
-                  {insurer.name}
-                </span>
+              <li key={insurer.slug}>
+                <a
+                  href={insurer.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${insurer.name} website (opens in a new tab)`}
+                  className="inline-flex items-center justify-center opacity-90 transition-opacity duration-200 motion-safe:hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-accent/10"
+                >
+                  <InsurerLogo name={insurer.name} logo={insurer.logo} />
+                </a>
               </li>
             ))}
           </ul>
