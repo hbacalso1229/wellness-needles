@@ -153,38 +153,18 @@ export default function Header() {
     <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50 overflow-visible">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
         <div className="relative flex items-center gap-2 sm:gap-3 h-16 overflow-visible">
-          {/* Mobile: logo + brand leftmost, vertically centered in the bar */}
+          {/* Logo + wordmark — same size/centering on mobile, tablet, and desktop */}
           <Link
             href="/"
-            className="relative z-[60] flex items-center gap-3 min-w-0 shrink md:hidden"
+            className="relative z-[60] flex items-center gap-3 min-w-0 shrink xl:shrink-0"
           >
-            <span className="relative block size-11 shrink-0 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_6px_18px_rgba(45,80,22,0.22)] aspect-square">
-              <Image
-                src="/logo_wellness.jpeg"
-                alt=""
-                fill
-                sizes="44px"
-                className="object-cover object-center"
-                priority
-              />
-            </span>
-            <span className="font-serif text-base font-medium text-primary truncate tracking-wide">
-              Wellness Needles
-            </span>
-          </Link>
-
-          {/* Tablet + desktop: logo + wordmark on the left */}
-          <Link
-            href="/"
-            className="relative z-[60] hidden md:flex items-center gap-3 sm:gap-4 min-w-0 shrink xl:shrink-0"
-          >
-            <span className="relative shrink-0 translate-y-1.5 md:translate-y-2">
-              <span className="relative block size-14 md:size-16 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
+            <span className="relative shrink-0">
+              <span className="relative block size-12 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
                   fill
-                  sizes="64px"
+                  sizes="48px"
                   className="object-cover object-center"
                   priority
                 />
