@@ -8,7 +8,7 @@ import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 const interactiveCardClass =
-  'group bg-white rounded-xl p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
 
 const faqs = [
   {
@@ -34,16 +34,16 @@ function ContactDetailCard({
 }) {
   return (
     <div className={interactiveCardClass}>
-      <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent/35 bg-white transition-colors duration-300 group-hover:border-primary/40">
+      <div className="flex items-start gap-3 md:gap-4">
+        <div className="flex h-9 w-9 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-full border border-accent/35 bg-white transition-colors duration-300 group-hover:border-primary/40">
           <Icon
-            className="h-5 w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary"
+            className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary"
             strokeWidth={1.75}
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-lg text-primary mb-2">{title}</h3>
-          <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+          <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">{title}</h3>
+          <div className="mb-2 md:mb-3 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
           {children}
         </div>
       </div>
@@ -90,24 +90,22 @@ export default function Contact() {
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
-            <div className="min-w-0 order-1 xl:order-1 space-y-10">
+            <div className="min-w-0 order-1 xl:order-1 space-y-6 md:space-y-10">
               <div>
                 <SectionHeading
                   title="Get in touch"
                   subtitle="Reach us by phone, email, or visit one of our clinics"
-                  titleClassName="font-serif text-3xl font-bold text-primary mb-3"
-                  className="text-center mb-10"
                 />
 
                 {contactConfig.features.contactFormEnabled && (
-                  <div className={`${interactiveCardClass} mb-8`}>
-                    <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                  <div className={`${interactiveCardClass} mb-6 md:mb-8`}>
+                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                       Send us a message
                     </h3>
-                    <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                    <div className="mb-4 md:mb-6 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div>
                           <label
                             htmlFor="name"
@@ -147,7 +145,7 @@ export default function Contact() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div>
                           <label
                             htmlFor="phone"
@@ -221,10 +219,10 @@ export default function Contact() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 lg:items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
                   {/* Business hours — left on desktop */}
                   <div>
-                    <h3 className="font-serif text-2xl font-semibold text-primary mb-2">
+                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                       Business hours
                     </h3>
                     <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -371,15 +369,14 @@ export default function Contact() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Frequently Asked Questions"
             subtitle="Quick answers to common questions"
-            titleClassName="font-serif text-3xl font-bold text-primary mb-3"
           />
 
-          <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col gap-2.5 md:gap-6">
             {faqs.map((faq, index) => {
               const isOpen = openFaqIndexes.has(index)
               return (
@@ -399,13 +396,15 @@ export default function Contact() {
                     })
                   }
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-lg text-primary mb-2">{faq.question}</h3>
-                      <div className="h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                      <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">
+                        {faq.question}
+                      </h3>
+                      <div className="h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
                     </div>
                     <ChevronRight
-                      className={`diagnosis-accordion-chevron h-5 w-5 shrink-0 text-secondary/50 ${
+                      className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
                         isOpen ? 'rotate-90 text-primary' : ''
                       }`}
                       strokeWidth={1.75}
@@ -422,7 +421,7 @@ export default function Contact() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-3 text-secondary diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-sm md:text-base text-secondary leading-snug diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >
@@ -439,16 +438,14 @@ export default function Contact() {
 
       {/* Map Section */}
       {contactConfig.features.mapIntegrationEnabled && (
-        <section id="find-us" className="pt-12 pb-10 bg-secondary/5 scroll-mt-20">
+        <section id="find-us" className="pt-8 pb-8 md:pt-12 md:pb-10 bg-secondary/5 scroll-mt-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
               title="Find Us"
               subtitle="Visit us in Celbridge or Carlow"
-              titleClassName="font-serif text-2xl font-bold text-primary mb-3"
-              className="text-center mb-8"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-6">
               {contactConfig.address.locations.map((location) => (
                 <div
                   key={location.full}

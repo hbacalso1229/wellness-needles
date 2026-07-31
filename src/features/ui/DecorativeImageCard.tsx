@@ -77,50 +77,58 @@ export function DecorativeImageCard({
         // Wide tile frame; show the full collage (these assets are portrait — side space is expected).
         <div className="relative">
           <div
-            className={`relative flex h-80 w-full items-center justify-center rounded-xl overflow-hidden bg-white border-2 ${borderClass} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+            className={`relative flex h-52 sm:h-64 md:h-80 w-full items-center justify-center rounded-xl overflow-hidden bg-white border-2 ${borderClass} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
           >
             <Image
               src={src}
               alt={alt}
               width={640}
               height={960}
-              sizes="(max-width: 768px) 90vw, 40vw"
+              sizes="(max-width: 768px) 70vw, 40vw"
               className="max-h-full w-auto max-w-full object-contain"
               priority={false}
             />
           </div>
-          <LeafAccents
-            topRight={leafColors.topRight}
-            bottomLeft={leafColors.bottomLeft}
-          />
+          <div className="hidden sm:contents">
+            <LeafAccents
+              topRight={leafColors.topRight}
+              bottomLeft={leafColors.bottomLeft}
+            />
+          </div>
         </div>
       ) : (
         <div className="relative">
           <div
-            className={`relative h-72 w-full rounded-xl overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+            className={`relative h-52 sm:h-64 md:h-72 w-full rounded-xl overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
           >
             <Image
               src={src}
               alt={alt}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              className="object-cover object-center md:group-hover:scale-105 transition-transform duration-500"
             />
             <div
               className={`absolute inset-0 rounded-xl border-2 ${borderClass} transition-all duration-300 pointer-events-none`}
             />
           </div>
-          <LeafAccents
-            topRight={leafColors.topRight}
-            bottomLeft={leafColors.bottomLeft}
-          />
+          <div className="hidden sm:contents">
+            <LeafAccents
+              topRight={leafColors.topRight}
+              bottomLeft={leafColors.bottomLeft}
+            />
+          </div>
         </div>
       )}
 
       {title && (
-        <div className="mt-4 text-center">
-          <h4 className="font-semibold text-primary">{title}</h4>
-          {description && <p className="text-sm text-secondary mt-1">{description}</p>}
+        <div className="mt-2.5 md:mt-4 text-center px-0.5">
+          <h4 className="font-semibold text-base md:text-lg text-primary leading-snug">{title}</h4>
+          {description && (
+            <p className="text-xs md:text-sm text-secondary mt-1 leading-snug line-clamp-2 md:line-clamp-none">
+              {description}
+            </p>
+          )}
         </div>
       )}
     </div>

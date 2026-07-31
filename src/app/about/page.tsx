@@ -43,9 +43,9 @@ export default function About() {
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top row: Practitioner (left) + Mission/Vision (right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 lg:gap-12 items-stretch mb-8 md:mb-12">
             {/* Your Practitioner tile */}
-            <div className="bg-secondary/5 rounded-xl p-6 sm:p-8 text-center shadow-md relative overflow-hidden border border-accent/20 card-emboss flex flex-col justify-center">
+            <div className="bg-secondary/5 rounded-xl p-3.5 md:p-8 text-center shadow-md relative overflow-hidden border border-accent/20 card-emboss flex flex-col justify-center">
               <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-gold/10 to-accent/10 rounded-full -translate-x-8 -translate-y-8"></div>
               <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-full translate-x-12 translate-y-12"></div>
 
@@ -78,7 +78,7 @@ export default function About() {
                   </div>
                 </div>
 
-                <h3 className="font-serif text-xl font-semibold text-primary mb-1">
+                <h3 className="font-serif text-lg md:text-xl font-semibold text-primary mb-1">
                   Arkinth Garcia
                 </h3>
                 <p className="text-secondary text-sm mb-2">Naturopath &amp; Acupuncturist</p>
@@ -89,37 +89,37 @@ export default function About() {
             </div>
 
             {/* Mission / Vision / Values + image tile */}
-            <div className="bg-cream rounded-lg p-6 sm:p-8">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary rounded-full p-3 shrink-0">
-                    <Target className="w-6 h-6 text-cream" />
+            <div className="bg-cream rounded-lg p-3.5 md:p-8">
+              <div className="space-y-4 md:space-y-6">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="bg-primary rounded-full p-2.5 md:p-3 shrink-0">
+                    <Target className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-primary">Our Mission</h3>
-                    <p className="text-secondary">
+                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Mission</h3>
+                    <p className="text-sm md:text-base text-secondary leading-snug">
                       To restore balance and promote healing through authentic traditional Chinese medicine
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="bg-secondary rounded-full p-3 shrink-0">
-                    <Heart className="w-6 h-6 text-cream" />
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="bg-secondary rounded-full p-2.5 md:p-3 shrink-0">
+                    <Heart className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-primary">Our Vision</h3>
-                    <p className="text-secondary">
+                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Vision</h3>
+                    <p className="text-sm md:text-base text-secondary leading-snug">
                       A community where holistic wellness is accessible to all who seek healing
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="bg-accent rounded-full p-3 shrink-0">
-                    <Shield className="w-6 h-6 text-cream" />
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="bg-accent rounded-full p-2.5 md:p-3 shrink-0">
+                    <Shield className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-primary">Our Values</h3>
-                    <p className="text-secondary">
+                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Values</h3>
+                    <p className="text-sm md:text-base text-secondary leading-snug">
                       Authenticity, compassion, and dedication to the highest standards of care
                     </p>
                   </div>
@@ -130,7 +130,7 @@ export default function About() {
 
           {/* About Arkinth Garcia — full width below tiles */}
           <div>
-            <h2 className="font-serif text-4xl font-bold text-primary mb-6">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-4 md:mb-6">
               About Arkinth Garcia
             </h2>
             <div className="space-y-4 text-secondary">
@@ -165,7 +165,7 @@ export default function About() {
       </section>
 
       {/* Insurance */}
-      <section className="py-20 bg-accent/10">
+      <section className="py-12 md:py-16 lg:py-20 bg-accent/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Insurance"
@@ -182,7 +182,7 @@ export default function About() {
             </p>
           </div>
 
-          <ul className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
+          <ul className="mt-6 md:mt-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
             {insurers.map((insurer) => (
               <li
                 key={insurer.slug}
@@ -198,7 +198,7 @@ export default function About() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Why Choose Wellness Needles?"
@@ -208,7 +208,7 @@ export default function About() {
           <SnapCarousel
             slideCount={3}
             ariaLabel="Why choose us carousel"
-            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
           >
             <div className={snapSlideClassName}>
               <FeatureCard

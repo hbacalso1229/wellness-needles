@@ -191,7 +191,7 @@ body {
 
 /* Interactive marketing / content tiles */
 .card-emboss {
-  @apply transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
+  @apply transition-all duration-200 md:motion-safe:hover:-translate-y-0.5 md:hover:shadow-md md:hover:shadow-primary/10;
 }
 
 /* Page heroes: content-sized by default */
