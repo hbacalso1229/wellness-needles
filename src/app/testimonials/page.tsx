@@ -1,7 +1,7 @@
 'use client'
 
 import { Star, Quote, Heart, CheckCircle, User } from 'lucide-react'
-import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading } from '../../features'
+import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -91,9 +91,12 @@ export default function Testimonials() {
             subtitle="Visual evidence of our patients' healing journeys"
           />
           
-          {/* Mobile: horizontal scroll carousel | md: 2-col */}
-          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+          <SnapCarousel
+            slideCount={2}
+            ariaLabel="Success stories carousel"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12"
+          >
+            <div className={snapSlideClassName}>
               <DecorativeImageCard
                 src="/alopecia_treatment_before_after.jpeg"
                 alt="Alopecia treatment before and after results"
@@ -110,7 +113,7 @@ export default function Testimonials() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <DecorativeImageCard
                 src="/skin_treatment_before_after.jpeg"
                 alt="Skin treatment before and after results"
@@ -126,15 +129,7 @@ export default function Testimonials() {
                 className="text-center"
               />
             </div>
-          </div>
-
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          </SnapCarousel>
         </div>
       </section>
 
@@ -153,12 +148,15 @@ export default function Testimonials() {
 
           <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
             <div className="min-w-0">
-              {/* Mobile: horizontal scroll carousel | md: 2-col */}
-              <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8">
+              <SnapCarousel
+                slideCount={testimonials.length}
+                ariaLabel="Patient stories carousel"
+                trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8"
+              >
                 {testimonials.map((testimonial, index) => (
                   <div
                     key={index}
-                    className="group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto relative bg-white rounded-xl p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]"
+                    className={`group ${snapSlideClassName} relative bg-white rounded-xl p-6 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
                   >
                     <Quote className="absolute top-6 right-6 w-8 h-8 text-accent/30" />
 
@@ -209,15 +207,7 @@ export default function Testimonials() {
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Swipe hint — mobile only */}
-              <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-                <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-                <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </div>
+              </SnapCarousel>
             </div>
 
             {/* Share CTA — desktop sticky sidebar */}
@@ -262,8 +252,11 @@ export default function Testimonials() {
             subtitle="Watch our patients share their healing experiences"
           />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
+          <SnapCarousel
+            slideCount={3}
+            ariaLabel="Video testimonials carousel"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+          >
             {[
               {
                 title: 'Pain Relief Success',
@@ -280,7 +273,7 @@ export default function Testimonials() {
             ].map((video) => (
               <div
                 key={video.title}
-                className="group snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto bg-white rounded-xl p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]"
+                className={`group ${snapSlideClassName} bg-white rounded-xl p-5 md:p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
               >
                 <div className="bg-primary/10 rounded-lg aspect-video mb-4 flex items-center justify-center">
                   <div className="text-center">
@@ -295,15 +288,7 @@ export default function Testimonials() {
                 <p className="text-secondary text-sm">{video.description}</p>
               </div>
             ))}
-          </div>
-
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          </SnapCarousel>
         </div>
       </section>
     </div>

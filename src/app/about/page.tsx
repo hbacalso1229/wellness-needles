@@ -2,7 +2,7 @@
 
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
 import Image from 'next/image'
-import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 /** Drop official logos into /public/insurance/{slug}.svg (or .png) when available. */
@@ -205,9 +205,12 @@ export default function About() {
             subtitle="Committed to providing the highest quality care with authentic traditional practices and personal experience"
           />
 
-          {/* Mobile: horizontal scroll carousel | md: 2-col | lg: 3-col */}
-          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8">
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+          <SnapCarousel
+            slideCount={3}
+            ariaLabel="Why choose us carousel"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+          >
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 icon={Award}
@@ -218,7 +221,7 @@ export default function About() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 icon={Clock}
@@ -229,7 +232,7 @@ export default function About() {
               />
             </div>
 
-            <div className="snap-start shrink-0 w-[80vw] sm:w-[55vw] md:w-auto">
+            <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 icon={Heart}
@@ -239,15 +242,7 @@ export default function About() {
                 gradientTo="to-accent/10"
               />
             </div>
-          </div>
-
-          {/* Swipe hint — mobile only */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 md:hidden" aria-hidden="true">
-            <span className="text-xs text-secondary/60 tracking-wide">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 text-secondary/50" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </div>
+          </SnapCarousel>
         </div>
       </section>
     </div>

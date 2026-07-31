@@ -165,9 +165,6 @@ export function FeatureCard({
             <X className="h-5 w-5" strokeWidth={1.75} />
           </button>
 
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white">
-            <Icon className="h-8 w-8 text-secondary/70" strokeWidth={1.75} />
-          </div>
           <h3 id={titleId} className="font-serif text-2xl font-semibold text-primary mb-2 pr-6">
             {title}
           </h3>
@@ -182,9 +179,9 @@ export function FeatureCard({
     )
 
   return (
-    <>
+    <div className={`h-full ${className}`}>
       {/* Mobile: compact teaser → modal */}
-      <div className="md:hidden">
+      <div className="h-full md:hidden">
         <button
           ref={teaserRef}
           type="button"
@@ -192,19 +189,19 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className={`w-full text-center group rounded-lg bg-cream/80 p-5 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${className}`}
+          className="flex h-full min-h-[9.5rem] w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 p-4 sm:p-5 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
         >
           {iconCircle}
-          <h3 className="font-serif text-xl font-semibold text-primary mb-2">
+          <h3 className="font-serif text-lg sm:text-xl font-semibold text-primary mb-2 min-h-[2.75rem] flex items-center justify-center leading-snug line-clamp-2 px-1">
             {title}
           </h3>
-          <div className="mx-auto h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+          <div className="mx-auto h-0.5 w-10 shrink-0 rounded-full bg-gold" aria-hidden="true" />
         </button>
         {modal}
       </div>
 
       {/* Tablet + desktop: 3D flip */}
-      <div className={`hidden md:block [perspective:1000px] ${minH} ${className}`}>
+      <div className={`hidden md:block [perspective:1000px] ${minH}`}>
         <div
           role="button"
           tabIndex={0}
@@ -270,6 +267,6 @@ export function FeatureCard({
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
