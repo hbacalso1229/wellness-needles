@@ -231,9 +231,8 @@ export default function Contact() {
                     <ul className="space-y-0 lg:hidden">
                       {(
                         [
-                          ['Monday - Friday', 'monday'],
+                          ['Sunday - Friday', 'sunday'],
                           ['Saturday', 'saturday'],
-                          ['Sunday', 'sunday'],
                         ] as const
                       ).map(([label, key]) => (
                         <li
