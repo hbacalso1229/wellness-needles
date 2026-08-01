@@ -290,7 +290,7 @@ export default function Contact() {
                       </p>
                       <a
                         href={contactConfig.phone.href}
-                        className="block font-semibold text-primary hover:text-secondary transition-colors"
+                        className="block font-semibold text-[var(--text-dark)] hover:text-primary transition-colors"
                       >
                         {contactConfig.phone.displayText}
                       </a>
@@ -302,7 +302,7 @@ export default function Contact() {
                       </p>
                       <a
                         href={contactConfig.email.href}
-                        className="block font-semibold text-primary hover:text-secondary transition-colors"
+                        className="block font-semibold text-[var(--text-dark)] hover:text-primary transition-colors"
                       >
                         {contactConfig.email.address}
                       </a>
@@ -312,10 +312,10 @@ export default function Contact() {
                       {contactConfig.features.mapIntegrationEnabled ? (
                         <>
                           <p className="text-secondary text-sm mb-2">Find us</p>
-                          <p className="mb-2">
-                            <span className="font-semibold text-primary">Celbridge</span>
+                          <p className="mb-2 text-[var(--text-dark)]">
+                            <span className="font-semibold">Celbridge</span>
                             {' and '}
-                            <span className="font-semibold text-primary">Carlow</span>
+                            <span className="font-semibold">Carlow</span>
                           </p>
                           <a
                             href="#find-us"

@@ -163,11 +163,6 @@ const inputClassName =
 const fieldErrorClassName =
   'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
 
-const dateInputClassName = `${inputClassName} booking-date-input`
-/** Keep 1px border + inset ring so mobile date inputs don’t grow past the card. */
-const dateInputErrorClassName =
-  `${inputClassName} booking-date-input !border-red-500 ring-2 ring-inset ring-red-400 focus:ring-red-400 bg-red-50/40`
-
 function RequiredMark() {
   return (
     <span className="text-red-600" aria-hidden="true">
@@ -417,23 +412,6 @@ export default function BookingForm() {
     const name = e.target.name
     const value =
       name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
-
-    // Mobile WebKit often allows future dates despite `max` — reject them.
-    if (name === 'dateOfBirth' && isFutureDateInputValue(value)) {
-      setFormData({
-        ...formData,
-        dateOfBirth: '',
-      })
-      setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
-      setFieldErrorMessages((prev) => ({
-        ...prev,
-        dateOfBirth: 'Date of birth cannot be in the future.',
-      }))
-      return
-    }
-    if (name === 'dateOfBirth') {
-      clearFieldError('dateOfBirth')
-    }
 
     setFormData({
       ...formData,
@@ -972,37 +950,35 @@ export default function BookingForm() {
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
                     Date of Birth <RequiredMark />
                   </label>
-                  <div className="booking-date-field">
-                    <input
-                      type="date"
+                  <div className="booking-date-field booking-date-field--picker relative">
+                    <BookingDatePicker
                       id="dateOfBirth"
-                      name="dateOfBirth"
                       value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      onBlur={(e) => {
-                        const value = e.target.value
-                        if (isFutureDateInputValue(value)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            dateOfBirth: '',
-                          }))
+                      min="1920-01-01"
+                      max={todayDateInputValue()}
+                      disableClosedDays={false}
+                      initialView="max"
+                      placeholder="Select date of birth"
+                      dialogLabel="Choose date of birth"
+                      footerNote="Future dates are not available"
+                      hasError={hasFieldError('dateOfBirth')}
+                      aria-invalid={hasFieldError('dateOfBirth')}
+                      aria-describedby={
+                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
+                      }
+                      onChange={(nextDate) => {
+                        if (isFutureDateInputValue(nextDate)) {
+                          setFormData((prev) => ({ ...prev, dateOfBirth: '' }))
                           setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
                           setFieldErrorMessages((prev) => ({
                             ...prev,
                             dateOfBirth: 'Date of birth cannot be in the future.',
                           }))
+                          return
                         }
+                        setFormData((prev) => ({ ...prev, dateOfBirth: nextDate }))
+                        clearFieldError('dateOfBirth')
                       }}
-                      max={todayDateInputValue()}
-                      aria-invalid={hasFieldError('dateOfBirth')}
-                      aria-describedby={
-                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
-                      }
-                      className={
-                        hasFieldError('dateOfBirth')
-                          ? dateInputErrorClassName
-                          : dateInputClassName
-                      }
                     />
                   </div>
                   <FieldInlineError
