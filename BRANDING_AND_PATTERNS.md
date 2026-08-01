@@ -30,7 +30,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | `light-green` | `#a7c957` | Highlights (sparingly) |
 | `cream` | `#f9f7f4` | Page / section backgrounds |
 | `gold` | `#d4af37` | Primary conversion buttons, section flourish rules |
-| `text-dark` | `#2c3e50` | Legacy body foreground token |
+| `text-dark` | `#2c3e50` | Body copy, form values, calendar day numbers |
 | `text-light` | `#7f8c8d` | Muted meta |
 | `blue-*` | logo blues | Minor accents only (not page themes) |
 
@@ -43,7 +43,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 - Gold = **conversion** (Book Appointment) and **section flourish rules**, not every card title underline.
 - Prefer border intensify + lift on hover over `shadow-primary/*` / `shadow-gold/*` washes.
 - Supporting paragraphs use `text-secondary` (`text-dark`); headings stay `text-primary` (forest green).
-
+- **Contact / booking values** (phone, email, clinic names, hours times, calendar numbers): use `text-[var(--text-dark)]` — not `text-primary`. Reserve forest green for headings, icons, and selected calendar chrome.
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
 
 ---
@@ -133,6 +133,8 @@ Bookings pattern:
 
 **Steps:** Service → Location → Date & Time → Your details.
 
+**Step nav:** primary button label is **Continue** (not Next). Final step: **Request appointment**.
+
 **Your details (confirmed personal fields only):**
 
 | Field | Required |
@@ -151,6 +153,35 @@ Bookings pattern:
 - Cards use the same `booking-select-card` pattern as location/service selection.
 - Soft-disable a range when the selected date is today and that window has already ended.
 - Email payload sends a human-readable label (e.g. `Morning (9:00 AM – 12:00 PM)`).
+
+### Date picker (`BookingDatePicker` in `src/features/ui/BookingDatePicker.tsx`)
+
+Shared custom calendar for **Preferred Date** and **Date of birth** — do not use native `type="date"` for these fields.
+
+| | Preferred date | Date of birth |
+|---|---|---|
+| Saturdays | Disabled (clinic closed) | Selectable |
+| Range | `min` = first open day; years through **current year + 1** | `min` ≈ 1920; `max` = today |
+| Default open | First bookable day | Current month/year (`initialView="max"`) |
+
+**Chrome (match brand green, not purple):**
+
+- Header: uppercase **month** toggle (dark text) + **year** toggle (`text-primary`) with chevrons; prev/next on the right
+- Custom month/year popovers anchored under each toggle (not native `<select>`)
+- Out-of-range months: disabled + muted — **no “N/A” / “Future” labels** in the list
+- Day grid: adjacent-month days faded; in-month days `text-dark`
+- **Selected:** solid `bg-primary` circle + **white** number
+- **Hover:** `rounded-full` + soft `bg-accent/40` (circle, same shape as selected)
+- Footers: “Closed Saturdays · Sunday–Friday” / “Future dates are not available”
+
+### Contact hours & detail values
+
+Source: `src/lib/contact-config.ts` (`businessInfo.hours` / `hoursDisplay`).
+
+- **Sunday–Friday:** 9:00 AM – 8:00 PM  
+- **Saturday:** Closed  
+
+Contact detail values (phone, email, Celbridge / Carlow, hour strings): **`text-dark`**, not primary green. Section titles stay `text-primary`.
 
 ### Compact card grids (tablet / desktop)
 
@@ -198,7 +229,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - Gold Call primary → Or → outline email secondary
 - Compact mobile button sizing
 - Details step: name, email, phone, **required DOB** only — no Health Information block
-- Date/Time: preferred date + Morning / Afternoon / Evening range cards; past ranges disabled for today
+- Date/Time: custom `BookingDatePicker` + Morning / Afternoon / Evening range cards; Saturdays disabled; past ranges disabled for today
+- Step CTA: **Continue** → final **Request appointment**
 
 ### Chinese medicine
 
@@ -237,7 +269,10 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Mobile: compact padding/type for sidebar CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
 - [ ] Testimonials / proof: unique names; structured Before/After over DIY collage chrome
 - [ ] Booking details: DOB required; no Health Information fields reintroduced without product sign-off
-- [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today
+- [ ] Booking dates use `BookingDatePicker` (not native date); Saturdays closed for preferred date; DOB blocks future dates
+- [ ] Calendar: green selected circle + white text; circular sage hover; month/year popovers; no N/A labels
+- [ ] Contact values / hours use `text-dark`; hours Sunday–Friday 9–8, Saturday closed
+- [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today; step CTA **Continue**
 - [ ] Motion uses `motion-safe:` and stays subtle
 
 ---
@@ -253,7 +288,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 | FeatureCard `elevated` | `src/features/ui/FeatureCard.tsx` |
 | Header Book CTA | `src/components/Header.tsx` |
 | Booking form | `src/components/BookingForm.tsx` |
+| Date picker (preferred + DOB) | `src/features/ui/BookingDatePicker.tsx` |
 | Time range cards | `src/features/ui/TimeRangeCards.tsx` |
 | Booking email payload | `src/lib/send-booking-email.ts` |
-| Contact / booking config | `src/lib/contact-config.ts` |
+| Contact / booking config (hours, inbox) | `src/lib/contact-config.ts` |
 | Result photos | `public/results/` |
