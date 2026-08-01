@@ -59,7 +59,7 @@ function InsurerLogo({
     <img
       src={logo}
       alt=""
-      className="max-h-12 w-auto max-w-[9rem] object-contain sm:max-h-14 sm:max-w-[10rem]"
+      className="max-h-10 w-auto max-w-[7.5rem] object-contain md:max-h-14 md:max-w-[10rem]"
       onError={() => setFailed(true)}
     />
   )
@@ -265,14 +265,15 @@ export default function About() {
       </section>
 
       {/* Insurance */}
-      <section className="py-12 md:py-16 lg:py-20 bg-accent/10">
+      <section className="py-8 md:py-16 lg:py-20 bg-accent/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Insurance"
-            subtitle="We are a registered professional acupuncture clinic"
-            className="text-center mb-3 md:mb-4"
+            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 md:mb-3"
+            className="text-center mb-2 md:mb-4"
           />
-          <div className="mx-auto max-w-3xl space-y-4 text-center text-secondary">
+          <div className="mx-auto max-w-3xl space-y-2 md:space-y-3 text-center text-sm md:text-base leading-snug md:leading-relaxed text-secondary">
+            <p>We are a registered professional acupuncture clinic</p>
             <p>
               You may be able to claim acupuncture treatment through your health insurance,
               depending on your provider and level of cover.
@@ -283,7 +284,7 @@ export default function About() {
             </p>
           </div>
 
-          <ul className="mt-6 md:mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-6 sm:gap-x-10 md:gap-x-12">
+          <ul className="mt-5 md:mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:gap-x-8 sm:gap-y-5 md:gap-x-12 md:gap-y-6">
             {insurers.map((insurer) => (
               <li key={insurer.slug}>
                 <a
