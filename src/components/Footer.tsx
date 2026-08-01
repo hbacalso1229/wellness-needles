@@ -1,36 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Leaf } from 'lucide-react'
 import { contactConfig } from '../lib/contact-config'
 import ContactInfo from './ContactInfo'
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-primary text-cream">
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <Leaf
-          className="absolute right-4 top-8 h-6 w-6 md:h-8 md:w-8 text-cream/25 rotate-[28deg]"
-          strokeWidth={1.5}
-        />
-        <Leaf
-          className="absolute right-20 top-24 h-4 w-4 text-cream/20 -rotate-12 hidden sm:block"
-          strokeWidth={1.5}
-        />
-        <Leaf
-          className="absolute right-10 bottom-20 h-6 w-6 md:h-8 md:w-8 text-cream/25 rotate-[40deg]"
-          strokeWidth={1.5}
-        />
-        <Leaf
-          className="absolute left-8 bottom-12 h-4 w-4 text-cream/20 -rotate-45"
-          strokeWidth={1.5}
-        />
-        <Leaf
-          className="absolute left-[42%] top-12 h-4 w-4 text-cream/20 rotate-[15deg] hidden md:block"
-          strokeWidth={1.5}
-        />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
+    <footer className="bg-primary text-cream">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-2">

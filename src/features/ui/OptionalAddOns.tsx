@@ -24,9 +24,9 @@ function iconForAddOn(id: string): LucideIcon {
 export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOnsProps) {
   return (
     <div>
-      <h3 className="font-serif text-xl font-bold text-primary mb-2">Optional add-ons</h3>
+      <h3 className="mb-2 font-serif text-xl font-bold text-primary">Optional add-ons</h3>
       <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {addOns.map((addOn) => {
           const selected = selectedIds.includes(addOn.id)
           const Icon = iconForAddOn(addOn.id)
@@ -34,43 +34,44 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           return (
             <label
               key={addOn.id}
-              className={`relative block p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+              className={`booking-select-card relative block box-border cursor-pointer rounded-xl border-2 p-4 ${
                 selected
-                  ? 'border-2 border-primary bg-primary/5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
-                  : 'border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
               }`}
             >
               <input
                 type="checkbox"
                 checked={selected}
                 onChange={() => onToggle(addOn.id)}
-                className="sr-only"
+                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                aria-label={addOn.name}
               />
-              {selected && (
-                <CheckCircle
-                  className="absolute top-3 right-3 w-5 h-5 text-primary"
-                  aria-hidden
-                />
-              )}
-              <div className="flex items-start gap-3 pr-7">
+              <CheckCircle
+                className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
+                  selected ? 'opacity-100' : 'opacity-0'
+                }`}
+                aria-hidden
+              />
+              <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-7">
                 <span
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                  className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
                     selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                   }`}
                 >
-                  <Icon className="w-5 h-5" aria-hidden />
+                  <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex justify-between items-start gap-3 mb-1">
-                    <h4 className="font-semibold text-primary leading-snug min-w-0">
+                  <div className="mb-1 flex items-start justify-between gap-3">
+                    <h4 className="min-w-0 font-semibold leading-snug text-primary">
                       {addOn.name}
                     </h4>
                     {/^\s*free\b/i.test(addOn.price) ? (
-                      <p className="text-sm font-semibold text-accent text-right shrink-0 sm:text-base">
+                      <p className="shrink-0 text-right text-sm font-semibold text-accent sm:text-base">
                         {addOn.price}
                       </p>
                     ) : (
-                      <p className="text-sm font-semibold text-secondary text-right shrink-0 sm:text-base">
+                      <p className="shrink-0 text-right text-sm font-semibold text-secondary sm:text-base">
                         +{addOn.price} add-on
                       </p>
                     )}
@@ -82,7 +83,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           )
         })}
       </div>
-      <p className="text-xs text-secondary mt-2 px-0.5">
+      <p className="mt-2 px-0.5 text-xs text-secondary">
         * Add-ons can only be booked in combination with an acupuncture session
       </p>
     </div>

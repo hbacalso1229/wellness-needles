@@ -8,7 +8,10 @@ import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 const interactiveCardClass =
-  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25'
+
+const faqCardClass =
+  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25'
 
 const faqs = [
   {
@@ -42,8 +45,7 @@ function ContactDetailCard({
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">{title}</h3>
-          <div className="mb-2 md:mb-3 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
+          <h3 className="font-semibold text-base md:text-lg text-primary mb-2 md:mb-3 leading-snug">{title}</h3>
           {children}
         </div>
       </div>
@@ -406,7 +408,7 @@ export default function Contact() {
                 <button
                   key={faq.question}
                   type="button"
-                  className={`${interactiveCardClass} w-full text-left cursor-pointer`}
+                  className={`${faqCardClass} w-full text-left cursor-pointer`}
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${index}`}
                   id={`faq-question-${index}`}
@@ -421,10 +423,9 @@ export default function Contact() {
                 >
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">
+                      <h3 className="font-semibold text-base md:text-lg text-primary leading-snug">
                         {faq.question}
                       </h3>
-                      <div className="h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
                     </div>
                     <ChevronRight
                       className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${

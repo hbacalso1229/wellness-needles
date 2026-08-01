@@ -229,9 +229,24 @@ body {
   background: var(--secondary-green);
 }
 
-/* Interactive marketing / content tiles */
+/* Embossed marketing cards — hover lift on md+ (static / non-flip cards) */
 .card-emboss {
   @apply transition-all duration-200 md:motion-safe:hover:-translate-y-0.5 md:hover:shadow-md md:hover:shadow-primary/10;
+}
+
+/* Booking selectable cards — avoid global * { transition: all } snap/jump */
+.booking-select-card {
+  transition:
+    border-color 0.35s ease,
+    background-color 0.35s ease !important;
+}
+
+.booking-select-card__check,
+.booking-select-card__icon {
+  transition:
+    opacity 0.35s ease,
+    color 0.35s ease,
+    background-color 0.35s ease !important;
 }
 
 /* Page heroes: content-sized by default */

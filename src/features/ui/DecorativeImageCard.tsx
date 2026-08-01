@@ -1,19 +1,15 @@
 'use client'
 
 import Image from 'next/image'
-import { PulsingLeaf } from './PulsingLeaf'
 
 interface DecorativeImageCardProps {
   src: string
   alt: string
   title?: string
   description?: string
-  gradientFrom: string
-  gradientTo: string
-  leafColors?: {
-    topRight: string
-    bottomLeft: string
-  }
+  /** Used for cover-mode gradient fill behind the image. */
+  gradientFrom?: string
+  gradientTo?: string
   className?: string
   /**
    * cover = fill a fixed landscape tile (home feature photos).
@@ -22,110 +18,53 @@ interface DecorativeImageCardProps {
   objectFit?: 'cover' | 'contain'
 }
 
-const borderClasses: Record<string, string> = {
-  'from-primary/5': 'border-primary/20 group-hover:border-primary/40',
-  'from-secondary/5': 'border-secondary/20 group-hover:border-secondary/40',
-  'from-accent/5': 'border-accent/20 group-hover:border-accent/40',
-  'from-primary/10': 'border-primary/20 group-hover:border-primary/40',
-  'from-secondary/10': 'border-secondary/20 group-hover:border-secondary/40',
-}
-
-function LeafAccents({
-  topRight,
-  bottomLeft,
-}: {
-  topRight: string
-  bottomLeft: string
-}) {
-  return (
-    <>
-      <div className="absolute -top-1 -right-1 z-20 pointer-events-none">
-        <PulsingLeaf color={topRight} rotation={12} animationDelay="0s" />
-      </div>
-      <div className="absolute -bottom-1 -left-1 z-20 pointer-events-none">
-        <PulsingLeaf
-          size="small"
-          color={bottomLeft}
-          rotation={-45}
-          animationDelay="0.5s"
-        />
-      </div>
-    </>
-  )
-}
-
 export function DecorativeImageCard({
   src,
   alt,
   title,
   description,
-  gradientFrom,
-  gradientTo,
-  leafColors = {
-    topRight: 'text-gold/70 group-hover:text-gold',
-    bottomLeft: 'text-accent/70 group-hover:text-accent'
-  },
+  gradientFrom = 'from-primary/10',
+  gradientTo = 'to-gold/10',
   className = '',
   objectFit = 'cover',
 }: DecorativeImageCardProps) {
-  const borderClass = borderClasses[gradientFrom] ?? 'border-accent/20 group-hover:border-accent/40'
   const isContain = objectFit === 'contain'
 
   return (
     <div className={`group ${className}`}>
       {isContain ? (
-        // Wide tile frame; show the full collage (these assets are portrait — side space is expected).
-        <div className="relative">
-          <div
-            className={`relative flex h-52 sm:h-64 md:h-80 w-full items-center justify-center rounded-xl overflow-hidden bg-white border-2 ${borderClass} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
-          >
-            <Image
-              src={src}
-              alt={alt}
-              width={640}
-              height={960}
-              sizes="(max-width: 768px) 70vw, 40vw"
-              className="max-h-full w-auto max-w-full object-contain"
-              priority={false}
-            />
-          </div>
-          <div className="hidden sm:contents">
-            <LeafAccents
-              topRight={leafColors.topRight}
-              bottomLeft={leafColors.bottomLeft}
-            />
-          </div>
+        <div className="relative overflow-hidden rounded-xl border border-accent/15 bg-cream transition-transform duration-300 motion-safe:md:group-hover:-translate-y-1">
+          <Image
+            src={src}
+            alt={alt}
+            width={640}
+            height={960}
+            sizes="(max-width: 768px) 70vw, 40vw"
+            className="h-auto w-full"
+            priority={false}
+          />
         </div>
       ) : (
-        <div className="relative">
-          <div
-            className={`relative h-52 sm:h-64 md:h-72 w-full rounded-xl overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
-          >
-            <Image
-              src={src}
-              alt={alt}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover object-center md:group-hover:scale-105 transition-transform duration-500"
-            />
-            <div
-              className={`absolute inset-0 rounded-xl border-2 ${borderClass} transition-all duration-300 pointer-events-none`}
-            />
-          </div>
-          <div className="hidden sm:contents">
-            <LeafAccents
-              topRight={leafColors.topRight}
-              bottomLeft={leafColors.bottomLeft}
-            />
-          </div>
+        <div
+          className={`relative h-52 w-full overflow-hidden rounded-xl border border-accent/15 bg-gradient-to-br sm:h-64 md:h-72 ${gradientFrom} ${gradientTo} transition-transform duration-300 motion-safe:md:group-hover:-translate-y-1`}
+        >
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover object-center transition-transform duration-500 md:group-hover:scale-105"
+          />
         </div>
       )}
 
       {title && (
-        <div className="mt-2.5 md:mt-4 text-center px-0.5">
-          <h4 className="font-semibold text-base md:text-lg text-primary leading-snug">{title}</h4>
+        <div className="mt-2.5 px-0.5 text-center md:mt-4">
+          <h4 className="text-base font-semibold leading-snug text-primary md:text-lg">
+            {title}
+          </h4>
           {description && (
-            <p className="text-xs md:text-sm text-secondary mt-1 leading-snug line-clamp-2 md:line-clamp-none">
+            <p className="mt-1 line-clamp-2 text-xs leading-snug text-secondary md:line-clamp-none md:text-sm">
               {description}
             </p>
           )}

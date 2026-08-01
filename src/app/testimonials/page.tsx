@@ -1,71 +1,45 @@
 'use client'
 
-import { Star, Quote, Heart, CheckCircle, User } from 'lucide-react'
-import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
+import {
+  BeforeAfterSlider,
+  CTAButton,
+  HeroSection,
+  SectionHeading,
+  SnapCarousel,
+  TestimonialCard,
+  snapSlideClassName,
+} from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { BadgeCheck, HeartHandshake } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
+  // Unique patient names only (max 3) — one Viera + Francisca
   const testimonials = [
     {
-      name: "Sarah Mitchell",
-      condition: "Chronic Back Pain",
+      name: 'Viera',
+      condition: 'Anxiety, sleep & energy',
+      date: '4 November 2023',
       rating: 5,
-      text: "After years of chronic back pain, I was skeptical about acupuncture. But after just three sessions at Wellness Needles, I felt significant relief. The team is incredibly knowledgeable and caring. I can now enjoy activities I thought I&apos;d never do again.",
-      treatment: "Back Pain Management",
-      duration: "6 sessions over 3 months"
+      text: 'I was suffering from anxiety for a long time. I was feeling dizzy, tired, had constant ringing in my ears, couldn\'t sleep in the night. The new symptoms were gradually adding up and worsening over the years. I was desperate and didn\'t know what to do. Then my friend recommended me to try acupuncture. I contacted Ace. We had a conversation about my medical history and my current symptoms. He was very kind and I felt open to him. After only a few treatments I started to feel more energetic. Gradually I became a happier person and my symptoms were improving. Even my friends have noticed my changes. They were saying I am blooming, that I look more "alive".',
     },
     {
-      name: "David Chen",
-      condition: "Stress & Anxiety",
+      name: 'Francisca Pereira',
+      condition: 'Fertility & anxiety',
+      date: '23 November 2023',
       rating: 5,
-      text: "The stress from my job was overwhelming until I discovered acupuncture at Wellness Needles. The treatments help me feel centered and calm. I sleep better and handle work pressure much more effectively now.",
-      treatment: "Stress Relief & Mental Wellness",
-      duration: "Weekly sessions for 2 months"
+      text: 'I would like to highly recommend Wellness Needles Clinic. I got acupuncture to help with fertility and anxiety. I found the treatment very effective and relaxing. Ace is very personable and professional.',
     },
-    {
-      name: "Maria Rodriguez",
-      condition: "Fertility Support",
-      rating: 5,
-      text: "We had been trying to conceive for over two years. After starting acupuncture treatments, I became pregnant within four months. The practitioners were supportive throughout the entire journey.",
-      treatment: "Fertility Enhancement",
-      duration: "Bi-weekly sessions for 6 months"
-    },
-    {
-      name: "James Thompson",
-      condition: "Migraines",
-      rating: 5,
-      text: "I suffered from debilitating migraines for years. Since starting acupuncture, the frequency and intensity have dramatically decreased. I finally have my life back and couldn&apos;t be more grateful.",
-      treatment: "Migraine Prevention",
-      duration: "Weekly sessions for 4 months"
-    },
-    {
-      name: "Linda Wang",
-      condition: "Digestive Issues",
-      rating: 5,
-      text: "My IBS symptoms were affecting my daily life. The holistic approach at Wellness Needles, combining acupuncture with dietary guidance, has transformed my digestive health completely.",
-      treatment: "Digestive Health",
-      duration: "Bi-weekly sessions for 3 months"
-    },
-    {
-      name: "Robert Kim",
-      condition: "Arthritis",
-      rating: 5,
-      text: "As a retired carpenter, arthritis in my hands was making simple tasks impossible. Acupuncture has restored much of my mobility and reduced the pain significantly. I can even work on small projects again.",
-      treatment: "Arthritis Management",
-      duration: "Weekly sessions for 8 weeks"
-    }
   ]
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <HeroSection
         title="Patient Testimonials"
-        subtitle="Stories inspired by the kinds of healing journeys acupuncture can support"
-        description="Explore illustrative examples of how traditional Chinese medicine may help improve quality of life. Real patient reviews will be shared here with consent."
+        subtitle="Real stories from people who chose acupuncture with Wellness Needles"
+        description="Hear from patients in their own words — shared with consent — about how treatment supported their health and wellbeing."
         backgroundImage="/modern_accupuncture.jpeg"
         backgroundClass="bg-primary"
         textColor="text-cream"
@@ -83,212 +57,104 @@ export default function Testimonials() {
         ]}
       />
 
-      {/* Success Stories with Images */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Real Patient Results */}
+      <section className="bg-cream py-8 md:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Treatment Success Stories"
-            subtitle="Visual evidence of our patients' healing journeys"
+            title="Real Patient Results"
+            subtitle="Personalized treatment outcomes — clear before and after comparisons"
+            className="mb-4 text-center md:mb-8"
+            titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
           />
-          
-          <SnapCarousel
-            slideCount={2}
-            ariaLabel="Success stories carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-12"
-          >
-            <div className={snapSlideClassName}>
-              <DecorativeImageCard
-                src="/alopecia_treatment_before_after.jpeg"
-                alt="Alopecia treatment before and after results"
-                title="Alopecia Treatment Success"
-                description="Real results from our specialized alopecia treatment program, showing significant hair regrowth through targeted acupuncture therapy."
-                gradientFrom="from-primary/10"
-                gradientTo="to-gold/10"
-                objectFit="contain"
-                leafColors={{
-                  topRight: 'text-gold/70',
-                  bottomLeft: 'text-accent/70'
-                }}
-                className="text-center"
-              />
-            </div>
 
-            <div className={snapSlideClassName}>
-              <DecorativeImageCard
-                src="/skin_treatment_before_after.jpeg"
-                alt="Skin treatment before and after results"
-                title="Skin Condition Improvement"
-                description="Remarkable skin healing achieved through acupuncture and holistic treatment approaches, demonstrating the power of traditional medicine."
-                gradientFrom="from-secondary/10"
-                gradientTo="to-light-green/10"
-                objectFit="contain"
-                leafColors={{
-                  topRight: 'text-light-green/70',
-                  bottomLeft: 'text-secondary/70'
-                }}
-                className="text-center"
-              />
-            </div>
-          </SnapCarousel>
-        </div>
-      </section>
+          <div className="mb-5 flex flex-col items-center gap-1 text-xs text-secondary sm:mb-8 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5 sm:gap-y-1.5 sm:text-sm md:mb-10">
+            <p className="inline-flex items-center gap-1.5">
+              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" aria-hidden />
+              Licensed &amp; certified practitioner
+            </p>
+            <p className="inline-flex items-center gap-1.5">
+              <HeartHandshake className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" aria-hidden />
+              Stories &amp; photos shared with consent
+            </p>
+          </div>
 
-      {/* Testimonials Grid */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Success Stories"
-            subtitle="Illustrative examples of common treatment journeys"
-            className="text-center mb-4"
-          />
-          <p className="mb-8 md:mb-16 max-w-3xl mx-auto text-sm text-secondary bg-white border border-accent/20 rounded-lg px-4 py-3 text-center shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
-            These stories are illustrative examples for educational purposes and are not attributed
-            to verified patients. Genuine reviews will be published here once consent is obtained.
-          </p>
-
-          <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
-            <div className="min-w-0">
-              <SnapCarousel
-                slideCount={testimonials.length}
-                ariaLabel="Patient stories carousel"
-                trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8"
-              >
-                {testimonials.map((testimonial, index) => (
-                  <div
-                    key={index}
-                    className={`group ${snapSlideClassName} relative bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
-                  >
-                    <Quote className="absolute top-3 right-3 md:top-6 md:right-6 w-6 h-6 md:w-8 md:h-8 text-accent/30" />
-
-                    {/* Testimonial Text */}
-                    <p className="text-secondary mb-4 md:mb-6 italic text-sm md:text-base leading-snug">
-                      &quot;{testimonial.text}&quot;
-                    </p>
-
-                    {/* Patient Info */}
-                    <div className="border-t border-accent/20 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20"
-                            aria-hidden="true"
-                          >
-                            <User className="h-5 w-5 text-secondary/50" strokeWidth={1.75} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                              <h4 className="font-semibold text-primary truncate">
-                                {testimonial.name}
-                              </h4>
-                              <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
-                                {[...Array(testimonial.rating)].map((_, i) => (
-                                  <Star key={i} className="w-3.5 h-3.5 text-gold fill-current" />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-sm text-secondary truncate">
-                              {testimonial.condition}
-                            </p>
-                          </div>
-                        </div>
-                        <Heart className="w-6 h-6 shrink-0 text-secondary/40 transition-colors duration-300 group-hover:text-accent" />
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center text-sm text-secondary">
-                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                          Treatment: {testimonial.treatment}
-                        </div>
-                        <div className="flex items-center text-sm text-secondary">
-                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                          Duration: {testimonial.duration}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </SnapCarousel>
-            </div>
-
-            {/* Share CTA — desktop sticky sidebar */}
-            <aside
-              className="hidden xl:block order-2 w-full rounded-xl border border-accent/15 bg-accent/10 p-5 xl:sticky xl:top-24"
-            >
-              <h3 className="mb-1 text-base font-semibold text-primary">
-                Share your success story
-              </h3>
-              <p className="mb-4 text-sm text-secondary">
-                We&apos;d love to hear how treatment helped you.
-              </p>
-              <div className="space-y-2.5">
-                <CTAButton
-                  href="/contact"
-                  variant="gold"
-                  size="medium"
-                  showArrow={false}
-                  className="w-full !rounded-full text-sm font-bold gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
-                >
-                  Share your story
-                </CTAButton>
-                <BookingCtaButton
-                  variant="outline"
-                  showArrow={false}
-                  size="medium"
-                  className="w-full !rounded-full text-sm font-medium transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
-                >
-                  Book an appointment
-                </BookingCtaButton>
-              </div>
-            </aside>
+          <div className="mx-auto max-w-lg">
+            <BeforeAfterSlider
+              beforeSrc="/results/alopecia-before.png"
+              afterSrc="/results/alopecia-after.png"
+              beforeRotate="-42deg"
+              afterRotate="32deg"
+              className="max-w-[17rem] sm:max-w-sm md:max-w-lg"
+              title="Alopecia treatment progress"
+              description="Hair regrowth after a personalized acupuncture care plan — drag to compare before and after."
+              altBefore="Scalp before alopecia treatment showing a bald patch"
+              altAfter="Scalp after alopecia treatment showing hair regrowth"
+            />
           </div>
         </div>
       </section>
 
-      {/* Video Testimonials Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* What patients say */}
+      <section className="bg-secondary/5 py-8 md:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Video Testimonials"
-            subtitle="Watch our patients share their healing experiences"
+            title="What patients say"
+            subtitle="Honest feedback from people in our care"
+            className="mb-6 text-center md:mb-12"
+            titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
           />
 
           <SnapCarousel
-            slideCount={3}
-            ariaLabel="Video testimonials carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            slideCount={testimonials.length}
+            ariaLabel="Patient stories carousel"
+            trackClassName="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:pb-0 md:px-0 lg:max-w-4xl lg:mx-auto"
           >
-            {[
-              {
-                title: 'Pain Relief Success',
-                description: 'Watch how acupuncture helped resolve chronic pain issues',
-              },
-              {
-                title: 'Fertility Journey',
-                description: 'A couple shares their fertility success story with acupuncture',
-              },
-              {
-                title: 'Stress Management',
-                description: 'Learn how acupuncture transformed mental wellness',
-              },
-            ].map((video) => (
+            {testimonials.map((testimonial) => (
               <div
-                key={video.title}
-                className={`group ${snapSlideClassName} bg-white rounded-xl p-3.5 md:p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+                key={`${testimonial.name}-${testimonial.condition}`}
+                className={snapSlideClassName}
               >
-                <div className="bg-primary/10 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300 motion-safe:group-hover:scale-110">
-                      <div className="w-0 h-0 border-l-[8px] border-l-cream border-y-[6px] border-y-transparent ml-1" />
-                    </div>
-                    <p className="text-primary font-medium">Video coming soon</p>
-                  </div>
-                </div>
-                <h3 className="font-semibold text-primary mb-2">{video.title}</h3>
-                <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                <p className="text-secondary text-sm">{video.description}</p>
+                <TestimonialCard
+                  name={testimonial.name}
+                  condition={testimonial.condition}
+                  date={testimonial.date}
+                  rating={testimonial.rating}
+                  text={testimonial.text}
+                />
               </div>
             ))}
           </SnapCarousel>
+        </div>
+      </section>
+
+      {/* CTA band — Book primary, Share secondary */}
+      <section className="bg-cream py-8 md:py-14">
+        <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
+          <h2 className="font-serif text-lg font-bold text-primary md:text-2xl">
+            Ready to start your care?
+          </h2>
+          <p className="mt-1.5 text-xs leading-snug text-secondary md:mt-2 md:text-base md:leading-relaxed">
+            Book a session with our licensed practitioner, or share how treatment helped you.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:mx-auto sm:mt-6 sm:max-w-xs sm:gap-2.5">
+            <BookingCtaButton
+              variant="gold"
+              showArrow={false}
+              size="medium"
+              className="w-full !rounded-full !px-4 !py-2 !text-xs !font-bold gap-1.5 !shadow-none transition-[transform,filter] duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+            >
+              Book an appointment
+            </BookingCtaButton>
+            <CTAButton
+              href="/contact"
+              variant="outline"
+              size="medium"
+              showArrow={false}
+              className="w-full !rounded-full !px-4 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+            >
+              Share your story
+            </CTAButton>
+          </div>
         </div>
       </section>
     </div>

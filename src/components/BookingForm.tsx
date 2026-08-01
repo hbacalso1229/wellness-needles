@@ -798,8 +798,8 @@ export default function BookingForm() {
             <div
               id="booking-service"
               tabIndex={-1}
-              className={`rounded-lg outline-none ${
-                hasFieldError('service') ? 'ring-2 ring-red-400 p-1' : ''
+              className={`rounded-lg p-1 outline-none ring-2 ${
+                hasFieldError('service') ? 'ring-red-400' : 'ring-transparent'
               }`}
             >
               <ServiceSelectionCards
@@ -830,8 +830,8 @@ export default function BookingForm() {
             <div
               id="booking-location"
               tabIndex={-1}
-              className={`rounded-lg outline-none ${
-                hasFieldError('location') ? 'ring-2 ring-red-400 p-1' : ''
+              className={`rounded-lg p-1 outline-none ring-2 ${
+                hasFieldError('location') ? 'ring-red-400' : 'ring-transparent'
               }`}
             >
               <ClinicLocationCards
