@@ -581,7 +581,7 @@ export default function BookingForm() {
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
         showErrorToast(
-          'Booking email is enabled but not configured. Add the Web3Forms access key in Admin and click Save email settings.'
+          'Booking email is enabled but not configured. Add the Web3Forms access key in Admin (dev) or set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY.'
         )
         return
       }

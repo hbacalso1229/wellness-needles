@@ -105,8 +105,8 @@ export const contactConfig = {
     liveChatEnabled: false,
     mapIntegrationEnabled: true,
     treatmentPackagesEnabled: false,
-    calendlyEnabled: true,
-    bookingFormEnabled: false,
+    calendlyEnabled: false,
+    bookingFormEnabled: true,
     freshaEnabled: false,
   }
 } as const

@@ -1,4 +1,5 @@
 import { contactConfig } from '@/lib/contact-config'
+import { isAdminUiEnabled } from '@/lib/admin-ui'
 
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
@@ -195,15 +196,25 @@ export function readBookingFeatures(): BookingFeatureFlags {
         ? parsed.bookingEmailEnabled
         : defaults.bookingEmailEnabled
 
-    // Mutual exclusivity: prefer Fresha > legacy form > Calendly when multiple were stored.
-    const freshaEnabled = Boolean(parsed.freshaEnabled)
-    let bookingFormEnabled = Boolean(parsed.bookingFormEnabled)
-    let calendlyEnabled = Boolean(parsed.calendlyEnabled)
-    if (freshaEnabled) {
-      bookingFormEnabled = false
-      calendlyEnabled = false
-    } else if (bookingFormEnabled) {
-      calendlyEnabled = false
+    // When Admin UI is on (dev), honor stored mode toggles with mutual exclusivity.
+    // When Admin UI is off (main), force contact-config defaults (legacy form).
+    let freshaEnabled: boolean
+    let bookingFormEnabled: boolean
+    let calendlyEnabled: boolean
+    if (isAdminUiEnabled()) {
+      freshaEnabled = Boolean(parsed.freshaEnabled)
+      bookingFormEnabled = Boolean(parsed.bookingFormEnabled)
+      calendlyEnabled = Boolean(parsed.calendlyEnabled)
+      if (freshaEnabled) {
+        bookingFormEnabled = false
+        calendlyEnabled = false
+      } else if (bookingFormEnabled) {
+        calendlyEnabled = false
+      }
+    } else {
+      freshaEnabled = defaults.freshaEnabled
+      bookingFormEnabled = defaults.bookingFormEnabled
+      calendlyEnabled = defaults.calendlyEnabled
     }
 
     const treatmentPackagesEnabled =

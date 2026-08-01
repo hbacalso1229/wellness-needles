@@ -49,6 +49,10 @@ jobs:
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build (via Vercel)
+        env:
+          # Hide Admin on production (main branch); legacy form stays the default
+          NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
+          VERCEL_GIT_COMMIT_REF: main
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel (production)
