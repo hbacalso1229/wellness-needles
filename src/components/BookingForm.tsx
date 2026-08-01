@@ -252,7 +252,6 @@ type FieldErrorKey =
   | 'email'
   | 'phone'
   | 'dateOfBirth'
-  | 'chiefComplaint'
 
 const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   service: 'booking-service',
@@ -264,7 +263,6 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   email: 'email',
   phone: 'phone',
   dateOfBirth: 'dateOfBirth',
-  chiefComplaint: 'chiefComplaint',
 }
 
 function focusFirstInvalidField(fields: FieldErrorKey[]) {
@@ -360,10 +358,6 @@ export default function BookingForm() {
     email: '',
     phone: '',
     dateOfBirth: '',
-    chiefComplaint: '',
-    previousTreatment: '',
-    medications: '',
-    allergies: '',
   })
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
@@ -530,8 +524,7 @@ export default function BookingForm() {
       name === 'firstName' ||
       name === 'lastName' ||
       name === 'email' ||
-      name === 'phone' ||
-      name === 'chiefComplaint'
+      name === 'phone'
     ) {
       clearFieldError(name)
     }
@@ -604,13 +597,12 @@ export default function BookingForm() {
           'Please enter a valid Irish phone number (e.g. 086 054 3085 or +353 86 054 3085).'
         )
       }
-      if (formData.dateOfBirth && isFutureDateInputValue(formData.dateOfBirth)) {
+      if (!formData.dateOfBirth.trim()) {
+        fields.push('dateOfBirth')
+        messages.push('Please enter your date of birth.')
+      } else if (isFutureDateInputValue(formData.dateOfBirth)) {
         fields.push('dateOfBirth')
         messages.push('Date of birth cannot be in the future.')
-      }
-      if (!formData.chiefComplaint.trim()) {
-        fields.push('chiefComplaint')
-        messages.push('Please describe what brings you in today.')
       }
 
       if (fields.length > 0) {
@@ -651,10 +643,6 @@ export default function BookingForm() {
       email: '',
       phone: '',
       dateOfBirth: '',
-      chiefComplaint: '',
-      previousTreatment: '',
-      medications: '',
-      allergies: '',
     })
     resetHCaptcha()
   }
@@ -855,7 +843,7 @@ export default function BookingForm() {
               <Calendar className="w-5 h-5 mr-2 text-primary shrink-0" />
               Pick your preferred date and time. This is a request only — we will confirm within 24 hours.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="min-w-0 w-full max-w-full">
                 <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
                   Preferred Date <RequiredMark />
@@ -911,7 +899,7 @@ export default function BookingForm() {
                 >
                   <div
                     ref={timeGridRef}
-                    className={`booking-time-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 ${
+                    className={`booking-time-grid grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4 ${
                       isMobileTimeCollapse ? 'booking-time-grid--collapsible' : ''
                     }`}
                     style={
@@ -1108,7 +1096,7 @@ export default function BookingForm() {
                 </div>
                 <div className="md:col-span-2 min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
-                    Date of Birth
+                    Date of Birth <RequiredMark />
                   </label>
                   <div className="booking-date-field">
                     <input
@@ -1148,92 +1136,6 @@ export default function BookingForm() {
                     message={fieldErrorMessage('dateOfBirth')}
                     always
                   />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-serif text-xl font-bold text-primary mb-4">Health Information</h3>
-              <div className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="chiefComplaint"
-                    className="block text-sm font-medium text-primary mb-2"
-                  >
-                    What brings you in today? (Main concern or condition) <RequiredMark />
-                  </label>
-                  <textarea
-                    id="chiefComplaint"
-                    name="chiefComplaint"
-                    value={formData.chiefComplaint}
-                    onChange={handleChange}
-                    rows={3}
-                    aria-invalid={hasFieldError('chiefComplaint')}
-                    aria-describedby={
-                      fieldErrorMessage('chiefComplaint')
-                        ? 'chiefComplaint-error'
-                        : undefined
-                    }
-                    className={`${hasFieldError('chiefComplaint') ? fieldErrorClassName : inputClassName} resize-none`}
-                    placeholder="Please describe your symptoms or reason for seeking treatment..."
-                  />
-                  <FieldInlineError
-                    id="chiefComplaint-error"
-                    message={fieldErrorMessage('chiefComplaint')}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="previousTreatment"
-                    className="block text-sm font-medium text-primary mb-2"
-                  >
-                    Have you had acupuncture before?
-                  </label>
-                  <textarea
-                    id="previousTreatment"
-                    name="previousTreatment"
-                    value={formData.previousTreatment}
-                    onChange={handleChange}
-                    rows={2}
-                    className={`${inputClassName} resize-none`}
-                    placeholder="Please describe any previous acupuncture or alternative treatments..."
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="medications"
-                      className="block text-sm font-medium text-primary mb-2"
-                    >
-                      Current Medications
-                    </label>
-                    <textarea
-                      id="medications"
-                      name="medications"
-                      value={formData.medications}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`${inputClassName} resize-none`}
-                      placeholder="List all medications, supplements, and dosages..."
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="allergies"
-                      className="block text-sm font-medium text-primary mb-2"
-                    >
-                      Allergies
-                    </label>
-                    <textarea
-                      id="allergies"
-                      name="allergies"
-                      value={formData.allergies}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`${inputClassName} resize-none`}
-                      placeholder="List any known allergies or sensitivities..."
-                    />
-                  </div>
                 </div>
               </div>
             </div>

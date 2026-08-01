@@ -16,11 +16,7 @@ export type BookingEmailPayload = {
   lastName: string
   email: string
   phone: string
-  dateOfBirth?: string
-  chiefComplaint: string
-  previousTreatment?: string
-  medications?: string
-  allergies?: string
+  dateOfBirth: string
 }
 
 function formatBookingMessage(payload: BookingEmailPayload): string {
@@ -38,12 +34,7 @@ function formatBookingMessage(payload: BookingEmailPayload): string {
     `Name: ${payload.firstName} ${payload.lastName}`,
     `Email: ${payload.email}`,
     `Phone: ${payload.phone}`,
-    `Date of birth: ${payload.dateOfBirth || 'Not provided'}`,
-    '',
-    `Chief complaint: ${payload.chiefComplaint}`,
-    `Previous treatment: ${payload.previousTreatment || 'Not provided'}`,
-    `Medications: ${payload.medications || 'Not provided'}`,
-    `Allergies: ${payload.allergies || 'Not provided'}`,
+    `Date of birth: ${payload.dateOfBirth}`,
   ]
   return lines.join('\n')
 }
@@ -101,7 +92,7 @@ export async function sendBookingRequestEmail(
         preferred_date: payload.date,
         preferred_time: payload.time,
         phone: payload.phone,
-        chief_complaint: payload.chiefComplaint,
+        date_of_birth: payload.dateOfBirth,
       }),
     })
 

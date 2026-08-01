@@ -126,6 +126,27 @@ Bookings pattern:
 - Aside: `md:sticky md:top-24`, `rounded-xl border border-accent/15 bg-accent/10`.
 - Mobile: stack below main; constrain width (`max-w-xs`) so CTAs aren’t edge-to-edge giants.
 
+### Booking form (`src/components/BookingForm.tsx`)
+
+**Steps:** Service → Location → Date & Time → Your details.
+
+**Your details (confirmed personal fields only):**
+
+| Field | Required |
+|-------|----------|
+| First name, last name | Yes |
+| Email, phone (Irish formats) | Yes |
+| Date of birth | **Yes** |
+
+- **Do not** collect Health Information on the form (no chief complaint, prior acupuncture, medications, or allergies). Clinic can gather that in person / follow-up.
+- Booking email (`src/lib/send-booking-email.ts`) mirrors the same fields — appointment + personal only; DOB is included as required.
+
+**Date & Time layout:**
+
+- Preferred Date and Preferred Time stack in **one column** below `lg` (tablet / narrow form beside sticky sidebar).
+- Side-by-side only from **`lg:grid-cols-2`**.
+- Time slot grid: `grid-cols-2 sm:grid-cols-3 xl:grid-cols-4` so slots don’t crush when the column is narrow.
+
 ### Compact card grids (tablet / desktop)
 
 When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stretch them with large gaps. Constrain the grid (e.g. `max-w-3xl mx-auto`) and use modest gaps (`md:gap-4 lg:gap-5`). Example: Chinese medicine “TCM Treatment Methods” 2×2 FeatureCards.
@@ -171,6 +192,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - Form column + sticky call/email aside from `md`
 - Gold Call primary → Or → outline email secondary
 - Compact mobile button sizing
+- Details step: name, email, phone, **required DOB** only — no Health Information block
+- Date/Time: stack on tablet; side-by-side from `lg`; time slots avoid 4-up until `xl`
 
 ### Chinese medicine
 
@@ -208,6 +231,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Hero/banner photos are landscape (or explicitly positioned); no smeared square/portrait in thin banners
 - [ ] Mobile: compact padding/type for sidebar CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
 - [ ] Testimonials / proof: unique names; structured Before/After over DIY collage chrome
+- [ ] Booking details: DOB required; no Health Information fields reintroduced without product sign-off
+- [ ] Booking Date/Time: stacked below `lg`; time grid doesn’t crush on tablet
 - [ ] Motion uses `motion-safe:` and stays subtle
 
 ---
@@ -222,5 +247,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 | Section flourish | `src/features/ui/SectionHeading.tsx` |
 | FeatureCard `elevated` | `src/features/ui/FeatureCard.tsx` |
 | Header Book CTA | `src/components/Header.tsx` |
+| Booking form | `src/components/BookingForm.tsx` |
+| Booking email payload | `src/lib/send-booking-email.ts` |
 | Contact / booking config | `src/lib/contact-config.ts` |
 | Result photos | `public/results/` |
