@@ -186,32 +186,32 @@ export function TestimonialCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col rounded-xl border-2 border-accent/20 bg-white p-3.5 shadow-none transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 hover:border-primary/40 md:p-5 ${className}`}
+      className={`group relative flex h-full flex-col rounded-xl border border-accent/15 bg-white p-3 shadow-none transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 hover:border-primary/30 md:p-6 ${className}`}
     >
-      <div className="mb-3 flex items-start gap-3">
+      <div className="mb-2.5 flex items-start gap-2.5 md:mb-4 md:gap-3">
         <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-accent/10"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-accent/10 md:h-11 md:w-11"
           aria-hidden
         >
-          <User className="h-5 w-5 text-secondary/50" strokeWidth={1.75} />
+          <User className="h-4 w-4 text-secondary/50 md:h-5 md:w-5" strokeWidth={1.75} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h4 className="truncate font-serif text-base font-semibold text-primary md:text-lg">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <h4 className="truncate font-serif text-sm font-semibold text-primary md:text-lg">
               {name}
             </h4>
             {stars}
           </div>
-          <p className="truncate text-sm text-secondary">{condition}</p>
-          <p className="mt-1 flex items-center text-xs text-secondary">
-            <CheckCircle className="mr-1.5 h-3.5 w-3.5 shrink-0 text-accent" />
+          <p className="truncate text-xs text-secondary md:text-sm">{condition}</p>
+          <p className="mt-0.5 flex items-center text-[11px] text-secondary md:mt-1 md:text-xs">
+            <CheckCircle className="mr-1 h-3 w-3 shrink-0 text-accent md:mr-1.5 md:h-3.5 md:w-3.5" />
             {date}
           </p>
         </div>
       </div>
 
-      <Quote className="mb-1.5 h-5 w-5 text-accent/30" aria-hidden />
-      <p className="mb-3 line-clamp-3 flex-1 text-sm italic leading-snug text-secondary md:text-base">
+      <Quote className="mb-1 h-4 w-4 text-accent/30 md:mb-2 md:h-5 md:w-5" aria-hidden />
+      <p className="mb-2.5 line-clamp-2 flex-1 text-xs italic leading-snug text-secondary md:mb-4 md:line-clamp-3 md:text-base md:leading-relaxed">
         &quot;{text}&quot;
       </p>
 
@@ -221,7 +221,7 @@ export function TestimonialCard({
         onClick={openModal}
         aria-haspopup="dialog"
         aria-expanded={modalOpen}
-        className="mt-auto inline-flex items-center gap-0.5 self-start text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+        className="mt-auto inline-flex items-center gap-0.5 self-start text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream md:text-sm"
       >
         Read more
         <ChevronRight className="h-4 w-4" aria-hidden />

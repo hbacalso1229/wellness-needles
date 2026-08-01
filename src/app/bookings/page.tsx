@@ -462,7 +462,7 @@ export default function Bookings() {
 
             {/* Quick call/email — below form on mobile; sticky side column on tablet+ */}
             <aside
-              className="order-2 mx-auto mt-6 w-fit max-w-full rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:w-full md:max-w-none md:self-start md:p-4 lg:p-5"
+              className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-4 lg:p-5"
             >
               <h3 className="mb-0.5 text-sm font-semibold text-primary md:mb-1 md:text-base">
                 Prefer to call or email?
@@ -470,16 +470,16 @@ export default function Bookings() {
               <p className="mb-3 text-xs leading-snug text-secondary md:mb-4 md:text-sm md:leading-normal">
                 We can help you book by phone or email.
               </p>
-              <div className="flex flex-col gap-2.5 md:gap-3">
+              <div className="flex flex-col gap-2 md:gap-2.5">
                 <div>
                   <CTAButton
                     href={contactConfig.phone.href}
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-3 !text-sm !font-bold gap-2 min-h-11 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-bold gap-1.5 !shadow-none transition-[transform,filter] duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Phone className="h-4 w-4 shrink-0" aria-hidden />
+                    <Phone className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                     Call Now
                   </CTAButton>
                   <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
@@ -501,9 +501,9 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-3 !text-sm !font-medium gap-2 min-h-11 bg-cream/80 transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:hover:shadow-primary/20 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] motion-safe:active:shadow-sm"
+                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Mail className="h-4 w-4 shrink-0" aria-hidden />
+                    <Mail className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                     Send a message
                   </CTAButton>
                   <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
