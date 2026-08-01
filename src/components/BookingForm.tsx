@@ -702,6 +702,12 @@ export default function BookingForm() {
             <FieldInlineError message={fieldErrorMessage('service')} />
 
             {activeTab === 'call-out' && <TravelPolicyNotice />}
+
+            <OptionalAddOns
+              addOns={addOns}
+              selectedIds={selectedAddOns}
+              onToggle={handleAddOnToggle}
+            />
           </div>
         )}
 
@@ -739,8 +745,11 @@ export default function BookingForm() {
           <div className="space-y-6">
             <p className="text-sm text-secondary flex items-start">
               <Calendar className="w-5 h-5 mr-2 text-primary shrink-0 mt-0.5" />
-              Pick your preferred date and a time range. This is a request only — we will
-              confirm within 24 hours.
+              <span>
+                Pick your preferred date and a time range.
+                <br />
+                This is a request only — we will confirm within 24 hours.
+              </span>
             </p>
 
             <div className="min-w-0 w-full max-w-full">
@@ -823,12 +832,6 @@ export default function BookingForm() {
                 phone.
               </p>
             </div>
-
-            <OptionalAddOns
-              addOns={addOns}
-              selectedIds={selectedAddOns}
-              onToggle={handleAddOnToggle}
-            />
           </div>
         )}
 
