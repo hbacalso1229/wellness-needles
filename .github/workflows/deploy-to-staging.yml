@@ -51,6 +51,8 @@ jobs:
         env:
           # Admin nav + /admin tooling only on staging (dev branch)
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "true"
+          # Baked into static client at build time (GitHub secret — avoids Vercel prebuilt redeploy)
+          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
           VERCEL_GIT_COMMIT_REF: dev
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 

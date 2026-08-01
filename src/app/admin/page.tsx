@@ -9,6 +9,8 @@ import {
   isValidCalendlySchedulingUrl,
   isValidEmailAddress,
   isValidFreshaBookingUrl,
+  isValidWeb3FormsAccessKey,
+  normalizeWeb3FormsAccessKey,
 } from '@/lib/booking-features'
 import { contactConfig } from '@/lib/contact-config'
 import { HeroSection } from '@/features'
@@ -91,7 +93,9 @@ export default function AdminPage() {
   const [urlSaved, setUrlSaved] = useState(false)
   const [freshaUrlSaved, setFreshaUrlSaved] = useState(false)
   const [accessKeyDraft, setAccessKeyDraft] = useState(features.bookingEmailAccessKey)
-  const [emailToDraft, setEmailToDraft] = useState(features.bookingEmailTo)
+  const [emailToDraft, setEmailToDraft] = useState(
+    features.bookingEmailTo || contactConfig.email.address
+  )
   const [emailSaved, setEmailSaved] = useState(false)
 
   useEffect(() => {
@@ -100,7 +104,7 @@ export default function AdminPage() {
       setFollowUpUrlDraft(features.calendlyFollowUpUrl)
       setFreshaUrlDraft(features.freshaBookingUrl)
       setAccessKeyDraft(features.bookingEmailAccessKey)
-      setEmailToDraft(features.bookingEmailTo)
+      setEmailToDraft(features.bookingEmailTo || contactConfig.email.address)
     }
   }, [
     hydrated,
@@ -123,6 +127,8 @@ export default function AdminPage() {
   const freshaUrlValid = isValidFreshaBookingUrl(freshaUrlDraft)
   const freshaUrlDirty = freshaUrlDraft.trim() !== features.freshaBookingUrl
   const emailToValid = isValidEmailAddress(emailToDraft)
+  const accessKeyValid =
+    usingEnvAccessKey || isValidWeb3FormsAccessKey(accessKeyDraft)
   const emailDirty =
     (!usingEnvAccessKey &&
       accessKeyDraft.trim() !== features.bookingEmailAccessKey) ||
@@ -168,10 +174,13 @@ export default function AdminPage() {
     if (!usingEnvAccessKey && !accessKeyDraft.trim()) {
       return
     }
-    if (!usingEnvAccessKey) {
-      setBookingEmailAccessKey(accessKeyDraft)
+    if (!usingEnvAccessKey && !isValidWeb3FormsAccessKey(accessKeyDraft)) {
+      return
     }
-    setBookingEmailTo(emailToDraft)
+    if (!usingEnvAccessKey) {
+      setBookingEmailAccessKey(normalizeWeb3FormsAccessKey(accessKeyDraft))
+    }
+    setBookingEmailTo(emailToDraft.trim() || contactConfig.email.address)
     setEmailSaved(true)
     window.setTimeout(() => setEmailSaved(false), 2000)
   }
@@ -464,7 +473,8 @@ export default function AdminPage() {
                       Recipient email
                     </label>
                     <p className="text-sm text-secondary mb-3">
-                      Inbox that should receive new appointment requests.
+                      Inbox that should receive new appointment requests. Defaults to{' '}
+                      {contactConfig.email.address}.
                     </p>
                     <input
                       id="booking-email-to"
@@ -474,7 +484,7 @@ export default function AdminPage() {
                         setEmailToDraft(e.target.value)
                         setEmailSaved(false)
                       }}
-                      placeholder="info@wellnessneedles.ie"
+                      placeholder={contactConfig.email.address}
                       className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
                         emailToDraft && !emailToValid
                           ? 'border-red-500 bg-red-50/40'
@@ -499,7 +509,16 @@ export default function AdminPage() {
                       <p className="text-sm text-secondary mb-3">
                         Local fallback only. For shared deploys, set{' '}
                         <code className="text-xs">NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY</code> in
-                        Vercel (see README).
+                        Vercel (see README). Create the key at{' '}
+                        <a
+                          href="https://web3forms.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          web3forms.com
+                        </a>{' '}
+                        using <span className="font-medium">{contactConfig.email.address}</span>.
                       </p>
                       <input
                         id="web3forms-access-key"
@@ -510,9 +529,18 @@ export default function AdminPage() {
                           setAccessKeyDraft(e.target.value)
                           setEmailSaved(false)
                         }}
-                        placeholder="Your Web3Forms access key"
-                        className="w-full px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                          accessKeyDraft && !accessKeyValid
+                            ? 'border-red-500 bg-red-50/40'
+                            : 'border-accent/30'
+                        }`}
                       />
+                      {accessKeyDraft && !accessKeyValid && (
+                        <p className="mt-2 text-sm text-red-700" role="alert">
+                          Access key must be a valid UUID from the Web3Forms dashboard.
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -523,7 +551,7 @@ export default function AdminPage() {
                       disabled={
                         !emailDirty ||
                         !emailToValid ||
-                        (!usingEnvAccessKey && !accessKeyDraft.trim())
+                        (!usingEnvAccessKey && !accessKeyValid)
                       }
                       className="px-5 py-2.5 rounded-full font-semibold bg-primary text-cream hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
@@ -537,6 +565,13 @@ export default function AdminPage() {
                         Paste your Web3Forms access key before saving.
                       </span>
                     )}
+                    {!usingEnvAccessKey &&
+                      Boolean(accessKeyDraft.trim()) &&
+                      !accessKeyValid && (
+                      <span className="text-sm text-red-700">
+                        Key must look like a UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).
+                      </span>
+                    )}
                     <span className="text-sm text-secondary">
                       Status:{' '}
                       <span className="font-medium text-primary">
@@ -545,10 +580,13 @@ export default function AdminPage() {
                           bookingEmailAccessKey: usingEnvAccessKey
                             ? envAccessKey
                             : accessKeyDraft.trim() || features.bookingEmailAccessKey,
-                          bookingEmailTo: emailToDraft.trim() || features.bookingEmailTo,
+                          bookingEmailTo:
+                            emailToDraft.trim() || contactConfig.email.address,
                           bookingEmailEnabled: true,
                         })
-                          ? 'Ready to send'
+                          ? `Ready to send → ${
+                              emailToDraft.trim() || contactConfig.email.address
+                            }`
                           : 'Needs access key + valid recipient'}
                       </span>
                     </span>

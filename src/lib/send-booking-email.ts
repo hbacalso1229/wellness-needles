@@ -1,8 +1,10 @@
 import {
-  isBookingEmailConfigured,
+  isValidEmailAddress,
+  pickWeb3FormsAccessKey,
   readBookingFeatures,
   type BookingFeatureFlags,
 } from '@/lib/booking-features'
+import { contactConfig } from '@/lib/contact-config'
 
 export type BookingEmailPayload = {
   serviceType: string
@@ -47,6 +49,9 @@ export type SendBookingEmailResult =
       message?: string
     }
 
+/** Clinic inbox default for website booking requests. */
+export const BOOKING_REQUEST_INBOX = contactConfig.email.address
+
 export async function sendBookingRequestEmail(
   payload: BookingEmailPayload,
   features: BookingFeatureFlags = readBookingFeatures(),
@@ -55,8 +60,20 @@ export async function sendBookingRequestEmail(
   if (!features.bookingEmailEnabled) {
     return { ok: false, reason: 'disabled' }
   }
-  if (!isBookingEmailConfigured(features)) {
-    return { ok: false, reason: 'not-configured' }
+
+  const accessKey = pickWeb3FormsAccessKey(features.bookingEmailAccessKey)
+  const emailTo =
+    (features.bookingEmailTo.trim() &&
+    isValidEmailAddress(features.bookingEmailTo.trim())
+      ? features.bookingEmailTo.trim()
+      : '') || BOOKING_REQUEST_INBOX
+  if (!accessKey || !isValidEmailAddress(emailTo)) {
+    return {
+      ok: false,
+      reason: 'not-configured',
+      message:
+        'Booking email needs a valid Web3Forms access key (UUID) and recipient email. Check .env.local or Admin → Booking email setup.',
+    }
   }
 
   const token = hCaptchaToken?.trim() ?? ''
@@ -76,12 +93,12 @@ export async function sendBookingRequestEmail(
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        access_key: features.bookingEmailAccessKey.trim(),
+        access_key: accessKey,
         subject: `New booking request — ${payload.firstName} ${payload.lastName}`,
         from_name: `${payload.firstName} ${payload.lastName}`.trim(),
         email: payload.email,
         replyto: payload.email,
-        to: features.bookingEmailTo.trim(),
+        to: emailTo,
         message: formatBookingMessage(payload),
         'h-captcha-response': token,
         // Structured fields for Web3Forms dashboard
@@ -98,10 +115,14 @@ export async function sendBookingRequestEmail(
 
     const data = (await response.json()) as { success?: boolean; message?: string }
     if (!response.ok || !data.success) {
+      const rawMessage = data.message || 'Email service rejected the request.'
+      const message = /access_key|form_id|uuid/i.test(rawMessage)
+        ? 'Web3Forms rejected the access key. It must be a valid UUID from https://web3forms.com — check .env.local or Admin, then restart the dev server.'
+        : rawMessage
       return {
         ok: false,
         reason: 'request-failed',
-        message: data.message || 'Email service rejected the request.',
+        message,
       }
     }
     return { ok: true }

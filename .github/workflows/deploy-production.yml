@@ -52,6 +52,8 @@ jobs:
         env:
           # Hide Admin on production (main branch); legacy form stays the default
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
+          # Baked into static client at build time (GitHub secret — avoids Vercel prebuilt redeploy)
+          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
           VERCEL_GIT_COMMIT_REF: main
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 

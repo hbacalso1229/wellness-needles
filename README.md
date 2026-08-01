@@ -152,15 +152,19 @@ Use when **Calendly booking embed** is the chosen live booking UI on `/admin` (m
 
 Defaults live in `src/lib/contact-config.ts` (`calendly.initialConsultationUrl`, `calendly.followUpUrl`). The bookings page picks the URL from the selected service so the right duration is blocked. Packages use the Follow-up event URL.
 
-### Vercel environment variables
+### Web3Forms access key (shared deploys)
 
-Set in **Vercel → Project → Settings → Environment Variables** (not GitHub Secrets, unless a GitHub Action builds the site):
+This repo deploys with **GitHub Actions → Vercel prebuilt**. Vercel UI “Redeploy” does **not** bake new env vars into those builds.
 
-| Variable | Environments | Purpose |
-|----------|--------------|---------|
-| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | **Production** (`main`) and **Preview** (`dev`) | Web3Forms key for legacy booking-form emails |
+Set the key as a **GitHub Actions repository secret** (Settings → Secrets and variables → Actions):
 
-Redeploy Preview and Production after adding or changing the variable — `NEXT_PUBLIC_*` is baked into the client at build time.
+| Secret | Used by | Purpose |
+|--------|---------|---------|
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Deploy — Production & Deploy — Staging | Web3Forms key for legacy booking-form emails |
+
+Then run **Deploy — Production** (or push/merge to `main` / `dev`). The workflows pass the secret into `vercel build` so it is baked into the static client.
+
+Optional: you can also store the same variable in Vercel for local `vercel` CLI pulls; it is not required for CI prebuilt deploys.
 
 Local: copy [`.env.example`](.env.example) → `.env.local`, set the same variable, restart `npm run dev`.
 
@@ -169,9 +173,9 @@ When this env var is set: email is always on for that build, the Admin access-ke
 ### Booking email checklist
 
 1. Create an access key at [web3forms.com](https://web3forms.com) for the clinic inbox (e.g. `info@wellnessneedles.ie`).
-2. Set `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` in Vercel for Preview + Production.
-3. Redeploy both environments.
-4. On `/admin`, enable **Legacy stepper form** when you want form submissions.
+2. Set GitHub Actions secret `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see above).
+3. Redeploy via **Deploy — Production** / **Deploy — Staging** (or merge to `main` / `dev`).
+4. On staging `/admin`, enable **Legacy stepper form** when you want form submissions (Admin is off on production).
 5. Submit a test booking on `/bookings` and confirm the email arrives.
 
 Full details: [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md). Architecture: [WORKFLOW.md](WORKFLOW.md). Contact config: [CONTACT_CONFIG_SUMMARY.md](CONTACT_CONFIG_SUMMARY.md).
