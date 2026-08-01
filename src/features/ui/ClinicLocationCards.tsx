@@ -36,12 +36,12 @@ export function ClinicLocationCards({
         return (
           <label
             key={location.id}
-            className={`relative block p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+            className={`booking-select-card relative block box-border cursor-pointer rounded-xl border-2 p-4 ${
               selected
-                ? 'border-2 border-primary bg-primary/5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+                ? 'border-primary bg-primary/5'
                 : hasError
-                  ? 'border-2 border-red-400 bg-white hover:border-red-500'
-                  : 'border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+                  ? 'border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
+                  : 'border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
             }`}
           >
             <input
@@ -50,24 +50,25 @@ export function ClinicLocationCards({
               value={location.id}
               checked={selected}
               onChange={() => onSelect(location.id)}
-              className="sr-only"
+              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+              aria-label={location.label}
             />
-            {selected && (
-              <CheckCircle
-                className="absolute top-3 right-3 w-5 h-5 text-primary"
-                aria-hidden
-              />
-            )}
-            <div className="flex items-start gap-3 pr-6">
+            <CheckCircle
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
+                selected ? 'opacity-100' : 'opacity-0'
+              }`}
+              aria-hidden
+            />
+            <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-6">
               <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
                   selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                 }`}
               >
-                <MapPin className="w-5 h-5" aria-hidden />
+                <MapPin className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <h4 className="font-semibold text-primary mb-1">{location.label}</h4>
+                <h4 className="mb-1 font-semibold text-primary">{location.label}</h4>
                 <p className="text-sm text-secondary">{location.formatted.street}</p>
                 <p className="text-sm text-secondary">
                   {location.formatted.city}, {location.formatted.county}{' '}

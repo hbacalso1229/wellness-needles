@@ -53,12 +53,12 @@ export function ServiceSelectionCards({
         return (
           <label
             key={service.id}
-            className={`relative block p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+            className={`booking-select-card relative block box-border cursor-pointer rounded-xl border-2 p-4 ${
               selected
-                ? 'border-2 border-primary bg-primary/5 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+                ? 'border-primary bg-primary/5'
                 : hasError
-                  ? 'border-2 border-red-400 bg-white hover:border-red-500'
-                  : 'border border-accent/15 bg-white shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+                  ? 'border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
+                  : 'border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
             }`}
           >
             <input
@@ -67,28 +67,29 @@ export function ServiceSelectionCards({
               value={service.id}
               checked={selected}
               onChange={() => onSelect(service.id)}
-              className="sr-only"
+              className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+              aria-label={service.name}
             />
-            {selected && (
-              <CheckCircle
-                className="absolute top-3 right-3 w-5 h-5 text-primary"
-                aria-hidden
-              />
-            )}
-            <div className="flex items-start gap-3 pr-7">
+            <CheckCircle
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
+                selected ? 'opacity-100' : 'opacity-0'
+              }`}
+              aria-hidden
+            />
+            <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-7">
               <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
                   selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                 }`}
               >
-                <Icon className="w-5 h-5" aria-hidden />
+                <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between items-start gap-3 mb-2">
-                  <h3 className="font-semibold text-primary leading-snug min-w-0">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <h3 className="min-w-0 font-semibold leading-snug text-primary">
                     {service.name}
                   </h3>
-                  <div className="text-right shrink-0">
+                  <div className="shrink-0 text-right">
                     <span
                       className={`font-serif font-bold text-primary ${
                         largePrice ? 'text-2xl' : 'text-xl'
@@ -97,14 +98,14 @@ export function ServiceSelectionCards({
                       {service.price}
                     </span>
                     {service.savings && (
-                      <div className="text-green-600 text-sm font-medium">
+                      <div className="text-sm font-medium text-green-600">
                         {service.savings}
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center text-sm text-secondary mb-2">
-                  <Clock className="w-4 h-4 mr-1 shrink-0" aria-hidden />
+                <div className="mb-2 flex items-center text-sm text-secondary">
+                  <Clock className="mr-1 h-4 w-4 shrink-0" aria-hidden />
                   {service.duration}
                 </div>
                 <p className="text-sm text-secondary">{service.description}</p>

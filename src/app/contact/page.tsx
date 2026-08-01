@@ -8,7 +8,10 @@ import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 const interactiveCardClass =
-  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25'
+
+const faqCardClass =
+  'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25'
 
 const faqs = [
   {
@@ -406,7 +409,7 @@ export default function Contact() {
                 <button
                   key={faq.question}
                   type="button"
-                  className={`${interactiveCardClass} w-full text-left cursor-pointer`}
+                  className={`${faqCardClass} w-full text-left cursor-pointer`}
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${index}`}
                   id={`faq-question-${index}`}

@@ -32,7 +32,7 @@ type BookingService = {
 }
 
 const panelClass =
-  'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)]'
+  'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15'
 
 export default function Bookings() {
   const { features } = useBookingFeatures()
@@ -377,7 +377,7 @@ export default function Bookings() {
                       </div>
 
                       {canOpenScheduler && (
-                        <div className="mb-5 rounded-xl border border-accent/15 bg-cream p-4 max-w-2xl mx-auto shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
+                        <div className="mb-5 rounded-xl border border-accent/15 bg-cream p-4 max-w-2xl mx-auto">
                           <p className="font-semibold text-primary mb-2 text-center text-sm sm:text-base">
                             Your booking summary
                           </p>

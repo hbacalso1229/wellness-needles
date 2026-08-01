@@ -7,7 +7,7 @@ import { FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const diagnosisCardClass =
-  'group w-full bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-[transform,box-shadow,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)] text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+  'group w-full bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
 
 const diagnosisMethods = [
   {
@@ -302,7 +302,7 @@ export default function ChineseMedicine() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]">
+            <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25">
               <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
                 Evidence-Based Practice
               </h3>
