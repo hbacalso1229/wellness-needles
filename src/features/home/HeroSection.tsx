@@ -69,7 +69,7 @@ export function HeroSection() {
           </div>
 
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-6 items-stretch sm:items-center">
-            <div data-hide-header-book className="inline-flex justify-center sm:justify-start">
+            <div className="inline-flex justify-center sm:justify-start">
               <CTAButton
                 href={bookHref}
                 variant="gold"

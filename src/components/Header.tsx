@@ -25,26 +25,30 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = normalizePathname(usePathname())
   const [navReady, setNavReady] = useState(false)
-  const [hideHeaderBook, setHideHeaderBook] = useState(() => pathname === '/')
-  const { href: bookHref, isExternal: bookExternal, target: bookTarget, rel: bookRel } =
-    useBookingCtaHref()
+  const {
+    href: bookHref,
+    isExternal: bookExternal,
+    target: bookTarget,
+    rel: bookRel,
+    hydrated: bookCtaReady,
+  } = useBookingCtaHref()
 
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/acupuncture', label: 'Why Acupuncture' },
-    { href: '/chinese-medicine', label: 'Chinese Medicine' },
-    { href: '/testimonials', label: 'Testimonials' },
-    // { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact' },
-    { href: '/bookings', label: 'Bookings' },
-    { href: '/admin', label: 'Admin' },
+    { href: '/about/', label: 'About' },
+    { href: '/acupuncture/', label: 'Why Acupuncture' },
+    { href: '/chinese-medicine/', label: 'Chinese Medicine' },
+    { href: '/testimonials/', label: 'Testimonials' },
+    // { href: '/blog/', label: 'Blog' },
+    { href: '/contact/', label: 'Contact' },
+    { href: '/bookings/', label: 'Bookings' },
+    { href: '/admin/', label: 'Admin' },
   ]
 
   const bookNowClassName =
-    'inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-5 py-2 rounded-full text-sm font-bold normal-case shadow-md shadow-primary/20 card-emboss whitespace-nowrap transition-all duration-200 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/25'
+    'inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-5 py-2 rounded-full text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f]'
   const bookNowHeaderMobileClassName =
-    'inline-flex items-center justify-center gap-1.5 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold normal-case shadow-md shadow-primary/20 whitespace-nowrap transition-all duration-200 hover:from-[#f0d45c] hover:to-[#c9a52f]'
+    'inline-flex items-center justify-center gap-1.5 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f]'
 
   // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
   useEffect(() => {
@@ -53,7 +57,10 @@ export default function Header() {
 
   const isNavActive = (href: string) => {
     if (!navReady) return false
-    return href === '/' ? pathname === '/' : pathname.startsWith(href)
+    const normalizedHref = normalizePathname(href)
+    return normalizedHref === '/'
+      ? pathname === '/'
+      : pathname.startsWith(normalizedHref)
   }
 
   const navLinkClass = (href: string) => {
@@ -76,9 +83,6 @@ export default function Header() {
     ].join(' ')
   }
 
-  const onBookingOrAdmin =
-    pathname.startsWith('/bookings') || pathname.startsWith('/admin')
-
   // Close the drawer when navigating or resizing up to desktop nav.
   useEffect(() => {
     setIsMenuOpen(false)
@@ -93,86 +97,36 @@ export default function Header() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Home page book CTAs (hero + booking section) — hide header Book while any is in view.
-  useEffect(() => {
-    if (pathname !== '/') {
-      setHideHeaderBook(false)
-      return
-    }
+  // Stable SSR markup: always Link to /bookings until booking features hydrate.
+  const bookUsesExternal = bookCtaReady && bookExternal
+  const bookLinkHref = bookUsesExternal ? bookHref : '/bookings/'
 
-    setHideHeaderBook(true)
-
-    let cancelled = false
-    let observer: IntersectionObserver | undefined
-    const timers: number[] = []
-    const intersecting = new Set<Element>()
-
-    const bind = () => {
-      const targets = document.querySelectorAll('[data-hide-header-book]')
-      if (targets.length === 0 || cancelled) return false
-      observer?.disconnect()
-      intersecting.clear()
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) intersecting.add(entry.target)
-            else intersecting.delete(entry.target)
-          }
-          if (!cancelled) setHideHeaderBook(intersecting.size > 0)
-        },
-        { threshold: [0, 0.15, 0.4], rootMargin: '-64px 0px 0px 0px' }
-      )
-      targets.forEach((target) => observer!.observe(target))
-      return true
-    }
-
-    // Re-bind on retries so late-mounted markers (e.g. booking section) are included.
-    bind()
-    ;[50, 100, 200, 400, 800].forEach((ms) => {
-      timers.push(
-        window.setTimeout(() => {
-          if (!cancelled) bind()
-        }, ms)
-      )
-    })
-
-    return () => {
-      cancelled = true
-      timers.forEach((id) => window.clearTimeout(id))
-      observer?.disconnect()
-    }
-  }, [pathname])
-
-  const showHeaderBook = !onBookingOrAdmin && !hideHeaderBook
-
-  const headerBookCta = showHeaderBook && (
-    bookExternal ? (
-      <a
-        href={bookHref}
-        target={bookTarget}
-        rel={bookRel}
-        className={`${bookNowHeaderMobileClassName} shrink-0`}
-      >
-        <BookNowLabel compact />
-      </a>
-    ) : (
-      <Link href={bookHref} className={`${bookNowHeaderMobileClassName} shrink-0`}>
-        <BookNowLabel compact />
-      </Link>
-    )
+  const headerBookCta = bookUsesExternal ? (
+    <a
+      href={bookHref}
+      target={bookTarget}
+      rel={bookRel}
+      className={`${bookNowHeaderMobileClassName} shrink-0`}
+    >
+      <BookNowLabel compact />
+    </a>
+  ) : (
+    <Link href={bookLinkHref} className={`${bookNowHeaderMobileClassName} shrink-0`}>
+      <BookNowLabel compact />
+    </Link>
   )
 
   return (
     <header className="fixed top-0 w-full bg-cream/95 backdrop-blur-sm border-b border-blue-light/30 z-50 overflow-visible">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+      <nav className="w-full pl-2 sm:pl-3 pr-3 sm:pr-4 lg:pr-6 overflow-visible">
         <div className="relative flex items-center gap-2 sm:gap-3 h-16 overflow-visible">
-          {/* Logo + wordmark — same size/centering on mobile, tablet, and desktop */}
+          {/* Logo + wordmark — pinned leftmost on all breakpoints */}
           <Link
             href="/"
-            className="relative z-[60] flex items-center gap-3 min-w-0 shrink xl:shrink-0"
+            className="relative z-[60] flex items-center gap-2 sm:gap-3 min-w-0 shrink-0"
           >
             <span className="relative shrink-0">
-              <span className="relative block size-12 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream shadow-[0_8px_24px_rgba(45,80,22,0.28)] aspect-square">
+              <span className="relative block size-12 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream aspect-square">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
@@ -188,8 +142,8 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation — left-aligned after brand */}
-          <div className="hidden xl:flex items-center gap-x-3 xl:gap-x-4 2xl:gap-x-5 min-w-0">
+          {/* Desktop Navigation — spaced from brand */}
+          <div className="hidden xl:flex items-center gap-x-3 xl:gap-x-4 2xl:gap-x-5 min-w-0 xl:ml-24 2xl:ml-28">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -202,25 +156,23 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Desktop Book — stays right */}
-          {showHeaderBook && (
-            <div className="hidden xl:block ml-auto shrink-0">
-              {bookExternal ? (
-                <a
-                  href={bookHref}
-                  target={bookTarget}
-                  rel={bookRel}
-                  className={bookNowClassName}
-                >
-                  <BookNowLabel />
-                </a>
-              ) : (
-                <Link href={bookHref} className={bookNowClassName}>
-                  <BookNowLabel />
-                </Link>
-              )}
-            </div>
-          )}
+          {/* Desktop Book — beside menu */}
+          <div className="hidden xl:block shrink-0 xl:ml-6 2xl:ml-8">
+            {bookUsesExternal ? (
+              <a
+                href={bookHref}
+                target={bookTarget}
+                rel={bookRel}
+                className={bookNowClassName}
+              >
+                <BookNowLabel />
+              </a>
+            ) : (
+              <Link href={bookLinkHref} className={bookNowClassName}>
+                <BookNowLabel />
+              </Link>
+            )}
+          </div>
 
           {/* Mobile / tablet: Book now + menu */}
           <div className="xl:hidden ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">

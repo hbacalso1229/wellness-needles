@@ -31,7 +31,7 @@ export function BookingSection() {
           Take a quiet next step. Book a session and begin restoring balance at a pace that
           feels right for you.
         </p>
-        <div data-hide-header-book className="inline-flex justify-center">
+        <div className="inline-flex justify-center">
           <BookingCtaButton variant="gold" size="large" showArrow>
             Book your session
           </BookingCtaButton>

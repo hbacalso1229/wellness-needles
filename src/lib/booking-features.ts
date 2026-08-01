@@ -129,7 +129,7 @@ export function getBookingCtaHref(features: BookingFeatureFlags): string {
   if (features.freshaEnabled && isValidFreshaBookingUrl(features.freshaBookingUrl)) {
     return features.freshaBookingUrl.trim()
   }
-  return '/bookings'
+  return '/bookings/'
 }
 
 export function isExternalBookingHref(href: string): boolean {

@@ -10,7 +10,7 @@ import {
 /** Book Now / booking CTA href that respects Fresha Admin toggle after hydrate. */
 export function useBookingCtaHref() {
   const { features, hydrated } = useBookingFeatures()
-  const href = hydrated ? getBookingCtaHref(features) : '/bookings'
+  const href = hydrated ? getBookingCtaHref(features) : '/bookings/'
   const isExternal = isExternalBookingHref(href)
   const openAttrs =
     isExternal && hydrated
