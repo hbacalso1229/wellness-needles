@@ -215,42 +215,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Insurance */}
-      <section className="py-12 md:py-16 lg:py-20 bg-accent/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Insurance"
-            subtitle="We are a registered professional acupuncture clinic"
-          />
-          <div className="mx-auto max-w-3xl space-y-4 text-center text-secondary">
-            <p>
-              You may be able to claim acupuncture treatment through your health insurance,
-              depending on your provider and level of cover.
-            </p>
-            <p>
-              Please check with your insurer before your appointment. We will provide a receipt
-              for your claim after treatment.
-            </p>
-          </div>
-
-          <ul className="mt-6 md:mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-6 sm:gap-x-10 md:gap-x-12">
-            {insurers.map((insurer) => (
-              <li key={insurer.slug}>
-                <a
-                  href={insurer.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${insurer.name} website (opens in a new tab)`}
-                  className="inline-flex items-center justify-center opacity-90 transition-opacity duration-200 motion-safe:hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-accent/10"
-                >
-                  <InsurerLogo name={insurer.name} logo={insurer.logo} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* Why Choose Us Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -297,6 +261,42 @@ export default function About() {
               />
             </div>
           </SnapCarousel>
+        </div>
+      </section>
+
+      {/* Insurance */}
+      <section className="py-12 md:py-16 lg:py-20 bg-accent/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Insurance"
+            subtitle="We are a registered professional acupuncture clinic"
+          />
+          <div className="mx-auto max-w-3xl space-y-4 text-center text-secondary">
+            <p>
+              You may be able to claim acupuncture treatment through your health insurance,
+              depending on your provider and level of cover.
+            </p>
+            <p>
+              Please check with your insurer before your appointment. We will provide a receipt
+              for your claim after treatment.
+            </p>
+          </div>
+
+          <ul className="mt-6 md:mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-6 sm:gap-x-10 md:gap-x-12">
+            {insurers.map((insurer) => (
+              <li key={insurer.slug}>
+                <a
+                  href={insurer.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${insurer.name} website (opens in a new tab)`}
+                  className="inline-flex items-center justify-center opacity-90 transition-opacity duration-200 motion-safe:hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-accent/10"
+                >
+                  <InsurerLogo name={insurer.name} logo={insurer.logo} />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>

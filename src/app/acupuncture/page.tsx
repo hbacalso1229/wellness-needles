@@ -19,7 +19,7 @@ import { FeatureCard, HeroSection, SectionHeading, SnapCarousel } from '../../fe
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]'
+  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 md:p-6 transition-all duration-300'
 
 const conditions: {
   title: string
@@ -242,8 +242,8 @@ export default function Acupuncture() {
           >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
-                <div className="mb-2.5 md:mb-4 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full border border-accent/35 bg-cream transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-accent/10">
-                  <Icon className="h-4 w-4 md:h-5 md:w-5 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={1.75} />
+                <div className="mb-2.5 md:mb-4 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-white transition-[transform,color] duration-300 group-hover:scale-110">
+                  <Icon className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.75} />
                 </div>
                 <h3 className="font-serif text-base md:text-lg font-semibold text-primary mb-1.5 md:mb-2 leading-snug">{title}</h3>
                 <div className="mb-2.5 md:mb-4 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
