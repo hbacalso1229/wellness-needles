@@ -186,7 +186,7 @@ export function TestimonialCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col rounded-xl border-2 border-accent/20 bg-white p-3.5 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 hover:border-primary/40 md:p-5 ${className}`}
+      className={`group relative flex h-full flex-col rounded-xl border-2 border-accent/20 bg-white p-3.5 shadow-none transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 hover:border-primary/40 md:p-5 ${className}`}
     >
       <div className="mb-3 flex items-start gap-3">
         <div

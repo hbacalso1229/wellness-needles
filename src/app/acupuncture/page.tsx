@@ -290,7 +290,7 @@ export default function Acupuncture() {
               </li>
             ))}
           </ul>
-          <p className="mt-8 inline-flex items-center justify-center gap-2 text-sm font-medium text-primary">
+          <p className="mt-8 inline-flex items-center justify-center gap-2 text-sm font-bold text-primary">
             <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
             Evidence-based. Safe. Gentle.
           </p>
