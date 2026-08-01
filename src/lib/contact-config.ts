@@ -51,6 +51,10 @@ export const contactConfig = {
     facebook: {
       url: "https://www.facebook.com/WellnessNeedles",
       displayName: "Facebook"
+    },
+    instagram: {
+      url: "https://www.instagram.com/wellnessneedles",
+      displayName: "Instagram"
     }
   },
   businessInfo: {
@@ -101,8 +105,8 @@ export const contactConfig = {
     liveChatEnabled: false,
     mapIntegrationEnabled: true,
     treatmentPackagesEnabled: false,
-    calendlyEnabled: true,
-    bookingFormEnabled: false,
+    calendlyEnabled: false,
+    bookingFormEnabled: true,
     freshaEnabled: false,
   }
 } as const

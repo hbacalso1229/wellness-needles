@@ -158,11 +158,6 @@ body {
   animation: booking-step-in 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.booking-time-grid--collapsible {
-  overflow: hidden;
-  transition: max-height 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 @keyframes booking-step-in {
   from {
     opacity: 0;
@@ -182,10 +177,6 @@ body {
 
   .booking-step-panel {
     animation: none;
-  }
-
-  .booking-time-grid--collapsible {
-    transition: none;
   }
 }
 
@@ -326,7 +317,7 @@ body {
 }
 
 .text-secondary {
-  color: var(--secondary-green);
+  color: var(--text-dark); /* body/supporting text — not brand green */
 }
 
 .text-accent {

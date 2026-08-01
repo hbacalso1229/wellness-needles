@@ -47,6 +47,7 @@ export function ServicesSection() {
             <FeatureCard
               key={service.title}
               compact
+              elevated
               icon={service.icon}
               title={service.title}
               description={service.description}

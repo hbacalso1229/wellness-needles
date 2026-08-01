@@ -1,8 +1,9 @@
+import { type ReactNode } from 'react'
 import { Leaf } from 'lucide-react'
 
 interface SectionHeadingProps {
   title: string
-  subtitle?: string
+  subtitle?: ReactNode
   /** Optional size for home-style larger titles */
   titleClassName?: string
   subtitleClassName?: string
@@ -19,8 +20,9 @@ export function SectionHeading({
   return (
     <div className={className}>
       <h2 className={titleClassName}>{title}</h2>
-      <div className="mb-2 flex flex-col items-center gap-1 md:mb-4" aria-hidden="true">
-        <Leaf className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" strokeWidth={1.75} />
+      <div className="mb-2 flex items-center justify-center gap-2 md:mb-4" aria-hidden="true">
+        <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
+        <Leaf className="h-3.5 w-3.5 shrink-0 text-primary md:h-4 md:w-4" strokeWidth={1.75} />
         <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
       </div>
       {subtitle ? (

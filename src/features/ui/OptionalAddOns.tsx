@@ -62,16 +62,16 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-start justify-between gap-3">
+                  <div className="mb-1 flex items-start justify-between gap-3 md:max-lg:flex-col md:max-lg:items-stretch md:max-lg:gap-0.5">
                     <h4 className="min-w-0 font-semibold leading-snug text-primary">
                       {addOn.name}
                     </h4>
                     {/^\s*free\b/i.test(addOn.price) ? (
-                      <p className="shrink-0 text-right text-sm font-semibold text-accent sm:text-base">
+                      <p className="shrink-0 text-right text-sm font-semibold text-accent sm:text-base md:max-lg:text-left">
                         {addOn.price}
                       </p>
                     ) : (
-                      <p className="shrink-0 text-right text-sm font-semibold text-secondary sm:text-base">
+                      <p className="shrink-0 text-right text-sm font-semibold text-secondary sm:text-base md:max-lg:text-left">
                         +{addOn.price} add-on
                       </p>
                     )}

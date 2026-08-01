@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { isAdminUiEnabled } from '@/lib/admin-ui'
 
 function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
@@ -42,7 +43,7 @@ export default function Header() {
     // { href: '/blog/', label: 'Blog' },
     { href: '/contact/', label: 'Contact' },
     { href: '/bookings/', label: 'Bookings' },
-    { href: '/admin/', label: 'Admin' },
+    ...(isAdminUiEnabled() ? [{ href: '/admin/', label: 'Admin' }] : []),
   ]
 
   const bookNowClassName =

@@ -10,6 +10,16 @@ export { HeroSection  } from './ui/HeroSection'
 export { OptionalAddOns } from './ui/OptionalAddOns'
 export { ClinicLocationCards } from './ui/ClinicLocationCards'
 export { ServiceSelectionCards } from './ui/ServiceSelectionCards'
+export {
+  TimeRangeCards,
+  TIME_RANGES,
+  findTimeRange,
+  formatTimeRangeLabel,
+  isPastTimeRange,
+  defaultPreferredDate,
+  defaultPreferredTime,
+  firstAvailableTimeRange,
+} from './ui/TimeRangeCards'
 export { TravelPolicyNotice } from './ui/TravelPolicyNotice'
 export { SectionHeading } from './ui/SectionHeading'
 export { SnapCarousel, snapSlideClassName } from './ui/SnapCarousel'

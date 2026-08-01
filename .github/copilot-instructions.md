@@ -1,5 +1,7 @@
 # Wellness Needles - AI Coding Instructions
 
+**Visual system:** see [`BRANDING_AND_PATTERNS.md`](../BRANDING_AND_PATTERNS.md) for brand tokens, CTA hierarchy, card chrome, heroes, and mobile patterns.
+
 ## Project Overview
 
 Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ireland). Tropical/jungle theme. Static export (`output: 'export'`) — no server API routes.

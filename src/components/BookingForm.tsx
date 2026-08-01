@@ -1,15 +1,26 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import { Calendar, CheckCircle, MapPin, User } from 'lucide-react'
+import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
-import { OptionalAddOns, ClinicLocationCards, ServiceSelectionCards, TravelPolicyNotice } from '@/features'
+import {
+  OptionalAddOns,
+  ClinicLocationCards,
+  ServiceSelectionCards,
+  TravelPolicyNotice,
+  TimeRangeCards,
+  findTimeRange,
+  formatTimeRangeLabel,
+  isPastTimeRange,
+  defaultPreferredDate,
+  defaultPreferredTime,
+} from '@/features'
 
 /** Web3Forms free-plan hCaptcha sitekey (enable hCaptcha in the Web3Forms dashboard). */
 const WEB3FORMS_HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
@@ -30,52 +41,6 @@ const STEPS: BookingStepperStep[] = [
   { id: 'details', title: 'Your details' },
 ]
 
-const TIME_SLOTS = [
-  '9:00 AM',
-  '9:15 AM',
-  '9:30 AM',
-  '9:45 AM',
-  '10:00 AM',
-  '10:15 AM',
-  '10:30 AM',
-  '10:45 AM',
-  '11:00 AM',
-  '11:15 AM',
-  '11:30 AM',
-  '11:45 AM',
-  '2:00 PM',
-  '2:15 PM',
-  '2:30 PM',
-  '2:45 PM',
-  '3:00 PM',
-  '3:15 PM',
-  '3:30 PM',
-  '3:45 PM',
-  '4:00 PM',
-  '4:15 PM',
-  '4:30 PM',
-  '4:45 PM',
-  '5:00 PM',
-  '5:15 PM',
-  '5:30 PM',
-  '5:45 PM',
-  '6:00 PM',
-]
-
-/** Mobile Preferred Time preview / step size (6 rows × 2 cols). */
-const MOBILE_TIME_PREVIEW = 12
-
-function parseSlotToMinutes(slot: string): number {
-  const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
-  if (!match) return -1
-  let hours = Number(match[1])
-  const minutes = Number(match[2])
-  const period = match[3].toUpperCase()
-  if (period === 'AM' && hours === 12) hours = 0
-  if (period === 'PM' && hours !== 12) hours += 12
-  return hours * 60 + minutes
-}
-
 function todayDateInputValue(): string {
   const today = new Date()
   const y = today.getFullYear()
@@ -87,13 +52,6 @@ function todayDateInputValue(): string {
 /** YYYY-MM-DD string compare — native mobile pickers often ignore `max`. */
 function isFutureDateInputValue(dateStr: string): boolean {
   return Boolean(dateStr) && dateStr > todayDateInputValue()
-}
-
-function isPastTimeSlot(dateStr: string, slot: string): boolean {
-  if (!dateStr || dateStr !== todayDateInputValue()) return false
-  const now = new Date()
-  const nowMinutes = now.getHours() * 60 + now.getMinutes()
-  return parseSlotToMinutes(slot) <= nowMinutes
 }
 
 const inClinicServices: BookingService[] = [
@@ -252,7 +210,6 @@ type FieldErrorKey =
   | 'email'
   | 'phone'
   | 'dateOfBirth'
-  | 'chiefComplaint'
 
 const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   service: 'booking-service',
@@ -264,7 +221,6 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   email: 'email',
   phone: 'phone',
   dateOfBirth: 'dateOfBirth',
-  chiefComplaint: 'chiefComplaint',
 }
 
 function focusFirstInvalidField(fields: FieldErrorKey[]) {
@@ -346,45 +302,21 @@ export default function BookingForm() {
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
   const [selectedService, setSelectedService] = useState('initial-consultation')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
-  const [selectedDate, setSelectedDate] = useState(todayDateInputValue)
-  const [selectedTime, setSelectedTime] = useState('')
-  const [visibleTimeCount, setVisibleTimeCount] = useState(MOBILE_TIME_PREVIEW)
-  const [isMobileTimeCollapse, setIsMobileTimeCollapse] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  const [selectedDate, setSelectedDate] = useState(defaultPreferredDate)
+  const [selectedTime, setSelectedTime] = useState(() =>
+    defaultPreferredTime(defaultPreferredDate())
   )
-  const [timeGridMaxHeight, setTimeGridMaxHeight] = useState<number | null>(null)
-  const timeGridRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     dateOfBirth: '',
-    chiefComplaint: '',
-    previousTreatment: '',
-    medications: '',
-    allergies: '',
   })
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const sync = () => {
-      const mobile = mq.matches
-      setIsMobileTimeCollapse(mobile)
-      if (!mobile) setVisibleTimeCount(MOBILE_TIME_PREVIEW)
-    }
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-
-  useEffect(() => {
-    if (currentStep !== 2) setVisibleTimeCount(MOBILE_TIME_PREVIEW)
-  }, [currentStep])
 
   const showSecurityCheck = isBookingEmailConfigured(features)
   const clinicLocations = contactConfig.address.locations
@@ -402,48 +334,6 @@ export default function BookingForm() {
       features.treatmentPackagesEnabled || !service.id.includes('package')
   )
   const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
-
-  const selectedTimeIndex = selectedTime ? TIME_SLOTS.indexOf(selectedTime) : -1
-  const minVisibleTimeCount =
-    selectedTimeIndex < 0
-      ? MOBILE_TIME_PREVIEW
-      : Math.min(
-          TIME_SLOTS.length,
-          Math.ceil((selectedTimeIndex + 1) / MOBILE_TIME_PREVIEW) * MOBILE_TIME_PREVIEW
-        )
-  const effectiveVisibleTimeCount = isMobileTimeCollapse
-    ? Math.min(TIME_SLOTS.length, Math.max(visibleTimeCount, minVisibleTimeCount))
-    : TIME_SLOTS.length
-  const canShowMoreTimes =
-    isMobileTimeCollapse && effectiveVisibleTimeCount < TIME_SLOTS.length
-  const canShowLessTimes =
-    isMobileTimeCollapse && effectiveVisibleTimeCount > MOBILE_TIME_PREVIEW
-
-  useLayoutEffect(() => {
-    if (!isMobileTimeCollapse) {
-      setTimeGridMaxHeight(null)
-      return
-    }
-    const grid = timeGridRef.current
-    if (!grid) return
-
-    const measure = () => {
-      const buttons = grid.querySelectorAll<HTMLElement>('[data-time-slot]')
-      const lastVisible = buttons[effectiveVisibleTimeCount - 1]
-      if (!lastVisible) {
-        setTimeGridMaxHeight(null)
-        return
-      }
-      const gridTop = grid.getBoundingClientRect().top
-      const lastBottom = lastVisible.getBoundingClientRect().bottom
-      setTimeGridMaxHeight(Math.ceil(lastBottom - gridTop))
-    }
-
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(grid)
-    return () => ro.disconnect()
-  }, [isMobileTimeCollapse, effectiveVisibleTimeCount, selectedDate])
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
   const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
@@ -530,8 +420,7 @@ export default function BookingForm() {
       name === 'firstName' ||
       name === 'lastName' ||
       name === 'email' ||
-      name === 'phone' ||
-      name === 'chiefComplaint'
+      name === 'phone'
     ) {
       clearFieldError(name)
     }
@@ -567,10 +456,10 @@ export default function BookingForm() {
       }
       if (!selectedTime) {
         fields.push('time')
-        messages.push('Please choose a preferred time.')
-      } else if (selectedDate && isPastTimeSlot(selectedDate, selectedTime)) {
+        messages.push('Please choose a preferred time range.')
+      } else if (selectedDate && isPastTimeRange(selectedDate, selectedTime)) {
         fields.push('time')
-        messages.push('That time has already passed. Please choose a later time.')
+        messages.push('That time range has already passed. Please choose a later range.')
       }
       if (fields.length > 0) {
         return { messages, fields }
@@ -604,13 +493,12 @@ export default function BookingForm() {
           'Please enter a valid Irish phone number (e.g. 086 054 3085 or +353 86 054 3085).'
         )
       }
-      if (formData.dateOfBirth && isFutureDateInputValue(formData.dateOfBirth)) {
+      if (!formData.dateOfBirth.trim()) {
+        fields.push('dateOfBirth')
+        messages.push('Please enter your date of birth.')
+      } else if (isFutureDateInputValue(formData.dateOfBirth)) {
         fields.push('dateOfBirth')
         messages.push('Date of birth cannot be in the future.')
-      }
-      if (!formData.chiefComplaint.trim()) {
-        fields.push('chiefComplaint')
-        messages.push('Please describe what brings you in today.')
       }
 
       if (fields.length > 0) {
@@ -642,19 +530,14 @@ export default function BookingForm() {
     setSelectedLocation('celbridge')
     setSelectedService('initial-consultation')
     setSelectedAddOns([])
-    setSelectedDate(todayDateInputValue())
-    setSelectedTime('')
-    setVisibleTimeCount(MOBILE_TIME_PREVIEW)
+    setSelectedDate(defaultPreferredDate())
+    setSelectedTime(defaultPreferredTime(defaultPreferredDate()))
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
       dateOfBirth: '',
-      chiefComplaint: '',
-      previousTreatment: '',
-      medications: '',
-      allergies: '',
     })
     resetHCaptcha()
   }
@@ -683,7 +566,10 @@ export default function BookingForm() {
       addOnLabels: selectedAddOnLabels,
       practitioner: 'arkinth-garcia',
       date: selectedDate,
-      time: selectedTime,
+      time: (() => {
+        const range = findTimeRange(selectedTime)
+        return range ? formatTimeRangeLabel(range) : selectedTime
+      })(),
       ...formData,
     }
 
@@ -695,7 +581,7 @@ export default function BookingForm() {
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
         showErrorToast(
-          'Booking email is enabled but not configured. Add the Web3Forms access key in Admin and click Save email settings.'
+          'Booking email is enabled but not configured. Add the Web3Forms access key in Admin (dev) or set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY.'
         )
         return
       }
@@ -816,6 +702,12 @@ export default function BookingForm() {
             <FieldInlineError message={fieldErrorMessage('service')} />
 
             {activeTab === 'call-out' && <TravelPolicyNotice />}
+
+            <OptionalAddOns
+              addOns={addOns}
+              selectedIds={selectedAddOns}
+              onToggle={handleAddOnToggle}
+            />
           </div>
         )}
 
@@ -851,169 +743,97 @@ export default function BookingForm() {
 
         {currentStep === 2 && (
           <div className="space-y-6">
-            <p className="text-sm text-secondary flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-primary shrink-0" />
-              Pick your preferred date and time. This is a request only — we will confirm within 24 hours.
+            <p className="text-sm text-secondary flex items-start">
+              <Calendar className="w-5 h-5 mr-2 text-primary shrink-0 mt-0.5" />
+              <span>
+                Pick your preferred date and a time range.
+                <br />
+                <span className="font-medium text-[var(--primary-green)]">
+                  This is a request only — we will confirm within 24 hours.
+                </span>
+              </span>
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="min-w-0 w-full max-w-full">
-                <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
-                  Preferred Date <RequiredMark />
-                </label>
-                <div className="booking-date-field">
-                  <input
-                    type="date"
-                    id="booking-date"
-                    value={selectedDate}
-                    onChange={(e) => {
-                      const nextDate = e.target.value
-                      setSelectedDate(nextDate)
-                      clearFieldError('date')
-                      if (selectedTime && isPastTimeSlot(nextDate, selectedTime)) {
-                        setSelectedTime('')
-                        clearFieldError('time')
-                      }
-                    }}
-                    min={todayDateInputValue()}
-                    aria-invalid={hasFieldError('date')}
-                    aria-describedby={
-                      fieldErrorMessage('date') ? 'booking-date-error' : undefined
+
+            <div className="min-w-0 w-full max-w-full">
+              <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
+                Preferred Date <RequiredMark />
+              </label>
+              <div className="booking-date-field">
+                <input
+                  type="date"
+                  id="booking-date"
+                  value={selectedDate}
+                  onChange={(e) => {
+                    const nextDate = e.target.value
+                    setSelectedDate(nextDate)
+                    clearFieldError('date')
+                    if (selectedTime && isPastTimeRange(nextDate, selectedTime)) {
+                      setSelectedTime(defaultPreferredTime(nextDate))
+                      clearFieldError('time')
                     }
-                    className={
-                      hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
-                    }
-                  />
-                </div>
-                <FieldInlineError
-                  id="booking-date-error"
-                  message={fieldErrorMessage('date')}
-                />
-              </div>
-              <div className="min-w-0 w-full">
-                <p
-                  id="booking-time-label"
-                  className="block text-sm font-medium text-primary mb-2"
-                >
-                  Preferred Time <RequiredMark />
-                </p>
-                <div
-                  id="booking-time"
-                  tabIndex={-1}
-                  role="group"
-                  aria-labelledby="booking-time-label"
-                  aria-invalid={hasFieldError('time')}
+                  }}
+                  min={defaultPreferredDate()}
+                  aria-invalid={hasFieldError('date')}
                   aria-describedby={
-                    fieldErrorMessage('time') ? 'booking-time-error' : undefined
+                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
                   }
-                  className={`outline-none ${
-                    hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
-                  }`}
-                >
-                  <div
-                    ref={timeGridRef}
-                    className={`booking-time-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 ${
-                      isMobileTimeCollapse ? 'booking-time-grid--collapsible' : ''
-                    }`}
-                    style={
-                      isMobileTimeCollapse
-                        ? {
-                            maxHeight:
-                              timeGridMaxHeight ??
-                              // 6 rows × min-h-11 + 5 gaps — avoids flash before measure
-                              'calc(6 * 2.75rem + 5 * 0.5rem)',
-                          }
-                        : undefined
-                    }
-                  >
-                    {TIME_SLOTS.map((slot, index) => {
-                      const past = isPastTimeSlot(selectedDate, slot)
-                      const selected = selectedTime === slot
-                      const clipped =
-                        isMobileTimeCollapse && index >= effectiveVisibleTimeCount
-                      return (
-                        <button
-                          key={slot}
-                          type="button"
-                          data-time-slot=""
-                          disabled={past || clipped}
-                          tabIndex={clipped ? -1 : undefined}
-                          aria-hidden={clipped || undefined}
-                          onClick={() => {
-                            const slotIndex = TIME_SLOTS.indexOf(slot)
-                            if (slotIndex >= 0) {
-                              setVisibleTimeCount((count) =>
-                                Math.max(
-                                  count,
-                                  Math.min(
-                                    TIME_SLOTS.length,
-                                    Math.ceil((slotIndex + 1) / MOBILE_TIME_PREVIEW) *
-                                      MOBILE_TIME_PREVIEW
-                                  )
-                                )
-                              )
-                            }
-                            setSelectedTime(slot)
-                            clearFieldError('time')
-                          }}
-                          className={`min-h-11 px-2 py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                            clipped
-                              ? 'pointer-events-none opacity-0'
-                              : selected
-                                ? 'bg-primary text-cream'
-                                : past
-                                  ? 'bg-accent/10 text-secondary/40 cursor-not-allowed'
-                                  : 'bg-white border border-accent/30 text-primary hover:border-primary'
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-                {canShowMoreTimes || canShowLessTimes ? (
-                  <div className="mt-2 flex gap-2">
-                    {canShowLessTimes ? (
-                      <button
-                        type="button"
-                        className="inline-flex min-h-11 flex-1 items-center justify-center text-sm font-medium text-primary underline-offset-2 transition-opacity duration-200 hover:underline"
-                        onClick={() =>
-                          setVisibleTimeCount((count) =>
-                            Math.max(minVisibleTimeCount, count - MOBILE_TIME_PREVIEW)
-                          )
-                        }
-                      >
-                        Show less
-                      </button>
-                    ) : null}
-                    {canShowMoreTimes ? (
-                      <button
-                        type="button"
-                        className="inline-flex min-h-11 flex-1 items-center justify-center text-sm font-medium text-primary underline-offset-2 transition-opacity duration-200 hover:underline"
-                        aria-expanded={effectiveVisibleTimeCount < TIME_SLOTS.length}
-                        onClick={() =>
-                          setVisibleTimeCount((count) =>
-                            Math.min(TIME_SLOTS.length, count + MOBILE_TIME_PREVIEW)
-                          )
-                        }
-                      >
-                        Show more
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
-                <FieldInlineError
-                  id="booking-time-error"
-                  message={fieldErrorMessage('time')}
+                  className={
+                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
+                  }
                 />
               </div>
+              <FieldInlineError
+                id="booking-date-error"
+                message={fieldErrorMessage('date')}
+              />
             </div>
 
-            <OptionalAddOns
-              addOns={addOns}
-              selectedIds={selectedAddOns}
-              onToggle={handleAddOnToggle}
-            />
+            <div className="min-w-0 w-full">
+              <p
+                id="booking-time-label"
+                className="block text-sm font-medium text-primary mb-1"
+              >
+                Preferred Time Range <RequiredMark />
+              </p>
+              <p className="text-sm text-secondary mb-3">
+                Select the time range that works best for you.
+              </p>
+              <div
+                id="booking-time"
+                tabIndex={-1}
+                role="group"
+                aria-labelledby="booking-time-label"
+                aria-invalid={hasFieldError('time')}
+                aria-describedby={
+                  fieldErrorMessage('time') ? 'booking-time-error' : undefined
+                }
+                className={`outline-none ${
+                  hasFieldError('time') ? 'ring-2 ring-red-400 rounded-lg p-1' : ''
+                }`}
+              >
+                <TimeRangeCards
+                  selectedId={selectedTime}
+                  dateStr={selectedDate}
+                  hasError={hasFieldError('time')}
+                  onSelect={(id) => {
+                    setSelectedTime(id)
+                    clearFieldError('time')
+                  }}
+                />
+              </div>
+              <FieldInlineError
+                id="booking-time-error"
+                message={fieldErrorMessage('time')}
+              />
+            </div>
+
+            <div className="flex items-start gap-2 rounded-xl bg-accent/10 px-4 py-3 text-sm text-secondary">
+              <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
+              <p>
+                We will confirm your preferred date and time within 24 hours via email or
+                phone.
+              </p>
+            </div>
           </div>
         )}
 
@@ -1108,7 +928,7 @@ export default function BookingForm() {
                 </div>
                 <div className="md:col-span-2 min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
-                    Date of Birth
+                    Date of Birth <RequiredMark />
                   </label>
                   <div className="booking-date-field">
                     <input
@@ -1148,92 +968,6 @@ export default function BookingForm() {
                     message={fieldErrorMessage('dateOfBirth')}
                     always
                   />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-serif text-xl font-bold text-primary mb-4">Health Information</h3>
-              <div className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="chiefComplaint"
-                    className="block text-sm font-medium text-primary mb-2"
-                  >
-                    What brings you in today? (Main concern or condition) <RequiredMark />
-                  </label>
-                  <textarea
-                    id="chiefComplaint"
-                    name="chiefComplaint"
-                    value={formData.chiefComplaint}
-                    onChange={handleChange}
-                    rows={3}
-                    aria-invalid={hasFieldError('chiefComplaint')}
-                    aria-describedby={
-                      fieldErrorMessage('chiefComplaint')
-                        ? 'chiefComplaint-error'
-                        : undefined
-                    }
-                    className={`${hasFieldError('chiefComplaint') ? fieldErrorClassName : inputClassName} resize-none`}
-                    placeholder="Please describe your symptoms or reason for seeking treatment..."
-                  />
-                  <FieldInlineError
-                    id="chiefComplaint-error"
-                    message={fieldErrorMessage('chiefComplaint')}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="previousTreatment"
-                    className="block text-sm font-medium text-primary mb-2"
-                  >
-                    Have you had acupuncture before?
-                  </label>
-                  <textarea
-                    id="previousTreatment"
-                    name="previousTreatment"
-                    value={formData.previousTreatment}
-                    onChange={handleChange}
-                    rows={2}
-                    className={`${inputClassName} resize-none`}
-                    placeholder="Please describe any previous acupuncture or alternative treatments..."
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="medications"
-                      className="block text-sm font-medium text-primary mb-2"
-                    >
-                      Current Medications
-                    </label>
-                    <textarea
-                      id="medications"
-                      name="medications"
-                      value={formData.medications}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`${inputClassName} resize-none`}
-                      placeholder="List all medications, supplements, and dosages..."
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="allergies"
-                      className="block text-sm font-medium text-primary mb-2"
-                    >
-                      Allergies
-                    </label>
-                    <textarea
-                      id="allergies"
-                      name="allergies"
-                      value={formData.allergies}
-                      onChange={handleChange}
-                      rows={3}
-                      className={`${inputClassName} resize-none`}
-                      placeholder="List any known allergies or sensitivities..."
-                    />
-                  </div>
                 </div>
               </div>
             </div>

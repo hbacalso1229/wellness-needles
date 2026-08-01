@@ -270,6 +270,7 @@ export default function About() {
           <SectionHeading
             title="Insurance"
             subtitle="We are a registered professional acupuncture clinic"
+            className="text-center mb-3 md:mb-4"
           />
           <div className="mx-auto max-w-3xl space-y-4 text-center text-secondary">
             <p>

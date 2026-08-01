@@ -202,7 +202,16 @@ export default function Bookings() {
                 <div>
                   <SectionHeading
                     title="Request an appointment"
-                    subtitle="Share your preferred service and time — we will confirm by email or phone. This does not lock a calendar slot."
+                    subtitle={
+                      <>
+                        Share your preferred service and time — we will confirm by email or
+                        phone.
+                        <br />
+                        <span className="font-medium text-[var(--primary-green)]">
+                          This does not lock a calendar slot.
+                        </span>
+                      </>
+                    }
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />

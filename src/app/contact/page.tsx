@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, Send, MessageCircle, ChevronRight, type LucideIcon } from 'lucide-react'
+import { Calendar, Send, MessageCircle, ChevronDown, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { HeroSection, SectionHeading } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
@@ -427,9 +427,9 @@ export default function Contact() {
                         {faq.question}
                       </h3>
                     </div>
-                    <ChevronRight
+                    <ChevronDown
                       className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
-                        isOpen ? 'rotate-90 text-primary' : ''
+                        isOpen ? 'rotate-180 text-primary' : ''
                       }`}
                       strokeWidth={1.75}
                       aria-hidden

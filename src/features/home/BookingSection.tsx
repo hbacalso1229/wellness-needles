@@ -23,9 +23,10 @@ export function BookingSection() {
         >
           Ready when you are
         </h2>
-        <div className="flex flex-col items-center gap-1.5 mb-4 md:mb-5" aria-hidden="true">
+        <div className="mb-4 flex items-center justify-center gap-2 md:mb-5" aria-hidden="true">
+          <div className="h-0.5 w-10 rounded-full bg-gold md:w-14" />
           <PulsingLeaf size="small" color="text-gold/80" />
-          <div className="h-0.5 w-14 rounded-full bg-gold" />
+          <div className="h-0.5 w-10 rounded-full bg-gold md:w-14" />
         </div>
         <p className="text-base md:text-lg text-cream/90 mb-6 md:mb-10 max-w-xl mx-auto leading-relaxed">
           Take a quiet next step. Book a session and begin restoring balance at a pace that

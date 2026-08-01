@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronRight } from 'lucide-react'
+import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { FeatureCard, HeroSection, SectionHeading } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -164,7 +164,7 @@ export default function ChineseMedicine() {
             subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
           />
 
-          <div className="grid grid-cols-2 gap-2.5 md:gap-8">
+          <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2.5 md:gap-4 lg:gap-5">
             <FeatureCard
               flippable
               icon={Zap}
@@ -235,9 +235,9 @@ export default function ChineseMedicine() {
                         {method.title}
                       </h3>
                     </div>
-                    <ChevronRight
+                    <ChevronDown
                       className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
-                        isOpen ? 'rotate-90 text-primary' : ''
+                        isOpen ? 'rotate-180 text-primary' : ''
                       }`}
                       strokeWidth={1.75}
                       aria-hidden

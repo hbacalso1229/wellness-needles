@@ -8,6 +8,19 @@ export type BookingStepperStep = {
   title: string
 }
 
+/** Keep serif headings, but use a plain sans ampersand (serif & is ornate). */
+function StepTitle({ title }: { title: string }) {
+  const ampIndex = title.indexOf('&')
+  if (ampIndex === -1) return <>{title}</>
+  return (
+    <>
+      {title.slice(0, ampIndex)}
+      <span className="font-sans font-bold">&</span>
+      {title.slice(ampIndex + 1)}
+    </>
+  )
+}
+
 type BookingStepperProps = {
   steps: BookingStepperStep[]
   currentStep: number
@@ -28,7 +41,7 @@ export default function BookingStepper({
   onSubmit,
   children,
   nextLabel = 'Next',
-  submitLabel = 'Submit appointment request',
+  submitLabel = 'Request appointment',
   isSubmitting = false,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -121,7 +134,7 @@ export default function BookingStepper({
           tabIndex={-1}
           className="font-serif text-2xl font-bold text-primary mb-6 outline-none"
         >
-          {activeStep?.title}
+          {activeStep ? <StepTitle title={activeStep.title} /> : null}
         </h2>
 
         <div key={currentStep} className="booking-step-panel min-h-[12rem]">
@@ -145,12 +158,7 @@ export default function BookingStepper({
               disabled={isSubmitting}
               className="bg-primary text-cream px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Sending…' : (
-                <>
-                  <span className="sm:hidden">Submit</span>
-                  <span className="hidden sm:inline">{submitLabel}</span>
-                </>
-              )}
+              {isSubmitting ? 'Sending…' : submitLabel}
             </button>
           ) : (
             <button
