@@ -1,7 +1,7 @@
 # Wellness Needles — Branding & UI Patterns
 
 **Status:** Current source of truth for visual / UX decisions.  
-**Code sources:** `src/app/globals.css`, `tailwind.config.js`, `src/features/ui/*`.
+**Code sources:** `src/app/globals.css`, `tailwind.config.js`, `src/features/ui/*`, `src/components/Header.tsx`.
 
 Older notes (`HERO_SECTION_GUIDE.md`, `HERO_REFACTORING_COMPLETE.md`, `COMPONENT_REFACTORING_SUMMARY.md`) are **historical** — prefer this file when they conflict.
 
@@ -29,7 +29,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | `accent` | `#7fb069` | Soft borders (`border-accent/15`), accents |
 | `light-green` | `#a7c957` | Highlights (sparingly) |
 | `cream` | `#f9f7f4` | Page / section backgrounds |
-| `gold` | `#d4af37` | Primary conversion buttons, section gold rule |
+| `gold` | `#d4af37` | Primary conversion buttons, section flourish rules |
 | `text-dark` | `#2c3e50` | Body foreground |
 | `text-light` | `#7f8c8d` | Muted meta |
 | `blue-*` | logo blues | Minor accents only (not page themes) |
@@ -38,7 +38,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 
 - Default page surface: `bg-cream`.
 - Quiet panel chrome: `border border-accent/15` (not thick `border-2` + colored shadows).
-- Gold = **conversion** (Book Appointment), not every decorative underline on cards.
+- Gold = **conversion** (Book Appointment) and **section flourish rules**, not every card title underline.
 - Prefer border intensify + lift on hover over `shadow-primary/*` / `shadow-gold/*` washes.
 
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
@@ -55,11 +55,13 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 **Section titles** — use `SectionHeading`:
 
 - Serif H2 (`text-primary`)
-- Gold rule — Lucide `Leaf` — gold rule (horizontal flourish)
+- Flourish: **gold rule — Lucide `Leaf` — gold rule** (horizontal; also used on home booking CTA)
 - Subtitle in `text-secondary`
 - Override with `titleClassName` / `subtitleClassName` when a page needs denser mobile type
 
 **Hero H1** (inner `HeroSection`): `font-serif` with responsive scale up to `xl:text-7xl`.
+
+**Header Book (mobile / tablet):** `text-sm sm:text-base` with comfortable padding (`px-3.5 sm:px-4 py-2`) — keep readable on real devices. Desktop nav Book stays `text-sm`.
 
 ---
 
@@ -75,22 +77,32 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 - Inner pages: `hideOnMobile` default **true** → hero hidden below `xl` (1280px). Home hero is separate (`features/home/HeroSection.tsx`) and always visible.
 - Optional `heightClass` (e.g. `min-h-[13rem] xl:min-h-[15rem]`) for a slightly deeper crop — don’t change global `.page-hero` for one page.
 
-### CTAs (`CTAButton` / `BookingCtaButton`)
+### CTAs (`CTAButton` / `BookingCtaButton` / Header)
 
 | Role | Style | Examples |
 |------|--------|----------|
-| **Primary** | Gold filled (`variant="gold"`) | Book an appointment |
+| **Primary** | Gold filled (`variant="gold"`) | Book an appointment, header Book |
 | **Secondary** | Outline (`variant="outline"`) | Share your story, email |
 
 - Always `rounded-full`.
 - Hierarchy: **Book above / before Share** — never the reverse.
 - Compact mobile (sidebars / bands): `!px-4 !py-2 !text-xs … md:!py-2.5 md:!text-sm`, prefer `!shadow-none`, light `hover:-translate-y-0.5` / `active:scale-[0.97]`.
 - Base `CTAButton` still applies `shadow-md`; strip locally with `!shadow-none` when matching polished sidebars.
+- Header mobile Book uses larger type than sidebar compact CTAs (see Typography).
 
 ### Cards — two systems
 
-1. **Embossed cream** — `bg-cream/80` + `.card-emboss` (FeatureCard, some condition tiles). Soft hover lift + light shadow on md+. On **cream** sections, FeatureCards go flat on mobile (`elevated` omitted). On **tinted** sections (e.g. `bg-accent/10`), pass `elevated` so the cream panel + shadow stay on mobile.
-2. **Flat white** — `bg-white rounded-xl border border-accent/15 shadow-none` (TestimonialCard, bookings panels, contact FAQs). Hover: border + translate, not green glow.
+1. **Embossed cream** — `bg-cream/80` + `.card-emboss` (FeatureCard, some condition tiles). Soft hover lift + light shadow on `md+`.
+   - **Cream sections** (`bg-cream`): FeatureCards are **flat on mobile** — `bg-transparent shadow-none`, panel returns from `md` (`elevated` omitted). Example: home “Why acupuncture works”.
+   - **Tinted sections** (`bg-accent/10`, etc.): pass **`elevated`** so cream panel + `shadow-sm` stay on mobile. Example: home “How we can help”.
+2. **Flat white** — `bg-white rounded-xl border border-accent/15 shadow-none` (TestimonialCard, bookings panels, diagnosis/FAQ accordions). Hover: border + translate, not green glow.
+
+### Accordions (diagnosis / FAQ)
+
+- Collapsed: `ChevronDown` facing **down**.
+- Expanded: `rotate-180` so chevron faces **up**.
+- Shared motion classes: `.diagnosis-accordion-chevron`, `.diagnosis-accordion-panel`, `.diagnosis-accordion-body` in `globals.css`.
+- Used on Chinese medicine diagnosis cards and Contact FAQs.
 
 ### Before / After (`BeforeAfterSlider`)
 
@@ -98,6 +110,7 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 - Drag slider + visible Before/After labels; keyboard range input.
 - Frame: `border-accent/15`, cream fill; optional `beforeRotate` / `afterRotate` to level tilted phone photos; `imageFit="contain"` for tall collages.
 - Prefer one strong case over stacking noisy collages.
+- Assets live under `public/results/` (e.g. alopecia before/after).
 
 ### Carousels (`SnapCarousel`)
 
@@ -113,6 +126,10 @@ Bookings pattern:
 - Aside: `md:sticky md:top-24`, `rounded-xl border border-accent/15 bg-accent/10`.
 - Mobile: stack below main; constrain width (`max-w-xs`) so CTAs aren’t edge-to-edge giants.
 
+### Compact card grids (tablet / desktop)
+
+When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stretch them with large gaps. Constrain the grid (e.g. `max-w-3xl mx-auto`) and use modest gaps (`md:gap-4 lg:gap-5`). Example: Chinese medicine “TCM Treatment Methods” 2×2 FeatureCards.
+
 ---
 
 ## 5. Motion
@@ -121,6 +138,7 @@ Bookings pattern:
 
 - Hover lift: `-translate-y-0.5` or `-translate-y-1`
 - Press: `scale-[0.97]`
+- Accordion chevron rotate with `.diagnosis-accordion-chevron`
 - Gate with `motion-safe:`
 - 2–3 intentional motions per visually led surface
 
@@ -133,6 +151,12 @@ Bookings pattern:
 ---
 
 ## 6. Page behavior snapshots (final state)
+
+### Home
+
+- Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile.
+- Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`.
+- Booking band: gold rule — leaf — gold rule above CTA.
 
 ### Testimonials (`src/app/testimonials/page.tsx`)
 
@@ -147,6 +171,11 @@ Bookings pattern:
 - Form column + sticky call/email aside from `md`
 - Gold Call primary → Or → outline email secondary
 - Compact mobile button sizing
+
+### Chinese medicine
+
+- Treatment Methods: compact centered 2×2 grid (`max-w-3xl`, tight `md`/`lg` gaps)
+- Diagnostic Methods: accordion cards; chevron down → up when open
 
 ### Inner heroes (acupuncture, testimonials, etc.)
 
@@ -169,10 +198,15 @@ Bookings pattern:
 
 - [ ] Colors use brand tokens (`primary` / `secondary` / `accent` / `cream` / `gold`) — not one-off purple/cream AI themes
 - [ ] Headings use `font-serif` where brand-facing; body stays Inter
+- [ ] Section flourish is **gold — leaf — gold** (not leaf stacked only above one rule)
 - [ ] Primary action is **Book** (gold); secondary is outline; order is Book → secondary
+- [ ] Header Book stays readable on mobile/tablet (`text-sm`+)
 - [ ] No new thick green/gold drop shadows; prefer `border-accent/15` + light lift
+- [ ] FeatureCards: flat on cream mobile; `elevated` on tinted section backgrounds
+- [ ] Accordions: chevron down closed, up open
+- [ ] Small card grids on wide pages use `max-w-*` + modest gaps (not huge empty gutters)
 - [ ] Hero/banner photos are landscape (or explicitly positioned); no smeared square/portrait in thin banners
-- [ ] Mobile: compact padding/type for CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
+- [ ] Mobile: compact padding/type for sidebar CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
 - [ ] Testimonials / proof: unique names; structured Before/After over DIY collage chrome
 - [ ] Motion uses `motion-safe:` and stays subtle
 
@@ -182,8 +216,11 @@ Bookings pattern:
 
 | Concern | Location |
 |---------|----------|
-| Tokens / emboss / page-hero | `src/app/globals.css` |
+| Tokens / emboss / page-hero / accordion motion | `src/app/globals.css` |
 | Tailwind colors / fonts | `tailwind.config.js` |
 | UI primitives | `src/features/ui/` |
+| Section flourish | `src/features/ui/SectionHeading.tsx` |
+| FeatureCard `elevated` | `src/features/ui/FeatureCard.tsx` |
 | Header Book CTA | `src/components/Header.tsx` |
 | Contact / booking config | `src/lib/contact-config.ts` |
+| Result photos | `public/results/` |
