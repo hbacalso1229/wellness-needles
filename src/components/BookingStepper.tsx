@@ -41,7 +41,7 @@ export default function BookingStepper({
   onSubmit,
   children,
   nextLabel = 'Next',
-  submitLabel = 'Submit appointment request',
+  submitLabel = 'Request appointment',
   isSubmitting = false,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -158,12 +158,7 @@ export default function BookingStepper({
               disabled={isSubmitting}
               className="bg-primary text-cream px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Sending…' : (
-                <>
-                  <span className="sm:hidden">Submit</span>
-                  <span className="hidden sm:inline">{submitLabel}</span>
-                </>
-              )}
+              {isSubmitting ? 'Sending…' : submitLabel}
             </button>
           ) : (
             <button

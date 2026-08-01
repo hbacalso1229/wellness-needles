@@ -1,8 +1,9 @@
+import { type ReactNode } from 'react'
 import { Leaf } from 'lucide-react'
 
 interface SectionHeadingProps {
   title: string
-  subtitle?: string
+  subtitle?: ReactNode
   /** Optional size for home-style larger titles */
   titleClassName?: string
   subtitleClassName?: string
