@@ -83,7 +83,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           )
         })}
       </div>
-      <p className="mt-2 px-0.5 text-xs text-secondary">
+      <p className="mt-2 px-0.5 text-xs font-bold text-secondary">
         * Add-ons can only be booked in combination with an acupuncture session
       </p>
     </div>

@@ -62,18 +62,17 @@ export const contactConfig = {
     tagline: "Experience the ancient healing art of acupuncture with modern wellness practices.",
     description: "Our treatments combine traditional Chinese medicine with contemporary therapeutic approaches for holistic healing and well-being.",
     hours: {
-      monday: "9:00 AM - 7:00 PM",
-      tuesday: "9:00 AM - 7:00 PM", 
-      wednesday: "9:00 AM - 7:00 PM",
-      thursday: "9:00 AM - 7:00 PM",
-      friday: "9:00 AM - 7:00 PM",
-      saturday: "10:00 AM - 4:00 PM",
-      sunday: "Closed"
+      monday: "9:00 AM - 8:00 PM",
+      tuesday: "9:00 AM - 8:00 PM",
+      wednesday: "9:00 AM - 8:00 PM",
+      thursday: "9:00 AM - 8:00 PM",
+      friday: "9:00 AM - 8:00 PM",
+      saturday: "Closed",
+      sunday: "9:00 AM - 8:00 PM",
     },
     hoursDisplay: [
-      "Monday - Friday: 9:00 AM - 7:00 PM",
-      "Saturday: 10:00 AM - 4:00 PM", 
-      "Sunday: Closed"
+      "Sunday - Friday: 9:00 AM - 8:00 PM",
+      "Saturday: Closed",
     ],
     emergencyNote: "Emergency appointments available by request"
   },

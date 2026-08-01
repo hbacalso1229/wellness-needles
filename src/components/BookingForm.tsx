@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
@@ -14,10 +14,13 @@ import {
   ClinicLocationCards,
   ServiceSelectionCards,
   TravelPolicyNotice,
+  BookingDatePicker,
   TimeRangeCards,
   findTimeRange,
   formatTimeRangeLabel,
   isPastTimeRange,
+  isClosedBookingDate,
+  nextOpenBookingDate,
   defaultPreferredDate,
   defaultPreferredTime,
 } from '@/features'
@@ -159,11 +162,6 @@ const inputClassName =
 
 const fieldErrorClassName =
   'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40'
-
-const dateInputClassName = `${inputClassName} booking-date-input`
-/** Keep 1px border + inset ring so mobile date inputs don’t grow past the card. */
-const dateInputErrorClassName =
-  `${inputClassName} booking-date-input !border-red-500 ring-2 ring-inset ring-red-400 focus:ring-red-400 bg-red-50/40`
 
 function RequiredMark() {
   return (
@@ -326,6 +324,18 @@ export default function BookingForm() {
   const [hCaptchaError, setHCaptchaError] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
 
+  // Never keep a Saturday in state (clinic closed) — snap to the next open day.
+  useEffect(() => {
+    if (!isClosedBookingDate(selectedDate)) return
+    const openDate = nextOpenBookingDate(selectedDate)
+    setSelectedDate(openDate)
+    setSelectedTime(defaultPreferredTime(openDate))
+    setToast({
+      message: 'We are closed on Saturdays. Please choose Sunday–Friday.',
+      variant: 'error',
+    })
+  }, [selectedDate])
+
   const showSecurityCheck = isBookingEmailConfigured(features)
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
@@ -403,23 +413,6 @@ export default function BookingForm() {
     const value =
       name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
 
-    // Mobile WebKit often allows future dates despite `max` — reject them.
-    if (name === 'dateOfBirth' && isFutureDateInputValue(value)) {
-      setFormData({
-        ...formData,
-        dateOfBirth: '',
-      })
-      setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
-      setFieldErrorMessages((prev) => ({
-        ...prev,
-        dateOfBirth: 'Date of birth cannot be in the future.',
-      }))
-      return
-    }
-    if (name === 'dateOfBirth') {
-      clearFieldError('dateOfBirth')
-    }
-
     setFormData({
       ...formData,
       [name]: value,
@@ -461,6 +454,9 @@ export default function BookingForm() {
       if (!selectedDate) {
         fields.push('date')
         messages.push('Please choose a preferred date.')
+      } else if (isClosedBookingDate(selectedDate)) {
+        fields.push('date')
+        messages.push('We are closed on Saturdays. Please choose Sunday–Friday.')
       }
       if (!selectedTime) {
         fields.push('time')
@@ -517,6 +513,17 @@ export default function BookingForm() {
   }
 
   const handleNext = () => {
+    // Belt-and-braces: never advance with a closed day still selected.
+    if (currentStep === 2 && isClosedBookingDate(selectedDate)) {
+      const openDate = nextOpenBookingDate(selectedDate)
+      setSelectedDate(openDate)
+      setSelectedTime(defaultPreferredTime(openDate))
+      reportValidationErrors({
+        fields: ['date'],
+        messages: ['We are closed on Saturdays. Please choose Sunday–Friday.'],
+      })
+      return
+    }
     const error = validateStep(currentStep)
     if (error) {
       reportValidationErrors(error)
@@ -655,6 +662,10 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        nextDisabled={
+          currentStep === 2 &&
+          (!selectedDate || isClosedBookingDate(selectedDate))
+        }
         stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
       >
         {currentStep === 0 && (
@@ -770,13 +781,17 @@ export default function BookingForm() {
               <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
                 Preferred Date <RequiredMark />
               </label>
-              <div className="booking-date-field">
-                <input
-                  type="date"
+              <div className="booking-date-field booking-date-field--picker relative">
+                <BookingDatePicker
                   id="booking-date"
                   value={selectedDate}
-                  onChange={(e) => {
-                    const nextDate = e.target.value
+                  min={defaultPreferredDate()}
+                  hasError={hasFieldError('date')}
+                  aria-invalid={hasFieldError('date')}
+                  aria-describedby={
+                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
+                  }
+                  onChange={(nextDate) => {
                     setSelectedDate(nextDate)
                     clearFieldError('date')
                     if (selectedTime && isPastTimeRange(nextDate, selectedTime)) {
@@ -784,19 +799,12 @@ export default function BookingForm() {
                       clearFieldError('time')
                     }
                   }}
-                  min={defaultPreferredDate()}
-                  aria-invalid={hasFieldError('date')}
-                  aria-describedby={
-                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
-                  }
-                  className={
-                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
-                  }
                 />
               </div>
               <FieldInlineError
                 id="booking-date-error"
                 message={fieldErrorMessage('date')}
+                always
               />
             </div>
 
@@ -942,37 +950,35 @@ export default function BookingForm() {
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
                     Date of Birth <RequiredMark />
                   </label>
-                  <div className="booking-date-field">
-                    <input
-                      type="date"
+                  <div className="booking-date-field booking-date-field--picker relative">
+                    <BookingDatePicker
                       id="dateOfBirth"
-                      name="dateOfBirth"
                       value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      onBlur={(e) => {
-                        const value = e.target.value
-                        if (isFutureDateInputValue(value)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            dateOfBirth: '',
-                          }))
+                      min="1920-01-01"
+                      max={todayDateInputValue()}
+                      disableClosedDays={false}
+                      initialView="max"
+                      placeholder="Select date of birth"
+                      dialogLabel="Choose date of birth"
+                      footerNote="Future dates are not available"
+                      hasError={hasFieldError('dateOfBirth')}
+                      aria-invalid={hasFieldError('dateOfBirth')}
+                      aria-describedby={
+                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
+                      }
+                      onChange={(nextDate) => {
+                        if (isFutureDateInputValue(nextDate)) {
+                          setFormData((prev) => ({ ...prev, dateOfBirth: '' }))
                           setFieldErrors((prev) => new Set(prev).add('dateOfBirth'))
                           setFieldErrorMessages((prev) => ({
                             ...prev,
                             dateOfBirth: 'Date of birth cannot be in the future.',
                           }))
+                          return
                         }
+                        setFormData((prev) => ({ ...prev, dateOfBirth: nextDate }))
+                        clearFieldError('dateOfBirth')
                       }}
-                      max={todayDateInputValue()}
-                      aria-invalid={hasFieldError('dateOfBirth')}
-                      aria-describedby={
-                        hasFieldError('dateOfBirth') ? 'dateOfBirth-error' : undefined
-                      }
-                      className={
-                        hasFieldError('dateOfBirth')
-                          ? dateInputErrorClassName
-                          : dateInputClassName
-                      }
                     />
                   </div>
                   <FieldInlineError

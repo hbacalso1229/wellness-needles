@@ -393,8 +393,11 @@ body {
   min-width: 0;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
   border-radius: 0.5rem;
+}
+
+.booking-date-field:not(.booking-date-field--picker) {
+  overflow: hidden;
 }
 
 input[type='date'],
