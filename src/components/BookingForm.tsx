@@ -18,6 +18,8 @@ import {
   findTimeRange,
   formatTimeRangeLabel,
   isPastTimeRange,
+  isClosedBookingDate,
+  nextOpenBookingDate,
   defaultPreferredDate,
   defaultPreferredTime,
 } from '@/features'
@@ -461,6 +463,9 @@ export default function BookingForm() {
       if (!selectedDate) {
         fields.push('date')
         messages.push('Please choose a preferred date.')
+      } else if (isClosedBookingDate(selectedDate)) {
+        fields.push('date')
+        messages.push('We are closed on Saturdays. Please choose Sunday–Friday.')
       }
       if (!selectedTime) {
         fields.push('time')
@@ -777,6 +782,21 @@ export default function BookingForm() {
                   value={selectedDate}
                   onChange={(e) => {
                     const nextDate = e.target.value
+                    if (isClosedBookingDate(nextDate)) {
+                      const openDate = nextOpenBookingDate(
+                        // Skip Saturday → land on Sunday (or next open day)
+                        nextDate
+                      )
+                      setSelectedDate(openDate)
+                      setSelectedTime(defaultPreferredTime(openDate))
+                      setFieldErrors((prev) => new Set(prev).add('date'))
+                      setFieldErrorMessages((prev) => ({
+                        ...prev,
+                        date: 'We are closed on Saturdays. Please choose Sunday–Friday.',
+                      }))
+                      clearFieldError('time')
+                      return
+                    }
                     setSelectedDate(nextDate)
                     clearFieldError('date')
                     if (selectedTime && isPastTimeRange(nextDate, selectedTime)) {

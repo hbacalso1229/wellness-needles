@@ -16,6 +16,8 @@ export {
   findTimeRange,
   formatTimeRangeLabel,
   isPastTimeRange,
+  isClosedBookingDate,
+  nextOpenBookingDate,
   defaultPreferredDate,
   defaultPreferredTime,
   firstAvailableTimeRange,

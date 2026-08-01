@@ -72,6 +72,14 @@ function addDaysToDateInputValue(dateStr: string, days: number): string {
   return `${yy}-${mm}-${dd}`
 }
 
+/** Clinic is closed Saturdays (see contact-config business hours). */
+export function isClosedBookingDate(dateStr: string): boolean {
+  if (!dateStr) return false
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (!y || !m || !d) return false
+  return new Date(y, m - 1, d).getDay() === 6
+}
+
 /** First range still open for the given date, or undefined if none. */
 export function firstAvailableTimeRange(
   dateStr: string
@@ -80,13 +88,26 @@ export function firstAvailableTimeRange(
 }
 
 /**
- * Preferred date for a new booking: today if any range remains,
- * otherwise tomorrow so Morning stays selectable.
+ * Next bookable day from `fromDateStr` (inclusive): not Saturday,
+ * and at least one time range still available.
+ */
+export function nextOpenBookingDate(fromDateStr?: string): string {
+  let date = fromDateStr || todayDateInputValue()
+  for (let i = 0; i < 14; i++) {
+    if (!isClosedBookingDate(date) && firstAvailableTimeRange(date)) {
+      return date
+    }
+    date = addDaysToDateInputValue(date, 1)
+  }
+  return date
+}
+
+/**
+ * Preferred date for a new booking: today if open and a range remains,
+ * otherwise the next open day (skips Saturdays).
  */
 export function defaultPreferredDate(): string {
-  const today = todayDateInputValue()
-  if (firstAvailableTimeRange(today)) return today
-  return addDaysToDateInputValue(today, 1)
+  return nextOpenBookingDate(todayDateInputValue())
 }
 
 /** Prefer Morning; fall back to the first still-open range for the date. */
