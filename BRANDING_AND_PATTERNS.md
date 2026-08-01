@@ -143,9 +143,11 @@ Bookings pattern:
 
 **Date & Time layout:**
 
-- Preferred Date and Preferred Time stack in **one column** below `lg` (tablet / narrow form beside sticky sidebar).
-- Side-by-side only from **`lg:grid-cols-2`**.
-- Time slot grid: `grid-cols-2 sm:grid-cols-3 xl:grid-cols-4` so slots don’t crush when the column is narrow.
+- Preferred Date full-width, then Preferred Time Range below.
+- Three range cards (Morning / Afternoon / Evening) in `grid-cols-1 sm:grid-cols-3`.
+- Cards use the same `booking-select-card` pattern as location/service selection.
+- Soft-disable a range when the selected date is today and that window has already ended.
+- Email payload sends a human-readable label (e.g. `Morning (9:00 AM – 12:00 PM)`).
 
 ### Compact card grids (tablet / desktop)
 
@@ -193,7 +195,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - Gold Call primary → Or → outline email secondary
 - Compact mobile button sizing
 - Details step: name, email, phone, **required DOB** only — no Health Information block
-- Date/Time: stack on tablet; side-by-side from `lg`; time slots avoid 4-up until `xl`
+- Date/Time: preferred date + Morning / Afternoon / Evening range cards; past ranges disabled for today
 
 ### Chinese medicine
 
@@ -232,7 +234,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Mobile: compact padding/type for sidebar CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
 - [ ] Testimonials / proof: unique names; structured Before/After over DIY collage chrome
 - [ ] Booking details: DOB required; no Health Information fields reintroduced without product sign-off
-- [ ] Booking Date/Time: stacked below `lg`; time grid doesn’t crush on tablet
+- [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today
 - [ ] Motion uses `motion-safe:` and stays subtle
 
 ---
@@ -248,6 +250,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 | FeatureCard `elevated` | `src/features/ui/FeatureCard.tsx` |
 | Header Book CTA | `src/components/Header.tsx` |
 | Booking form | `src/components/BookingForm.tsx` |
+| Time range cards | `src/features/ui/TimeRangeCards.tsx` |
 | Booking email payload | `src/lib/send-booking-email.ts` |
 | Contact / booking config | `src/lib/contact-config.ts` |
 | Result photos | `public/results/` |
