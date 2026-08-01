@@ -156,18 +156,14 @@ export function FeatureCard({
     >
       {iconCircle}
       <h3
-        className={`font-serif font-semibold text-primary mb-1.5 md:mb-2 ${
-          compact ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'
+        className={`font-serif font-semibold text-primary ${
+          compact
+            ? 'mb-2 text-lg md:mb-3 md:text-xl'
+            : 'mb-2 text-xl md:mb-3 md:text-2xl'
         }`}
       >
         {title}
       </h3>
-      <div
-        className={`mx-auto h-0.5 rounded-full bg-gold ${
-          compact ? 'mb-3 w-8 md:mb-4 md:w-10' : 'mb-3 w-9 md:mb-4 md:w-10'
-        }`}
-        aria-hidden="true"
-      />
       <p className={`text-secondary ${compact ? 'text-sm md:text-base leading-snug' : ''}`}>
         {description}
       </p>
@@ -198,8 +194,8 @@ export function FeatureCard({
   const minH = compact ? 'min-h-[200px]' : 'min-h-[280px]'
   const facePad = compact ? 'p-4' : 'p-6'
   const titleClass = compact
-    ? 'font-serif text-xl font-semibold text-primary mb-1.5'
-    : 'font-serif text-2xl font-semibold text-primary mb-2'
+    ? 'font-serif text-xl font-semibold text-primary mb-2'
+    : 'font-serif text-2xl font-semibold text-primary mb-3'
 
   const modal =
     portalReady &&
@@ -230,10 +226,9 @@ export function FeatureCard({
             <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
 
-          <h3 id={titleId} className="font-serif text-lg font-semibold text-primary mb-1.5 pr-8 leading-snug">
+          <h3 id={titleId} className="font-serif text-lg font-semibold text-primary mb-2.5 pr-8 leading-snug">
             {title}
           </h3>
-          <div className="mx-auto mb-2.5 h-0.5 w-8 rounded-full bg-gold" aria-hidden="true" />
           <p id={descId} className="text-secondary text-sm leading-snug">
             {description}
           </p>
@@ -314,10 +309,6 @@ export function FeatureCard({
             >
               {iconCircle}
               <h3 className={titleClass}>{title}</h3>
-              <div
-                className={`mx-auto h-0.5 w-10 rounded-full bg-gold ${compact ? 'mb-2' : 'mb-3'}`}
-                aria-hidden="true"
-              />
               <p className="text-xs text-secondary/60 tracking-wide">Learn more</p>
             </div>
 
@@ -329,10 +320,9 @@ export function FeatureCard({
                 transform: 'rotateY(180deg) translateZ(1px)',
               }}
             >
-              <h3 className="font-serif text-xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl font-semibold text-primary mb-3">
                 {title}
               </h3>
-              <div className="mx-auto mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <p className="text-secondary text-sm leading-relaxed">
                 {description}
               </p>

@@ -283,8 +283,7 @@ export default function Testimonials() {
                     <p className="text-primary font-medium">Video coming soon</p>
                   </div>
                 </div>
-                <h3 className="font-semibold text-primary mb-2">{video.title}</h3>
-                <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                <h3 className="font-semibold text-primary mb-3">{video.title}</h3>
                 <p className="text-secondary text-sm">{video.description}</p>
               </div>
             ))}

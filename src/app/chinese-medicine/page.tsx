@@ -231,10 +231,9 @@ export default function ChineseMedicine() {
                 >
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1 text-left">
-                      <h3 className="font-semibold text-base md:text-lg text-primary mb-1 md:mb-2 leading-snug">
+                      <h3 className="font-semibold text-base md:text-lg text-primary leading-snug">
                         {method.title}
                       </h3>
-                      <div className="h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
                     </div>
                     <ChevronRight
                       className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
