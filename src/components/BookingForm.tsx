@@ -7,7 +7,7 @@ import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isBookingEmailConfigured, readBookingFeatures } from '@/lib/booking-features'
+import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
 import {
   OptionalAddOns,
@@ -589,7 +589,10 @@ export default function BookingForm() {
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
         showErrorToast(
-          'Booking email is enabled but not configured. Add the Web3Forms access key in Admin (dev) or set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY.'
+          latestFeatures.bookingEmailAccessKey &&
+            !isValidWeb3FormsAccessKey(latestFeatures.bookingEmailAccessKey)
+            ? 'Web3Forms access key must be a valid UUID. Check .env.local or Admin → Booking email setup, then restart the dev server.'
+            : 'Booking email is enabled but not configured. Add the Web3Forms access key in Admin (dev) or set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY.'
         )
         return
       }

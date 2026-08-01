@@ -30,10 +30,35 @@ export const BOOKING_FEATURES_EVENT = 'wellness-needles-booking-features-changed
  * Prefer this for shared deploys (`dev` Preview + `main` Production).
  * Local: `.env.local`. Host: set for both Preview and Production, then redeploy.
  */
+export function normalizeWeb3FormsAccessKey(value: string): string {
+  return value.replace(/^\uFEFF/, '').trim()
+}
+
+export function isValidWeb3FormsAccessKey(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    normalizeWeb3FormsAccessKey(value)
+  )
+}
+
 export function getEnvWeb3FormsAccessKey(): string {
   if (typeof process === 'undefined') return ''
-  return process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY?.trim() || ''
+  return normalizeWeb3FormsAccessKey(
+    process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ''
+  )
 }
+
+function pickWeb3FormsAccessKey(
+  ...candidates: Array<string | undefined | null>
+): string {
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    const normalized = normalizeWeb3FormsAccessKey(candidate)
+    if (isValidWeb3FormsAccessKey(normalized)) return normalized
+  }
+  return ''
+}
+
+export { pickWeb3FormsAccessKey }
 
 export function getDefaultBookingFeatures(): BookingFeatureFlags {
   const envAccessKey = getEnvWeb3FormsAccessKey()
@@ -178,10 +203,15 @@ export function readBookingFeatures(): BookingFeatureFlags {
     )
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
-        ? parsed.bookingEmailAccessKey.trim()
+        ? parsed.bookingEmailAccessKey
         : ''
     // Shared deploys: env key always wins when set. Otherwise use Admin/localStorage.
-    const accessKey = getEnvWeb3FormsAccessKey() || parsedKey || defaults.bookingEmailAccessKey
+    // Ignore keys that are not valid Web3Forms UUIDs (common cause of submit errors).
+    const accessKey = pickWeb3FormsAccessKey(
+      getEnvWeb3FormsAccessKey(),
+      parsedKey,
+      defaults.bookingEmailAccessKey
+    )
     const emailTo =
       typeof parsed.bookingEmailTo === 'string' &&
       isValidEmailAddress(parsed.bookingEmailTo)
@@ -261,7 +291,7 @@ export function writeBookingFeatures(features: BookingFeatureFlags): void {
 export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean {
   return (
     features.bookingEmailEnabled &&
-    features.bookingEmailAccessKey.trim().length > 0 &&
+    isValidWeb3FormsAccessKey(features.bookingEmailAccessKey) &&
     isValidEmailAddress(features.bookingEmailTo)
   )
 }
