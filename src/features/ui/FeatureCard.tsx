@@ -22,6 +22,12 @@ interface FeatureCardProps {
   flippable?: boolean
   /** Tighter padding and min-height for denser grids */
   compact?: boolean
+  /**
+   * Keep cream panel + shadow on mobile.
+   * Use when the section has a tinted background (e.g. bg-accent/10);
+   * omit on cream sections so cards stay flat on small screens.
+   */
+  elevated?: boolean
   /** Optional content shown below the description (e.g. link or tag) */
   footer?: ReactNode
 }
@@ -33,6 +39,7 @@ export function FeatureCard({
   className = '',
   flippable = false,
   compact = false,
+  elevated = false,
   footer,
 }: FeatureCardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
@@ -164,9 +171,13 @@ export function FeatureCard({
     </div>
   )
 
+  const panelClass = elevated
+    ? 'rounded-lg bg-cream/80 shadow-sm'
+    : 'rounded-lg bg-transparent shadow-none md:bg-cream/80 md:shadow-sm'
+
   const staticCard = (
     <div
-      className={`group rounded-lg bg-cream/80 text-center shadow-sm card-emboss ${
+      className={`group text-center card-emboss ${panelClass} ${
         compact ? 'p-4 md:p-5' : 'p-5 md:p-6'
       } ${className}`}
     >
@@ -265,7 +276,7 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className={`flex h-full w-full flex-col items-center justify-center text-center rounded-lg bg-cream/80 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+          className={`flex h-full w-full flex-col items-center justify-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${panelClass} ${
             compact
               ? 'min-h-[5.75rem] p-2'
               : 'min-h-[7rem] p-2.5 sm:p-3'
