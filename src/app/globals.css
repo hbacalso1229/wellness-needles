@@ -229,6 +229,11 @@ body {
   background: var(--secondary-green);
 }
 
+/* Embossed marketing cards — hover lift on md+ (static / non-flip cards) */
+.card-emboss {
+  @apply transition-all duration-200 md:motion-safe:hover:-translate-y-0.5 md:hover:shadow-md md:hover:shadow-primary/10;
+}
+
 /* Booking selectable cards — avoid global * { transition: all } snap/jump */
 .booking-select-card {
   transition:

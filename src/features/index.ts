@@ -2,6 +2,7 @@
 export { PulsingLeaf } from './ui/PulsingLeaf'
 export { DecorativeImageCard } from './ui/DecorativeImageCard'
 export { FeatureCard } from './ui/FeatureCard'
+export { TestimonialCard } from './ui/TestimonialCard'
 export { CTAButton } from './ui/CTAButton'
 export { ServiceCard } from './ui/ServiceCard'
 export { HeroSection  } from './ui/HeroSection'

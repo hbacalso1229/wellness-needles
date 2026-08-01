@@ -132,12 +132,12 @@ export function FeatureCard({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lock/listeners tied to open; closeModal uses refs
   }, [modalOpen])
-  const iconCircle = (
+  const hoverIconCircle = (
     <div
-      className={`group/icon rounded-full flex items-center justify-center mx-auto bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:motion-safe:hover:-translate-y-3 md:motion-safe:hover:scale-125 md:motion-safe:group-hover:-translate-y-3 md:motion-safe:group-hover:scale-125 ${
+      className={`group/icon mx-auto flex items-center justify-center rounded-full bg-white transition-[transform,color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:motion-safe:hover:-translate-y-3 md:motion-safe:hover:scale-125 md:motion-safe:group-hover:-translate-y-3 md:motion-safe:group-hover:scale-125 ${
         compact
-          ? 'h-9 w-9 mb-1.5 md:h-14 md:w-14 md:mb-3'
-          : 'h-11 w-11 mb-2 md:h-16 md:w-16 md:mb-5'
+          ? 'mb-1.5 h-9 w-9 md:mb-3 md:h-14 md:w-14'
+          : 'mb-2 h-11 w-11 md:mb-5 md:h-16 md:w-16'
       }`}
     >
       <Icon
@@ -148,13 +148,29 @@ export function FeatureCard({
     </div>
   )
 
+  const flatIconCircle = (
+    <div
+      className={`mx-auto flex items-center justify-center rounded-full bg-white ${
+        compact
+          ? 'mb-1.5 h-9 w-9 md:mb-3 md:h-14 md:w-14'
+          : 'mb-2 h-11 w-11 md:mb-5 md:h-16 md:w-16'
+      }`}
+    >
+      <Icon
+        className={`text-secondary/70 ${
+          compact ? 'h-4 w-4 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
+        }`}
+      />
+    </div>
+  )
+
   const staticCard = (
     <div
-      className={`text-center group rounded-lg bg-cream/80 shadow-sm card-emboss ${
+      className={`group rounded-lg bg-cream/80 text-center shadow-sm card-emboss ${
         compact ? 'p-4 md:p-5' : 'p-5 md:p-6'
       } ${className}`}
     >
-      {iconCircle}
+      {hoverIconCircle}
       <h3
         className={`font-serif font-semibold text-primary ${
           compact
@@ -249,13 +265,13 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className={`flex h-full w-full flex-col items-center justify-center text-center group rounded-lg bg-cream/80 shadow-sm card-emboss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+          className={`flex h-full w-full flex-col items-center justify-center text-center rounded-lg bg-cream/80 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
             compact
               ? 'min-h-[5.75rem] p-2'
               : 'min-h-[7rem] p-2.5 sm:p-3'
           }`}
         >
-          {iconCircle}
+          {flatIconCircle}
           <h3
             className={`font-serif font-semibold text-primary flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
               compact
@@ -307,7 +323,7 @@ export function FeatureCard({
                 transform: 'translateZ(1px)',
               }}
             >
-              {iconCircle}
+              {flatIconCircle}
               <h3 className={titleClass}>{title}</h3>
               <p className="text-xs text-secondary/60 tracking-wide">Learn more</p>
             </div>

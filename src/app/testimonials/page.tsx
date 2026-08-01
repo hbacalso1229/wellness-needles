@@ -1,7 +1,14 @@
 'use client'
 
-import { Star, Quote, Heart, CheckCircle, User } from 'lucide-react'
-import { CTAButton, DecorativeImageCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
+import {
+  CTAButton,
+  DecorativeImageCard,
+  HeroSection,
+  SectionHeading,
+  SnapCarousel,
+  TestimonialCard,
+  snapSlideClassName,
+} from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -10,53 +17,26 @@ export default function Testimonials() {
 
   const testimonials = [
     {
-      name: "Sarah Mitchell",
-      condition: "Chronic Back Pain",
+      name: 'Viera',
+      condition: 'Anxiety, sleep & energy',
+      date: '4 November 2023',
       rating: 5,
-      text: "After years of chronic back pain, I was skeptical about acupuncture. But after just three sessions at Wellness Needles, I felt significant relief. The team is incredibly knowledgeable and caring. I can now enjoy activities I thought I&apos;d never do again.",
-      treatment: "Back Pain Management",
-      duration: "6 sessions over 3 months"
+      text: 'I was suffering from anxiety for a long time. I was feeling dizzy, tired, had constant ringing in my ears, couldn\'t sleep in the night. The new symptoms were gradually adding up and worsening over the years. I was desperate and didn\'t know what to do. Then my friend recommended me to try acupuncture. I contacted Ace. We had a conversation about my medical history and my current symptoms. He was very kind and I felt open to him. After only a few treatments I started to feel more energetic. Gradually I became a happier person and my symptoms were improving. Even my friends have noticed my changes. They were saying I am blooming, that I look more "alive".',
     },
     {
-      name: "David Chen",
-      condition: "Stress & Anxiety",
+      name: 'Viera',
+      condition: 'Women\'s health & early menopause',
+      date: '4 November 2023',
       rating: 5,
-      text: "The stress from my job was overwhelming until I discovered acupuncture at Wellness Needles. The treatments help me feel centered and calm. I sleep better and handle work pressure much more effectively now.",
-      treatment: "Stress Relief & Mental Wellness",
-      duration: "Weekly sessions for 2 months"
+      text: 'I was feeling tired all the time, had a problem sleeping at night, I was getting hot flashes and was very dizzy most of the time. My periods were becoming weaker and less frequent. After visiting a women\'s health clinic, I was told that my body is working very hard to produce periods and that I am entering an early menopause (at the age of 39). I was suggested to start hormonal replacement therapy. I decided to go for acupuncture. I contacted Ace again. After only the second treatment, I woke up in the morning crying, full of emotions and with a heavy period. I am currently continuing the treatment and my periods are becoming stronger and more frequent. I truly recommend Ace. He is very professional, caring and friendly. I can tell him anything, there is no judgment or shame. He really wants to help people and he always gives 100% effort.',
     },
     {
-      name: "Maria Rodriguez",
-      condition: "Fertility Support",
+      name: 'Francisca Pereira',
+      condition: 'Fertility & anxiety',
+      date: '23 November 2023',
       rating: 5,
-      text: "We had been trying to conceive for over two years. After starting acupuncture treatments, I became pregnant within four months. The practitioners were supportive throughout the entire journey.",
-      treatment: "Fertility Enhancement",
-      duration: "Bi-weekly sessions for 6 months"
+      text: 'I would like to highly recommend Wellness Needles Clinic. I got acupuncture to help with fertility and anxiety. I found the treatment very effective and relaxing. Ace is very personable and professional.',
     },
-    {
-      name: "James Thompson",
-      condition: "Migraines",
-      rating: 5,
-      text: "I suffered from debilitating migraines for years. Since starting acupuncture, the frequency and intensity have dramatically decreased. I finally have my life back and couldn&apos;t be more grateful.",
-      treatment: "Migraine Prevention",
-      duration: "Weekly sessions for 4 months"
-    },
-    {
-      name: "Linda Wang",
-      condition: "Digestive Issues",
-      rating: 5,
-      text: "My IBS symptoms were affecting my daily life. The holistic approach at Wellness Needles, combining acupuncture with dietary guidance, has transformed my digestive health completely.",
-      treatment: "Digestive Health",
-      duration: "Bi-weekly sessions for 3 months"
-    },
-    {
-      name: "Robert Kim",
-      condition: "Arthritis",
-      rating: 5,
-      text: "As a retired carpenter, arthritis in my hands was making simple tasks impossible. Acupuncture has restored much of my mobility and reduced the pain significantly. I can even work on small projects again.",
-      treatment: "Arthritis Management",
-      duration: "Weekly sessions for 8 weeks"
-    }
   ]
 
   return (
@@ -64,8 +44,8 @@ export default function Testimonials() {
       {/* Hero Section */}
       <HeroSection
         title="Patient Testimonials"
-        subtitle="Stories inspired by the kinds of healing journeys acupuncture can support"
-        description="Explore illustrative examples of how traditional Chinese medicine may help improve quality of life. Real patient reviews will be shared here with consent."
+        subtitle="Real stories from people who chose acupuncture with Wellness Needles"
+        description="Hear from patients in their own words — shared with consent — about how treatment supported their health and wellbeing."
         backgroundImage="/modern_accupuncture.jpeg"
         backgroundClass="bg-primary"
         textColor="text-cream"
@@ -138,73 +118,29 @@ export default function Testimonials() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Success Stories"
-            subtitle="Illustrative examples of common treatment journeys"
-            className="text-center mb-4"
+            subtitle="What our patients say"
+            className="text-center mb-8 md:mb-16"
           />
-          <p className="mb-8 md:mb-16 max-w-3xl mx-auto text-sm text-secondary bg-white border border-accent/20 rounded-lg px-4 py-3 text-center shadow-[0_4px_12px_rgba(45,80,22,0.06)]">
-            These stories are illustrative examples for educational purposes and are not attributed
-            to verified patients. Genuine reviews will be published here once consent is obtained.
-          </p>
 
           <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
             <div className="min-w-0">
               <SnapCarousel
                 slideCount={testimonials.length}
                 ariaLabel="Patient stories carousel"
-                trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8"
+                trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:gap-8 lg:grid-cols-3"
               >
                 {testimonials.map((testimonial, index) => (
                   <div
-                    key={index}
-                    className={`group ${snapSlideClassName} relative bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+                    key={`${testimonial.name}-${testimonial.condition}-${index}`}
+                    className={snapSlideClassName}
                   >
-                    <Quote className="absolute top-3 right-3 md:top-6 md:right-6 w-6 h-6 md:w-8 md:h-8 text-accent/30" />
-
-                    {/* Testimonial Text */}
-                    <p className="text-secondary mb-4 md:mb-6 italic text-sm md:text-base leading-snug">
-                      &quot;{testimonial.text}&quot;
-                    </p>
-
-                    {/* Patient Info */}
-                    <div className="border-t border-accent/20 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20"
-                            aria-hidden="true"
-                          >
-                            <User className="h-5 w-5 text-secondary/50" strokeWidth={1.75} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                              <h4 className="font-semibold text-primary truncate">
-                                {testimonial.name}
-                              </h4>
-                              <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
-                                {[...Array(testimonial.rating)].map((_, i) => (
-                                  <Star key={i} className="w-3.5 h-3.5 text-gold fill-current" />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-sm text-secondary truncate">
-                              {testimonial.condition}
-                            </p>
-                          </div>
-                        </div>
-                        <Heart className="w-6 h-6 shrink-0 text-secondary/40 transition-colors duration-300 group-hover:text-accent" />
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center text-sm text-secondary">
-                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                          Treatment: {testimonial.treatment}
-                        </div>
-                        <div className="flex items-center text-sm text-secondary">
-                          <CheckCircle className="w-4 h-4 text-accent mr-2 shrink-0" />
-                          Duration: {testimonial.duration}
-                        </div>
-                      </div>
-                    </div>
+                    <TestimonialCard
+                      name={testimonial.name}
+                      condition={testimonial.condition}
+                      date={testimonial.date}
+                      rating={testimonial.rating}
+                      text={testimonial.text}
+                    />
                   </div>
                 ))}
               </SnapCarousel>
@@ -273,7 +209,7 @@ export default function Testimonials() {
             ].map((video) => (
               <div
                 key={video.title}
-                className={`group ${snapSlideClassName} bg-white rounded-xl p-3.5 md:p-6 text-center border border-accent/15 shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+                className={`group ${snapSlideClassName} bg-white rounded-xl p-3.5 md:p-6 text-center border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25`}
               >
                 <div className="bg-primary/10 rounded-lg aspect-video mb-4 flex items-center justify-center">
                   <div className="text-center">

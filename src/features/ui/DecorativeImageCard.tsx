@@ -77,7 +77,7 @@ export function DecorativeImageCard({
         // Wide tile frame; show the full collage (these assets are portrait — side space is expected).
         <div className="relative">
           <div
-            className={`relative flex h-52 sm:h-64 md:h-80 w-full items-center justify-center rounded-xl overflow-hidden bg-white border-2 ${borderClass} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+            className={`relative flex h-52 sm:h-64 md:h-80 w-full items-center justify-center rounded-xl overflow-hidden bg-white border-2 ${borderClass} transition-[transform,border-color] duration-300 motion-safe:md:group-hover:-translate-y-1`}
           >
             <Image
               src={src}
@@ -99,7 +99,7 @@ export function DecorativeImageCard({
       ) : (
         <div className="relative">
           <div
-            className={`relative h-52 sm:h-64 md:h-72 w-full rounded-xl overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} shadow-[0_8px_24px_rgba(45,80,22,0.12),0_2px_8px_rgba(45,80,22,0.08)] transition-all duration-300 motion-safe:md:group-hover:-translate-y-1 md:group-hover:shadow-[0_14px_32px_rgba(45,80,22,0.18),0_4px_12px_rgba(45,80,22,0.1)]`}
+            className={`relative h-52 sm:h-64 md:h-72 w-full rounded-xl overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} transition-transform duration-300 motion-safe:md:group-hover:-translate-y-1`}
           >
             <Image
               src={src}
