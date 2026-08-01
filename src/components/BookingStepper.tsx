@@ -31,6 +31,8 @@ type BookingStepperProps = {
   nextLabel?: string
   submitLabel?: string
   isSubmitting?: boolean
+  /** First field/region to focus after Next/Back (element id). */
+  stepFocusId?: string
 }
 
 export default function BookingStepper({
@@ -43,15 +45,38 @@ export default function BookingStepper({
   nextLabel = 'Next',
   submitLabel = 'Request appointment',
   isSubmitting = false,
+  stepFocusId,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const prevStepRef = useRef(currentStep)
   const isFirst = currentStep === 0
   const isLast = currentStep === steps.length - 1
   const activeStep = steps[currentStep]
 
   useEffect(() => {
-    headingRef.current?.focus()
-  }, [currentStep])
+    if (prevStepRef.current === currentStep) return
+    prevStepRef.current = currentStep
+
+    let raf2 = 0
+    const raf1 = window.requestAnimationFrame(() => {
+      // Wait one more frame so the keyed step panel has mounted.
+      raf2 = window.requestAnimationFrame(() => {
+        const heading = headingRef.current
+        heading?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+        const target =
+          (stepFocusId ? document.getElementById(stepFocusId) : null) ?? heading
+        if (target instanceof HTMLElement) {
+          target.focus({ preventScroll: true })
+        }
+      })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(raf1)
+      window.cancelAnimationFrame(raf2)
+    }
+  }, [currentStep, stepFocusId])
 
   return (
     <div className="space-y-6">
@@ -132,7 +157,7 @@ export default function BookingStepper({
         <h2
           ref={headingRef}
           tabIndex={-1}
-          className="font-serif text-2xl font-bold text-primary mb-6 outline-none"
+          className="scroll-mt-24 font-serif text-2xl font-bold text-primary mb-6 outline-none"
         >
           {activeStep ? <StepTitle title={activeStep.title} /> : null}
         </h2>

@@ -263,34 +263,41 @@ export default function Acupuncture() {
       </section>
 
       {/* Research Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
+      <section className="py-8 md:py-16 lg:py-20 bg-secondary/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeading
             title="Scientific Evidence"
-            subtitle="Modern research validates what traditional practitioners have known for millennia"
+            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 md:mb-3"
+            className="text-center mb-2 md:mb-4"
           />
 
-          <p className="text-secondary leading-relaxed mb-6">
-            Acupuncture is supported by thousands of published studies, recognized by the WHO for
-            dozens of conditions, and backed by NIH guidance for pain care — with a strong safety
-            profile when delivered by trained practitioners.
-          </p>
-          <ul className="mx-auto max-w-xl space-y-3 text-left text-secondary">
+          <div className="space-y-2 md:space-y-3 text-sm md:text-base leading-snug md:leading-relaxed text-secondary">
+            <p>
+              Modern research validates what traditional practitioners have known for millennia
+            </p>
+            <p>
+              Acupuncture is supported by thousands of published studies, recognized by the WHO for
+              dozens of conditions, and backed by NIH guidance for pain care — with a strong safety
+              profile when delivered by trained practitioners.
+            </p>
+          </div>
+
+          <ul className="mx-auto mt-4 max-w-xl space-y-2 text-left text-sm md:mt-6 md:space-y-3 md:text-base text-secondary">
             {[
               'WHO recognizes acupuncture for treating 43+ conditions',
               'Meta-analyses show significant benefits for chronic pain',
               'Low risk of adverse effects; no drug interactions',
               'Safe alongside conventional medical treatments',
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
+              <li key={item} className="flex items-start gap-2.5 md:gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
                   <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
                 </span>
-                <span>{item}</span>
+                <span className="leading-snug md:leading-normal">{item}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-8 inline-flex items-center justify-center gap-2 text-sm font-bold text-primary">
+          <p className="mt-5 md:mt-8 inline-flex items-center justify-center gap-2 text-sm font-bold text-primary">
             <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
             Evidence-based. Safe. Gentle.
           </p>
