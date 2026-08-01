@@ -223,6 +223,14 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   dateOfBirth: 'dateOfBirth',
 }
 
+/** First control to focus when entering each booking step. */
+const STEP_ENTRY_FOCUS_IDS = [
+  'booking-service',
+  'booking-location',
+  'booking-date',
+  'firstName',
+] as const
+
 function focusFirstInvalidField(fields: FieldErrorKey[]) {
   const id = FIELD_FOCUS_IDS[fields[0]]
   if (!id) return
@@ -644,6 +652,7 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
       >
         {currentStep === 0 && (
           <div className="space-y-6">
