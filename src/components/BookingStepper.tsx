@@ -31,6 +31,8 @@ type BookingStepperProps = {
   nextLabel?: string
   submitLabel?: string
   isSubmitting?: boolean
+  /** Disable Next when the current step is incomplete/invalid. */
+  nextDisabled?: boolean
   /** First field/region to focus after Next/Back (element id). */
   stepFocusId?: string
 }
@@ -42,9 +44,10 @@ export default function BookingStepper({
   onNext,
   onSubmit,
   children,
-  nextLabel = 'Next',
+  nextLabel = 'Continue',
   submitLabel = 'Request appointment',
   isSubmitting = false,
+  nextDisabled = false,
   stepFocusId,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -189,7 +192,7 @@ export default function BookingStepper({
             <button
               type="button"
               onClick={onNext}
-              disabled={isSubmitting}
+              disabled={isSubmitting || nextDisabled}
               className="bg-primary text-cream px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold hover:bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {nextLabel}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
@@ -14,6 +14,7 @@ import {
   ClinicLocationCards,
   ServiceSelectionCards,
   TravelPolicyNotice,
+  BookingDatePicker,
   TimeRangeCards,
   findTimeRange,
   formatTimeRangeLabel,
@@ -328,6 +329,18 @@ export default function BookingForm() {
   const [hCaptchaError, setHCaptchaError] = useState('')
   const hCaptchaRef = useRef<HCaptcha>(null)
 
+  // Never keep a Saturday in state (clinic closed) — snap to the next open day.
+  useEffect(() => {
+    if (!isClosedBookingDate(selectedDate)) return
+    const openDate = nextOpenBookingDate(selectedDate)
+    setSelectedDate(openDate)
+    setSelectedTime(defaultPreferredTime(openDate))
+    setToast({
+      message: 'We are closed on Saturdays. Please choose Sunday–Friday.',
+      variant: 'error',
+    })
+  }, [selectedDate])
+
   const showSecurityCheck = isBookingEmailConfigured(features)
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
@@ -522,6 +535,17 @@ export default function BookingForm() {
   }
 
   const handleNext = () => {
+    // Belt-and-braces: never advance with a closed day still selected.
+    if (currentStep === 2 && isClosedBookingDate(selectedDate)) {
+      const openDate = nextOpenBookingDate(selectedDate)
+      setSelectedDate(openDate)
+      setSelectedTime(defaultPreferredTime(openDate))
+      reportValidationErrors({
+        fields: ['date'],
+        messages: ['We are closed on Saturdays. Please choose Sunday–Friday.'],
+      })
+      return
+    }
     const error = validateStep(currentStep)
     if (error) {
       reportValidationErrors(error)
@@ -660,6 +684,10 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        nextDisabled={
+          currentStep === 2 &&
+          (!selectedDate || isClosedBookingDate(selectedDate))
+        }
         stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
       >
         {currentStep === 0 && (
@@ -775,28 +803,17 @@ export default function BookingForm() {
               <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
                 Preferred Date <RequiredMark />
               </label>
-              <div className="booking-date-field">
-                <input
-                  type="date"
+              <div className="booking-date-field booking-date-field--picker relative">
+                <BookingDatePicker
                   id="booking-date"
                   value={selectedDate}
-                  onChange={(e) => {
-                    const nextDate = e.target.value
-                    if (isClosedBookingDate(nextDate)) {
-                      const openDate = nextOpenBookingDate(
-                        // Skip Saturday → land on Sunday (or next open day)
-                        nextDate
-                      )
-                      setSelectedDate(openDate)
-                      setSelectedTime(defaultPreferredTime(openDate))
-                      setFieldErrors((prev) => new Set(prev).add('date'))
-                      setFieldErrorMessages((prev) => ({
-                        ...prev,
-                        date: 'We are closed on Saturdays. Please choose Sunday–Friday.',
-                      }))
-                      clearFieldError('time')
-                      return
-                    }
+                  min={defaultPreferredDate()}
+                  hasError={hasFieldError('date')}
+                  aria-invalid={hasFieldError('date')}
+                  aria-describedby={
+                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
+                  }
+                  onChange={(nextDate) => {
                     setSelectedDate(nextDate)
                     clearFieldError('date')
                     if (selectedTime && isPastTimeRange(nextDate, selectedTime)) {
@@ -804,19 +821,12 @@ export default function BookingForm() {
                       clearFieldError('time')
                     }
                   }}
-                  min={defaultPreferredDate()}
-                  aria-invalid={hasFieldError('date')}
-                  aria-describedby={
-                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
-                  }
-                  className={
-                    hasFieldError('date') ? dateInputErrorClassName : dateInputClassName
-                  }
                 />
               </div>
               <FieldInlineError
                 id="booking-date-error"
                 message={fieldErrorMessage('date')}
+                always
               />
             </div>
 

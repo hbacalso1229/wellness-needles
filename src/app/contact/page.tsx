@@ -244,7 +244,7 @@ export default function Contact() {
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
                           />
-                          <span className="font-semibold text-primary shrink-0 text-right">
+                          <span className="font-semibold text-[var(--text-dark)] shrink-0 text-right">
                             {contactConfig.businessInfo.hours[key]}
                           </span>
                         </li>
@@ -271,7 +271,7 @@ export default function Contact() {
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
                           />
-                          <span className="font-semibold text-primary shrink-0 text-right">
+                          <span className="font-semibold text-[var(--text-dark)] shrink-0 text-right">
                             {contactConfig.businessInfo.hours[key]}
                           </span>
                         </li>

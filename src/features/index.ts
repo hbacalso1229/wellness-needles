@@ -10,6 +10,7 @@ export { HeroSection  } from './ui/HeroSection'
 export { OptionalAddOns } from './ui/OptionalAddOns'
 export { ClinicLocationCards } from './ui/ClinicLocationCards'
 export { ServiceSelectionCards } from './ui/ServiceSelectionCards'
+export { BookingDatePicker } from './ui/BookingDatePicker'
 export {
   TimeRangeCards,
   TIME_RANGES,
