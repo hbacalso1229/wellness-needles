@@ -59,7 +59,7 @@ export function BenefitsSection() {
         <p className="mt-8 md:mt-10 text-center">
           <Link
             href="/acupuncture"
-            className="text-primary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"
+            className="text-secondary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"
           >
             Learn more about acupuncture
           </Link>

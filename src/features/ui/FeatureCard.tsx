@@ -293,7 +293,7 @@ export function FeatureCard({
             {title}
           </h3>
           <span
-            className={`inline-flex items-center gap-0.5 text-secondary/60 tracking-wide ${
+            className={`inline-flex items-center gap-0.5 text-text-dark tracking-wide ${
               compact ? 'text-[0.65rem]' : 'text-xs'
             }`}
           >
@@ -336,7 +336,7 @@ export function FeatureCard({
             >
               {flatIconCircle}
               <h3 className={titleClass}>{title}</h3>
-              <p className="text-xs text-secondary/60 tracking-wide">Learn more</p>
+              <p className="text-xs text-text-dark tracking-wide">Learn more</p>
             </div>
 
             <div

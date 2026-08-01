@@ -207,7 +207,9 @@ export default function Bookings() {
                         Share your preferred service and time — we will confirm by email or
                         phone.
                         <br />
-                        This does not lock a calendar slot.
+                        <span className="font-medium text-[var(--primary-green)]">
+                          This does not lock a calendar slot.
+                        </span>
                       </>
                     }
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"

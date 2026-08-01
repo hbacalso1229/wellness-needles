@@ -25,14 +25,16 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | Token | Hex | Typical use |
 |-------|-----|-------------|
 | `primary` | `#2d5016` | Headings, primary text CTAs, icons |
-| `secondary` | `#4a7c2a` | Body supporting text, secondary greens |
+| `secondary` | `#4a7c2a` | Brand mid-green for fills / `hover:bg-secondary` (not body copy) |
 | `accent` | `#7fb069` | Soft borders (`border-accent/15`), accents |
 | `light-green` | `#a7c957` | Highlights (sparingly) |
 | `cream` | `#f9f7f4` | Page / section backgrounds |
 | `gold` | `#d4af37` | Primary conversion buttons, section flourish rules |
-| `text-dark` | `#2c3e50` | Body foreground |
+| `text-dark` | `#2c3e50` | Legacy body foreground token |
 | `text-light` | `#7f8c8d` | Muted meta |
 | `blue-*` | logo blues | Minor accents only (not page themes) |
+
+**Supporting / body text:** `text-secondary` resolves to **`text-dark`** (`#2c3e50`) via the `.text-secondary` override in `globals.css`. Keep the Tailwind `secondary` color green for backgrounds and button hover — do not recolor that token for body copy.
 
 **Rules**
 
@@ -40,6 +42,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 - Quiet panel chrome: `border border-accent/15` (not thick `border-2` + colored shadows).
 - Gold = **conversion** (Book Appointment) and **section flourish rules**, not every card title underline.
 - Prefer border intensify + lift on hover over `shadow-primary/*` / `shadow-gold/*` washes.
+- Supporting paragraphs use `text-secondary` (`text-dark`); headings stay `text-primary` (forest green).
 
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
 

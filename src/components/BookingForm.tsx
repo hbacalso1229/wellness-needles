@@ -748,7 +748,9 @@ export default function BookingForm() {
               <span>
                 Pick your preferred date and a time range.
                 <br />
-                This is a request only — we will confirm within 24 hours.
+                <span className="font-medium text-[var(--primary-green)]">
+                  This is a request only — we will confirm within 24 hours.
+                </span>
               </span>
             </p>
 
