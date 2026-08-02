@@ -470,10 +470,10 @@ export default function Bookings() {
                 <div>
                   <CTAButton
                     href={contactConfig.phone.href}
-                    variant="outline"
+                    variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-semibold gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-semibold gap-1.5 transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
                     <Phone className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                     Call Now

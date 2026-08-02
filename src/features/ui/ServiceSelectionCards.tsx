@@ -36,10 +36,6 @@ function iconForService(id: string): LucideIcon {
   return Sparkles
 }
 
-function isInitialConsultation(id: string): boolean {
-  return id.includes('initial')
-}
-
 export function ServiceSelectionCards({
   services,
   selectedId,
@@ -53,7 +49,6 @@ export function ServiceSelectionCards({
       {services.map((service) => {
         const selected = selectedId === service.id
         const Icon = iconForService(service.id)
-        const popular = isInitialConsultation(service.id)
 
         return (
           <label
@@ -96,11 +91,6 @@ export function ServiceSelectionCards({
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    {popular ? (
-                      <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
-                        Most popular
-                      </span>
-                    ) : null}
                     <h3 className="min-w-0 font-semibold leading-snug text-primary">
                       {service.name}
                     </h3>
