@@ -91,8 +91,8 @@ export function ServiceSelectionCards({
                   </h3>
                   <div className="shrink-0 text-right">
                     <span
-                      className={`font-serif font-bold text-primary ${
-                        largePrice ? 'text-2xl' : 'text-xl'
+                      className={`font-serif font-bold text-primary tracking-tight ${
+                        largePrice ? 'text-3xl' : 'text-2xl'
                       }`}
                     >
                       {service.price}

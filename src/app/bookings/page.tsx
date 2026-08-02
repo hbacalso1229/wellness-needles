@@ -202,16 +202,7 @@ export default function Bookings() {
                 <div>
                   <SectionHeading
                     title="Request an appointment"
-                    subtitle={
-                      <>
-                        Share your preferred service and time — we will confirm by email or
-                        phone.
-                        <br />
-                        <span className="font-medium text-[var(--primary-green)]">
-                          This does not lock a calendar slot.
-                        </span>
-                      </>
-                    }
+                    subtitle="Share your preferred service and time — we will confirm by email or phone."
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
@@ -285,10 +276,8 @@ export default function Bookings() {
                       <button
                         type="button"
                         onClick={() => handleTabChange('in-clinic')}
-                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                          activeTab === 'in-clinic'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
+                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                          activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                         }`}
                       >
                         In clinic services
@@ -296,10 +285,8 @@ export default function Bookings() {
                       <button
                         type="button"
                         onClick={() => handleTabChange('call-out')}
-                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                          activeTab === 'call-out'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
+                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                          activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                         }`}
                       >
                         Home visit services

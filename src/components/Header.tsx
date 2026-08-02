@@ -11,15 +11,11 @@ import { isAdminUiEnabled } from '@/lib/admin-ui'
 function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
     <>
-      <Calendar className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} shrink-0`} aria-hidden />
-      {compact ? (
-        <span className="flex flex-col items-center leading-[1.1] text-center">
-          <span>Book</span>
-          <span>Appointment</span>
-        </span>
-      ) : (
-        'Book an Appointment'
-      )}
+      <Calendar
+        className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} shrink-0 text-white`}
+        aria-hidden
+      />
+      Book Appointment
     </>
   )
 }
@@ -54,9 +50,9 @@ export default function Header() {
   ]
 
   const bookNowClassName =
-    'inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-5 py-2 rounded-full text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f]'
+    'inline-flex items-center justify-center gap-2 no-underline bg-primary text-white px-5 py-2 rounded-full text-sm font-semibold normal-case shadow-md shadow-primary/20 whitespace-nowrap transition-all duration-300 hover:bg-secondary hover:text-white hover:no-underline'
   const bookNowHeaderMobileClassName =
-    'inline-flex items-center justify-center gap-1.5 bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold normal-case shadow-md transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f]'
+    'inline-flex items-center justify-center gap-1.5 no-underline bg-primary text-white px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold normal-case shadow-md shadow-primary/20 whitespace-nowrap transition-all duration-300 hover:bg-secondary hover:text-white hover:no-underline'
 
   // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
   useEffect(() => {
