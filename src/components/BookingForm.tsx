@@ -9,6 +9,7 @@ import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
+import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import {
   OptionalAddOns,
   ClinicLocationCards,
@@ -591,6 +592,8 @@ export default function BookingForm() {
     clearAllFieldErrors()
     console.log('Booking submitted:', payload)
 
+    let confirmationEmailQueued = false
+
     if (features.bookingEmailEnabled) {
       // Re-read so Admin saves / env fallback are always current at submit time
       const latestFeatures = readBookingFeatures()
@@ -632,17 +635,28 @@ export default function BookingForm() {
           hCaptchaRef.current?.resetCaptcha()
           return
         }
+        // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
+        confirmationEmailQueued = true
       } finally {
         setIsSubmitting(false)
       }
     }
 
-    resetForm()
-    setToast({
-      message:
-        'Thank you! Your appointment request has been submitted. We will contact you within 24 hours to confirm — your preferred time is not locked until then.',
-      variant: 'success',
+    saveBookingThankYouSummary({
+      firstName: payload.firstName,
+      email: confirmationEmailQueued ? payload.email : undefined,
+      serviceLabel: payload.serviceLabel,
+      locationLabel: payload.locationLabel,
+      date: payload.date,
+      time: payload.time,
+      serviceType: payload.serviceType,
     })
+    resetForm()
+    setToast(null)
+    // Hard navigate so thank-you is a full page load on mobile/tablet/desktop
+    // (static export + trailingSlash). Absolute URL avoids base-path surprises.
+    const thankYouUrl = new URL('/bookings/thank-you/', window.location.origin).href
+    window.location.replace(thankYouUrl)
   }
 
   return (
