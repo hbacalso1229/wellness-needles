@@ -42,6 +42,7 @@ export function isValidWeb3FormsAccessKey(value: string): boolean {
 
 export function getEnvWeb3FormsAccessKey(): string {
   if (typeof process === 'undefined') return ''
+  if (process.env.NEXT_PUBLIC_E2E === 'true') return ''
   return normalizeWeb3FormsAccessKey(
     process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ''
   )
@@ -220,11 +221,18 @@ export function readBookingFeatures(): BookingFeatureFlags {
 
     // Shared deploys: env key means email is always on for every visitor.
     // Without env, use Admin/localStorage (default false).
-    const bookingEmailEnabled = getEnvWeb3FormsAccessKey()
-      ? true
-      : typeof parsed.bookingEmailEnabled === 'boolean'
-        ? parsed.bookingEmailEnabled
-        : defaults.bookingEmailEnabled
+    // E2E builds force email off so Playwright can reach thank-you without hCaptcha.
+    const bookingEmailEnabled =
+      process.env.NEXT_PUBLIC_E2E === 'true'
+        ? false
+        : getEnvWeb3FormsAccessKey()
+          ? true
+          : typeof parsed.bookingEmailEnabled === 'boolean'
+            ? parsed.bookingEmailEnabled
+            : defaults.bookingEmailEnabled
+
+    const accessKeyForClient =
+      process.env.NEXT_PUBLIC_E2E === 'true' ? '' : accessKey
 
     // When Admin UI is on (dev), honor stored mode toggles with mutual exclusivity.
     // When Admin UI is off (main), force contact-config defaults (legacy form).
@@ -262,7 +270,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
       calendlyFollowUpUrl: followUpUrl,
       freshaBookingUrl,
       bookingEmailEnabled,
-      bookingEmailAccessKey: accessKey,
+      bookingEmailAccessKey: accessKeyForClient,
       bookingEmailTo: emailTo,
     }
   } catch {
