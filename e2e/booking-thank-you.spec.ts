@@ -1,0 +1,24 @@
+import { test, expect } from './fixtures'
+import { fillBookingRequestForm } from './booking-helpers'
+
+/**
+ * Requires `npm run build:e2e` so submit skips hCaptcha / live email
+ * and redirects to the thank-you page.
+ */
+test.describe('booking thank-you', () => {
+  test('completes booking request and shows thank-you confirmation', async ({
+    page,
+  }) => {
+    await fillBookingRequestForm(page)
+
+    await page.getByRole('button', { name: 'Request appointment' }).click()
+
+    await expect(page).toHaveURL(/\/bookings\/thank-you\/?$/, { timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()
+    await expect(page.getByText(/Your booking confirmation/i)).toBeVisible()
+    await expect(page.getByText(/Initial Consultation/i).first()).toBeVisible()
+
+    await page.getByRole('link', { name: /Close and return to booking/i }).click()
+    await expect(page).toHaveURL(/\/bookings\/?$/)
+  })
+})

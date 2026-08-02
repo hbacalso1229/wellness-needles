@@ -592,13 +592,38 @@ export default function BookingForm() {
     clearAllFieldErrors()
     console.log('Booking submitted:', payload)
 
+    // E2E-only: force apologetic page without live Web3Forms / captcha.
+    if (
+      process.env.NEXT_PUBLIC_E2E === 'true' &&
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem('e2eForceBookingSubmitFail') === '1'
+    ) {
+      sessionStorage.removeItem('e2eForceBookingSubmitFail')
+      const unableUrl = new URL(
+        '/bookings/unable-to-process/',
+        window.location.origin
+      ).href
+      window.location.replace(unableUrl)
+      return
+    }
+
+    const goToUnableToProcess = (technicalDetail: string) => {
+      console.error('[booking submit]', technicalDetail)
+      setToast(null)
+      const unableUrl = new URL(
+        '/bookings/unable-to-process/',
+        window.location.origin
+      ).href
+      window.location.replace(unableUrl)
+    }
+
     let confirmationEmailQueued = false
 
     if (features.bookingEmailEnabled) {
       // Re-read so Admin saves / env fallback are always current at submit time
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
-        showErrorToast(
+        goToUnableToProcess(
           latestFeatures.bookingEmailAccessKey &&
             !isValidWeb3FormsAccessKey(latestFeatures.bookingEmailAccessKey)
             ? 'Web3Forms access key must be a valid UUID. Check .env.local or Admin → Booking email setup, then restart the dev server.'
@@ -626,13 +651,13 @@ export default function BookingForm() {
           hCaptchaToken
         )
         if (!result.ok) {
-          showErrorToast(
-            result.message ||
-              'Could not send the booking email. Please try again or call the clinic.'
-          )
           setHCaptchaToken('')
           setHCaptchaError('')
           hCaptchaRef.current?.resetCaptcha()
+          goToUnableToProcess(
+            result.message ||
+              'Could not send the booking email. Please try again or call the clinic.'
+          )
           return
         }
         // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).

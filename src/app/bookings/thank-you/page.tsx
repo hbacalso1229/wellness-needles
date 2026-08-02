@@ -10,8 +10,8 @@ import {
   Phone,
   Sparkles,
 } from 'lucide-react'
-import { CTAButton } from '@/features'
 import { contactConfig } from '@/lib/contact-config'
+import { BookingResultCloseButton } from '@/components/BookingResultCloseButton'
 import {
   clearBookingThankYouSummary,
   readBookingThankYouSummary,
@@ -64,20 +64,12 @@ function SummaryRow({
   )
 }
 
-const goldCtaClass =
-  'w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-5 !py-3.5 !text-sm !font-bold shadow-md shadow-primary/25 transition-[transform,box-shadow,filter] duration-200 ease-out sm:!py-3.5 sm:!text-base motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
-
-const outlineCtaClass =
-  'w-full !rounded-full !border-primary/35 !px-4 !py-3 !text-sm !font-medium !text-primary/70 !shadow-none !bg-transparent transition-[transform,color,border-color] duration-200 ease-out hover:!border-primary/55 hover:!bg-transparent hover:!text-primary/90 sm:!py-3 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
-
 export default function BookingThankYouPage() {
   const [summary, setSummary] = useState<BookingThankYouSummary | null>(null)
   const [ready, setReady] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
-    // Always land at the top so the thank-you composition is on-screen
-    // (mobile/tablet often restore scroll from the long booking form).
     window.scrollTo(0, 0)
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
@@ -91,7 +83,7 @@ export default function BookingThankYouPage() {
     })
   }, [])
 
-  const handleLeave = () => {
+  const handleClose = () => {
     clearBookingThankYouSummary()
   }
 
@@ -104,6 +96,8 @@ export default function BookingThankYouPage() {
 
       <section className="relative px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:pb-24 lg:pt-20">
         <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
+          <BookingResultCloseButton onClick={handleClose} />
+
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:mb-5 sm:h-16 sm:w-16 md:h-[4.5rem] md:w-[4.5rem]">
               <CheckCircle2
@@ -200,54 +194,17 @@ export default function BookingThankYouPage() {
             />
           )}
 
-          <div className="mt-6 flex flex-col gap-2.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:mx-auto sm:mt-8 sm:max-w-sm sm:gap-3 md:mt-10">
-            <div onClick={handleLeave}>
-              <CTAButton
-                href="/"
-                variant="gold"
-                size="large"
-                showArrow={false}
-                className={goldCtaClass}
+          {ready && summary ? (
+            <p className="mt-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-center sm:mt-8">
+              <a
+                href={contactConfig.phone.href}
+                className="inline-flex min-h-11 items-center justify-center gap-2 py-2 text-sm font-medium text-primary/75 transition-colors hover:text-primary sm:text-base"
               >
-                Back to home
-              </CTAButton>
-            </div>
-
-            {ready && !summary ? (
-              <div onClick={handleLeave}>
-                <CTAButton
-                  href="/bookings/"
-                  variant="outline"
-                  size="medium"
-                  showArrow={false}
-                  className={outlineCtaClass}
-                >
-                  Book an appointment
-                </CTAButton>
-              </div>
-            ) : (
-              <>
-                <div onClick={handleLeave}>
-                  <CTAButton
-                    href="/contact/"
-                    variant="outline"
-                    size="medium"
-                    showArrow={false}
-                    className={outlineCtaClass}
-                  >
-                    Contact us
-                  </CTAButton>
-                </div>
-                <a
-                  href={contactConfig.phone.href}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 py-2 text-sm font-medium text-primary/75 transition-colors hover:text-primary sm:text-base"
-                >
-                  <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                  Call {contactConfig.phone.displayText}
-                </a>
-              </>
-            )}
-          </div>
+                <Phone className="h-4 w-4 shrink-0" aria-hidden />
+                Call {contactConfig.phone.displayText}
+              </a>
+            </p>
+          ) : null}
         </div>
       </section>
     </div>

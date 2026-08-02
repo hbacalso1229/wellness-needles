@@ -28,8 +28,19 @@ Enable only Fresha **or** Calendly in Admin (not both). Fresha owns schedule, co
 
 ## Legacy stepper form = appointment *request* only
 
-When `bookingFormEnabled` is on, the multi-step UI collects preferred time and details. It does **not** lock a calendar slot. Copy and toasts must say **request**; confirmation happens when the clinic replies (or when email is configured via Web3Forms — see [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md)).
+When `bookingFormEnabled` is on, the multi-step UI collects preferred time and details. It does **not** lock a calendar slot. Copy must say **request**; confirmation happens when the clinic replies (or when email is configured via Web3Forms — see [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md)).
+
+**After submit (legacy form)**
+
+| Outcome | What the patient sees |
+|---------|------------------------|
+| Success | `/bookings/thank-you/` — appreciation + request summary |
+| Send / config failure | `/bookings/unable-to-process/` — apologetic page with **Call** / **Email** and a close control back to `/bookings/` (no technical error text) |
+| Incomplete hCaptcha | Stay on form — inline security-check message |
+| Field validation | Stay on form — inline errors (desktop may also show a summary toast) |
+
+Technical failure details are logged to the browser console only.
 
 ## Call / email
 
-Always available on `/bookings` for patients who prefer to book offline.
+Always available on `/bookings` (and on the unable-to-process page) for patients who prefer to book offline.

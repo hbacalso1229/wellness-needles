@@ -25,8 +25,9 @@ Flow:
 2. App validates fields (including Irish phone + email format).
 3. On the final step, when booking email is configured, the client completes an **hCaptcha** security check.
 4. If booking email is enabled and configured, `POST` to `https://api.web3forms.com/submit` (includes `h-captcha-response`).
-5. Clinic receives an email with visit type, location, service, add-ons, schedule, and health details.
-6. Success toast is shown (or an error toast if send fails). Form resets after success.
+5. Clinic receives an email with visit type, location, service, add-ons, schedule, and contact details.
+6. On **success**, the client redirects to `/bookings/thank-you/` (form resets; optional Autoresponder to the patient when enabled in Web3Forms Pro).
+7. On **send or configuration failure**, the client redirects to `/bookings/unable-to-process/` with apologetic **Call** / **Email** CTAs and a close control back to `/bookings/` — **no technical error toast**. Details are `console.error` only. Incomplete hCaptcha stays on the form with an inline message.
 
 ---
 
@@ -38,7 +39,7 @@ Legacy email submits use **Web3Forms hCaptcha** (interactive checkbox on the fin
 - Panel title: **Quick security check**
 - Shown only when booking email is configured (same gate as sending mail)
 - Reserved space while the widget loads; verified / expired / error messages under the widget
-- Submit without solving → toast + panel highlight; failed send resets the captcha (tokens are one-time)
+- Submit without solving → inline panel message (stay on form). Failed **send** resets the captcha and redirects to `/bookings/unable-to-process/` (no technical toast)
 
 ### Dashboard (required)
 1. Open [Web3Forms dashboard](https://app.web3forms.com) and select the booking form / access key

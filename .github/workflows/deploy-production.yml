@@ -42,6 +42,23 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
+      - name: Build for E2E (no Web3Forms / captcha)
+        run: npm run build:e2e
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production
+          path: playwright-report/
+          retention-days: 7
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
