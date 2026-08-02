@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
@@ -295,7 +294,6 @@ function formatIrishPhoneInput(raw: string): string {
 }
 
 export default function BookingForm() {
-  const router = useRouter()
   const { features } = useBookingFeatures()
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -594,6 +592,8 @@ export default function BookingForm() {
     clearAllFieldErrors()
     console.log('Booking submitted:', payload)
 
+    let confirmationEmailQueued = false
+
     if (features.bookingEmailEnabled) {
       // Re-read so Admin saves / env fallback are always current at submit time
       const latestFeatures = readBookingFeatures()
@@ -635,6 +635,8 @@ export default function BookingForm() {
           hCaptchaRef.current?.resetCaptcha()
           return
         }
+        // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
+        confirmationEmailQueued = true
       } finally {
         setIsSubmitting(false)
       }
@@ -642,6 +644,7 @@ export default function BookingForm() {
 
     saveBookingThankYouSummary({
       firstName: payload.firstName,
+      email: confirmationEmailQueued ? payload.email : undefined,
       serviceLabel: payload.serviceLabel,
       locationLabel: payload.locationLabel,
       date: payload.date,
@@ -649,7 +652,11 @@ export default function BookingForm() {
       serviceType: payload.serviceType,
     })
     resetForm()
-    router.push('/bookings/thank-you/')
+    setToast(null)
+    // Hard navigate so thank-you is a full page load on mobile/tablet/desktop
+    // (static export + trailingSlash). Absolute URL avoids base-path surprises.
+    const thankYouUrl = new URL('/bookings/thank-you/', window.location.origin).href
+    window.location.replace(thankYouUrl)
   }
 
   return (

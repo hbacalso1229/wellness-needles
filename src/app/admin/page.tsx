@@ -465,6 +465,45 @@ export default function AdminPage() {
 
               {features.bookingEmailEnabled && (
                 <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-4">
+                  <div className="rounded-lg border border-accent/20 bg-white/70 px-4 py-3 text-sm text-secondary space-y-2">
+                    <p className="font-semibold text-primary">
+                      Patient thank-you email (Web3Forms Autoresponder)
+                    </p>
+                    <p>
+                      The clinic inbox always receives the booking request. To also email
+                      the patient a confirmation, enable{' '}
+                      <span className="font-medium text-primary">Autoresponder</span> on
+                      this form in the{' '}
+                      <a
+                        href="https://docs.web3forms.com/getting-started/pro-features/autoresponder"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        Web3Forms dashboard
+                      </a>{' '}
+                      (Pro feature).
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>
+                        Subject: We received your appointment request — Wellness Needles
+                      </li>
+                      <li>
+                        Intro: thank-you + we&apos;ll confirm within 24 hours (preferred
+                        time not locked)
+                      </li>
+                      <li>Show copy of their submission: Yes</li>
+                      <li>
+                        Logo (optional): full https URL to{' '}
+                        <code className="text-xs">/logo_wellness.jpeg</code>
+                      </li>
+                      <li>
+                        Typically works on production sites — not localhost / some
+                        previews
+                      </li>
+                    </ul>
+                  </div>
+
                   <div>
                     <label
                       htmlFor="booking-email-to"
