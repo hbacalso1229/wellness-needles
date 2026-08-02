@@ -20,4 +20,11 @@ test.describe('smoke', () => {
       page.getByRole('heading', { name: /Request an appointment|Book Your Appointment/i }).first()
     ).toBeVisible()
   })
+
+  test('unable-to-process page is reachable', async ({ page }) => {
+    await page.goto('/bookings/unable-to-process/')
+    await expect(
+      page.getByRole('heading', { name: /unable to process your booking/i })
+    ).toBeVisible()
+  })
 })

@@ -36,6 +36,8 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 | `/blog` | Article listing only (no detail routes yet) |
 | `/contact` | Dual locations, maps, FAQ (contact form gated) |
 | `/bookings` | Pricing + Calendly **or** legacy stepper (Admin) |
+| `/bookings/thank-you` | Legacy form success — confirmation summary |
+| `/bookings/unable-to-process` | Legacy form submit failure — apologetic call/email |
 | `/admin` | Booking feature toggles, Calendly URL, email settings |
 
 ## Technology stack
@@ -61,7 +63,7 @@ For legacy booking emails locally, add your Web3Forms key to `.env.local` and re
 
 ## End-to-end tests (Playwright)
 
-E2E runs against the static export (`out/`). Use the E2E build so booking submit skips hCaptcha / live email and can reach the thank-you page.
+E2E runs against the static export (`out/`). Use the E2E build so booking submit skips hCaptcha / live email and can reach the thank-you page (and the forced-fail path to unable-to-process).
 
 ```bash
 npx playwright install chromium
