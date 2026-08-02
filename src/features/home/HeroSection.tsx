@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Leaf } from 'lucide-react'
+import { Leaf, Star } from 'lucide-react'
 import { CTAButton } from '../ui/CTAButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -24,8 +24,16 @@ export function HeroSection() {
           className="object-cover object-[70%_32%] sm:object-[72%_center] md:object-right"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/35 to-transparent md:via-primary/25 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
+        {/* Readability wash — darker on the copy side, soft fade into the photo */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(20, 40, 20, 0.72) 0%, rgba(20, 40, 20, 0.45) 42%, rgba(20, 40, 20, 0.18) 68%, rgba(20, 40, 20, 0.05) 100%)',
+          }}
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/15" />
       </div>
 
       {/* Extra top padding on mobile so copy isn’t tight under the menu bar */}
@@ -56,7 +64,7 @@ export function HeroSection() {
             </span>
           </h1>
 
-          <div className="mt-5 sm:mt-8 max-w-lg space-y-2.5 sm:space-y-3 text-sm sm:text-lg leading-relaxed text-cream/90 font-light">
+          <div className="mt-5 sm:mt-8 max-w-[34rem] space-y-2.5 sm:space-y-3 text-sm sm:text-lg leading-relaxed text-cream/95 font-light">
             <p>
               Experience authentic acupuncture and naturopathic medicine with
               Arkinth Garcia.
@@ -68,28 +76,39 @@ export function HeroSection() {
             </p>
           </div>
 
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-6 items-stretch sm:items-center">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-5 items-stretch sm:items-center">
             <div className="inline-flex justify-center sm:justify-start">
               <CTAButton
                 href={bookHref}
                 variant="gold"
-                size="medium"
+                size="large"
                 showArrow
-                className="md:!px-8 md:!py-4 md:!text-lg"
+                className="!px-7 !py-3.5 !text-base sm:!px-9 sm:!py-4 sm:!text-lg !shadow-lg !shadow-black/25 font-bold motion-safe:hover:-translate-y-0.5"
                 external={isExternal}
                 target={target}
                 rel={rel}
               >
-                Begin your journey
+                Book your appointment
               </CTAButton>
             </div>
             <a
               href="#practitioner"
-              className="text-cream/95 hover:text-cream underline underline-offset-4 decoration-cream/70 hover:decoration-cream text-sm sm:text-lg font-medium transition-colors text-center sm:text-left"
+              className="text-cream/70 hover:text-cream/90 underline underline-offset-4 decoration-cream/40 hover:decoration-cream/70 text-sm sm:text-base font-normal transition-colors text-center sm:text-left"
             >
               Meet your practitioner
             </a>
           </div>
+
+          <p className="mt-5 sm:mt-6 flex items-center justify-center sm:justify-start gap-1.5 text-sm text-cream/85">
+            <span className="inline-flex items-center gap-0.5 text-gold" aria-hidden>
+              <Star className="h-3.5 w-3.5 fill-current" />
+              <Star className="h-3.5 w-3.5 fill-current" />
+              <Star className="h-3.5 w-3.5 fill-current" />
+              <Star className="h-3.5 w-3.5 fill-current" />
+              <Star className="h-3.5 w-3.5 fill-current" />
+            </span>
+            <span>Rated 5★ by clients</span>
+          </p>
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
+import { Check, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
 
 export type TimeRangeOption = {
   readonly id: string
@@ -141,14 +141,14 @@ export function TimeRangeCards({
         return (
           <label
             key={range.id}
-            className={`booking-select-card relative block box-border rounded-xl border-2 p-4 ${
+            className={`booking-select-card relative block box-border rounded-xl border p-4 ${
               past
-                ? 'cursor-not-allowed border-accent/10 bg-accent/5 opacity-50'
+                ? 'cursor-not-allowed border-2 border-accent/10 bg-accent/5 opacity-50'
                 : selected
-                  ? 'cursor-pointer border-primary bg-primary/5'
+                  ? 'cursor-pointer border-[3px] border-primary bg-accent/20 shadow-sm shadow-primary/10'
                   : hasError
-                    ? 'cursor-pointer border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                    : 'cursor-pointer border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
+                    ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
+                    : 'cursor-pointer border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -163,23 +163,27 @@ export function TimeRangeCards({
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
               aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : ''}`}
             />
-            <CheckCircle
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
-                selected && !past ? 'opacity-100' : 'opacity-0'
+            <span
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-6 w-6 items-center justify-center rounded-full ${
+                selected && !past
+                  ? 'bg-primary text-white opacity-100'
+                  : 'bg-transparent opacity-0'
               }`}
               aria-hidden
-            />
-            <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-6">
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+            </span>
+            <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected && !past ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
+                  selected && !past ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0">
-                <h4 className="font-semibold text-primary">{range.label}</h4>
-                <p className="text-sm text-secondary mt-0.5">{range.window}</p>
+                <h4 className="font-semibold leading-snug text-primary">{range.label}</h4>
+                <p className="text-sm leading-relaxed text-secondary mt-0.5">{range.window}</p>
               </div>
             </div>
           </label>

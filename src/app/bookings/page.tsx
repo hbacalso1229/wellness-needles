@@ -202,16 +202,7 @@ export default function Bookings() {
                 <div>
                   <SectionHeading
                     title="Request an appointment"
-                    subtitle={
-                      <>
-                        Share your preferred service and time — we will confirm by email or
-                        phone.
-                        <br />
-                        <span className="font-medium text-[var(--primary-green)]">
-                          This does not lock a calendar slot.
-                        </span>
-                      </>
-                    }
+                    subtitle="Share your preferred service and time — we will confirm by email or phone."
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
@@ -285,10 +276,8 @@ export default function Bookings() {
                       <button
                         type="button"
                         onClick={() => handleTabChange('in-clinic')}
-                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                          activeTab === 'in-clinic'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
+                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                          activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                         }`}
                       >
                         In clinic services
@@ -296,10 +285,8 @@ export default function Bookings() {
                       <button
                         type="button"
                         onClick={() => handleTabChange('call-out')}
-                        className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                          activeTab === 'call-out'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-secondary hover:text-primary'
+                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                          activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                         }`}
                       >
                         Home visit services
@@ -474,10 +461,10 @@ export default function Bookings() {
               className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-4 lg:p-5"
             >
               <h3 className="mb-0.5 text-sm font-semibold text-primary md:mb-1 md:text-base">
-                Prefer to call or email?
+                Need help?
               </h3>
               <p className="mb-3 text-xs leading-snug text-secondary md:mb-4 md:text-sm md:leading-normal">
-                We can help you book by phone or email.
+                Prefer to call or email — we can help you book.
               </p>
               <div className="flex flex-col gap-2 md:gap-2.5">
                 <div>
@@ -486,7 +473,7 @@ export default function Bookings() {
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-bold gap-1.5 !shadow-none transition-[transform,filter] duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-semibold gap-1.5 transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
                     <Phone className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                     Call Now

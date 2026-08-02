@@ -11,7 +11,7 @@ import {
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
-import { BadgeCheck, HeartHandshake } from 'lucide-react'
+import { BadgeCheck, Calendar, HeartHandshake, Star } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -86,7 +86,7 @@ export default function Testimonials() {
               afterRotate="32deg"
               className="max-w-[17rem] sm:max-w-sm md:max-w-lg"
               title="Alopecia treatment progress"
-              description="Hair regrowth after a personalized acupuncture care plan — drag to compare before and after."
+              description="Hair regrowth after a personalized acupuncture care plan — compare before and after."
               altBefore="Scalp before alopecia treatment showing a bald patch"
               altAfter="Scalp after alopecia treatment showing hair regrowth"
             />
@@ -128,33 +128,38 @@ export default function Testimonials() {
       </section>
 
       {/* CTA band — Book primary, Share secondary */}
-      <section className="bg-cream py-8 md:py-14">
+      <section className="bg-cream py-16 md:py-24">
         <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
-          <h2 className="font-serif text-lg font-bold text-primary md:text-2xl">
-            Ready to start your care?
+          <h2 className="font-serif text-2xl font-bold leading-snug text-primary md:text-3xl">
+            Start feeling better today
           </h2>
-          <p className="mt-1.5 text-xs leading-snug text-secondary md:mt-2 md:text-base md:leading-relaxed">
-            Book a session with our licensed practitioner, or share how treatment helped you.
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-dark)]/65 md:mt-4 md:text-base">
+            Book your appointment in under a minute — we&apos;ll confirm everything for you.
           </p>
-          <div className="mt-4 flex flex-col gap-2 sm:mx-auto sm:mt-6 sm:max-w-xs sm:gap-2.5">
+          <div className="mt-8 flex flex-col gap-3 sm:mx-auto sm:mt-10 sm:max-w-sm sm:gap-3.5">
             <BookingCtaButton
               variant="gold"
               showArrow={false}
-              size="medium"
-              className="w-full !rounded-full !px-4 !py-2 !text-xs !font-bold gap-1.5 !shadow-none transition-[transform,filter] duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+              size="large"
+              className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-5 !py-3 !text-sm !font-bold whitespace-nowrap shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out md:!px-6 md:!py-3.5 md:!text-base motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
             >
-              Book an appointment
+              <Calendar className="h-4 w-4 shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
+              <span className="whitespace-nowrap">Book your appointment</span>
             </BookingCtaButton>
             <CTAButton
               href="/contact"
               variant="outline"
               size="medium"
               showArrow={false}
-              className="w-full !rounded-full !px-4 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+              className="w-full !rounded-full !border-primary/35 !px-4 !py-2.5 !text-xs !font-medium !text-primary/70 !shadow-none !bg-transparent transition-[transform,color,border-color] duration-200 ease-out hover:!border-primary/55 hover:!bg-transparent hover:!text-primary/90 md:!py-3 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
             >
               Share your story
             </CTAButton>
           </div>
+          <p className="mt-6 flex items-center justify-center gap-1.5 text-sm text-[var(--text-dark)]/60 md:mt-8">
+            <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
+            <span>Trusted by 200+ patients</span>
+          </p>
         </div>
       </section>
     </div>

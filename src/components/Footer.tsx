@@ -22,17 +22,17 @@ export default function Footer() {
                 {contactConfig.businessInfo.name}
               </span>
             </div>
-            <p className="text-sm md:text-base text-cream/80 mb-3 md:mb-6 max-w-md leading-snug">
+            <p className="text-sm md:text-base text-cream/65 mb-3 md:mb-6 max-w-md leading-snug">
               {contactConfig.businessInfo.tagline} {contactConfig.businessInfo.description}
             </p>
             <div>
-              <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-4">Follow us</h3>
+              <h3 className="font-bold text-base md:text-lg text-cream mb-2 md:mb-4">Follow us</h3>
               <div className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2">
                 <a
                   href={contactConfig.socialMedia.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cream/80 hover:text-cream transition-colors inline-flex items-center gap-2"
+                  className="text-cream/65 hover:text-cream transition-colors inline-flex items-center gap-2"
                   aria-label="Visit our Facebook page"
                 >
                   <svg
@@ -49,7 +49,7 @@ export default function Footer() {
                   href={contactConfig.socialMedia.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cream/80 hover:text-cream transition-colors inline-flex items-center gap-2"
+                  className="text-cream/65 hover:text-cream transition-colors inline-flex items-center gap-2"
                   aria-label="Visit our Instagram profile"
                 >
                   <svg
@@ -68,25 +68,25 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-4">Quick Links</h3>
+            <h3 className="font-bold text-base md:text-lg text-cream mb-2 md:mb-4">Quick Links</h3>
             <ul className="space-y-0.5 md:space-y-1">
               <li>
-                <Link href="/about" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/80 hover:text-cream transition-colors">
+                <Link href="/about" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/65 hover:text-cream transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/acupuncture" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/80 hover:text-cream transition-colors">
+                <Link href="/acupuncture" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/65 hover:text-cream transition-colors">
                   Why Acupuncture
                 </Link>
               </li>
               <li>
-                <Link href="/chinese-medicine" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/80 hover:text-cream transition-colors">
+                <Link href="/chinese-medicine" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/65 hover:text-cream transition-colors">
                   Chinese Medicine
                 </Link>
               </li>
               <li>
-                <Link href="/testimonials" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/80 hover:text-cream transition-colors">
+                <Link href="/testimonials" className="inline-block py-1.5 md:py-2 text-sm md:text-base text-cream/65 hover:text-cream transition-colors">
                   Testimonials
                 </Link>
               </li>
@@ -95,8 +95,8 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-4">Contact Info</h3>
-            <ContactInfo variant="compact" className="text-cream/80" />
+            <h3 className="font-bold text-base md:text-lg text-cream mb-2 md:mb-4">Contact Info</h3>
+            <ContactInfo variant="compact" className="text-cream/65" />
           </div>
         </div>
 

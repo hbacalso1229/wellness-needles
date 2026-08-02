@@ -91,8 +91,8 @@ export default function Contact() {
       {/* Contact Information — bookings-style sticky layout */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(16rem,18rem)] xl:gap-8 xl:items-start">
-            <div className="min-w-0 order-1 xl:order-1 space-y-6 md:space-y-10">
+          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
+            <div className="min-w-0 order-1 space-y-6 md:space-y-10">
               <div>
                 <SectionHeading
                   title="Get in touch"
@@ -357,26 +357,29 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Quick book — desktop sticky sidebar */}
+            {/* Quick book — sticky sidebar from tablet up; below content on mobile */}
             <aside
-              className="hidden xl:block order-2 w-full xl:sticky xl:top-24 rounded-xl border border-accent/15 bg-accent/10 p-5"
+              className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
-              <h3 className="mb-1 text-base font-semibold text-primary">
-                Prefer to book online?
+              <h3 className="mb-1 text-lg font-bold text-primary leading-snug">
+                Ready to book your appointment?
               </h3>
-              <p className="mb-4 text-sm text-secondary">
-                Pick a time that works — it only takes a minute.
+              <p className="mb-4 text-sm leading-relaxed text-[var(--text-dark)]/70">
+                Choose a time that works for you — it only takes a minute.
               </p>
               <div className="space-y-2.5">
                 <BookingCtaButton
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary text-sm font-bold shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-4 !py-2.5 !text-sm !font-bold whitespace-nowrap shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
                 >
                   <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                  Book an appointment
+                  <span className="whitespace-nowrap">Book your appointment</span>
                 </BookingCtaButton>
+                <p className="text-center text-xs text-[var(--text-dark)]/60">
+                  No payment required • Instant confirmation
+                </p>
                 {contactConfig.features.liveChatEnabled && (
                   <button
                     type="button"

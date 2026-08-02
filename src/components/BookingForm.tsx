@@ -663,8 +663,13 @@ export default function BookingForm() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         nextDisabled={
-          currentStep === 2 &&
-          (!selectedDate || isClosedBookingDate(selectedDate))
+          (currentStep === 0 && !selectedService) ||
+          (currentStep === 1 && !selectedLocation) ||
+          (currentStep === 2 &&
+            (!selectedDate ||
+              isClosedBookingDate(selectedDate) ||
+              !selectedTime ||
+              isPastTimeRange(selectedDate, selectedTime)))
         }
         stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
       >
@@ -672,7 +677,12 @@ export default function BookingForm() {
           <div className="space-y-6">
             <p className="text-secondary text-sm flex items-center">
               <CheckCircle className="w-5 h-5 mr-2 text-primary shrink-0" />
-              Choose In Clinic or Home Visit, then select a service.
+              <span className="xl:hidden">
+                Choose a location and select your service.
+              </span>
+              <span className="hidden xl:inline">
+                Choose In Clinic or Home Visit, then select a service.
+              </span>
             </p>
             <p className="text-xs text-secondary">
               Treated by Arkinth Garcia, Naturopath &amp; Acupuncturist.
@@ -682,10 +692,8 @@ export default function BookingForm() {
               <button
                 type="button"
                 onClick={() => handleTabChange('in-clinic')}
-                className={`px-4 sm:px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                  activeTab === 'in-clinic'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-secondary hover:text-primary'
+                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                  activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                 }`}
               >
                 In Clinic
@@ -693,10 +701,8 @@ export default function BookingForm() {
               <button
                 type="button"
                 onClick={() => handleTabChange('call-out')}
-                className={`px-4 sm:px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
-                  activeTab === 'call-out'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-secondary hover:text-primary'
+                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                  activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                 }`}
               >
                 <span className="sm:hidden">Home Visits</span>

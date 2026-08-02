@@ -1,7 +1,7 @@
 # Wellness Needles — Branding & UI Patterns
 
-**Status:** Current source of truth for visual / UX decisions.  
-**Code sources:** `src/app/globals.css`, `tailwind.config.js`, `src/features/ui/*`, `src/components/Header.tsx`.
+**Status:** Final source of truth for visual / UX decisions.  
+**Code sources:** `src/app/globals.css`, `tailwind.config.js`, `src/features/ui/*`, `src/components/Header.tsx`, `src/components/Footer.tsx`.
 
 Older notes (`HERO_SECTION_GUIDE.md`, `HERO_REFACTORING_COMPLETE.md`, `COMPONENT_REFACTORING_SUMMARY.md`) are **historical** — prefer this file when they conflict.
 
@@ -14,7 +14,7 @@ Older notes (`HERO_SECTION_GUIDE.md`, `HERO_REFACTORING_COMPLETE.md`, `COMPONENT
 | **Product** | Wellness Needles — acupuncture / TCM (Celbridge & Carlow, Ireland) |
 | **Tone** | Calm, clinical-credible wellness. Structured proof over DIY collage. |
 | **Logo** | `/logo_wellness.jpeg` — circular crop in header/footer |
-| **Avoid** | Purple/indigo AI defaults; heavy glow; thick green/gold box-shadows as decoration; tilted scrapbook collages as primary proof; Share CTAs competing with Book |
+| **Avoid** | Purple/indigo AI defaults; heavy glow as decoration; tilted scrapbook collages as primary proof; Share / Call competing equally with Book |
 
 ---
 
@@ -24,25 +24,28 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 
 | Token | Hex | Typical use |
 |-------|-----|-------------|
-| `primary` | `#2d5016` | Headings, primary text CTAs, icons |
+| `primary` | `#2d5016` | Headings, icons, selected calendar chrome, form/stepper fills |
 | `secondary` | `#4a7c2a` | Brand mid-green for fills / `hover:bg-secondary` (not body copy) |
-| `accent` | `#7fb069` | Soft borders (`border-accent/15`), accents |
+| `accent` | `#7fb069` | Soft borders (`border-accent/15`), tinted panels (`bg-accent/10`) |
 | `light-green` | `#a7c957` | Highlights (sparingly) |
 | `cream` | `#f9f7f4` | Page / section backgrounds |
-| `gold` | `#d4af37` | Primary conversion buttons, section flourish rules |
-| `text-dark` | `#2c3e50` | Legacy body foreground token |
+| `gold` | `#d4af37` | Conversion CTAs, section flourish rules, trust star accents |
+| `text-dark` | `#2c3e50` | Body copy, form values, calendar day numbers |
 | `text-light` | `#7f8c8d` | Muted meta |
 | `blue-*` | logo blues | Minor accents only (not page themes) |
+
+**Gold CTA gradient stops** (used on polished Book pills): `#e8c84a` → `gold`; hover `#f0d45c` → `#c9a52f`.
 
 **Supporting / body text:** `text-secondary` resolves to **`text-dark`** (`#2c3e50`) via the `.text-secondary` override in `globals.css`. Keep the Tailwind `secondary` color green for backgrounds and button hover — do not recolor that token for body copy.
 
 **Rules**
 
 - Default page surface: `bg-cream`.
-- Quiet panel chrome: `border border-accent/15` (not thick `border-2` + colored shadows).
-- Gold = **conversion** (Book Appointment) and **section flourish rules**, not every card title underline.
-- Prefer border intensify + lift on hover over `shadow-primary/*` / `shadow-gold/*` washes.
+- Quiet panel chrome: `border border-accent/15` (not thick decorative green/gold washes on cards).
+- **Gold = marketing conversion** (Book Appointment, Call Now in booking help sidebar).
+- **Green primary = in-flow actions** (Continue, Request appointment, Send Message) — not the main marketing Book CTA.
 - Supporting paragraphs use `text-secondary` (`text-dark`); headings stay `text-primary` (forest green).
+- **Contact / booking values** (phone, email, clinic names, hours times, calendar numbers): use `text-[var(--text-dark)]` — not `text-primary`. Reserve forest green for headings, icons, and selected calendar chrome.
 
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
 
@@ -74,24 +77,36 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 
 ### Heroes (`HeroSection`)
 
+**Home** (`features/home/HeroSection.tsx`)
+
+- Full-bleed photo + L→R dark green wash + light top/bottom fade (stronger than inner heroes for copy readability).
+- Brand-forward copy; primary CTA **Book your appointment** (gold).
+- Trust line: gold stars + **“Rated 5★ by clients”**.
+- Tablet+: one-screen lock via `.page-hero[data-home-hero]` (`calc(100dvh - 4rem)`).
+- Always visible (not gated behind `xl`).
+
+**Inner pages** (`features/ui/HeroSection.tsx`)
+
 - Full-bleed photo + readability overlay (`from-primary/65 via-primary/45 to-secondary/35` default).
 - Image: `fill` + **`object-cover`** (never stretch). Optional `object-position` via `backgroundImageClassName`.
-- **Asset rule:** short banners need **landscape** photos (e.g. `/hero_wellness_acupuncture.jpeg`, `/treatment_in_progress_2.jpeg`). Square/portrait crops look smeared in thin heroes.
-- Inner pages: `hideOnMobile` default **true** → hero hidden below `xl` (1280px). Home hero is separate (`features/home/HeroSection.tsx`) and always visible.
-- Optional `heightClass` (e.g. `min-h-[13rem] xl:min-h-[15rem]`) for a slightly deeper crop — don’t change global `.page-hero` for one page.
+- **Asset rule:** short banners need **landscape** photos. Square/portrait crops look smeared in thin heroes.
+- `hideOnMobile` default **true** → hero hidden below `xl` (1280px).
+- Optional `heightClass` for a slightly deeper crop — don’t change global `.page-hero` for one page.
 
 ### CTAs (`CTAButton` / `BookingCtaButton` / Header)
 
 | Role | Style | Examples |
 |------|--------|----------|
-| **Primary** | Gold filled (`variant="gold"`) | Book an appointment, header Book |
-| **Secondary** | Outline (`variant="outline"`) | Share your story, email |
+| **Conversion (gold)** | `variant="gold"` (+ optional gradient/shadow polish) | Header **Book Appointment**; home / contact / testimonials **Book your appointment**; bookings sidebar **Call Now** |
+| **In-flow (green)** | `bg-primary` / `hover:bg-secondary` | Booking **Continue** / **Request appointment**; contact **Send Message** |
+| **Secondary (outline)** | `variant="outline"` (can mute contrast) | **Send a message**, **Share your story** |
 
-- Always `rounded-full`.
-- Hierarchy: **Book above / before Share** — never the reverse.
-- Compact mobile (sidebars / bands): `!px-4 !py-2 !text-xs … md:!py-2.5 md:!text-sm`, prefer `!shadow-none`, light `hover:-translate-y-0.5` / `active:scale-[0.97]`.
-- Base `CTAButton` still applies `shadow-md`; strip locally with `!shadow-none` when matching polished sidebars.
-- Header mobile Book uses larger type than sidebar compact CTAs (see Typography).
+- Always `rounded-full` for marketing CTAs.
+- Hierarchy: **Book (gold) above / before Share or email** — never the reverse.
+- Conversion Book pills may use calendar icon, stronger shadow, and hover lift + press (`active:scale-[0.97]`).
+- Muted secondary outline: lower border/text opacity so it never competes with gold (e.g. testimonials Share).
+- Compact mobile (sidebars): tighter padding/type; stack under main content on small screens.
+- Header Book stays gold and readable on mobile/tablet.
 
 ### Cards — two systems
 
@@ -99,6 +114,15 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
    - **Cream sections** (`bg-cream`): FeatureCards are **flat on mobile** — `bg-transparent shadow-none`, panel returns from `md` (`elevated` omitted). Example: home “Why acupuncture works”.
    - **Tinted sections** (`bg-accent/10`, etc.): pass **`elevated`** so cream panel + `shadow-sm` stay on mobile. Example: home “How we can help”.
 2. **Flat white** — `bg-white rounded-xl border border-accent/15 shadow-none` (TestimonialCard, bookings panels, diagnosis/FAQ accordions). Hover: border + translate, not green glow.
+
+### Booking selection cards
+
+Service / location / time range cards (`ServiceSelectionCards`, `ClinicLocationCards`, `TimeRangeCards`):
+
+- **Selected:** thicker primary border + `bg-accent/20` + filled check badge.
+- **Unselected:** `border-2 border-accent/15 bg-white`; hover lift only when not selected.
+- **No “Most popular”** (or similar) badges — keep choice chrome clean.
+- Motion scoped so selection does not jump layout (`.booking-select-card`).
 
 ### Accordions (diagnosis / FAQ)
 
@@ -121,17 +145,34 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 - `md+`: CSS grid; dots typically hidden.
 - Slide shell: `snapSlideClassName`.
 
-### Sticky sidebars
+### Sticky sidebars (Contact + Bookings)
 
-Bookings pattern:
+Shared pattern from **`md` (768px)** — not `xl`:
 
-- Grid from `md`: main + `minmax(14rem,16rem)` aside.
+- Grid: main + `minmax(14rem,16rem)` aside (`lg` can widen aside slightly).
 - Aside: `md:sticky md:top-24`, `rounded-xl border border-accent/15 bg-accent/10`.
 - Mobile: stack below main; constrain width (`max-w-xs`) so CTAs aren’t edge-to-edge giants.
+
+| Page | Sidebar job |
+|------|-------------|
+| Bookings | Need help? → gold **Call Now** → Or → outline **Send a message** |
+| Contact | Ready to book… → gold **Book your appointment** (+ short trust line) |
+
+`xl` (1280) is for desktop nav (vs hamburger) and inner-page hero visibility — **not** for showing the sticky book/help column.
+
+### Footer (`src/components/Footer.tsx`)
+
+- Surface: `bg-primary` + cream text.
+- **Section titles** (Quick Links, Contact Info, Follow us): `font-bold` + full `text-cream`.
+- **Body / links / social:** `text-cream/65` → hover `text-cream` (clearer scan hierarchy).
+- Copyright row: quieter (`text-cream/60`).
+- No decorative leaf scatter.
 
 ### Booking form (`src/components/BookingForm.tsx`)
 
 **Steps:** Service → Location → Date & Time → Your details.
+
+**Step nav:** primary button label is **Continue** (not Next). Final step: **Request appointment**.
 
 **Your details (confirmed personal fields only):**
 
@@ -148,9 +189,38 @@ Bookings pattern:
 
 - Preferred Date full-width, then Preferred Time Range below.
 - Three range cards (Morning / Afternoon / Evening) in `grid-cols-1 sm:grid-cols-3`.
-- Cards use the same `booking-select-card` pattern as location/service selection.
+- Cards use the same selection pattern as location/service.
 - Soft-disable a range when the selected date is today and that window has already ended.
 - Email payload sends a human-readable label (e.g. `Morning (9:00 AM – 12:00 PM)`).
+
+### Date picker (`BookingDatePicker` in `src/features/ui/BookingDatePicker.tsx`)
+
+Shared custom calendar for **Preferred Date** and **Date of birth** — do not use native `type="date"` for these fields.
+
+| | Preferred date | Date of birth |
+|---|---|---|
+| Saturdays | Disabled (clinic closed) | Selectable |
+| Range | `min` = first open day; years through **current year + 1** | `min` ≈ 1920; `max` = today |
+| Default open | First bookable day | Current month/year (`initialView="max"`) |
+
+**Chrome (match brand green, not purple):**
+
+- Header: uppercase **month** toggle (dark text) + **year** toggle (`text-primary`) with chevrons; prev/next on the right
+- Custom month/year popovers anchored under each toggle (not native `<select>`)
+- Out-of-range months: disabled + muted — **no “N/A” / “Future” labels** in the list
+- Day grid: adjacent-month days faded; in-month days `text-dark`
+- **Selected:** solid `bg-primary` circle + **white** number
+- **Hover:** `rounded-full` + soft `bg-accent/40` (circle, same shape as selected)
+- Footers: “Closed Saturdays · Sunday–Friday” / “Future dates are not available”
+
+### Contact hours & detail values
+
+Source: `src/lib/contact-config.ts` (`businessInfo.hours` / `hoursDisplay`).
+
+- **Sunday–Friday:** 9:00 AM – 8:00 PM  
+- **Saturday:** Closed  
+
+Contact detail values (phone, email, Celbridge / Carlow, hour strings): **`text-dark`**, not primary green. Section titles stay `text-primary`.
 
 ### Compact card grids (tablet / desktop)
 
@@ -162,16 +232,16 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 
 **Do**
 
-- Hover lift: `-translate-y-0.5` or `-translate-y-1`
-- Press: `scale-[0.97]`
+- Hover lift: `-translate-y-0.5` or `-translate-y-1` on interactive cards / conversion CTAs
+- Press: `scale-[0.97]` on primary actions
 - Accordion chevron rotate with `.diagnosis-accordion-chevron`
 - Gate with `motion-safe:`
 - 2–3 intentional motions per visually led surface
 
 **Don’t**
 
-- Multi-layer glow / emboss as default decoration
-- Colored box-shadow hover as the main affordance (`shadow-gold/40`, thick `shadow-primary/20`)
+- Multi-layer glow / emboss as default card decoration
+- Green/gold shadow washes on every white panel (reserve stronger gold shadow for conversion Book / Call pills)
 - Motion that fights layout (jumping cards on select)
 
 ---
@@ -180,6 +250,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 
 ### Home
 
+- Hero: full-bleed, readable overlay, gold Book, trust “Rated 5★ by clients”.
 - Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile.
 - Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`.
 - Booking band: gold rule — leaf — gold rule above CTA.
@@ -189,16 +260,27 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 1. Hero (landscape bg; book CTA in hero on xl-hidden wrapper as configured)
 2. **Real Patient Results** — trust row (licensed + consent) → Before/After slider(s)
 3. **What patients say** — unique patient names only (no duplicate names); compact cards + Read more modal
-4. CTA band: **Book** (gold) then **Share** (outline)
+4. CTA band (generous vertical padding):
+   - Headline: **Start feeling better today**
+   - Subtext: appointment-in-under-a-minute reassurance (muted opacity)
+   - Gold **Book your appointment** (calendar icon) → muted outline **Share your story**
+   - Trust: **Trusted by 200+ patients**
 5. No “Video coming soon” placeholders
 
 ### Bookings
 
 - Form column + sticky call/email aside from `md`
-- Gold Call primary → Or → outline email secondary
-- Compact mobile button sizing
+- Gold **Call Now** → Or → outline email secondary
 - Details step: name, email, phone, **required DOB** only — no Health Information block
-- Date/Time: preferred date + Morning / Afternoon / Evening range cards; past ranges disabled for today
+- Date/Time: custom `BookingDatePicker` + Morning / Afternoon / Evening range cards; Saturdays disabled; past ranges disabled for today
+- Selection cards: strong selected state; no “Most popular” badge
+- Step CTA: **Continue** → final **Request appointment**
+
+### Contact
+
+- Hours + detail cards + sticky book aside from `md` (same grid pattern as bookings)
+- Book sidebar: conversion headline + gold Book + short confirmation trust line
+- Contact values / hours in `text-dark`
 
 ### Chinese medicine
 
@@ -215,7 +297,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 ## 7. Layout / structure conventions
 
 - Fixed header → content offset `pt-16`
-- Footer: cream-on-primary; no decorative leaf scatter
+- Footer: cream-on-primary with bold titles / softer body (`cream/65`)
 - Icons: Lucide React
 - Static export (`output: 'export'`) — no server API routes for UI work
 - Features UI in `src/features/`; app chrome in `src/components/`
@@ -227,17 +309,23 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Colors use brand tokens (`primary` / `secondary` / `accent` / `cream` / `gold`) — not one-off purple/cream AI themes
 - [ ] Headings use `font-serif` where brand-facing; body stays Inter
 - [ ] Section flourish is **gold — leaf — gold** (not leaf stacked only above one rule)
-- [ ] Primary action is **Book** (gold); secondary is outline; order is Book → secondary
-- [ ] Header Book stays readable on mobile/tablet (`text-sm`+)
-- [ ] No new thick green/gold drop shadows; prefer `border-accent/15` + light lift
+- [ ] Marketing primary action is **Book** (gold); in-flow form actions stay green; secondary is outline; order is Book → secondary
+- [ ] Header Book stays gold and readable on mobile/tablet (`text-sm`+)
+- [ ] Quiet card chrome: `border-accent/15` + light lift; reserve stronger gold shadows for conversion CTAs only
 - [ ] FeatureCards: flat on cream mobile; `elevated` on tinted section backgrounds
+- [ ] Booking selection cards: clear selected state; no “Most popular” badges
 - [ ] Accordions: chevron down closed, up open
 - [ ] Small card grids on wide pages use `max-w-*` + modest gaps (not huge empty gutters)
 - [ ] Hero/banner photos are landscape (or explicitly positioned); no smeared square/portrait in thin banners
-- [ ] Mobile: compact padding/type for sidebar CTAs; sidebars stack sensibly; page heroes stay hidden below xl unless intentional
+- [ ] Sticky book/help sidebars from **`md`** (contact + bookings); inner page heroes stay hidden below `xl` unless intentional
+- [ ] Footer: bold cream titles; body/links at reduced opacity for scan hierarchy
 - [ ] Testimonials / proof: unique names; structured Before/After over DIY collage chrome
+- [ ] Testimonials CTA: benefit headline, reassurance subtext, Book → Share, trust line under buttons
 - [ ] Booking details: DOB required; no Health Information fields reintroduced without product sign-off
-- [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today
+- [ ] Booking dates use `BookingDatePicker` (not native date); Saturdays closed for preferred date; DOB blocks future dates
+- [ ] Calendar: green selected circle + white text; circular sage hover; month/year popovers; no N/A labels
+- [ ] Contact values / hours use `text-dark`; hours Sunday–Friday 9–8, Saturday closed
+- [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today; step CTA **Continue**
 - [ ] Motion uses `motion-safe:` and stays subtle
 
 ---
@@ -252,8 +340,14 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 | Section flourish | `src/features/ui/SectionHeading.tsx` |
 | FeatureCard `elevated` | `src/features/ui/FeatureCard.tsx` |
 | Header Book CTA | `src/components/Header.tsx` |
+| Footer hierarchy | `src/components/Footer.tsx` |
+| Home hero | `src/features/home/HeroSection.tsx` |
 | Booking form | `src/components/BookingForm.tsx` |
-| Time range cards | `src/features/ui/TimeRangeCards.tsx` |
+| Date picker (preferred + DOB) | `src/features/ui/BookingDatePicker.tsx` |
+| Time / service / location cards | `src/features/ui/TimeRangeCards.tsx`, `ServiceSelectionCards.tsx`, `ClinicLocationCards.tsx` |
 | Booking email payload | `src/lib/send-booking-email.ts` |
-| Contact / booking config | `src/lib/contact-config.ts` |
+| Contact / booking config (hours, inbox) | `src/lib/contact-config.ts` |
+| Contact sticky book aside | `src/app/contact/page.tsx` |
+| Bookings sticky help aside | `src/app/bookings/page.tsx` |
+| Testimonials CTA band | `src/app/testimonials/page.tsx` |
 | Result photos | `public/results/` |

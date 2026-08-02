@@ -161,11 +161,59 @@ body {
 @keyframes booking-step-in {
   from {
     opacity: 0;
-    transform: translateX(16px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* In Clinic / Home Visits tabs — clearer active state + underline draw */
+.booking-service-tab {
+  position: relative;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dark);
+  opacity: 0.55;
+  font-weight: 600;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease,
+    font-weight 0.2s ease;
+}
+
+.booking-service-tab::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: -2px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: var(--primary-green);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.booking-service-tab:hover {
+  opacity: 0.85;
+  color: var(--primary-green);
+}
+
+.booking-service-tab--active {
+  opacity: 1;
+  color: var(--primary-green);
+  font-weight: 700;
+}
+
+.booking-service-tab--active::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-service-tab::after {
+    transition: none;
   }
 }
 
@@ -229,7 +277,9 @@ body {
 .booking-select-card {
   transition:
     border-color 0.35s ease,
-    background-color 0.35s ease !important;
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s ease !important;
 }
 
 .booking-select-card__check,
@@ -237,7 +287,8 @@ body {
   transition:
     opacity 0.35s ease,
     color 0.35s ease,
-    background-color 0.35s ease !important;
+    background-color 0.35s ease,
+    transform 0.35s ease !important;
 }
 
 /* Page heroes: content-sized by default */
