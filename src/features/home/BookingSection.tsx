@@ -9,13 +9,6 @@ export function BookingSection() {
       className="relative py-12 md:py-16 lg:py-20 overflow-hidden bg-jungle-gradient text-cream"
       aria-labelledby="booking-heading"
     >
-      <div className="absolute top-12 left-8 opacity-30 hidden md:block" aria-hidden="true">
-        <PulsingLeaf size="large" color="text-cream" />
-      </div>
-      <div className="absolute bottom-10 right-10 opacity-30 hidden md:block" aria-hidden="true">
-        <PulsingLeaf color="text-cream" animationDelay="1.2s" />
-      </div>
-
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           id="booking-heading"

@@ -663,8 +663,13 @@ export default function BookingForm() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         nextDisabled={
-          currentStep === 2 &&
-          (!selectedDate || isClosedBookingDate(selectedDate))
+          (currentStep === 0 && !selectedService) ||
+          (currentStep === 1 && !selectedLocation) ||
+          (currentStep === 2 &&
+            (!selectedDate ||
+              isClosedBookingDate(selectedDate) ||
+              !selectedTime ||
+              isPastTimeRange(selectedDate, selectedTime)))
         }
         stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
       >

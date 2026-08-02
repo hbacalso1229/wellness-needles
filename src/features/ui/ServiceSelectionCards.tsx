@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  CheckCircle,
+  Check,
   ClipboardList,
   Clock,
   Package,
@@ -36,6 +36,10 @@ function iconForService(id: string): LucideIcon {
   return Sparkles
 }
 
+function isInitialConsultation(id: string): boolean {
+  return id.includes('initial')
+}
+
 export function ServiceSelectionCards({
   services,
   selectedId,
@@ -49,16 +53,17 @@ export function ServiceSelectionCards({
       {services.map((service) => {
         const selected = selectedId === service.id
         const Icon = iconForService(service.id)
+        const popular = isInitialConsultation(service.id)
 
         return (
           <label
             key={service.id}
-            className={`booking-select-card relative block box-border cursor-pointer rounded-xl border-2 p-4 ${
+            className={`booking-select-card relative block box-border cursor-pointer rounded-xl border p-4 ${
               selected
-                ? 'border-primary bg-primary/5'
+                ? 'border-[3px] border-primary bg-accent/20 shadow-sm shadow-primary/10'
                 : hasError
-                  ? 'border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                  : 'border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
+                  ? 'border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
+                  : 'border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -70,45 +75,58 @@ export function ServiceSelectionCards({
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
               aria-label={service.name}
             />
-            <CheckCircle
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
-                selected ? 'opacity-100' : 'opacity-0'
+            <span
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-6 w-6 items-center justify-center rounded-full ${
+                selected
+                  ? 'bg-primary text-white opacity-100'
+                  : 'bg-transparent opacity-0'
               }`}
               aria-hidden
-            />
-            <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-7">
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+            </span>
+            <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
+                  selected ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="mb-2 flex items-start justify-between gap-3">
-                  <h3 className="min-w-0 font-semibold leading-snug text-primary">
-                    {service.name}
-                  </h3>
-                  <div className="shrink-0 text-right">
+                <div className="mb-1.5 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    {popular ? (
+                      <span className="mb-1.5 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                        Most popular
+                      </span>
+                    ) : null}
+                    <h3 className="min-w-0 font-semibold leading-snug text-primary">
+                      {service.name}
+                    </h3>
+                  </div>
+                  <div className="shrink-0 self-start text-right leading-none">
                     <span
-                      className={`font-serif font-bold text-primary tracking-tight ${
+                      className={`font-serif font-extrabold text-primary tracking-tight tabular-nums ${
                         largePrice ? 'text-3xl' : 'text-2xl'
                       }`}
                     >
                       {service.price}
                     </span>
-                    {service.savings && (
-                      <div className="text-sm font-medium text-green-600">
+                    {service.savings ? (
+                      <div className="mt-1 text-sm font-semibold text-secondary">
                         {service.savings}
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
                 <div className="mb-2 flex items-center text-sm text-secondary">
                   <Clock className="mr-1 h-4 w-4 shrink-0" aria-hidden />
                   {service.duration}
                 </div>
-                <p className="text-sm text-secondary">{service.description}</p>
+                <p className="text-sm leading-relaxed text-secondary">
+                  {service.description}
+                </p>
               </div>
             </div>
           </label>

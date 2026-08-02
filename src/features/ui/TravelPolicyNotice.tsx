@@ -1,37 +1,57 @@
-import { CheckCircle, Info, MapPin } from 'lucide-react'
+'use client'
+
+import { useState } from 'react'
+import { CheckCircle, ChevronDown, Info, MapPin } from 'lucide-react'
 
 export function TravelPolicyNotice({ className = '' }: { className?: string }) {
+  const [open, setOpen] = useState(false)
+
   return (
     <aside
-      className={`relative overflow-hidden rounded-xl border border-accent/30 bg-gold/10 p-4 sm:p-5 ${className}`}
+      className={`rounded-xl border border-accent/20 bg-accent/5 ${className}`}
       aria-label="Home visit travel policy"
     >
-      <div
-        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-gold to-primary"
-        aria-hidden="true"
-      />
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+      >
+        <span className="flex items-center gap-2 min-w-0">
+          <MapPin className="w-4 h-4 text-primary shrink-0" aria-hidden />
+          <span className="font-semibold text-sm text-primary">
+            Home visit travel policy
+          </span>
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 text-primary transition-transform duration-200 ${
+            open ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+        />
+      </button>
 
-      <div className="pl-3 sm:pl-4">
-        <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-5 h-5 text-primary shrink-0" aria-hidden />
-          <h4 className="font-semibold text-primary">Home visit travel policy</h4>
+      {open ? (
+        <div className="border-t border-accent/15 px-4 pb-4 pt-3">
+          <p className="text-sm leading-relaxed text-secondary mb-3">
+            Travel fees may apply outside the included radius.
+          </p>
+          <ul className="text-sm leading-relaxed text-secondary space-y-2">
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
+              <span>Within 10 km included</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
+              <span>Beyond 10 km: +€0.50/km or flat €15 travel fee</span>
+            </li>
+          </ul>
         </div>
-
-        <p className="text-sm text-secondary mb-3">
-          Travel fees may apply outside the included radius.
+      ) : (
+        <p className="px-4 pb-3 text-xs text-secondary">
+          Tap for travel fees beyond 10 km
         </p>
-
-        <ul className="text-sm text-secondary space-y-2">
-          <li className="flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
-            <span>Within 10 km included</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
-            <span>Beyond 10 km: +€0.50/km or flat €15 travel fee</span>
-          </li>
-        </ul>
-      </div>
+      )}
     </aside>
   )
 }

@@ -161,7 +161,7 @@ body {
 @keyframes booking-step-in {
   from {
     opacity: 0;
-    transform: translateX(16px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
@@ -277,7 +277,9 @@ body {
 .booking-select-card {
   transition:
     border-color 0.35s ease,
-    background-color 0.35s ease !important;
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s ease !important;
 }
 
 .booking-select-card__check,
@@ -285,7 +287,8 @@ body {
   transition:
     opacity 0.35s ease,
     color 0.35s ease,
-    background-color 0.35s ease !important;
+    background-color 0.35s ease,
+    transform 0.35s ease !important;
 }
 
 /* Page heroes: content-sized by default */
