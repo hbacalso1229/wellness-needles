@@ -86,7 +86,7 @@ export default function Testimonials() {
               afterRotate="32deg"
               className="max-w-[17rem] sm:max-w-sm md:max-w-lg"
               title="Alopecia treatment progress"
-              description="Hair regrowth after a personalized acupuncture care plan — drag to compare before and after."
+              description="Hair regrowth after a personalized acupuncture care plan — compare before and after."
               altBefore="Scalp before alopecia treatment showing a bald patch"
               altAfter="Scalp after alopecia treatment showing hair regrowth"
             />
