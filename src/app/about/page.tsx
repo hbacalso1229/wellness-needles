@@ -186,10 +186,11 @@ export default function About() {
             </h2>
             <div className="space-y-4 text-secondary">
               <p>
-                My name is Arkinth Garcia, and I am a qualified Naturopath and Acupuncturist.
-                I completed my training at the College of Naturopathic Medicine in Dublin, where
-                I first studied Biomedicine to gain a strong foundation in anatomy, physiology,
-                and pathology before specializing in acupuncture and naturopathy.
+                My name is Arkinth Garcia, and I am a qualified Naturopath and Acupuncturist. I
+                completed my training at the College of Naturopathic Medicine in Dublin, where I
+                first studied Biomedicine to build a strong foundation in anatomy, physiology, and
+                pathology before specialising in acupuncture and naturopathy. I later undertook
+                advanced postgraduate training, achieving Master&apos;s-level training in Acupuncture.
               </p>
               <p>
                 My journey into this field began with my own personal health challenge. I struggled
@@ -201,14 +202,15 @@ export default function About() {
               <p>
                 Today, I combine my knowledge of acupuncture and naturopathic medicine to help people
                 restore balance, improve their wellbeing, and address the root causes of their health
-                concerns. My approach is holistic, compassionate, and tailored to each person&apos;s unique
-                needs—whether you are looking for relief from a specific condition, support for stress
-                and fatigue, or guidance on lifestyle changes that promote long-term health.
+                concerns. My approach is holistic, compassionate, and tailored to each person&apos;s
+                unique needs—whether you are looking for relief from a specific condition, support
+                for stress and fatigue, or guidance on lifestyle changes that promote long-term
+                health.
               </p>
               <p>
                 If you are ready to take the next step towards better health and balance, I would be
-                honored to support you on your journey. I treat pain management, mental health conditions,
-                digestive issues, fertility, and more.
+                honored to support you on your journey. I treat pain management, mental health
+                conditions, digestive issues, fertility, and more.
               </p>
             </div>
           </div>
