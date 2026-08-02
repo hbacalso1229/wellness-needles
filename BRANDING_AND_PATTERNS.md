@@ -275,7 +275,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - Date/Time: custom `BookingDatePicker` + Morning / Afternoon / Evening range cards; Saturdays disabled; past ranges disabled for today
 - Selection cards: strong selected state; no “Most popular” badge
 - Step CTA: **Continue** → final **Request appointment**
-- Post-submit: **thank-you** page on success; **unable-to-process** apologetic page (call / email / try again) on send failure — never a red technical error toast
+- Post-submit: **thank-you** page on success; **unable-to-process** apologetic page (call / email + close back to bookings) on send failure — never a red technical error toast; no “Back to home” CTA
 
 ### Contact
 
@@ -327,7 +327,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Calendar: green selected circle + white text; circular sage hover; month/year popovers; no N/A labels
 - [ ] Contact values / hours use `text-dark`; hours Sunday–Friday 9–8, Saturday closed
 - [ ] Booking Date/Time: Morning / Afternoon / Evening range cards; past ranges disabled for today; step CTA **Continue**
-- [ ] Booking submit success → thank-you page; send/config failure → unable-to-process (apologetic call/email) — no technical error toast
+- [ ] Booking submit success → thank-you page; send/config failure → unable-to-process (apologetic call/email + close to bookings) — no technical error toast or Back to home
 - [ ] Motion uses `motion-safe:` and stays subtle
 
 ---
@@ -353,5 +353,6 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 | Bookings sticky help aside | `src/app/bookings/page.tsx` |
 | Booking thank-you | `src/app/bookings/thank-you/page.tsx` |
 | Booking unable-to-process | `src/app/bookings/unable-to-process/page.tsx` |
+| Booking result close (circular X) | `src/components/BookingResultCloseButton.tsx` |
 | Testimonials CTA band | `src/app/testimonials/page.tsx` |
 | Result photos | `public/results/` |

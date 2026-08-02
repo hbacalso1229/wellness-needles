@@ -17,8 +17,10 @@ test.describe('booking unable-to-process', () => {
       page.getByRole('link', { name: /Email info@wellnessneedles\.ie/i })
     ).toBeVisible()
 
-    const tryAgain = page.getByRole('link', { name: /Try again/i })
-    await expect(tryAgain).toHaveAttribute('href', /\/bookings\/?/)
+    const close = page.getByRole('link', { name: /Close and return to booking/i })
+    await expect(close).toHaveAttribute('href', /\/bookings\/?/)
+    await close.click()
+    await expect(page).toHaveURL(/\/bookings\/?$/)
   })
 
   test('forced submit failure redirects to unable-to-process', async ({ page }) => {

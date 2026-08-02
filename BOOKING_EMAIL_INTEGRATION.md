@@ -27,7 +27,7 @@ Flow:
 4. If booking email is enabled and configured, `POST` to `https://api.web3forms.com/submit` (includes `h-captcha-response`).
 5. Clinic receives an email with visit type, location, service, add-ons, schedule, and contact details.
 6. On **success**, the client redirects to `/bookings/thank-you/` (form resets; optional Autoresponder to the patient when enabled in Web3Forms Pro).
-7. On **send or configuration failure**, the client redirects to `/bookings/unable-to-process/` with apologetic call/email CTAs — **no technical error toast**. Details are `console.error` only. Incomplete hCaptcha stays on the form with an inline message.
+7. On **send or configuration failure**, the client redirects to `/bookings/unable-to-process/` with apologetic **Call** / **Email** CTAs and a close control back to `/bookings/` — **no technical error toast**. Details are `console.error` only. Incomplete hCaptcha stays on the form with an inline message.
 
 ---
 

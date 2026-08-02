@@ -17,5 +17,8 @@ test.describe('booking thank-you', () => {
     await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()
     await expect(page.getByText(/Your booking confirmation/i)).toBeVisible()
     await expect(page.getByText(/Initial Consultation/i).first()).toBeVisible()
+
+    await page.getByRole('link', { name: /Close and return to booking/i }).click()
+    await expect(page).toHaveURL(/\/bookings\/?$/)
   })
 })

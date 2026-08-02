@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { AlertCircle, Mail, Phone } from 'lucide-react'
 import { CTAButton } from '@/features'
+import { BookingResultCloseButton } from '@/components/BookingResultCloseButton'
 import { contactConfig } from '@/lib/contact-config'
 
 const goldCtaClass =
@@ -34,6 +35,8 @@ export default function BookingUnableToProcessPage() {
 
       <section className="relative px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:pb-24 lg:pt-20">
         <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
+          <BookingResultCloseButton />
+
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:mb-5 sm:h-16 sm:w-16 md:h-[4.5rem] md:w-[4.5rem]">
               <AlertCircle
@@ -92,16 +95,6 @@ export default function BookingUnableToProcessPage() {
             >
               <Mail className="h-4 w-4 shrink-0" aria-hidden />
               Email {contactConfig.email.address}
-            </CTAButton>
-
-            <CTAButton
-              href="/bookings/"
-              variant="outline"
-              size="medium"
-              showArrow={false}
-              className={outlineCtaClass}
-            >
-              Try again
             </CTAButton>
           </div>
         </div>

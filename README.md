@@ -37,7 +37,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 | `/contact` | Dual locations, maps, FAQ (contact form gated) |
 | `/bookings` | Pricing + Calendly **or** legacy stepper (Admin) |
 | `/bookings/thank-you` | Legacy form success — confirmation summary |
-| `/bookings/unable-to-process` | Legacy form submit failure — apologetic call/email |
+| `/bookings/unable-to-process` | Legacy form submit failure — apologetic call/email + close to bookings |
 | `/admin` | Booking feature toggles, Calendly URL, email settings |
 
 ## Technology stack
