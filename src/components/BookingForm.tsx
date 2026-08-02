@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
@@ -9,6 +10,7 @@ import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey } from '@/lib/booking-features'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
+import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import {
   OptionalAddOns,
   ClinicLocationCards,
@@ -293,6 +295,7 @@ function formatIrishPhoneInput(raw: string): string {
 }
 
 export default function BookingForm() {
+  const router = useRouter()
   const { features } = useBookingFeatures()
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -637,12 +640,16 @@ export default function BookingForm() {
       }
     }
 
-    resetForm()
-    setToast({
-      message:
-        'Thank you! Your appointment request has been submitted. We will contact you within 24 hours to confirm — your preferred time is not locked until then.',
-      variant: 'success',
+    saveBookingThankYouSummary({
+      firstName: payload.firstName,
+      serviceLabel: payload.serviceLabel,
+      locationLabel: payload.locationLabel,
+      date: payload.date,
+      time: payload.time,
+      serviceType: payload.serviceType,
     })
+    resetForm()
+    router.push('/bookings/thank-you/')
   }
 
   return (
