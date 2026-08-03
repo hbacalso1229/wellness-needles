@@ -264,12 +264,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 
 1. Hero (landscape bg; book CTA in hero on xl-hidden wrapper as configured)
 2. **Real Patient Results** — trust row → framed Before/After cases (Option A captions; `SnapCarousel` mobile; `lg:grid-cols-3`) → results disclaimer
-3. **What patients say** — unique patient names only (no duplicate names); compact cards + Read more modal
-4. CTA band (generous vertical padding):
-   - Headline: **Start feeling better today**
-   - Subtext: appointment-in-under-a-minute reassurance (muted opacity)
-   - Gold **Book your appointment** (calendar icon) → muted outline **Share your story**
-   - Trust: **Trusted by 200+ patients**
+3. **What patients say** — rating summary (honest average + count); unique names; initials avatars; condition chips; bold outcome preview (mid-quote lead-in when needed); **Verified Google review**; dates without “Recent”; **Read full story** modal
+4. CTA band: **Ready to experience results like these?** → gold **Book your appointment** → subtle text **Share your story** → trust line
 5. No “Video coming soon” placeholders
 
 ### Bookings
