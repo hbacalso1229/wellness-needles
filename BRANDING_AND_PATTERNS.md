@@ -134,10 +134,15 @@ Service / location / time range cards (`ServiceSelectionCards`, `ClinicLocationC
 ### Before / After (`BeforeAfterSlider`)
 
 - Separate `beforeSrc` / `afterSrc` (not multi-photo scrapbook as the only proof).
-- Drag slider + visible Before/After labels; keyboard range input.
-- Frame: `border-accent/15`, cream fill; optional `beforeRotate` / `afterRotate` to level tilted phone photos; `imageFit="contain"` for tall collages.
-- Prefer one strong case over stacking noisy collages.
-- Assets live under `public/results/` (e.g. alopecia before/after).
+- **Primary green = handle only** (~44–48px): ← → chevrons; rest cursor `ew-resize`; hover/focus/card-hover `scale-[1.08]` + `shadow-lg` + `ring-primary/25`. No bottom range — keyboard on the focusable track.
+- One-shot load preview (~8–10% slide) when motion is allowed; cancelled on first user interaction.
+- Before/After: mid-ground pills (`bg-black/40`, `backdrop-blur-[4px]`).
+- Media frame: shared `aspect-[4/3]` + inset ring + light top wash so photo/collage/lab UI feel unified.
+- Caption stack (Option A): **Condition** (serif dark) → **Result** (bold dark) → **Supporting** (muted, varied per case).
+- Case framing: neutral white panel (`border-black/5`, `p-6`, `0 6px 20px` elevation); hover lift ~4px + deeper shadow; `group/card` brightens handle/divider.
+- Testimonials Real Patient Results: muted trust row with `•`; mobile `SnapCarousel`; `lg:grid-cols-3`; footer-style disclaimer under the grid.
+- Optional `beforeRotate` / `afterRotate`; `imageFit="contain"` for lab reports and collages.
+- Assets under `public/results/` (eczema, sperm concentration, hair loss / alopecia).
 
 ### Carousels (`SnapCarousel`)
 
@@ -258,7 +263,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 ### Testimonials (`src/app/testimonials/page.tsx`)
 
 1. Hero (landscape bg; book CTA in hero on xl-hidden wrapper as configured)
-2. **Real Patient Results** — trust row (licensed + consent) → Before/After slider(s)
+2. **Real Patient Results** — trust row → framed Before/After cases (Option A captions; `SnapCarousel` mobile; `lg:grid-cols-3`) → results disclaimer
 3. **What patients say** — unique patient names only (no duplicate names); compact cards + Read more modal
 4. CTA band (generous vertical padding):
    - Headline: **Start feeling better today**

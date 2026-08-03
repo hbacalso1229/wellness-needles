@@ -61,6 +61,45 @@ export default function Testimonials() {
     },
   ]
 
+  const resultCases = [
+    {
+      beforeSrc: '/results/alopecia-before.png',
+      afterSrc: '/results/alopecia-after.png',
+      beforeRotate: '-42deg',
+      afterRotate: '32deg',
+      imageFit: 'cover' as const,
+      title: 'Hair loss',
+      highlight: 'Visible hair regrowth',
+      description: 'Observed after tailored acupuncture plan',
+      altBefore: 'Scalp before alopecia treatment showing a bald patch',
+      altAfter: 'Scalp after alopecia treatment showing hair regrowth',
+    },
+    {
+      beforeSrc: '/results/eczema-before.png',
+      afterSrc: '/results/eczema-after.png',
+      imageFit: 'contain' as const,
+      title: 'Eczema',
+      highlight: 'Reduced redness and inflammation',
+      description: 'Clinically guided treatment results',
+      altBefore:
+        'Back and legs before eczema treatment showing widespread redness and inflammation',
+      altAfter:
+        'Back and legs after eczema treatment with reduced redness and clearer skin',
+    },
+    {
+      beforeSrc: '/results/sperm-concentration-before.png',
+      afterSrc: '/results/sperm-concentration-after.png',
+      imageFit: 'contain' as const,
+      title: 'Sperm concentration',
+      highlight: 'Normalized sperm count',
+      description: 'Increased from 3.2 to 27.21 M/ml',
+      altBefore:
+        'Semen analysis before treatment: sperm concentration 3.2 million per ml, below normal',
+      altAfter:
+        'Semen analysis after treatment: sperm concentration 27.21 million per ml, within normal range',
+    },
+  ]
+
   return (
     <div className="min-h-screen">
       <HeroSection
@@ -85,39 +124,60 @@ export default function Testimonials() {
       />
 
       {/* Real Patient Results */}
-      <section className="bg-cream py-8 md:py-16 lg:py-20">
+      <section className="bg-cream py-10 md:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Real Patient Results"
             subtitle="Personalized treatment outcomes — clear before and after comparisons"
-            className="mb-4 text-center md:mb-8"
+            className="mb-6 text-center md:mb-10"
             titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
           />
 
-          <div className="mb-5 flex flex-col items-center gap-1 text-xs text-secondary sm:mb-8 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5 sm:gap-y-1.5 sm:text-sm md:mb-10">
-            <p className="inline-flex items-center gap-1.5">
-              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" aria-hidden />
+          <div className="mb-8 flex flex-col items-center gap-2 text-xs tracking-[0.2px] text-secondary/80 sm:mb-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5 sm:text-sm md:mb-14">
+            <p className="inline-flex items-center gap-2.5">
+              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-secondary/80 sm:h-4 sm:w-4" aria-hidden />
               Licensed &amp; certified practitioner
             </p>
-            <p className="inline-flex items-center gap-1.5">
-              <HeartHandshake className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden text-secondary/40 sm:inline" aria-hidden>
+              •
+            </span>
+            <p className="inline-flex items-center gap-2.5">
+              <HeartHandshake className="h-3.5 w-3.5 shrink-0 text-secondary/80 sm:h-4 sm:w-4" aria-hidden />
               Stories &amp; photos shared with consent
             </p>
           </div>
 
-          <div className="mx-auto max-w-lg">
-            <BeforeAfterSlider
-              beforeSrc="/results/alopecia-before.png"
-              afterSrc="/results/alopecia-after.png"
-              beforeRotate="-42deg"
-              afterRotate="32deg"
-              className="max-w-[17rem] sm:max-w-sm md:max-w-lg"
-              title="Alopecia treatment progress"
-              description="Hair regrowth after a personalized acupuncture care plan — compare before and after."
-              altBefore="Scalp before alopecia treatment showing a bald patch"
-              altAfter="Scalp after alopecia treatment showing hair regrowth"
-            />
-          </div>
+          <SnapCarousel
+            slideCount={resultCases.length}
+            ariaLabel="Patient results before and after"
+            hideDotsFrom="lg"
+            trackClassName="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible lg:pb-0 lg:px-0"
+          >
+            {resultCases.map((result) => (
+              <div
+                key={result.title}
+                className="group/card snap-start shrink-0 w-[min(85vw,22rem)] sm:w-[min(70vw,24rem)] lg:w-auto lg:min-w-0 rounded-xl border border-black/5 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.05)] transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]"
+              >
+                <BeforeAfterSlider
+                  beforeSrc={result.beforeSrc}
+                  afterSrc={result.afterSrc}
+                  beforeRotate={result.beforeRotate}
+                  afterRotate={result.afterRotate}
+                  imageFit={result.imageFit}
+                  aspectClassName="aspect-[4/3]"
+                  title={result.title}
+                  highlight={result.highlight}
+                  description={result.description}
+                  altBefore={result.altBefore}
+                  altAfter={result.altAfter}
+                />
+              </div>
+            ))}
+          </SnapCarousel>
+
+          <p className="mt-10 text-center text-[13px] tracking-[0.2px] text-secondary/70 md:mt-12">
+            Clinically observed results · Individual results may vary
+          </p>
         </div>
       </section>
 
