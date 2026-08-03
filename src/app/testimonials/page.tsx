@@ -16,14 +16,34 @@ import { BadgeCheck, Calendar, HeartHandshake, Star } from 'lucide-react'
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
-  // Unique patient names only (max 3) — one Viera + Francisca
   const testimonials = [
     {
-      name: 'Viera',
-      condition: 'Anxiety, sleep & energy',
-      date: '4 November 2023',
+      name: 'Claire Maguire',
+      condition: 'Digestive symptoms & aches',
+      date: '18 July 2026',
       rating: 5,
-      text: 'I was suffering from anxiety for a long time. I was feeling dizzy, tired, had constant ringing in my ears, couldn\'t sleep in the night. The new symptoms were gradually adding up and worsening over the years. I was desperate and didn\'t know what to do. Then my friend recommended me to try acupuncture. I contacted Arkinth. We had a conversation about my medical history and my current symptoms. He was very kind and I felt open to him. After only a few treatments I started to feel more energetic. Gradually I became a happier person and my symptoms were improving. Even my friends have noticed my changes. They were saying I am blooming, that I look more "alive".',
+      text: 'Within one session I noticed symptoms affecting my tummy going away. Other aches and pains (thinking it was peri menopause) have disappeared completely. It took 5-6 sessions and I can only say it was a miracle. Arkinth says its simple. Open the meridians and the body heals itself. So after 12 long years of doing acupuncture, energy healing, yoga, meditation and not shifting the discomfort in the body, I find Arkinth and he knows exactly what to do. It was like he had the key to open the door and the energy flows to the exact places where I needed to heal. The body has intelligence far beyond our understanding. My GP is officially deleted from my phone and I am taking my entire family to see Arkinth for up keep.',
+    },
+    {
+      name: 'Jen Bren',
+      condition: 'Healing & wellbeing',
+      date: '16 May 2026',
+      rating: 5,
+      text: 'I have had acupuncture many times before and found it good. HOWEVER I had a treatment with Arkinth and it was on another level. Arkinth is genuinely interested in helping you heal, it was an excellent treatment and extremely relaxing. I would recommend this treatment to anyone that is interested in healing the body and improving their quality of life. Thank you so much. Jen :)',
+    },
+    {
+      name: 'Sue Hopkins',
+      condition: 'First session experience',
+      date: '19 April 2026',
+      rating: 5,
+      text: 'Had my first session with Arkinth yesterday and i was so impressed; he is a such a highly skilled therapist; so genuine; with extensive knowledege and understanding you just know he really cares about his clients and there well being. I have went to a few different acupunturists over the years and I found Arkinth exceptional; his service is so unique and specialised I would highly reccommend his service',
+    },
+    {
+      name: 'Andrew Murphy',
+      condition: 'Shoulder pain, anxiety & depression',
+      date: '30 December 2023',
+      rating: 5,
+      text: 'I have seen Arkinth for various issues. I had a reoccurring shoulder pain which was troubling me for years. After a few sessions with Arkinth the pain was almost gone. It allowed me to do the exercises suggested by the physio without having to take pain killers. I still regularly attend physio for the problem but I am now pain free thanks to Arkinth. I have also seen Arkinth for anxiety and depression. Getting through this involved life style changes as well as diet changes. Arkinth helped me with both. Very professional and passionate about helping people.',
     },
     {
       name: 'Francisca Pereira',
@@ -31,6 +51,13 @@ export default function Testimonials() {
       date: '23 November 2023',
       rating: 5,
       text: 'I would like to highly recommend Wellness Needles Clinic. I got acupuncture to help with fertility and anxiety. I found the treatment very effective and relaxing. Arkinth is very personable and professional.',
+    },
+    {
+      name: 'Viera',
+      condition: 'Anxiety, sleep & energy',
+      date: '4 November 2023',
+      rating: 5,
+      text: 'I was suffering from anxiety for a long time. I was feeling dizzy, tired, had constant ringing in my ears, couldn\'t sleep in the night. The new symptoms were gradually adding up and worsening over the years. I was desperate and didn\'t know what to do. Then my friend recommended me to try acupuncture. I contacted Arkinth. We had a conversation about my medical history and my current symptoms. He was very kind and I felt open to him. After only a few treatments I started to feel more energetic. Gradually I became a happier person and my symptoms were improving. Even my friends have noticed my changes. They were saying I am blooming, that I look more "alive".',
     },
   ]
 
