@@ -245,7 +245,7 @@ export function TestimonialCard({
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <h3 id={titleId} className="font-serif text-lg font-semibold text-primary leading-snug">
+                <h3 id={titleId} className="font-serif text-lg font-semibold text-[var(--text-dark)] leading-snug">
                   {name}
                 </h3>
                 {stars}
@@ -275,7 +275,7 @@ export function TestimonialCard({
         {avatar}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <h4 className="truncate font-serif text-sm font-semibold text-primary md:text-lg">
+            <h4 className="truncate font-serif text-sm font-semibold text-[var(--text-dark)] md:text-lg">
               {name}
             </h4>
             {stars}

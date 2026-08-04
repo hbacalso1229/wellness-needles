@@ -129,7 +129,7 @@ export default function About() {
                   </div>
                 </div>
 
-                <h3 className="font-serif text-lg md:text-xl font-semibold text-primary mb-1">
+                <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-1">
                   Arkinth Garcia
                 </h3>
                 <p className="text-secondary text-sm mb-2">Naturopath &amp; Acupuncturist</p>
@@ -147,7 +147,7 @@ export default function About() {
                     <Target className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Mission</h3>
+                    <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Mission</h3>
                     <p className="text-sm md:text-base text-secondary leading-snug">
                       To restore balance and promote healing through authentic traditional Chinese medicine
                     </p>
@@ -158,7 +158,7 @@ export default function About() {
                     <Heart className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Vision</h3>
+                    <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Vision</h3>
                     <p className="text-sm md:text-base text-secondary leading-snug">
                       A community where holistic wellness is accessible to all who seek healing
                     </p>
@@ -169,7 +169,7 @@ export default function About() {
                     <Shield className="w-5 h-5 md:w-6 md:h-6 text-cream" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-base md:text-lg text-primary">Our Values</h3>
+                    <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Values</h3>
                     <p className="text-sm md:text-base text-secondary leading-snug">
                       Authenticity, compassion, and dedication to the highest standards of care
                     </p>
@@ -181,7 +181,7 @@ export default function About() {
 
           {/* About Arkinth Garcia — full width below tiles */}
           <div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-4 md:mb-6">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-4 md:mb-6">
               About Arkinth Garcia
             </h2>
             <div className="space-y-4 text-secondary">

@@ -44,8 +44,8 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 - Quiet panel chrome: `border border-accent/15` (not thick decorative green/gold washes on cards).
 - **Gold = marketing conversion** (Book Appointment, Call Now in booking help sidebar).
 - **Green primary = in-flow actions** (Continue, Request appointment, Send Message) — not the main marketing Book CTA.
-- Supporting paragraphs use `text-secondary` (`text-dark`); headings stay `text-primary` (forest green).
-- **Contact / booking values** (phone, email, clinic names, hours times, calendar numbers): use `text-[var(--text-dark)]` — not `text-primary`. Reserve forest green for headings, icons, and selected calendar chrome.
+- Supporting paragraphs use `text-secondary` (`text-dark`); **section H2s** stay `text-primary` (forest green).
+- **In-content titles** (FeatureCard titles, condition/treatment cards, column headings, Mission/Vision/Values, practitioner name, FAQ/accordion titles, blog card titles): use `text-[var(--text-dark)]` (`#2c3e50`) — not green. Reserve forest green for section H2s, icons, links, and selected chrome.
 
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
 
@@ -62,7 +62,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 
 - Serif H2 (`text-primary`)
 - Flourish: **gold rule — Lucide `Leaf` — gold rule** (horizontal; also used on home booking CTA)
-- Subtitle in `text-secondary`
+- Subtitle in `text-[var(--text-dark)]/70` (readable slate — not green `text-secondary`)
 - Override with `titleClassName` / `subtitleClassName` when a page needs denser mobile type
 
 **Hero H1** (inner `HeroSection`): `font-serif` with responsive scale up to `xl:text-7xl`.
@@ -111,6 +111,7 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 ### Cards — two systems
 
 1. **Embossed cream** — `bg-cream/80` + `.card-emboss` (FeatureCard, some condition tiles). Soft hover lift + light shadow on `md+`.
+   - **Titles:** `font-serif font-semibold text-[var(--text-dark)]` (`#2c3e50`) — not green. Reserve `text-primary` for section H2s and icon accents.
    - **Cream sections** (`bg-cream`): FeatureCards are **flat on mobile** — `bg-transparent shadow-none`, panel returns from `md` (`elevated` omitted). Example: home “Why acupuncture works”.
    - **Tinted sections** (`bg-accent/10`, etc.): pass **`elevated`** so cream panel + `shadow-sm` stay on mobile. Example: home “How we can help”.
 2. **Flat white** — `bg-white rounded-xl border border-accent/15 shadow-none` (TestimonialCard, bookings panels, diagnosis/FAQ accordions). Hover: border + translate, not green glow.
@@ -256,8 +257,12 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 ### Home
 
 - Hero: full-bleed, readable overlay, gold Book, trust “Rated 5★ by clients”.
-- Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile.
-- Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`.
+- Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile; card titles `text-dark`.
+- Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`; card titles `text-dark`.
+- Practitioner: name **Arkinth Garcia** uses `text-dark` (not primary green); section H2 stays `text-primary`.
+- About: practitioner name, Mission/Vision/Values titles, and **About Arkinth Garcia** use `text-dark`.
+- Acupuncture / Chinese medicine: column headings and condition/treatment card titles use `text-dark`.
+- Booking selection cards: titles and prices use `text-dark`; selected chrome (border/check/icon disc) stays primary green.
 - Booking band: gold rule — leaf — gold rule above CTA.
 
 ### Testimonials (`src/app/testimonials/page.tsx`)
@@ -314,7 +319,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Marketing primary action is **Book** (gold); in-flow form actions stay green; secondary is outline; order is Book → secondary
 - [ ] Header Book stays gold and readable on mobile/tablet (`text-sm`+)
 - [ ] Quiet card chrome: `border-accent/15` + light lift; reserve stronger gold shadows for conversion CTAs only
-- [ ] FeatureCards: flat on cream mobile; `elevated` on tinted section backgrounds
+- [ ] FeatureCards: dark titles (`text-dark`); flat on cream mobile; `elevated` on tinted section backgrounds
+- [ ] In-content titles (cards, columns, FAQ, practitioner name): `text-dark` — section H2s stay `text-primary`
 - [ ] Booking selection cards: clear selected state; no “Most popular” badges
 - [ ] Accordions: chevron down closed, up open
 - [ ] Small card grids on wide pages use `max-w-*` + modest gaps (not huge empty gutters)

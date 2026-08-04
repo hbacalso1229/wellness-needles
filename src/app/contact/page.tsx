@@ -45,7 +45,7 @@ function ContactDetailCard({
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-base md:text-lg text-primary mb-2 md:mb-3 leading-snug">{title}</h3>
+          <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)] mb-2 md:mb-3 leading-snug">{title}</h3>
           {children}
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function Contact() {
 
                 {contactConfig.features.contactFormEnabled && (
                   <div className={`${interactiveCardClass} mb-6 md:mb-8`}>
-                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                       Send us a message
                     </h3>
                     <div className="mb-4 md:mb-6 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -224,7 +224,7 @@ export default function Contact() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
                   {/* Business hours — left on desktop */}
                   <div>
-                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                       Business hours
                     </h3>
                     <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -239,7 +239,7 @@ export default function Contact() {
                           key={key}
                           className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
                         >
-                          <span className="text-secondary shrink-0 min-w-[7.5rem]">{label}</span>
+                          <span className="text-[var(--text-dark)]/70 shrink-0 min-w-[7.5rem]">{label}</span>
                           <span
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
@@ -266,7 +266,7 @@ export default function Contact() {
                           key={key}
                           className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
                         >
-                          <span className="text-secondary shrink-0 w-28">{label}</span>
+                          <span className="text-[var(--text-dark)]/70 shrink-0 w-28">{label}</span>
                           <span
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
@@ -277,7 +277,7 @@ export default function Contact() {
                         </li>
                       ))}
                     </ul>
-                    <p className="text-secondary text-sm mt-4">
+                    <p className="text-[var(--text-dark)]/70 text-sm mt-4">
                       {contactConfig.businessInfo.emergencyNote}
                     </p>
                   </div>
@@ -285,7 +285,7 @@ export default function Contact() {
                   {/* Phone, email, clinics — right on desktop */}
                   <div className="space-y-4">
                     <ContactDetailCard icon={contactConfig.phone.icon} title="Phone">
-                      <p className="text-secondary text-sm mb-2">
+                      <p className="text-[var(--text-dark)]/70 text-sm mb-2">
                         Call us during business hours for immediate assistance
                       </p>
                       <a
@@ -297,7 +297,7 @@ export default function Contact() {
                     </ContactDetailCard>
 
                     <ContactDetailCard icon={contactConfig.email.icon} title="Email">
-                      <p className="text-secondary text-sm mb-2">
+                      <p className="text-[var(--text-dark)]/70 text-sm mb-2">
                         We respond to emails within 24 hours
                       </p>
                       <a
@@ -311,7 +311,7 @@ export default function Contact() {
                     <ContactDetailCard icon={contactConfig.address.icon} title="Clinics">
                       {contactConfig.features.mapIntegrationEnabled ? (
                         <>
-                          <p className="text-secondary text-sm mb-2">Find us</p>
+                          <p className="text-[var(--text-dark)]/70 text-sm mb-2">Find us</p>
                           <p className="mb-2 text-[var(--text-dark)]">
                             <span className="font-semibold">Celbridge</span>
                             {' and '}
@@ -323,12 +323,12 @@ export default function Contact() {
                           >
                             See maps and directions
                           </a>
-                          <p className="text-secondary text-sm mt-2">Convenient parking available</p>
+                          <p className="text-[var(--text-dark)]/70 text-sm mt-2">Convenient parking available</p>
                         </>
                       ) : (
                         <>
-                          <p className="text-secondary text-sm mb-2">Find us</p>
-                          <div className="text-secondary mb-2 space-y-3">
+                          <p className="text-[var(--text-dark)]/70 text-sm mb-2">Find us</p>
+                          <div className="mb-2 space-y-3 text-[var(--text-dark)]/80">
                             {contactConfig.address.locations.map((location) => (
                               <div key={location.full}>
                                 <a
@@ -338,7 +338,7 @@ export default function Contact() {
                                   className="block hover:text-primary transition-colors"
                                 >
                                   <div>{location.formatted.street}</div>
-                                  <div className="font-semibold text-primary">
+                                  <div className="font-semibold text-[var(--text-dark)]">
                                     {location.formatted.city}
                                   </div>
                                   <div>
@@ -348,7 +348,7 @@ export default function Contact() {
                               </div>
                             ))}
                           </div>
-                          <p className="text-secondary text-sm">Convenient parking available</p>
+                          <p className="text-[var(--text-dark)]/70 text-sm">Convenient parking available</p>
                         </>
                       )}
                     </ContactDetailCard>
@@ -425,7 +425,7 @@ export default function Contact() {
                 >
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-base md:text-lg text-primary leading-snug">
+                      <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)] leading-snug">
                         {faq.question}
                       </h3>
                     </div>
@@ -447,7 +447,7 @@ export default function Contact() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-2 md:pt-3 text-sm md:text-base text-secondary leading-snug diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-sm md:text-base text-[var(--text-dark)]/70 leading-snug diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >
@@ -477,9 +477,9 @@ export default function Contact() {
                   key={location.full}
                   className={interactiveCardClass}
                 >
-                  <h3 className="font-semibold text-base text-primary mb-2">{location.label}</h3>
+                  <h3 className="font-semibold text-base text-[var(--text-dark)] mb-2">{location.label}</h3>
                   <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                  <div className="text-secondary text-sm leading-snug mb-4">
+                  <div className="text-[var(--text-dark)]/80 text-sm leading-snug mb-4">
                     <div>{location.formatted.street}</div>
                     <div>
                       {location.formatted.city}, {location.formatted.county}{' '}

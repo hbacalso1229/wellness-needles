@@ -70,7 +70,7 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                 Core Principles
               </h3>
               <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -80,7 +80,7 @@ export default function ChineseMedicine() {
                     <Circle className="w-6 h-6 text-cream" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary mb-2">Qi (Life Energy)</h4>
+                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Qi (Life Energy)</h4>
                     <p className="text-secondary">
                       The fundamental life force that flows through all living things.
                       Health depends on the smooth and balanced flow of Qi throughout the body.
@@ -93,7 +93,7 @@ export default function ChineseMedicine() {
                     <Target className="w-6 h-6 text-cream" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary mb-2">Yin and Yang</h4>
+                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Yin and Yang</h4>
                     <p className="text-secondary">
                       Complementary forces that must be in balance for optimal health.
                       Disease occurs when these forces become imbalanced.
@@ -106,7 +106,7 @@ export default function ChineseMedicine() {
                     <Leaf className="w-6 h-6 text-cream" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary mb-2">Five Elements</h4>
+                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Five Elements</h4>
                     <p className="text-secondary">
                       Wood, Fire, Earth, Metal, and Water represent different organ systems
                       and their interconnected relationships in the body.
@@ -119,7 +119,7 @@ export default function ChineseMedicine() {
                     <Zap className="w-6 h-6 text-cream" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-primary mb-2">Meridian System</h4>
+                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Meridian System</h4>
                     <p className="text-secondary">
                       Energy pathways that connect different parts of the body,
                       allowing Qi to flow and nourish organs and tissues.
@@ -130,7 +130,7 @@ export default function ChineseMedicine() {
             </div>
 
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                 Holistic Approach
               </h3>
               <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -231,7 +231,7 @@ export default function ChineseMedicine() {
                 >
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <div className="min-w-0 flex-1 text-left">
-                      <h3 className="font-semibold text-base md:text-lg text-primary leading-snug">
+                      <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)] leading-snug">
                         {method.title}
                       </h3>
                     </div>
@@ -278,7 +278,7 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                 Complementary Care
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -302,7 +302,7 @@ export default function ChineseMedicine() {
             </div>
 
             <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25">
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                 Evidence-Based Practice
               </h3>
               <div className="mb-3 md:mb-4 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />

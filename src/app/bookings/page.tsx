@@ -295,7 +295,7 @@ export default function Bookings() {
 
                     {/* Service first, then location (Fresha / Calendly flow) */}
                     <div className="mb-8">
-                      <h3 className="font-serif text-xl font-bold text-primary mb-2">Service</h3>
+                      <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-2">Service</h3>
                       <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <ServiceSelectionCards
                         services={services}
@@ -307,7 +307,7 @@ export default function Bookings() {
                     </div>
 
                     <div className="mb-8">
-                      <h3 className="font-serif text-xl font-bold text-primary mb-2">
+                      <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-2">
                         {activeTab === 'call-out'
                           ? 'Nearest clinic / service area'
                           : 'Clinic location'}
@@ -348,7 +348,7 @@ export default function Bookings() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
+                        <h3 className="font-semibold text-xl text-[var(--text-dark)] mb-2">Arkinth Garcia</h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
                         <p className="text-secondary text-sm">
@@ -362,7 +362,7 @@ export default function Bookings() {
                   {calendlyEnabled && !freshaEnabled && (
                     <div className={`${panelClass} !p-3.5 sm:!p-5 md:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
-                        <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
+                        <h3 className="font-serif text-xl sm:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                           Confirm your booking
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />

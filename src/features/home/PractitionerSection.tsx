@@ -50,7 +50,7 @@ export function PractitionerSection() {
             </p>
             <h2
               id="practitioner-heading"
-              className="font-serif text-2xl md:text-3xl font-bold text-primary mb-1"
+              className="font-serif text-2xl md:text-3xl font-bold text-[var(--text-dark)] mb-1"
             >
               Arkinth Garcia
             </h2>

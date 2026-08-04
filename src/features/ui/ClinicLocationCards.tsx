@@ -72,7 +72,7 @@ export function ClinicLocationCards({
                 <MapPin className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <h4 className="mb-1 font-semibold leading-snug text-primary">
+                <h4 className="mb-1 font-semibold leading-snug text-[var(--text-dark)]">
                   {location.label}
                 </h4>
                 <p className="text-sm leading-relaxed text-secondary">

@@ -182,7 +182,7 @@ export function TimeRangeCards({
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0">
-                <h4 className="font-semibold leading-snug text-primary">{range.label}</h4>
+                <h4 className="font-semibold leading-snug text-[var(--text-dark)]">{range.label}</h4>
                 <p className="text-sm leading-relaxed text-secondary mt-0.5">{range.window}</p>
               </div>
             </div>

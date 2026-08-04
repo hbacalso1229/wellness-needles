@@ -905,7 +905,7 @@ export default function BookingForm() {
         {currentStep === 3 && (
           <div className="space-y-8">
             <div>
-              <h3 className="font-serif text-xl font-bold text-primary mb-4 flex items-center">
+              <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-4 flex items-center">
                 <User className="w-5 h-5 mr-2" />
                 Personal Information
               </h3>

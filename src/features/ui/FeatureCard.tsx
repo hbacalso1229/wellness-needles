@@ -183,7 +183,7 @@ export function FeatureCard({
     >
       {hoverIconCircle}
       <h3
-        className={`font-serif font-semibold text-primary ${
+        className={`font-serif font-semibold text-[var(--text-dark)] ${
           compact
             ? 'mb-2 text-lg md:mb-3 md:text-xl'
             : 'mb-2 text-xl md:mb-3 md:text-2xl'
@@ -221,8 +221,8 @@ export function FeatureCard({
   const minH = compact ? 'min-h-[200px]' : 'min-h-[280px]'
   const facePad = compact ? 'p-4' : 'p-6'
   const titleClass = compact
-    ? 'font-serif text-xl font-semibold text-primary mb-2'
-    : 'font-serif text-2xl font-semibold text-primary mb-3'
+    ? 'font-serif text-xl font-semibold text-[var(--text-dark)] mb-2'
+    : 'font-serif text-2xl font-semibold text-[var(--text-dark)] mb-3'
 
   const modal =
     portalReady &&
@@ -253,7 +253,7 @@ export function FeatureCard({
             <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
 
-          <h3 id={titleId} className="font-serif text-lg font-semibold text-primary mb-2.5 pr-8 leading-snug">
+          <h3 id={titleId} className="font-serif text-lg font-semibold text-[var(--text-dark)] mb-2.5 pr-8 leading-snug">
             {title}
           </h3>
           <p id={descId} className="text-secondary text-sm leading-snug">
@@ -284,7 +284,7 @@ export function FeatureCard({
         >
           {flatIconCircle}
           <h3
-            className={`font-serif font-semibold text-primary flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
+            className={`font-serif font-semibold text-[var(--text-dark)] flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
               compact
                 ? 'mb-1 text-xs sm:text-sm min-h-[2rem]'
                 : 'mb-1 text-sm sm:text-base min-h-[2.25rem]'
@@ -347,7 +347,7 @@ export function FeatureCard({
                 transform: 'rotateY(180deg) translateZ(1px)',
               }}
             >
-              <h3 className="font-serif text-xl font-semibold text-primary mb-3">
+              <h3 className="font-serif text-xl font-semibold text-[var(--text-dark)] mb-3">
                 {title}
               </h3>
               <p className="text-secondary text-sm leading-relaxed">
