@@ -164,9 +164,10 @@ export default function ChineseMedicine() {
             subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
           />
 
-          <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2.5 md:gap-4 lg:gap-5">
+          <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2 md:gap-3 lg:gap-4">
             <FeatureCard
               flippable
+              compact
               icon={Zap}
               title="Acupuncture"
               description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
@@ -175,6 +176,7 @@ export default function ChineseMedicine() {
             />
             <FeatureCard
               flippable
+              compact
               icon={Heart}
               title="Cupping Therapy"
               description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
@@ -183,6 +185,7 @@ export default function ChineseMedicine() {
             />
             <FeatureCard
               flippable
+              compact
               icon={Brain}
               title="Moxibustion"
               description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
@@ -191,6 +194,7 @@ export default function ChineseMedicine() {
             />
             <FeatureCard
               flippable
+              compact
               icon={Circle}
               title="Gua Sha"
               description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
@@ -209,7 +213,7 @@ export default function ChineseMedicine() {
             subtitle="Traditional Chinese Medicine uses unique diagnostic techniques to understand your health"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 md:items-stretch gap-2.5 md:gap-8">
+          <div className="mx-auto grid max-w-4xl grid-cols-1 md:grid-cols-2 md:items-stretch gap-2.5 md:gap-4">
             {diagnosisMethods.map((method, index) => {
               const isOpen = openDiagnosisIndexes.has(index)
               return (

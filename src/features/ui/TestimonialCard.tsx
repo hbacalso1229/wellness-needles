@@ -289,7 +289,7 @@ export function TestimonialCard({
       </div>
 
       <Quote className="mb-2 h-4 w-4 text-accent/30 md:h-5 md:w-5" aria-hidden />
-      <p className="mb-4 line-clamp-3 flex-1 text-xs italic leading-relaxed text-secondary md:line-clamp-4 md:text-base md:leading-7">
+      <p className="mb-4 line-clamp-3 flex-1 text-sm italic leading-relaxed text-secondary md:line-clamp-4 md:text-base md:leading-7">
         &quot;{previewBody}&quot;
       </p>
 
@@ -299,7 +299,7 @@ export function TestimonialCard({
         onClick={openModal}
         aria-haspopup="dialog"
         aria-expanded={modalOpen}
-        className="mt-auto inline-flex items-center gap-0.5 self-start text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream md:text-sm"
+        className="mt-auto inline-flex items-center gap-0.5 self-start text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
       >
         Read full story
         <ChevronRight className="h-4 w-4" aria-hidden />

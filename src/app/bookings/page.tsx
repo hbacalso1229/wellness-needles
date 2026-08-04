@@ -460,10 +460,10 @@ export default function Bookings() {
             <aside
               className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-4 lg:p-5"
             >
-              <h3 className="mb-0.5 text-sm font-semibold text-primary md:mb-1 md:text-base">
+              <h3 className="mb-0.5 text-base font-semibold text-primary md:mb-1 md:text-lg">
                 Need help?
               </h3>
-              <p className="mb-3 text-xs leading-snug text-secondary md:mb-4 md:text-sm md:leading-normal">
+              <p className="mb-3 text-sm leading-relaxed text-[var(--text-dark)]/70 md:mb-4 md:text-base">
                 Prefer to call or email — we can help you book.
               </p>
               <div className="flex flex-col gap-2 md:gap-2.5">
@@ -473,12 +473,12 @@ export default function Bookings() {
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-semibold gap-1.5 transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-semibold gap-1.5 transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Phone className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
+                    <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
+                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
@@ -497,16 +497,14 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Mail className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
+                    <Mail className="h-4 w-4 shrink-0" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <div className="mt-1.5 flex justify-center md:mt-2">
-                    <p className="inline-flex max-w-full items-center justify-center rounded-full border border-primary/15 bg-white/80 px-3 py-1 text-center text-xs font-semibold text-[var(--text-dark)]/70 sm:text-sm">
-                      We reply within 24 hours
-                    </p>
-                  </div>
+                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
+                    We reply within 24 hours
+                  </p>
                 </div>
               </div>
             </aside>

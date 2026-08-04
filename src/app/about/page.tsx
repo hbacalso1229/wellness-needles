@@ -219,7 +219,7 @@ export default function About() {
 
       {/* Why Choose Us Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Why Choose Wellness Needles?"
             subtitle="Committed to providing the highest quality care with authentic traditional practices and personal experience"
@@ -228,11 +228,12 @@ export default function About() {
           <SnapCarousel
             slideCount={3}
             ariaLabel="Why choose us carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-x-hidden md:pb-0 lg:grid-cols-3 md:gap-4 lg:gap-5"
           >
             <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
+                compact
                 icon={Award}
                 title="Certified Expert"
                 description="Arkinth Garcia is licensed and certified in acupuncture and naturopathic medicine from Dublin's prestigious College of Naturopathic Medicine"
@@ -244,6 +245,7 @@ export default function About() {
             <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
+                compact
                 icon={Clock}
                 title="Flexible Scheduling"
                 description="We offer convenient appointment times to fit your busy lifestyle and schedule"
@@ -255,6 +257,7 @@ export default function About() {
             <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
+                compact
                 icon={Heart}
                 title="Personal Experience"
                 description="Having experienced the healing power of acupuncture firsthand, Arkinth brings both professional expertise and personal understanding to your care"

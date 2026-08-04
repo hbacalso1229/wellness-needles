@@ -66,15 +66,17 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | **Section subtitle** | `text-base` | `sm:text-lg` → `md:text-xl` | same | `text-dark/70` |
 | **Card / column title** | `text-lg` | `md:text-xl` | same | `text-dark` |
 | **Accordion / FAQ title** | `text-base` | `md:text-lg` | same | `text-dark` |
-| **Body / supporting** | `text-sm` | `md:text-base` | same | `text-dark/70` |
-| **Learn more / outline pills** | `text-sm` | `text-sm` | same | `text-primary` / dark |
-| **Eyebrow** | `text-xs` uppercase | same | same | `text-dark/45` |
+| **Body / supporting** | `text-sm` (dense) or `text-base` (long paras) | `md:text-base` | same | `text-dark/70` |
+| **Learn more / outline pills / primary CTA labels** | `text-sm` min | `text-sm` | same | `text-primary` / dark |
+| **Eyebrow / micro labels** | `text-xs` uppercase | same | same | `text-dark/45` |
+
+**Readability floor:** no primary readable copy (body, quotes, help blurb, Book/Call/Message labels) below `text-sm` (14px) on mobile. Prefer `text-base` for long mobile paragraphs where layout allows. Dense lists may stay `text-sm md:text-base`. True micro-labels (eyebrows, OR, Before/After chips, copyright) may stay `text-xs`.
 
 **Section titles** — use `SectionHeading` (defaults match the table). Home Benefits/Services/Practitioner may pass `lg:text-5xl` on the H2 only.
 
 **Hero H1** (inner `HeroSection`): `font-serif` with responsive scale up to `xl:text-7xl`.
 
-**Header Book (mobile / tablet):** `text-sm sm:text-base` with comfortable padding (`px-3.5 sm:px-4 py-2`) — keep readable on real devices. Desktop nav Book stays `text-sm`.
+**Header Book (mobile / tablet):** `text-sm` with comfortable padding (`px-3 sm:px-3.5 py-1.5`) — never below `text-sm` on real devices. Desktop nav Book stays `text-sm`.
 
 ---
 
@@ -327,7 +329,8 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Header Book stays gold and readable on mobile/tablet (`text-sm`+)
 - [ ] Quiet card chrome: `border-accent/15` + light lift; reserve stronger gold shadows for conversion CTAs only
 - [ ] FeatureCards: dark titles (`text-dark`); flat on cream mobile; `elevated` on tinted section backgrounds
-- [ ] Type scale: Section H2 `2xl→4xl` (home `lg:5xl` ok); subtitle `base→xl`; card/column titles `lg md:xl`; body `sm md:base`; Learn more / pills `text-sm`
+- [ ] Type scale: Section H2 `2xl→4xl` (home `lg:5xl` ok); subtitle `base→xl`; card/column titles `lg md:xl`; body `sm md:base` (long mobile paras prefer `base`); Learn more / pills / Book-Call labels ≥ `text-sm` on mobile
+- [ ] Readability floor: no primary readable copy below `text-sm` on mobile (eyebrows/OR/chips may stay `text-xs`)
 - [ ] Booking selection cards: clear selected state; no “Most popular” badges
 - [ ] Accordions: chevron down closed, up open
 - [ ] Small card grids on wide pages use `max-w-*` + modest gaps (not huge empty gutters)

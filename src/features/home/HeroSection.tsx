@@ -64,7 +64,7 @@ export function HeroSection() {
             </span>
           </h1>
 
-          <div className="mt-5 max-w-[32rem] space-y-2.5 text-sm font-light leading-relaxed text-cream/95 sm:mt-8 sm:max-w-[520px] sm:space-y-3 sm:text-lg">
+          <div className="mt-5 max-w-[32rem] space-y-2.5 text-base font-light leading-relaxed text-cream/95 sm:mt-8 sm:max-w-[520px] sm:space-y-3 sm:text-lg">
             <p>
               Experience authentic acupuncture and naturopathic medicine with
               Arkinth Garcia.

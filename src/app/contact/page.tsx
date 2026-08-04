@@ -239,7 +239,7 @@ export default function Contact() {
                           key={key}
                           className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
                         >
-                          <span className="text-[var(--text-dark)]/70 shrink-0 min-w-[7.5rem]">{label}</span>
+                          <span className="font-semibold text-[var(--text-dark)]/70 shrink-0 min-w-[7.5rem]">{label}</span>
                           <span
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
@@ -266,7 +266,7 @@ export default function Contact() {
                           key={key}
                           className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
                         >
-                          <span className="text-[var(--text-dark)]/70 shrink-0 w-28">{label}</span>
+                          <span className="font-semibold text-[var(--text-dark)]/70 shrink-0 w-28">{label}</span>
                           <span
                             className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
                             aria-hidden="true"
@@ -277,7 +277,7 @@ export default function Contact() {
                         </li>
                       ))}
                     </ul>
-                    <p className="text-[var(--text-dark)]/70 text-sm mt-4">
+                    <p className="font-semibold text-secondary text-sm mt-4">
                       {contactConfig.businessInfo.emergencyNote}
                     </p>
                   </div>
@@ -377,11 +377,9 @@ export default function Contact() {
                   <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
                   <span className="whitespace-nowrap">Book your appointment</span>
                 </BookingCtaButton>
-                <div className="flex justify-center">
-                  <p className="inline-flex max-w-full items-center justify-center rounded-full border border-primary/15 bg-white/80 px-3 py-1 text-center text-xs font-semibold text-[var(--text-dark)]/70">
-                    No payment required • Instant confirmation
-                  </p>
-                </div>
+                <p className="px-0.5 text-center text-xs font-semibold leading-snug text-[var(--text-dark)]/60">
+                  No payment required • Instant confirmation
+                </p>
                 {contactConfig.features.liveChatEnabled && (
                   <button
                     type="button"

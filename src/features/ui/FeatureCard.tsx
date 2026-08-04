@@ -219,8 +219,8 @@ export function FeatureCard({
     setModalOpen(true)
   }
 
-  const minH = compact ? 'min-h-[200px]' : 'min-h-[280px]'
-  const facePad = compact ? 'p-4' : 'p-6'
+  const minH = compact ? 'min-h-[160px]' : 'min-h-[200px]'
+  const facePad = compact ? 'p-3.5' : 'p-4 md:p-5'
   const titleClass = `${cardTitleClass} mb-2`
 
   const modal =
@@ -265,7 +265,7 @@ export function FeatureCard({
     )
 
   return (
-    <div className={`h-full ${className}`}>
+    <div className={`h-full min-w-0 ${className}`}>
       {/* Mobile: compact teaser → modal */}
       <div className="h-full md:hidden">
         <button
@@ -345,7 +345,7 @@ export function FeatureCard({
               <h3 className={`${cardTitleClass} mb-3`}>
                 {title}
               </h3>
-              <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
+              <p className="max-w-full overflow-hidden text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 {description}
               </p>
               {footer ? (
