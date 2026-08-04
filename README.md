@@ -20,7 +20,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 | Secondary green | Medium forest | `#4a7c2a` |
 | Accent green | Sage | `#7fb069` |
 | Light green | Bamboo | `#a7c957` |
-| Cream | Background | `#f9f7f4` |
+| Cream | Background | `#faf9f7` |
 | Gold | CTA accent | `#d4af37` |
 | Earth brown | Supporting | `#8b4513` |
 

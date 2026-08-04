@@ -28,15 +28,15 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | `secondary` | `#4a7c2a` | Brand mid-green for fills / `hover:bg-secondary` (not body copy) |
 | `accent` | `#7fb069` | Soft borders (`border-accent/15`), tinted panels (`bg-accent/10`) |
 | `light-green` | `#a7c957` | Highlights (sparingly) |
-| `cream` | `#f9f7f4` | Page / section backgrounds |
+| `cream` | `#faf9f7` | Page / section backgrounds (paper off-white) |
 | `gold` | `#d4af37` | Conversion CTAs, section flourish rules, trust star accents |
-| `text-dark` | `#2c3e50` | Body copy, form values, calendar day numbers |
+| `text-dark` | `#2a2a28` | Body copy, form values, calendar day numbers (warm ink charcoal) |
 | `text-light` | `#7f8c8d` | Muted meta |
 | `blue-*` | logo blues | Minor accents only (not page themes) |
 
 **Gold CTA gradient stops** (used on polished Book pills): `#e8c84a` → `gold`; hover `#f0d45c` → `#c9a52f`.
 
-**Supporting / body text:** `text-secondary` resolves to **`text-dark`** (`#2c3e50`) via the `.text-secondary` override in `globals.css`. Keep the Tailwind `secondary` color green for backgrounds and button hover — do not recolor that token for body copy.
+**Supporting / body text:** `text-secondary` resolves to **`text-dark`** (`#2a2a28`) via the `.text-secondary` override in `globals.css`. Keep the Tailwind `secondary` color green for backgrounds and button hover — do not recolor that token for body copy.
 
 **Rules**
 
@@ -45,7 +45,7 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 - **Gold = marketing conversion** (Book Appointment, Call Now in booking help sidebar).
 - **Green primary = in-flow actions** (Continue, Request appointment, Send Message) — not the main marketing Book CTA.
 - Supporting paragraphs use `text-secondary` (`text-dark`); **section H2s** stay `text-primary` (forest green).
-- **In-content titles** (FeatureCard titles, condition/treatment cards, column headings, Mission/Vision/Values, practitioner name, FAQ/accordion titles, blog card titles): use `text-[var(--text-dark)]` (`#2c3e50`) — not green. Reserve forest green for section H2s, icons, links, and selected chrome.
+- **In-content titles** (FeatureCard titles, condition/treatment cards, column headings, Mission/Vision/Values, practitioner name, FAQ/accordion titles, blog card titles): use `text-[var(--text-dark)]` (`#2a2a28`) — not green. Reserve forest green for section H2s, icons, links, and selected chrome.
 
 **Gradients:** `jungle-gradient`, `sunset-gradient`, `ocean-accent`, `harmony-gradient` (Tailwind + CSS). Use for large washes / hero fallbacks — not for every card.
 

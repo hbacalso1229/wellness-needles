@@ -11,7 +11,7 @@ Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ir
 ### Design System
 - **Color Palette**: Custom CSS variables in `globals.css`
   - Primary green spectrum: `--primary-green` (#2d5016) to `--light-green` (#a7c957)
-  - Accent: `--gold-accent` (#d4af37); background `--cream` (#f9f7f4)
+  - Accent: `--gold-accent` (#d4af37); background `--cream` (#faf9f7)
 - **Typography**: Inter (body) + Playfair Display (headings)
 - **Gradients**: `jungle-gradient`, `sunset-gradient`, etc. in CSS + Tailwind
 

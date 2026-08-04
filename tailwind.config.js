@@ -16,10 +16,10 @@ module.exports = {
         secondary: '#4a7c2a',
         accent: '#7fb069',
         'light-green': '#a7c957',
-        cream: '#f9f7f4',
+        cream: '#faf9f7',
         earth: '#8b4513',
         gold: '#d4af37',
-        'text-dark': '#2c3e50',
+        'text-dark': '#2a2a28',
         'text-light': '#7f8c8d',
         // Logo blues - minor accent colors
         'blue-primary': '#00A2E8',
