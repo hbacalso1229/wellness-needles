@@ -203,7 +203,7 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an appointment"
                     subtitle="Share your preferred service and time — we will confirm by email or phone."
-                    titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
+                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
                   <BookingForm />
@@ -214,7 +214,7 @@ export default function Bookings() {
                     <SectionHeading
                       title="Our services & pricing"
                       subtitle="Professional acupuncture treatments to support your health and wellness journey"
-                      titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
+                      titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
                       className="text-center mb-6"
                     />
                     {!calendlyEnabled && !freshaEnabled && (
@@ -295,7 +295,7 @@ export default function Bookings() {
 
                     {/* Service first, then location (Fresha / Calendly flow) */}
                     <div className="mb-8">
-                      <h3 className="font-serif text-xl font-bold text-primary mb-2">Service</h3>
+                      <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-2">Service</h3>
                       <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <ServiceSelectionCards
                         services={services}
@@ -307,7 +307,7 @@ export default function Bookings() {
                     </div>
 
                     <div className="mb-8">
-                      <h3 className="font-serif text-xl font-bold text-primary mb-2">
+                      <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-2">
                         {activeTab === 'call-out'
                           ? 'Nearest clinic / service area'
                           : 'Clinic location'}
@@ -348,7 +348,7 @@ export default function Bookings() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <h3 className="font-semibold text-xl text-primary mb-2">Arkinth Garcia</h3>
+                        <h3 className="font-semibold text-xl text-[var(--text-dark)] mb-2">Arkinth Garcia</h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                         <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
                         <p className="text-secondary text-sm">
@@ -362,7 +362,7 @@ export default function Bookings() {
                   {calendlyEnabled && !freshaEnabled && (
                     <div className={`${panelClass} !p-3.5 sm:!p-5 md:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
-                        <h3 className="font-serif text-xl sm:text-2xl font-semibold text-primary mb-2">
+                        <h3 className="font-serif text-xl sm:text-2xl font-semibold text-[var(--text-dark)] mb-2">
                           Confirm your booking
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -460,10 +460,10 @@ export default function Bookings() {
             <aside
               className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-4 lg:p-5"
             >
-              <h3 className="mb-0.5 text-sm font-semibold text-primary md:mb-1 md:text-base">
+              <h3 className="mb-0.5 text-base font-semibold text-primary md:mb-1 md:text-lg">
                 Need help?
               </h3>
-              <p className="mb-3 text-xs leading-snug text-secondary md:mb-4 md:text-sm md:leading-normal">
+              <p className="mb-3 text-sm leading-relaxed text-[var(--text-dark)]/70 md:mb-4 md:text-base">
                 Prefer to call or email — we can help you book.
               </p>
               <div className="flex flex-col gap-2 md:gap-2.5">
@@ -473,12 +473,12 @@ export default function Bookings() {
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-semibold gap-1.5 transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-semibold gap-1.5 transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Phone className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
+                    <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
+                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
@@ -497,12 +497,12 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2 !text-xs !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out md:!py-2.5 md:!text-sm motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
-                    <Mail className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
+                    <Mail className="h-4 w-4 shrink-0" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
+                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
                     We reply within 24 hours
                   </p>
                 </div>

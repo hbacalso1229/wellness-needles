@@ -91,13 +91,13 @@ export function ServiceSelectionCards({
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h3 className="min-w-0 font-semibold leading-snug text-primary">
+                    <h3 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
                       {service.name}
                     </h3>
                   </div>
                   <div className="shrink-0 self-start text-right leading-none">
                     <span
-                      className={`font-serif font-extrabold text-primary tracking-tight tabular-nums ${
+                      className={`font-serif font-extrabold text-[var(--text-dark)] tracking-tight tabular-nums ${
                         largePrice ? 'text-3xl' : 'text-2xl'
                       }`}
                     >

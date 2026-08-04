@@ -22,7 +22,7 @@ export default function Footer() {
                 {contactConfig.businessInfo.name}
               </span>
             </div>
-            <p className="text-sm md:text-base text-cream/65 mb-3 md:mb-6 max-w-md leading-snug">
+            <p className="mb-3 max-w-md text-base leading-relaxed text-cream/65 md:mb-6">
               {contactConfig.businessInfo.tagline} {contactConfig.businessInfo.description}
             </p>
             <div>

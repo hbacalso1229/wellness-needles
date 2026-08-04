@@ -41,8 +41,8 @@ export function HeroSection() {
         <div className="max-w-xl text-left text-cream">
           <h1 className="font-serif text-[1.75rem] leading-tight sm:text-5xl sm:leading-[1.15] md:text-6xl xl:text-[4.25rem] font-normal tracking-wide">
             <span className="block font-normal">Restore Balance.</span>
-            <span className="mt-1.5 block font-normal sm:mt-2">
-              Feel Better,{' '}
+            <span className="mt-1.5 block font-normal sm:mt-2">Feel Better,</span>
+            <span className="mt-1 inline-flex flex-col items-stretch sm:mt-1.5">
               <span
                 className="font-serif italic font-medium"
                 style={{
@@ -52,21 +52,21 @@ export function HeroSection() {
               >
                 Naturally.
               </span>
-            </span>
-            <span
-              className="mt-2.5 sm:mt-4 flex w-full max-w-[14rem] items-center sm:max-w-[18rem]"
-              aria-hidden="true"
-            >
-              <span className="h-px flex-1 bg-[#c5e07a]/95" />
-              <Leaf
-                className="mx-2 h-3 w-3 shrink-0 text-[#c5e07a] sm:mx-2.5 sm:h-3.5 sm:w-3.5"
-                strokeWidth={1.75}
-              />
-              <span className="h-px flex-1 bg-[#c5e07a]/95" />
+              <span
+                className="mt-2.5 flex w-full items-center sm:mt-4"
+                aria-hidden="true"
+              >
+                <span className="h-px min-w-0 flex-1 bg-[#c5e07a]/95" />
+                <Leaf
+                  className="mx-1.5 h-3 w-3 shrink-0 text-[#c5e07a] sm:mx-2 sm:h-3.5 sm:w-3.5"
+                  strokeWidth={1.75}
+                />
+                <span className="h-px min-w-0 flex-1 bg-[#c5e07a]/95" />
+              </span>
             </span>
           </h1>
 
-          <div className="mt-5 max-w-[32rem] space-y-2.5 text-sm font-light leading-relaxed text-cream/95 sm:mt-8 sm:max-w-[520px] sm:space-y-3 sm:text-lg">
+          <div className="mt-5 max-w-[32rem] space-y-2.5 text-base font-light leading-relaxed text-cream/95 sm:mt-8 sm:max-w-[520px] sm:space-y-3 sm:text-lg">
             <p>
               Experience authentic acupuncture and naturopathic medicine with
               Arkinth Garcia.

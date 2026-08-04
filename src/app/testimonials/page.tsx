@@ -6,7 +6,7 @@ import {
   SectionHeading,
   SnapCarousel,
   TestimonialCard,
-  snapSlideClassName,
+  reviewSlideClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -16,6 +16,42 @@ export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
   const testimonials = [
+    {
+      name: 'Maria Bray',
+      condition: 'Gastritis & energy',
+      date: '4 August 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'from daily pain and discomfort with gastritis to no symptoms at all',
+      text: 'Going to Arkinth for acupuncture has made a huge impact on my health, going from daily pain and discomfort with gastritis to no symptoms at all and an increase in energy levels and an overall feeling of being less stressed and a calmness in myself. Arkinth is excellent, very knowledgeable and has such kindness and understanding. I cannot recommend him enough, if your looking to try acupuncture or wanting to improve your health this is the place to go.',
+    },
+    {
+      name: 'Aidan Murphy',
+      condition: 'Sleep & energy',
+      date: '31 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'sleeping better and noticeably more energy',
+      text: "I have been to wellness needles twice and already I've seen the benefits of diet and lifestyle changes that were recommended - sleeping better and noticeably more energy...highly recommended..",
+    },
+    {
+      name: 'Christine Tuohy',
+      condition: 'Energy & wellbeing',
+      date: '28 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: "I honestly couldn't recommend him highly enough",
+      text: "I've had 6 treatments with Arkinth at Wellness Needles over the past few months, and I honestly couldn't recommend him highly enough. From my very first appointment, he made me feel completely at ease. He took the time to listen, understand my needs, and tailor each treatment to support me. Every session has been a calm and relaxing experience. I've noticed a real improvement in my energy levels, and I always leave feeling refreshed, balanced, and well cared for. His professionalism, knowledge, and genuine kindness really stand out, and the clinic has such a welcoming and peaceful atmosphere. If you're considering acupuncture, I would highly recommend Arkinth at Wellness Needles. It has been such a positive experience for me, and I'm very grateful for the care, support, and expertise he has provided over the past few months.",
+    },
+    {
+      name: 'Pavlo Nikulin',
+      condition: 'Lower back pain',
+      date: '22 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'it took only 2 sessions for Arkinth to deal with it',
+      text: "I've had a very bad lower back pain and it took only 2 sessions for Arkinth to deal with it. I canot recommend him enough. Considering attitude, knowledge and willingness to help - absolutely amazing!",
+    },
     {
       name: 'Claire Maguire',
       condition: 'Digestive symptoms & aches',
@@ -148,10 +184,10 @@ export default function Testimonials() {
             title="Real Patient Results"
             subtitle="Personalized treatment outcomes — clear before and after comparisons"
             className="mb-6 text-center md:mb-10"
-            titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
           />
 
-          <div className="mb-8 flex flex-col items-center gap-2 text-xs tracking-[0.2px] text-secondary/80 sm:mb-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5 sm:text-sm md:mb-14">
+          <div className="mb-8 flex flex-col items-center gap-2 text-sm tracking-[0.2px] text-secondary/80 sm:mb-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5 md:mb-14">
             <p className="inline-flex items-center gap-2.5">
               <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-secondary/80 sm:h-4 sm:w-4" aria-hidden />
               Licensed &amp; certified practitioner
@@ -193,7 +229,7 @@ export default function Testimonials() {
             ))}
           </SnapCarousel>
 
-          <p className="mt-10 text-center text-[13px] tracking-[0.2px] text-secondary/70 md:mt-12">
+          <p className="mt-10 text-center text-sm tracking-[0.2px] text-secondary/70 md:mt-12">
             Clinically observed results · Individual results may vary
           </p>
         </div>
@@ -206,7 +242,7 @@ export default function Testimonials() {
             title="What patients say"
             subtitle="Honest feedback from people in our care"
             className="mb-6 text-center md:mb-8"
-            titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
           />
 
           <div className="mb-8 flex flex-col items-center gap-1 text-center text-sm text-secondary/80 md:mb-10">
@@ -229,12 +265,15 @@ export default function Testimonials() {
           <SnapCarousel
             slideCount={testimonials.length}
             ariaLabel="Patient stories carousel"
-            trackClassName="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:pb-0 md:px-0 lg:max-w-4xl lg:mx-auto"
+            hideDotsFrom="never"
+            showArrows
+            className="mx-auto max-w-7xl"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-3 -mx-4 px-4 sm:gap-4 sm:-mx-6 sm:px-6 md:mx-0 md:gap-4 md:px-0 md:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {testimonials.map((testimonial) => (
               <div
                 key={`${testimonial.name}-${testimonial.condition}`}
-                className={snapSlideClassName}
+                className={`${reviewSlideClassName} flex`}
               >
                 <TestimonialCard
                   name={testimonial.name}
@@ -244,6 +283,7 @@ export default function Testimonials() {
                   text={testimonial.text}
                   emphasis={testimonial.emphasis}
                   source={testimonial.source}
+                  className="w-full"
                 />
               </div>
             ))}

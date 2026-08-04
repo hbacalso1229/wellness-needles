@@ -24,7 +24,7 @@ function iconForAddOn(id: string): LucideIcon {
 export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOnsProps) {
   return (
     <div>
-      <h3 className="mb-2 font-serif text-xl font-bold text-primary">Optional add-ons</h3>
+      <h3 className="mb-2 font-serif text-xl font-bold text-[var(--text-dark)]">Optional add-ons</h3>
       <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {addOns.map((addOn) => {
@@ -63,7 +63,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-start justify-between gap-3 md:max-lg:flex-col md:max-lg:items-stretch md:max-lg:gap-0.5">
-                    <h4 className="min-w-0 font-semibold leading-snug text-primary">
+                    <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
                       {addOn.name}
                     </h4>
                     {/^\s*free\b/i.test(addOn.price) ? (

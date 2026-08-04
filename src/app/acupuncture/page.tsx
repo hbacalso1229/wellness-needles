@@ -19,7 +19,7 @@ import { FeatureCard, HeroSection, SectionHeading, SnapCarousel } from '../../fe
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 md:p-6 transition-all duration-300'
+  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 md:p-5 transition-all duration-300'
 
 const conditions: {
   title: string
@@ -113,7 +113,7 @@ export default function Acupuncture() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-10 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
                 Traditional Chinese Medicine Perspective
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -136,7 +136,7 @@ export default function Acupuncture() {
             </div>
 
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary mb-2">
+              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
                 Modern Scientific Understanding
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -163,15 +163,16 @@ export default function Acupuncture() {
 
       {/* Benefits Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Benefits of Acupuncture"
             subtitle="Experience comprehensive healing with proven benefits for mind and body"
           />
 
-          <div className="grid grid-cols-2 gap-2.5 md:gap-8 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-3 lg:gap-5">
             <FeatureCard
               flippable
+              compact
               icon={Zap}
               title="Pain Relief"
               description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
@@ -181,6 +182,7 @@ export default function Acupuncture() {
 
             <FeatureCard
               flippable
+              compact
               icon={Brain}
               title="Stress Reduction"
               description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
@@ -190,6 +192,7 @@ export default function Acupuncture() {
 
             <FeatureCard
               flippable
+              compact
               icon={Activity}
               title="Improved Sleep"
               description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
@@ -199,6 +202,7 @@ export default function Acupuncture() {
 
             <FeatureCard
               flippable
+              compact
               icon={Shield}
               title="Immune Support"
               description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
@@ -208,6 +212,7 @@ export default function Acupuncture() {
 
             <FeatureCard
               flippable
+              compact
               icon={Heart}
               title="Digestive Health"
               description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
@@ -217,6 +222,7 @@ export default function Acupuncture() {
 
             <FeatureCard
               flippable
+              compact
               icon={Target}
               title="Hormonal Balance"
               description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
@@ -229,7 +235,7 @@ export default function Acupuncture() {
 
       {/* Conditions Treated */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Conditions We Treat"
             subtitle="Acupuncture can effectively address a wide range of health conditions"
@@ -238,17 +244,17 @@ export default function Acupuncture() {
           <SnapCarousel
             slideCount={conditions.length}
             ariaLabel="Conditions carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-8"
+            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-4 lg:gap-5"
           >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
-                <div className="mb-2.5 md:mb-4 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-white transition-[transform,color] duration-300 group-hover:scale-110">
+                <div className="mb-2 md:mb-3 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-white transition-[transform,color] duration-300 group-hover:scale-110">
                   <Icon className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.75} />
                 </div>
-                <h3 className="font-serif text-base md:text-lg font-semibold text-primary mb-2.5 md:mb-4 leading-snug">{title}</h3>
-                <ul className="space-y-1 md:space-y-2.5 text-sm md:text-base text-secondary leading-snug">
+                <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2 md:mb-3 leading-snug">{title}</h3>
+                <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-secondary leading-snug">
                   {items.map((item) => (
-                    <li key={item} className="flex items-center gap-2 md:gap-2.5">
+                    <li key={item} className="flex items-center gap-1.5 md:gap-2">
                       <span className="flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
                         <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
                       </span>
