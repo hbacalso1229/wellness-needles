@@ -186,12 +186,16 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-primary hover:text-secondary inline-flex items-center justify-center min-h-11 min-w-11 p-2.5 -mr-1"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center p-2.5 -mr-1 text-[var(--text-dark)] hover:text-[var(--text-dark)]/70"
               aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-navigation"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="h-6 w-6 text-[var(--text-dark)]" strokeWidth={2} />
+              ) : (
+                <Menu className="h-6 w-6 text-[var(--text-dark)]" strokeWidth={2} />
+              )}
             </button>
           </div>
         </div>
