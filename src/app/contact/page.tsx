@@ -89,14 +89,15 @@ export default function Contact() {
       />
 
       {/* Contact Information — bookings-style sticky layout */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+      <section className="bg-cream py-8 md:py-12 lg:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
-            <div className="min-w-0 order-1 space-y-6 md:space-y-10">
+            <div className="order-1 min-w-0 space-y-5 md:space-y-8">
               <div>
                 <SectionHeading
                   title="Get in touch"
                   subtitle="Reach us by phone, email, or visit one of our clinics"
+                  className="mb-6 text-center md:mb-8"
                 />
 
                 {contactConfig.features.contactFormEnabled && (
@@ -221,36 +222,33 @@ export default function Contact() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2 lg:gap-8">
                   {/* Business hours — left on desktop */}
                   <div>
-                    <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+                    <h3 className="mb-4 text-base font-semibold leading-snug text-[var(--text-dark)] md:text-lg">
                       Business hours
                     </h3>
-                    <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                     <ul className="space-y-0 lg:hidden">
                       {(
                         [
-                          ['Sunday - Friday', 'sunday'],
+                          ['Sunday – Friday', 'sunday'],
                           ['Saturday', 'saturday'],
                         ] as const
                       ).map(([label, key]) => (
                         <li
                           key={key}
-                          className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
+                          className="flex items-baseline justify-between gap-4 border-b border-accent/15 py-2 last:border-b-0"
                         >
-                          <span className="font-semibold text-[var(--text-dark)]/70 shrink-0 min-w-[7.5rem]">{label}</span>
-                          <span
-                            className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
-                            aria-hidden="true"
-                          />
-                          <span className="font-semibold text-[var(--text-dark)] shrink-0 text-right">
+                          <span className="shrink-0 text-[var(--text-dark)]/70">
+                            {label}
+                          </span>
+                          <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
                             {contactConfig.businessInfo.hours[key]}
                           </span>
                         </li>
                       ))}
                     </ul>
-                    <ul className="hidden lg:block space-y-0">
+                    <ul className="hidden space-y-0 lg:block">
                       {(
                         [
                           ['Monday', 'monday'],
@@ -264,14 +262,12 @@ export default function Contact() {
                       ).map(([label, key]) => (
                         <li
                           key={key}
-                          className="flex items-baseline gap-3 py-2.5 border-b border-accent/15 last:border-b-0"
+                          className="flex items-baseline justify-between gap-4 border-b border-accent/15 py-2 last:border-b-0"
                         >
-                          <span className="font-semibold text-[var(--text-dark)]/70 shrink-0 w-28">{label}</span>
-                          <span
-                            className="flex-1 border-b border-dotted border-accent/30 translate-y-[-0.35em]"
-                            aria-hidden="true"
-                          />
-                          <span className="font-semibold text-[var(--text-dark)] shrink-0 text-right">
+                          <span className="w-28 shrink-0 text-[var(--text-dark)]/70">
+                            {label}
+                          </span>
+                          <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
                             {contactConfig.businessInfo.hours[key]}
                           </span>
                         </li>
@@ -279,15 +275,19 @@ export default function Contact() {
                     </ul>
                     <p
                       role="note"
-                      className="mt-5 flex items-start gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-secondary"
+                      className="mt-4 flex items-start gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2.5 text-sm font-semibold text-primary shadow-sm"
                     >
-                      <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2} aria-hidden />
+                      <Info
+                        className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
                       <span>{contactConfig.businessInfo.emergencyNote}</span>
                     </p>
                   </div>
 
                   {/* Phone, email, clinics — right on desktop */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     <ContactDetailCard icon={contactConfig.phone.icon} title="Phone">
                       <p className="text-[var(--text-dark)]/70 text-sm mb-2">
                         Call us during business hours for immediate assistance
@@ -481,8 +481,7 @@ export default function Contact() {
                   key={location.full}
                   className={interactiveCardClass}
                 >
-                  <h3 className="font-semibold text-base text-[var(--text-dark)] mb-2">{location.label}</h3>
-                  <div className="mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                  <h3 className="mb-3 font-semibold text-base text-[var(--text-dark)]">{location.label}</h3>
                   <div className="text-[var(--text-dark)]/80 text-sm leading-snug mb-4">
                     <div>{location.formatted.street}</div>
                     <div>
