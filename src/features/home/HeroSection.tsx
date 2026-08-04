@@ -41,17 +41,15 @@ export function HeroSection() {
         <div className="max-w-xl text-left text-cream">
           <h1 className="font-serif text-[1.75rem] leading-tight sm:text-5xl sm:leading-[1.15] md:text-6xl xl:text-[4.25rem] font-normal tracking-wide">
             <span className="block font-normal">Restore Balance.</span>
-            <span className="mt-1.5 block font-normal sm:mt-2">
-              Feel Better,{' '}
-              <span
-                className="font-serif italic font-medium"
-                style={{
-                  color: '#c5e07a',
-                  textShadow: '0 1px 10px rgba(0, 0, 0, 0.35)',
-                }}
-              >
-                Naturally.
-              </span>
+            <span className="mt-1.5 block font-normal sm:mt-2">Feel Better,</span>
+            <span
+              className="mt-1 block font-serif italic font-medium sm:mt-1.5"
+              style={{
+                color: '#c5e07a',
+                textShadow: '0 1px 10px rgba(0, 0, 0, 0.35)',
+              }}
+            >
+              Naturally.
             </span>
             <span
               className="mt-2.5 sm:mt-4 flex w-full max-w-[14rem] items-center sm:max-w-[18rem]"

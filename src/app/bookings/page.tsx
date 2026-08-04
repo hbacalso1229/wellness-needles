@@ -203,7 +203,7 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an appointment"
                     subtitle="Share your preferred service and time — we will confirm by email or phone."
-                    titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
+                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
                   <BookingForm />
@@ -214,7 +214,7 @@ export default function Bookings() {
                     <SectionHeading
                       title="Our services & pricing"
                       subtitle="Professional acupuncture treatments to support your health and wellness journey"
-                      titleClassName="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-primary mb-2 md:mb-3"
+                      titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
                       className="text-center mb-6"
                     />
                     {!calendlyEnabled && !freshaEnabled && (
@@ -502,9 +502,11 @@ export default function Bookings() {
                     <Mail className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-xs text-secondary md:mt-2">
-                    We reply within 24 hours
-                  </p>
+                  <div className="mt-1.5 flex justify-center md:mt-2">
+                    <p className="inline-flex max-w-full items-center justify-center rounded-full border border-primary/15 bg-white/80 px-3 py-1 text-center text-xs font-semibold text-[var(--text-dark)]/70 sm:text-sm">
+                      We reply within 24 hours
+                    </p>
+                  </div>
                 </div>
               </div>
             </aside>

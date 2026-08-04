@@ -58,12 +58,19 @@ Tailwind keys map to CSS variables in `:root` (`globals.css`).
 | Body / UI | Inter | `font-sans` (default on `body`) |
 | Brand / headings | Playfair Display | `font-serif` |
 
-**Section titles** — use `SectionHeading`:
+### Responsive type scale (marketing)
 
-- Serif H2 (`text-primary`)
-- Flourish: **gold rule — Lucide `Leaf` — gold rule** (horizontal; also used on home booking CTA)
-- Subtitle in `text-[var(--text-dark)]/70` (readable slate — not green `text-secondary`)
-- Override with `titleClassName` / `subtitleClassName` when a page needs denser mobile type
+| Role | Mobile | Tablet (`md`) | Desktop (`lg`+) | Color |
+|------|--------|---------------|-----------------|-------|
+| **Section H2** | `text-2xl` | `text-3xl` → `md:text-4xl` | Home only: `lg:text-5xl` | `text-primary` |
+| **Section subtitle** | `text-base` | `sm:text-lg` → `md:text-xl` | same | `text-dark/70` |
+| **Card / column title** | `text-lg` | `md:text-xl` | same | `text-dark` |
+| **Accordion / FAQ title** | `text-base` | `md:text-lg` | same | `text-dark` |
+| **Body / supporting** | `text-sm` | `md:text-base` | same | `text-dark/70` |
+| **Learn more / outline pills** | `text-sm` | `text-sm` | same | `text-primary` / dark |
+| **Eyebrow** | `text-xs` uppercase | same | same | `text-dark/45` |
+
+**Section titles** — use `SectionHeading` (defaults match the table). Home Benefits/Services/Practitioner may pass `lg:text-5xl` on the H2 only.
 
 **Hero H1** (inner `HeroSection`): `font-serif` with responsive scale up to `xl:text-7xl`.
 
@@ -111,7 +118,7 @@ Shared primitives live in `src/features/ui/` (exported from `src/features/index.
 ### Cards — two systems
 
 1. **Embossed cream** — `bg-cream/80` + `.card-emboss` (FeatureCard, some condition tiles). Soft hover lift + light shadow on `md+`.
-   - **Titles:** `font-serif font-semibold text-[var(--text-dark)]` (`#2c3e50`) — not green. Reserve `text-primary` for section H2s and icon accents.
+   - **Titles:** `font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)]` — one size for static + flippable FeatureCards site-wide (home Benefits/Services, About, acupuncture, Chinese medicine). Not green.
    - **Cream sections** (`bg-cream`): FeatureCards are **flat on mobile** — `bg-transparent shadow-none`, panel returns from `md` (`elevated` omitted). Example: home “Why acupuncture works”.
    - **Tinted sections** (`bg-accent/10`, etc.): pass **`elevated`** so cream panel + `shadow-sm` stay on mobile. Example: home “How we can help”.
 2. **Flat white** — `bg-white rounded-xl border border-accent/15 shadow-none` (TestimonialCard, bookings panels, diagnosis/FAQ accordions). Hover: border + translate, not green glow.
@@ -257,9 +264,9 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 ### Home
 
 - Hero: full-bleed, readable overlay, gold Book, trust “Rated 5★ by clients”.
-- Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile; card titles `text-dark`.
-- Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`; card titles `text-dark`.
-- Practitioner: name **Arkinth Garcia** uses `text-dark` (not primary green); section H2 stays `text-primary`.
+- Benefits (“Why acupuncture works”) on `bg-cream` → FeatureCards flat on mobile; card titles `text-dark`; outline pill **Learn more about acupuncture** + `ArrowRight`.
+- Services (“How we can help”) on `bg-accent/10` → FeatureCards `elevated`; card titles `text-dark`; outline pill **Explore Chinese medicine** + `ArrowRight`.
+- Practitioner: name **Arkinth Garcia** uses `text-dark`; outline pill **Read Arkinth’s full story** + `ArrowRight`; section H2 stays `text-primary`.
 - About: practitioner name, Mission/Vision/Values titles, and **About Arkinth Garcia** use `text-dark`.
 - Acupuncture / Chinese medicine: column headings and condition/treatment card titles use `text-dark`.
 - Booking selection cards: titles and prices use `text-dark`; selected chrome (border/check/icon disc) stays primary green.
@@ -320,7 +327,7 @@ When a small set of cards sits in a wide `max-w-7xl` container, **don’t** stre
 - [ ] Header Book stays gold and readable on mobile/tablet (`text-sm`+)
 - [ ] Quiet card chrome: `border-accent/15` + light lift; reserve stronger gold shadows for conversion CTAs only
 - [ ] FeatureCards: dark titles (`text-dark`); flat on cream mobile; `elevated` on tinted section backgrounds
-- [ ] In-content titles (cards, columns, FAQ, practitioner name): `text-dark` — section H2s stay `text-primary`
+- [ ] Type scale: Section H2 `2xl→4xl` (home `lg:5xl` ok); subtitle `base→xl`; card/column titles `lg md:xl`; body `sm md:base`; Learn more / pills `text-sm`
 - [ ] Booking selection cards: clear selected state; no “Most popular” badges
 - [ ] Accordions: chevron down closed, up open
 - [ ] Small card grids on wide pages use `max-w-*` + modest gaps (not huge empty gutters)

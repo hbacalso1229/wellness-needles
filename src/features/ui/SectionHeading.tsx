@@ -14,7 +14,7 @@ export function SectionHeading({
   title,
   subtitle,
   titleClassName = 'font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3',
-  subtitleClassName = 'text-sm md:text-lg text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed',
+  subtitleClassName = 'text-base sm:text-lg md:text-xl text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed',
   className = 'text-center mb-8 md:mb-12 lg:mb-16',
 }: SectionHeadingProps) {
   return (

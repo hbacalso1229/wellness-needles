@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { PulsingLeaf } from '../ui/PulsingLeaf'
 import { SectionHeading } from '../ui/SectionHeading'
 
@@ -67,12 +68,15 @@ export function PractitionerSection() {
               Today the focus is helping people ease pain, stress, digestive concerns, fertility
               support, and more — always listening first, then treating the root.
             </p>
-            <Link
-              href="/about"
-              className="text-primary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"
-            >
-              Read Arkinth’s full story
-            </Link>
+            <div className="flex justify-center lg:justify-start">
+              <Link
+                href="/about/"
+                className="inline-flex min-h-11 w-full max-w-sm items-center justify-center gap-2 rounded-full border border-primary/30 bg-white px-5 py-3 text-sm font-medium text-primary transition-[transform,background-color,border-color] duration-200 hover:border-primary/50 hover:bg-accent/10 motion-safe:hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:w-auto sm:min-h-0 sm:py-2.5"
+              >
+                Read Arkinth’s full story
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

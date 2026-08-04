@@ -101,7 +101,7 @@ export default function Contact() {
 
                 {contactConfig.features.contactFormEnabled && (
                   <div className={`${interactiveCardClass} mb-6 md:mb-8`}>
-                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
+                    <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
                       Send us a message
                     </h3>
                     <div className="mb-4 md:mb-6 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -224,7 +224,7 @@ export default function Contact() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
                   {/* Business hours — left on desktop */}
                   <div>
-                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-[var(--text-dark)] mb-2">
+                    <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
                       Business hours
                     </h3>
                     <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -377,9 +377,11 @@ export default function Contact() {
                   <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
                   <span className="whitespace-nowrap">Book your appointment</span>
                 </BookingCtaButton>
-                <p className="text-center text-xs text-[var(--text-dark)]/60">
-                  No payment required • Instant confirmation
-                </p>
+                <div className="flex justify-center">
+                  <p className="inline-flex max-w-full items-center justify-center rounded-full border border-primary/15 bg-white/80 px-3 py-1 text-center text-xs font-semibold text-[var(--text-dark)]/70">
+                    No payment required • Instant confirmation
+                  </p>
+                </div>
                 {contactConfig.features.liveChatEnabled && (
                   <button
                     type="button"

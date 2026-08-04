@@ -171,6 +171,9 @@ export function FeatureCard({
     </div>
   )
 
+  const cardTitleClass =
+    'font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)]'
+
   const panelClass = elevated
     ? 'rounded-lg bg-cream/80 shadow-sm'
     : 'rounded-lg bg-transparent shadow-none md:bg-cream/80 md:shadow-sm'
@@ -182,16 +185,14 @@ export function FeatureCard({
       } ${className}`}
     >
       {hoverIconCircle}
-      <h3
-        className={`font-serif font-semibold text-[var(--text-dark)] ${
-          compact
-            ? 'mb-2 text-lg md:mb-3 md:text-xl'
-            : 'mb-2 text-xl md:mb-3 md:text-2xl'
-        }`}
-      >
+      <h3 className={`${cardTitleClass} mb-2 md:mb-3`}>
         {title}
       </h3>
-      <p className={`text-secondary ${compact ? 'text-sm md:text-base leading-snug' : ''}`}>
+      <p
+        className={`text-[var(--text-dark)]/70 ${
+          compact ? 'text-sm md:text-base leading-snug' : 'text-sm md:text-base leading-relaxed'
+        }`}
+      >
         {description}
       </p>
       {footer ? <div className="mt-3 md:mt-4">{footer}</div> : null}
@@ -220,9 +221,7 @@ export function FeatureCard({
 
   const minH = compact ? 'min-h-[200px]' : 'min-h-[280px]'
   const facePad = compact ? 'p-4' : 'p-6'
-  const titleClass = compact
-    ? 'font-serif text-xl font-semibold text-[var(--text-dark)] mb-2'
-    : 'font-serif text-2xl font-semibold text-[var(--text-dark)] mb-3'
+  const titleClass = `${cardTitleClass} mb-2`
 
   const modal =
     portalReady &&
@@ -253,10 +252,10 @@ export function FeatureCard({
             <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
 
-          <h3 id={titleId} className="font-serif text-lg font-semibold text-[var(--text-dark)] mb-2.5 pr-8 leading-snug">
+          <h3 id={titleId} className={`${cardTitleClass} mb-2.5 pr-8 leading-snug`}>
             {title}
           </h3>
-          <p id={descId} className="text-secondary text-sm leading-snug">
+          <p id={descId} className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
             {description}
           </p>
           {footer ? <div className="mt-3">{footer}</div> : null}
@@ -286,19 +285,15 @@ export function FeatureCard({
           <h3
             className={`font-serif font-semibold text-[var(--text-dark)] flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
               compact
-                ? 'mb-1 text-xs sm:text-sm min-h-[2rem]'
-                : 'mb-1 text-sm sm:text-base min-h-[2.25rem]'
+                ? 'mb-1 text-base sm:text-lg min-h-[2.25rem]'
+                : 'mb-1.5 text-lg min-h-[2.5rem]'
             }`}
           >
             {title}
           </h3>
-          <span
-            className={`inline-flex items-center gap-0.5 text-text-dark tracking-wide ${
-              compact ? 'text-[0.65rem]' : 'text-xs'
-            }`}
-          >
+          <span className="inline-flex items-center gap-0.5 text-sm text-text-dark tracking-wide">
             Learn more
-            <ChevronRight className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} aria-hidden />
+            <ChevronRight className="h-4 w-4" aria-hidden />
           </span>
         </button>
         {modal}
@@ -336,7 +331,7 @@ export function FeatureCard({
             >
               {flatIconCircle}
               <h3 className={titleClass}>{title}</h3>
-              <p className="text-xs text-text-dark tracking-wide">Learn more</p>
+              <p className="text-sm text-text-dark tracking-wide">Learn more</p>
             </div>
 
             <div
@@ -347,10 +342,10 @@ export function FeatureCard({
                 transform: 'rotateY(180deg) translateZ(1px)',
               }}
             >
-              <h3 className="font-serif text-xl font-semibold text-[var(--text-dark)] mb-3">
+              <h3 className={`${cardTitleClass} mb-3`}>
                 {title}
               </h3>
-              <p className="text-secondary text-sm leading-relaxed">
+              <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 {description}
               </p>
               {footer ? (

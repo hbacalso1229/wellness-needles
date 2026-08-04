@@ -274,7 +274,7 @@ export default function About() {
             titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 md:mb-3"
             className="text-center mb-2 md:mb-4"
           />
-          <div className="mx-auto max-w-3xl space-y-2 md:space-y-3 text-center text-sm md:text-base leading-snug md:leading-relaxed text-secondary">
+          <div className="mx-auto max-w-3xl space-y-2 md:space-y-3 text-center text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
             <p>We are a registered professional acupuncture clinic</p>
             <p>
               You may be able to claim acupuncture treatment through your health insurance,

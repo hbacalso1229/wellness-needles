@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, Brain, Activity, Heart } from 'lucide-react'
+import { Zap, Brain, Activity, Heart, ArrowRight } from 'lucide-react'
 import { FeatureCard } from '../ui/FeatureCard'
 import { SectionHeading } from '../ui/SectionHeading'
 
@@ -56,12 +56,13 @@ export function BenefitsSection() {
           ))}
         </div>
 
-        <p className="mt-8 md:mt-10 text-center">
+        <p className="mt-8 flex justify-center md:mt-12">
           <Link
-            href="/acupuncture"
-            className="text-secondary font-medium underline underline-offset-4 decoration-gold/60 hover:decoration-gold transition-colors"
+            href="/acupuncture/"
+            className="inline-flex w-full max-w-sm min-h-11 items-center justify-center gap-2 rounded-full border border-primary/30 bg-white px-5 py-3 text-sm font-medium text-primary transition-[transform,background-color,border-color] duration-200 hover:border-primary/50 hover:bg-accent/10 motion-safe:hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:w-auto sm:min-h-0 sm:py-2.5"
           >
             Learn more about acupuncture
+            <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
           </Link>
         </p>
       </div>
