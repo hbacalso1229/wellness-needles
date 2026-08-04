@@ -6,7 +6,7 @@ import {
   SectionHeading,
   SnapCarousel,
   TestimonialCard,
-  snapSlideClassName,
+  reviewSlideClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -265,12 +265,15 @@ export default function Testimonials() {
           <SnapCarousel
             slideCount={testimonials.length}
             ariaLabel="Patient stories carousel"
-            trackClassName="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:pb-0 md:px-0 lg:max-w-4xl lg:mx-auto"
+            hideDotsFrom="never"
+            showArrows
+            className="mx-auto max-w-7xl"
+            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-3 -mx-4 px-4 sm:gap-4 sm:-mx-6 sm:px-6 md:mx-0 md:gap-4 md:px-0 md:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {testimonials.map((testimonial) => (
               <div
                 key={`${testimonial.name}-${testimonial.condition}`}
-                className={snapSlideClassName}
+                className={`${reviewSlideClassName} flex`}
               >
                 <TestimonialCard
                   name={testimonial.name}
@@ -280,6 +283,7 @@ export default function Testimonials() {
                   text={testimonial.text}
                   emphasis={testimonial.emphasis}
                   source={testimonial.source}
+                  className="w-full"
                 />
               </div>
             ))}

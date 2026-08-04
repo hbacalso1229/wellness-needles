@@ -25,6 +25,6 @@ export {
 } from './ui/TimeRangeCards'
 export { TravelPolicyNotice } from './ui/TravelPolicyNotice'
 export { SectionHeading } from './ui/SectionHeading'
-export { SnapCarousel, snapSlideClassName } from './ui/SnapCarousel'
+export { SnapCarousel, snapSlideClassName, reviewSlideClassName } from './ui/SnapCarousel'
 
 
