@@ -81,7 +81,7 @@ export default function ChineseMedicine() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[var(--text-dark)] mb-2">Qi (Life Energy)</h4>
-                    <p className="text-secondary">
+                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                       The fundamental life force that flows through all living things.
                       Health depends on the smooth and balanced flow of Qi throughout the body.
                     </p>
@@ -94,7 +94,7 @@ export default function ChineseMedicine() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[var(--text-dark)] mb-2">Yin and Yang</h4>
-                    <p className="text-secondary">
+                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                       Complementary forces that must be in balance for optimal health.
                       Disease occurs when these forces become imbalanced.
                     </p>
@@ -107,7 +107,7 @@ export default function ChineseMedicine() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[var(--text-dark)] mb-2">Five Elements</h4>
-                    <p className="text-secondary">
+                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                       Wood, Fire, Earth, Metal, and Water represent different organ systems
                       and their interconnected relationships in the body.
                     </p>
@@ -120,7 +120,7 @@ export default function ChineseMedicine() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-[var(--text-dark)] mb-2">Meridian System</h4>
-                    <p className="text-secondary">
+                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                       Energy pathways that connect different parts of the body,
                       allowing Qi to flow and nourish organs and tissues.
                     </p>
@@ -134,7 +134,7 @@ export default function ChineseMedicine() {
                 Holistic Approach
               </h3>
               <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <div className="space-y-4 text-secondary">
+              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   Unlike Western medicine which often focuses on treating symptoms,
                   Traditional Chinese Medicine views the body as an interconnected whole,
@@ -257,7 +257,7 @@ export default function ChineseMedicine() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-2 md:pt-3 text-left text-sm md:text-base text-secondary leading-snug diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-left text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >

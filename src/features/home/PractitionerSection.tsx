@@ -55,16 +55,16 @@ export function PractitionerSection() {
             >
               Arkinth Garcia
             </h2>
-            <p className="text-secondary mb-4 md:mb-6">
+            <p className="mb-4 text-sm text-[var(--text-dark)]/70 md:mb-6 md:text-base">
               Naturopath &amp; Acupuncturist · College of Naturopathic Medicine, Dublin
             </p>
-            <p className="text-secondary leading-relaxed mb-4">
+            <p className="mb-4 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
               Arkinth’s path into acupuncture began with a personal healing journey — when
               acupuncture finally brought balance after living with alopecia. That experience
               shaped a practice grounded in compassion, clinical training, and care for the
               whole person.
             </p>
-            <p className="text-secondary leading-relaxed mb-6 md:mb-8">
+            <p className="mb-6 text-sm leading-relaxed text-[var(--text-dark)]/70 md:mb-8 md:text-base">
               Today the focus is helping people ease pain, stress, digestive concerns, fertility
               support, and more — always listening first, then treating the root.
             </p>

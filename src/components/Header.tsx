@@ -12,7 +12,9 @@ function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
     <>
       <Calendar
-        className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} shrink-0`}
+        className={`${
+          compact ? 'h-3.5 w-3.5 sm:h-4 sm:w-4' : 'h-4 w-4'
+        } shrink-0`}
         aria-hidden
       />
       Book Appointment
@@ -52,7 +54,7 @@ export default function Header() {
   const bookNowClassName =
     'inline-flex items-center justify-center gap-2 no-underline bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-5 py-2 rounded-full text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:no-underline'
   const bookNowHeaderMobileClassName =
-    'inline-flex items-center justify-center gap-1.5 no-underline bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-3 sm:px-3.5 py-1.5 rounded-full text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:no-underline'
+    'inline-flex items-center justify-center gap-1 no-underline bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-2.5 py-1 rounded-full text-xs font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:no-underline sm:gap-1.5 sm:px-3.5 sm:py-1.5 sm:text-sm'
 
   // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
   useEffect(() => {
@@ -124,24 +126,24 @@ export default function Header() {
     <header className="fixed top-0 w-full z-50 overflow-visible border-b border-accent/20 bg-[rgba(249,247,244,0.88)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(249,247,244,0.78)]">
       <nav className="w-full pl-2 sm:pl-3 pr-3 sm:pr-4 lg:pr-6 overflow-visible">
         <div className="relative flex items-center gap-2 sm:gap-3 h-16 overflow-visible">
-          {/* Logo + wordmark — pinned leftmost on all breakpoints */}
+          {/* Logo + wordmark — can shrink on phones so Book + hamburger stay visible */}
           <Link
             href="/"
-            className="relative z-[60] flex items-center gap-2 sm:gap-3 min-w-0 shrink-0"
+            className="relative z-[60] flex min-w-0 items-center gap-1.5 sm:gap-3"
           >
             <span className="relative shrink-0">
-              <span className="relative block size-12 overflow-hidden rounded-full bg-cream ring-[3px] ring-cream aspect-square">
+              <span className="relative block size-10 overflow-hidden rounded-full bg-cream ring-2 ring-cream aspect-square sm:size-12 sm:ring-[3px]">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
                   fill
-                  sizes="48px"
+                  sizes="(max-width: 639px) 40px, 48px"
                   className="object-cover object-center"
                   priority
                 />
               </span>
             </span>
-            <span className="font-serif text-base sm:text-xl font-medium text-primary tracking-wide truncate xl:overflow-visible">
+            <span className="min-w-0 truncate font-serif text-sm font-medium tracking-wide text-primary sm:text-base xl:overflow-visible xl:text-xl">
               Wellness Needles
             </span>
           </Link>
