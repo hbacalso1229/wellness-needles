@@ -148,7 +148,7 @@ export default function About() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Mission</h3>
-                    <p className="text-sm md:text-base text-secondary leading-snug">
+                    <p className="text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                       To restore balance and promote healing through authentic traditional Chinese medicine
                     </p>
                   </div>
@@ -159,7 +159,7 @@ export default function About() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Vision</h3>
-                    <p className="text-sm md:text-base text-secondary leading-snug">
+                    <p className="text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                       A community where holistic wellness is accessible to all who seek healing
                     </p>
                   </div>
@@ -170,7 +170,7 @@ export default function About() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)]">Our Values</h3>
-                    <p className="text-sm md:text-base text-secondary leading-snug">
+                    <p className="text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                       Authenticity, compassion, and dedication to the highest standards of care
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export default function About() {
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-4 md:mb-6">
               About Arkinth Garcia
             </h2>
-            <div className="space-y-4 text-secondary">
+            <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
               <p>
                 My name is Arkinth Garcia, and I am a qualified Naturopath and Acupuncturist. I
                 completed my training at the College of Naturopathic Medicine in Dublin, where I

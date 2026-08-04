@@ -123,7 +123,7 @@ export default function Blog() {
                   <h3 className="font-serif text-2xl lg:text-3xl font-bold text-[var(--text-dark)] mb-4">
                     {post.title}
                   </h3>
-                  <p className="text-secondary mb-6">
+                  <p className="mb-6 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
                     {post.excerpt}
                   </p>
                   <div className="flex items-center justify-between">
@@ -175,7 +175,7 @@ export default function Blog() {
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4">
               Latest Articles
             </h2>
-            <p className="text-lg text-secondary">
+            <p className="text-base sm:text-lg md:text-xl text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed">
               Discover insights and wisdom for your wellness journey
             </p>
           </div>
@@ -205,7 +205,7 @@ export default function Blog() {
                     {post.title}
                   </h3>
                   
-                  <p className="text-secondary text-sm mb-4 line-clamp-3">
+                  <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
                     {post.excerpt}
                   </p>
                   

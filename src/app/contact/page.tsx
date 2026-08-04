@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, Send, MessageCircle, ChevronDown, type LucideIcon } from 'lucide-react'
+import { Calendar, Send, MessageCircle, ChevronDown, Info, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { HeroSection, SectionHeading } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
@@ -277,8 +277,12 @@ export default function Contact() {
                         </li>
                       ))}
                     </ul>
-                    <p className="font-semibold text-secondary text-sm mt-4">
-                      {contactConfig.businessInfo.emergencyNote}
+                    <p
+                      role="note"
+                      className="mt-5 flex items-start gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-secondary"
+                    >
+                      <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2} aria-hidden />
+                      <span>{contactConfig.businessInfo.emergencyNote}</span>
                     </p>
                   </div>
 
@@ -447,7 +451,7 @@ export default function Contact() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-2 md:pt-3 text-sm md:text-base text-[var(--text-dark)]/70 leading-snug diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >

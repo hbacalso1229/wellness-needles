@@ -117,7 +117,7 @@ export default function Acupuncture() {
                 Traditional Chinese Medicine Perspective
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <div className="space-y-4 text-secondary">
+              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   According to traditional Chinese medicine, acupuncture works by regulating
                   the flow of Qi (pronounced &quot;chee&quot;) - the vital energy that flows through
@@ -140,7 +140,7 @@ export default function Acupuncture() {
                 Modern Scientific Understanding
               </h3>
               <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-              <div className="space-y-4 text-secondary">
+              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   Modern research shows that acupuncture stimulates the nervous system,
                   releasing natural pain-relieving chemicals like endorphins and affecting
@@ -252,7 +252,7 @@ export default function Acupuncture() {
                   <Icon className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.75} />
                 </div>
                 <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2 md:mb-3 leading-snug">{title}</h3>
-                <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-secondary leading-snug">
+                <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                   {items.map((item) => (
                     <li key={item} className="flex items-center gap-1.5 md:gap-2">
                       <span className="flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
@@ -277,7 +277,7 @@ export default function Acupuncture() {
             className="text-center mb-2 md:mb-4"
           />
 
-          <div className="space-y-2 md:space-y-3 text-sm md:text-base leading-snug md:leading-relaxed text-secondary">
+          <div className="space-y-2 md:space-y-3 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
             <p>
               Modern research validates what traditional practitioners have known for millennia
             </p>
@@ -288,7 +288,7 @@ export default function Acupuncture() {
             </p>
           </div>
 
-          <ul className="mx-auto mt-4 max-w-xl space-y-2 text-left text-sm md:mt-6 md:space-y-3 md:text-base text-secondary">
+          <ul className="mx-auto mt-4 max-w-xl space-y-2 text-left text-sm md:mt-6 md:space-y-3 md:text-base leading-relaxed text-[var(--text-dark)]/70">
             {[
               'WHO recognizes acupuncture for treating 43+ conditions',
               'Meta-analyses show significant benefits for chronic pain',
