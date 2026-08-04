@@ -17,6 +17,42 @@ export default function Testimonials() {
 
   const testimonials = [
     {
+      name: 'Maria Bray',
+      condition: 'Gastritis & energy',
+      date: '4 August 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'from daily pain and discomfort with gastritis to no symptoms at all',
+      text: 'Going to Arkinth for acupuncture has made a huge impact on my health, going from daily pain and discomfort with gastritis to no symptoms at all and an increase in energy levels and an overall feeling of being less stressed and a calmness in myself. Arkinth is excellent, very knowledgeable and has such kindness and understanding. I cannot recommend him enough, if your looking to try acupuncture or wanting to improve your health this is the place to go.',
+    },
+    {
+      name: 'Aidan Murphy',
+      condition: 'Sleep & energy',
+      date: '31 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'sleeping better and noticeably more energy',
+      text: "I have been to wellness needles twice and already I've seen the benefits of diet and lifestyle changes that were recommended - sleeping better and noticeably more energy...highly recommended..",
+    },
+    {
+      name: 'Christine Tuohy',
+      condition: 'Energy & wellbeing',
+      date: '28 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: "I honestly couldn't recommend him highly enough",
+      text: "I've had 6 treatments with Arkinth at Wellness Needles over the past few months, and I honestly couldn't recommend him highly enough. From my very first appointment, he made me feel completely at ease. He took the time to listen, understand my needs, and tailor each treatment to support me. Every session has been a calm and relaxing experience. I've noticed a real improvement in my energy levels, and I always leave feeling refreshed, balanced, and well cared for. His professionalism, knowledge, and genuine kindness really stand out, and the clinic has such a welcoming and peaceful atmosphere. If you're considering acupuncture, I would highly recommend Arkinth at Wellness Needles. It has been such a positive experience for me, and I'm very grateful for the care, support, and expertise he has provided over the past few months.",
+    },
+    {
+      name: 'Pavlo Nikulin',
+      condition: 'Lower back pain',
+      date: '22 July 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'it took only 2 sessions for Arkinth to deal with it',
+      text: "I've had a very bad lower back pain and it took only 2 sessions for Arkinth to deal with it. I canot recommend him enough. Considering attitude, knowledge and willingness to help - absolutely amazing!",
+    },
+    {
       name: 'Claire Maguire',
       condition: 'Digestive symptoms & aches',
       date: '18 July 2026',
