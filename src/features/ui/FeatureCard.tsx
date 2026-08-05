@@ -243,7 +243,7 @@ export function FeatureCard({
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className="relative max-h-[min(90dvh,32rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-cream px-4 pb-4 pt-3 text-center shadow-[0_20px_48px_rgba(45,80,22,0.25)] pointer-events-auto"
+          className="pointer-events-auto relative max-h-[min(90dvh,32rem)] w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-cream px-4 pb-4 pt-3 text-center shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
           onClick={(event) => event.stopPropagation()}
         >
           <button

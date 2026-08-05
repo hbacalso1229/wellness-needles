@@ -274,7 +274,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Insurance"
-            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 md:mb-3"
+            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
             className="text-center mb-2 md:mb-4"
           />
           <div className="mx-auto max-w-3xl space-y-2 md:space-y-3 text-center text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">

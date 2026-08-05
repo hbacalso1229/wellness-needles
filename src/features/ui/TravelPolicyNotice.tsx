@@ -8,7 +8,7 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
 
   return (
     <aside
-      className={`rounded-xl border border-accent/20 bg-accent/5 ${className}`}
+      className={`rounded-xl border border-accent/15 bg-white shadow-sm ${className}`}
       aria-label="Home visit travel policy"
     >
       <button

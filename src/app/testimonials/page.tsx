@@ -184,7 +184,7 @@ export default function Testimonials() {
             title="Real Patient Results"
             subtitle="Personalized treatment outcomes — clear before and after comparisons"
             className="mb-6 text-center md:mb-10"
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
           />
 
           <div className="mb-8 flex flex-col items-center gap-2 text-sm tracking-[0.2px] text-secondary/80 sm:mb-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5 md:mb-14">
@@ -242,7 +242,7 @@ export default function Testimonials() {
             title="What patients say"
             subtitle="Honest feedback from people in our care"
             className="mb-6 text-center md:mb-8"
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1.5 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
           />
 
           <div className="mb-8 flex flex-col items-center gap-1 text-center text-sm text-secondary/80 md:mb-10">
@@ -294,7 +294,7 @@ export default function Testimonials() {
       {/* CTA band — Book primary, Share subtle text */}
       <section className="bg-cream py-16 md:py-24">
         <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
-          <h2 className="font-serif text-2xl font-bold leading-snug text-primary md:text-3xl">
+          <h2 className="font-serif text-2xl font-bold leading-snug text-[var(--text-dark)] md:text-3xl">
             Ready to experience results like these?
           </h2>
           <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:gap-3.5">

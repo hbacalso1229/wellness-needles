@@ -51,6 +51,7 @@ export default function BookingStepper({
   stepFocusId,
 }: BookingStepperProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
   const prevStepRef = useRef(currentStep)
   const isFirst = currentStep === 0
   const isLast = currentStep === steps.length - 1
@@ -64,11 +65,12 @@ export default function BookingStepper({
     const raf1 = window.requestAnimationFrame(() => {
       // Wait one more frame so the keyed step panel has mounted.
       raf2 = window.requestAnimationFrame(() => {
-        const heading = headingRef.current
-        heading?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // Scroll the visible stepper root (progress + panel), not the sr-only heading.
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
         const target =
-          (stepFocusId ? document.getElementById(stepFocusId) : null) ?? heading
+          (stepFocusId ? document.getElementById(stepFocusId) : null) ??
+          headingRef.current
         if (target instanceof HTMLElement) {
           target.focus({ preventScroll: true })
         }
@@ -82,7 +84,7 @@ export default function BookingStepper({
   }, [currentStep, stepFocusId])
 
   return (
-    <div className="space-y-6">
+    <div ref={sectionRef} className="scroll-mt-24 space-y-6">
       {/* Progress — desktop / tablet */}
       <nav aria-label="Booking progress" className="hidden sm:block">
         <ol className="flex items-center justify-between gap-2">
@@ -167,7 +169,7 @@ export default function BookingStepper({
         <h2
           ref={headingRef}
           tabIndex={-1}
-          className="mb-4 scroll-mt-24 text-2xl font-bold text-primary outline-none"
+          className="sr-only outline-none"
         >
           {activeStep ? <StepTitle title={activeStep.title} /> : null}
         </h2>

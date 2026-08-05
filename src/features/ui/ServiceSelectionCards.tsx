@@ -55,7 +55,7 @@ export function ServiceSelectionCards({
             key={service.id}
             className={`booking-select-card relative block box-border cursor-pointer rounded-xl border p-4 ${
               selected
-                ? 'border-2 border-primary bg-primary/5 shadow-sm shadow-primary/5'
+                ? 'z-[1] border-2 border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
                 : hasError
                   ? 'border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
                   : 'border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
@@ -71,19 +71,19 @@ export function ServiceSelectionCards({
               aria-label={service.name}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-6 w-6 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-7 w-7 items-center justify-center rounded-full ${
                 selected
-                  ? 'bg-primary text-white opacity-100'
+                  ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              <Check className="h-4 w-4" strokeWidth={3.5} />
             </span>
             <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
+                  selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />
@@ -97,14 +97,14 @@ export function ServiceSelectionCards({
                   </div>
                   <div className="shrink-0 self-start text-right leading-none">
                     <span
-                      className={`font-serif font-extrabold text-[var(--text-dark)] tracking-tight tabular-nums ${
+                      className={`font-serif font-extrabold text-primary tracking-tight tabular-nums ${
                         largePrice ? 'text-3xl' : 'text-2xl'
                       }`}
                     >
                       {service.price}
                     </span>
                     {service.savings ? (
-                      <div className="mt-1 text-sm font-semibold text-secondary">
+                      <div className="mt-1 text-sm font-semibold text-primary/70">
                         {service.savings}
                       </div>
                     ) : null}

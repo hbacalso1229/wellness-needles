@@ -145,7 +145,7 @@ export function TimeRangeCards({
               past
                 ? 'cursor-not-allowed border-2 border-accent/10 bg-accent/5 opacity-50'
                 : selected
-                  ? 'cursor-pointer border-2 border-primary bg-primary/5 shadow-sm shadow-primary/5'
+                  ? 'z-[1] cursor-pointer border-2 border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
                   : hasError
                     ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
                     : 'cursor-pointer border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
@@ -164,19 +164,19 @@ export function TimeRangeCards({
               aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : ''}`}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-6 w-6 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-7 w-7 items-center justify-center rounded-full ${
                 selected && !past
-                  ? 'bg-primary text-white opacity-100'
+                  ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              <Check className="h-4 w-4" strokeWidth={3.5} />
             </span>
             <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected && !past ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
+                  selected && !past ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />

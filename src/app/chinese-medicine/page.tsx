@@ -66,6 +66,7 @@ export default function ChineseMedicine() {
           <SectionHeading
             title="The Philosophy of TCM"
             subtitle="Traditional Chinese Medicine is based on the understanding that health comes from balance and harmony within the body and with nature"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
