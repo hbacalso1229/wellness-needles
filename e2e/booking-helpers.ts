@@ -9,13 +9,16 @@ export async function fillBookingRequestForm(page: Page) {
     page.getByRole('heading', { name: /Request an appointment/i })
   ).toBeVisible()
 
-  await expect(page.getByRole('radio', { name: /Initial Consultation/i })).toBeChecked()
-  await page.getByRole('button', { name: 'Continue' }).click()
-
   await expect(page.getByRole('heading', { name: /^Location$/i })).toBeVisible({
     timeout: 10_000,
   })
   await expect(page.getByRole('radio', { name: /Celbridge/i })).toBeChecked()
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  await expect(page.getByRole('heading', { name: /^Service$/i })).toBeVisible({
+    timeout: 10_000,
+  })
+  await expect(page.getByRole('radio', { name: /Initial Consultation/i })).toBeChecked()
   await page.getByRole('button', { name: 'Continue' }).click()
 
   await expect(page.getByRole('heading', { name: /Date & Time/i })).toBeVisible({
