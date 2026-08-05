@@ -21,9 +21,19 @@ export function HeroSection() {
           alt=""
           fill
           sizes="100vw"
-          className="object-cover object-[70%_32%] sm:object-[72%_center] md:object-right"
-          priority
+          aria-hidden
+          className="hero-home-backdrop scale-110 object-cover object-center blur-2xl"
         />
+        <div className="hero-home-photo-frame absolute inset-0">
+          <Image
+            src="/hero_home_zen.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-[70%_32%] sm:object-[72%_center] md:object-right"
+            priority
+          />
+        </div>
         {/* Readability wash — darker on the copy side, soft fade into the photo */}
         <div
           className="absolute inset-0"

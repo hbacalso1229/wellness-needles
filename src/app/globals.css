@@ -328,6 +328,30 @@ body {
   }
 }
 
+/* Backdrop only matters when the fitted photo cannot fill the hero width. */
+.hero-home-backdrop {
+  display: none;
+}
+
+/*
+ * Short, wide desktop windows: show the whole photo (all three needles and
+ * both stones) right-anchored, with a blurred copy filling the leftover width.
+ */
+@media (min-width: 768px) and (min-aspect-ratio: 9/5) {
+  .hero-home-backdrop {
+    display: block;
+  }
+
+  .hero-home-photo-frame {
+    inset: 0 0 0 auto;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 1024 / 597;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 14%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 14%);
+  }
+}
+
 /* Non-home heroes: hide while burger nav is showing (below xl / 1280px) */
 @media (max-width: 1279px) {
   [data-hide-mobile-hero='true'] {
