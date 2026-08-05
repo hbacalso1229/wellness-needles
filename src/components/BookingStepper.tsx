@@ -167,7 +167,7 @@ export default function BookingStepper({
         <h2
           ref={headingRef}
           tabIndex={-1}
-          className="scroll-mt-24 font-serif text-2xl font-bold text-primary mb-4 outline-none"
+          className="mb-4 scroll-mt-24 text-2xl font-bold text-primary outline-none"
         >
           {activeStep ? <StepTitle title={activeStep.title} /> : null}
         </h2>

@@ -96,7 +96,7 @@ export function ServiceCard({
         </div>
 
         <h3
-          className={`font-serif text-xl font-semibold mb-2 ${
+          className={`mb-2 text-xl font-semibold ${
             isPrimary ? 'text-cream' : 'text-primary'
           }`}
         >

@@ -55,7 +55,7 @@ export function ServiceSelectionCards({
             key={service.id}
             className={`booking-select-card relative block box-border cursor-pointer rounded-xl border p-4 ${
               selected
-                ? 'border-[3px] border-primary bg-accent/20 shadow-sm shadow-primary/10'
+                ? 'border-2 border-primary bg-primary/5 shadow-sm shadow-primary/5'
                 : hasError
                   ? 'border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
                   : 'border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
@@ -83,7 +83,7 @@ export function ServiceSelectionCards({
             <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
+                  selected ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />

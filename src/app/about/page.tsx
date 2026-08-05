@@ -129,7 +129,7 @@ export default function About() {
                   </div>
                 </div>
 
-                <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-1">
+                <h3 className="mb-1 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                   Arkinth Garcia
                 </h3>
                 <p className="text-secondary text-sm mb-2">Naturopath &amp; Acupuncturist</p>

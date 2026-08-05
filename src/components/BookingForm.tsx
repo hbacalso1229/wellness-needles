@@ -723,7 +723,7 @@ export default function BookingForm() {
                 Choose In Clinic or Home Visit, then select a service.
               </span>
             </p>
-            <p className="text-xs text-secondary">
+            <p className="text-sm text-secondary">
               Treated by Arkinth Garcia, Naturopath &amp; Acupuncturist.
             </p>
 
@@ -892,7 +892,7 @@ export default function BookingForm() {
               />
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl bg-accent/10 px-4 py-3 text-sm text-secondary">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
               <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
               <p>
                 We will confirm your preferred date and time within 24 hours via email or
@@ -905,7 +905,7 @@ export default function BookingForm() {
         {currentStep === 3 && (
           <div className="space-y-8">
             <div>
-              <h3 className="font-serif text-xl font-bold text-[var(--text-dark)] mb-4 flex items-center">
+              <h3 className="mb-4 flex items-center text-xl font-bold text-[var(--text-dark)]">
                 <User className="w-5 h-5 mr-2" />
                 Personal Information
               </h3>
@@ -1035,9 +1035,13 @@ export default function BookingForm() {
               </div>
             </div>
 
-            <p className="text-sm text-secondary text-center">
-              Submitting sends an appointment request. We will contact you within 24 hours to confirm.
-            </p>
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <p>
+                Submitting sends an appointment request. We will contact you within 24 hours
+                to confirm.
+              </p>
+            </div>
 
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
