@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle, Droplets, Flame, Sparkles, type LucideIcon } from 'lucide-react'
+import { CheckCircle, Droplets, Flame, Info, Sparkles, type LucideIcon } from 'lucide-react'
 
 export type OptionalAddOn = {
   readonly id: string
@@ -24,8 +24,7 @@ function iconForAddOn(id: string): LucideIcon {
 export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOnsProps) {
   return (
     <div>
-      <h3 className="mb-2 font-serif text-xl font-bold text-[var(--text-dark)]">Optional add-ons</h3>
-      <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+      <h3 className="mb-4 text-xl font-bold text-[var(--text-dark)]">Optional add-ons</h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {addOns.map((addOn) => {
           const selected = selectedIds.includes(addOn.id)
@@ -56,7 +55,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
               <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-7">
                 <span
                   className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                    selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
+                    selected ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
                   }`}
                 >
                   <Icon className="h-5 w-5" aria-hidden />
@@ -83,9 +82,10 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           )
         })}
       </div>
-      <p className="mt-2 px-0.5 text-xs font-bold text-secondary">
-        * Add-ons can only be booked in combination with an acupuncture session
-      </p>
+      <div className="mt-4 flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+        <p>Add-ons can only be booked in combination with an acupuncture session.</p>
+      </div>
     </div>
   )
 }

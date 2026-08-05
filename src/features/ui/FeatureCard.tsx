@@ -30,6 +30,8 @@ interface FeatureCardProps {
   elevated?: boolean
   /** Optional content shown below the description (e.g. link or tag) */
   footer?: ReactNode
+  /** Override default serif card title (e.g. sans for denser home grids) */
+  titleClassName?: string
 }
 
 export function FeatureCard({
@@ -41,6 +43,7 @@ export function FeatureCard({
   compact = false,
   elevated = false,
   footer,
+  titleClassName,
 }: FeatureCardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
@@ -172,7 +175,8 @@ export function FeatureCard({
   )
 
   const cardTitleClass =
-    'font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)]'
+    titleClassName ??
+    'text-lg font-semibold leading-snug text-[var(--text-dark)] md:text-xl'
 
   const panelClass = elevated
     ? 'rounded-lg bg-cream/80 shadow-sm'
@@ -283,10 +287,10 @@ export function FeatureCard({
         >
           {flatIconCircle}
           <h3
-            className={`font-serif font-semibold text-[var(--text-dark)] flex items-center justify-center leading-snug line-clamp-2 px-0.5 ${
+            className={`flex items-center justify-center px-0.5 font-semibold leading-snug text-[var(--text-dark)] line-clamp-2 ${
               compact
-                ? 'mb-1 text-base sm:text-lg min-h-[2.25rem]'
-                : 'mb-1.5 text-lg min-h-[2.5rem]'
+                ? 'mb-1 min-h-[2.25rem] text-base sm:text-lg'
+                : 'mb-1.5 min-h-[2.5rem] text-lg'
             }`}
           >
             {title}

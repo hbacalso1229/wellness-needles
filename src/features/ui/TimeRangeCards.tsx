@@ -145,7 +145,7 @@ export function TimeRangeCards({
               past
                 ? 'cursor-not-allowed border-2 border-accent/10 bg-accent/5 opacity-50'
                 : selected
-                  ? 'cursor-pointer border-[3px] border-primary bg-accent/20 shadow-sm shadow-primary/10'
+                  ? 'cursor-pointer border-2 border-primary bg-primary/5 shadow-sm shadow-primary/5'
                   : hasError
                     ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
                     : 'cursor-pointer border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
@@ -176,7 +176,7 @@ export function TimeRangeCards({
             <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8">
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected && !past ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
+                  selected && !past ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />

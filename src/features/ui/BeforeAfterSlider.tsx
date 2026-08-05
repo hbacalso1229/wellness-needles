@@ -280,7 +280,7 @@ export function BeforeAfterSlider({
       <figcaption className="mt-4 flex flex-1 flex-col px-0.5 text-center md:mt-5">
         <h3
           id={titleId}
-          className="font-serif text-lg font-bold leading-tight tracking-tight text-[var(--text-dark)] md:text-2xl"
+          className="text-lg font-bold leading-tight tracking-tight text-[var(--text-dark)] md:text-2xl"
         >
           {title}
         </h3>

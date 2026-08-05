@@ -120,7 +120,7 @@ export default function Blog() {
                       {post.category}
                     </span>
                   </div>
-                  <h3 className="font-serif text-2xl lg:text-3xl font-bold text-[var(--text-dark)] mb-4">
+                  <h3 className="mb-4 text-2xl font-bold text-[var(--text-dark)] lg:text-3xl">
                     {post.title}
                   </h3>
                   <p className="mb-6 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
@@ -201,7 +201,7 @@ export default function Blog() {
                     </span>
                   </div>
                   
-                  <h3 className="font-serif text-xl font-semibold text-[var(--text-dark)] mb-3">
+                  <h3 className="mb-3 text-xl font-semibold text-[var(--text-dark)]">
                     {post.title}
                   </h3>
                   

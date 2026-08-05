@@ -102,7 +102,7 @@ export default function Contact() {
 
                 {contactConfig.features.contactFormEnabled && (
                   <div className={`${interactiveCardClass} mb-6 md:mb-8`}>
-                    <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+                    <h3 className="mb-2 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                       Send us a message
                     </h3>
                     <div className="mb-4 md:mb-6 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />

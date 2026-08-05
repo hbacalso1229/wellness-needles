@@ -70,7 +70,7 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="mb-6 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-6 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Core Principles
               </h3>
               <div className="space-y-4 md:space-y-6">
@@ -129,7 +129,7 @@ export default function ChineseMedicine() {
             </div>
 
             <div>
-              <h3 className="mb-6 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-6 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Holistic Approach
               </h3>
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
@@ -280,7 +280,7 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Complementary Care
               </h3>
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
@@ -303,7 +303,7 @@ export default function ChineseMedicine() {
             </div>
 
             <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25">
-              <h3 className="mb-3 font-serif text-lg font-semibold text-[var(--text-dark)] md:mb-4 md:text-xl">
+              <h3 className="mb-3 text-lg font-semibold text-[var(--text-dark)] md:mb-4 md:text-xl">
                 Evidence-Based Practice
               </h3>
               <div className="space-y-3 md:space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">

@@ -113,7 +113,7 @@ export default function Acupuncture() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-10 lg:gap-16 items-start">
             <div>
-              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Traditional Chinese Medicine Perspective
               </h3>
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
@@ -135,7 +135,7 @@ export default function Acupuncture() {
             </div>
 
             <div>
-              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Modern Scientific Understanding
               </h3>
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
@@ -249,7 +249,7 @@ export default function Acupuncture() {
                 <div className="mb-2 md:mb-3 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-white transition-[transform,color] duration-300 group-hover:scale-110">
                   <Icon className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.75} />
                 </div>
-                <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2 md:mb-3 leading-snug">{title}</h3>
+                <h3 className="mb-2 text-lg font-semibold leading-snug text-[var(--text-dark)] md:mb-3 md:text-xl">{title}</h3>
                 <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                   {items.map((item) => (
                     <li key={item} className="flex items-center gap-1.5 md:gap-2">
