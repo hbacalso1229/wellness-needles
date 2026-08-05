@@ -187,7 +187,9 @@ export default function Bookings() {
         title="Book Your Appointment"
         subtitle="Take the first step towards better health and wellness"
         description="Schedule your consultation with our experienced practitioner and begin your journey to optimal health today."
-        backgroundImage="/hero_wellness_acupuncture.jpeg"
+        backgroundImage="/bookings_treatment_relaxation.jpeg"
+        backgroundImageClassName="object-cover object-[50%_15%]"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/50 via-primary/32 to-black/50"
         backgroundClass="bg-primary"
         textColor="text-cream"
         showFloatingLeaves={true}

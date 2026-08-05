@@ -305,6 +305,16 @@ body {
 }
 
 /*
+ * Inner-page heroes share one banner height from xl up (where they are shown),
+ * so pages with longer titles don't get a taller hero than the rest.
+ */
+@media (min-width: 1280px) {
+  .page-hero:not([data-home-hero='true']) {
+    min-height: 28rem;
+  }
+}
+
+/*
  * Home hero:
  * - Mobile: height follows content (no forced vh/screen height — that caused multi-scroll empty space).
  * - Tablet+: exact one-screen lock (this is the balanced layout you liked).

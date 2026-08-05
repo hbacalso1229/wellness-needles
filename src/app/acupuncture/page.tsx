@@ -86,7 +86,9 @@ export default function Acupuncture() {
         title="Why Choose Acupuncture?"
         subtitle="Discover the science and ancient wisdom behind this powerful healing modality"
         description="Acupuncture has been used for over 3,000 years to treat a wide range of conditions, and modern research continues to validate its effectiveness."
-        backgroundImage="/accupuncture_cupping_therapy.jpeg"
+        backgroundImage="/acupuncture_facial_treatment.jpeg"
+        backgroundImageClassName="object-cover object-[55%_52%]"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/45 via-primary/30 to-black/45"
         backgroundClass="bg-secondary"
         textColor="text-cream"
         showFloatingLeaves={true}

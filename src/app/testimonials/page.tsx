@@ -160,7 +160,8 @@ export default function Testimonials() {
         title="Patient Testimonials"
         subtitle="Real stories from people who chose acupuncture with Wellness Needles"
         description="Hear from patients in their own words — shared with consent — about how treatment supported their health and wellbeing."
-        backgroundImage="/modern_accupuncture.jpeg"
+        backgroundImage="/testimonials_patient_treatment.jpeg"
+        backgroundImageClassName="object-cover object-[50%_38%]"
         backgroundClass="bg-primary"
         textColor="text-cream"
         showFloatingLeaves={true}
