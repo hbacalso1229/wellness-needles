@@ -271,7 +271,7 @@ export default function Acupuncture() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeading
             title="Scientific Evidence"
-            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 md:mb-3"
+            titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
             className="text-center mb-2 md:mb-4"
           />
 

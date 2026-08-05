@@ -202,8 +202,9 @@ export default function Bookings() {
                 <div>
                   <SectionHeading
                     title="Request an appointment"
+                    credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
                     subtitle="Share your preferred service and time — we will confirm by email or phone."
-                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
+                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
                   <BookingForm />
@@ -214,7 +215,7 @@ export default function Bookings() {
                     <SectionHeading
                       title="Our services & pricing"
                       subtitle="Professional acupuncture treatments to support your health and wellness journey"
-                      titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3"
+                      titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
                       className="text-center mb-6"
                     />
                     {!calendlyEnabled && !freshaEnabled && (
@@ -316,7 +317,7 @@ export default function Bookings() {
                       <p className="text-sm text-secondary mb-4">
                         {activeTab === 'call-out'
                           ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
-                          : 'Select which clinic you will attend. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
+                          : 'Choose your preferred clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
                       </p>
                       <ClinicLocationCards
                         locations={clinicLocations}

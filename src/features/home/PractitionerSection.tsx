@@ -17,7 +17,7 @@ export function PractitionerSection() {
         <SectionHeading
           title="Care you can trust"
           subtitle="Meet the practitioner who will walk this path with you"
-          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2 md:mb-3"
+          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,16rem)_1fr] gap-5 md:gap-10 lg:gap-14 items-center max-w-4xl mx-auto">

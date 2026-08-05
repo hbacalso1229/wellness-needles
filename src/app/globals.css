@@ -174,7 +174,7 @@ body {
   position: relative;
   border-bottom: 2px solid transparent;
   color: var(--text-dark);
-  opacity: 0.55;
+  opacity: 0.88;
   font-weight: 600;
   transition:
     color 0.2s ease,
@@ -197,7 +197,7 @@ body {
 }
 
 .booking-service-tab:hover {
-  opacity: 0.85;
+  opacity: 1;
   color: var(--primary-green);
 }
 

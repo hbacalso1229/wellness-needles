@@ -4,22 +4,28 @@ import { Leaf } from 'lucide-react'
 interface SectionHeadingProps {
   title: string
   subtitle?: ReactNode
+  /** Optional line between title and leaf divider (e.g. practitioner credit) */
+  credit?: ReactNode
   /** Optional size for home-style larger titles */
   titleClassName?: string
   subtitleClassName?: string
+  creditClassName?: string
   className?: string
 }
 
 export function SectionHeading({
   title,
   subtitle,
-  titleClassName = 'font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 md:mb-3',
+  credit,
+  titleClassName = 'font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3',
   subtitleClassName = 'text-base sm:text-lg md:text-xl text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed',
+  creditClassName = 'mb-2 text-sm text-[var(--text-dark)]/70 md:mb-3',
   className = 'text-center mb-8 md:mb-12 lg:mb-16',
 }: SectionHeadingProps) {
   return (
     <div className={className}>
       <h2 className={titleClassName}>{title}</h2>
+      {credit ? <p className={creditClassName}>{credit}</p> : null}
       <div className="mb-2 flex items-center justify-center gap-2 md:mb-4" aria-hidden="true">
         <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
         <Leaf className="h-3.5 w-3.5 shrink-0 text-primary md:h-4 md:w-4" strokeWidth={1.75} />

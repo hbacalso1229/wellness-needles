@@ -35,7 +35,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
               key={addOn.id}
               className={`booking-select-card relative block box-border cursor-pointer rounded-xl border-2 p-4 ${
                 selected
-                  ? 'border-primary bg-primary/5'
+                  ? 'z-[1] border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
                   : 'border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40'
               }`}
             >
@@ -47,34 +47,46 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                 aria-label={addOn.name}
               />
               <CheckCircle
-                className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-5 w-5 text-primary ${
+                className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 h-6 w-6 text-primary drop-shadow-sm ${
                   selected ? 'opacity-100' : 'opacity-0'
                 }`}
+                strokeWidth={2.5}
                 aria-hidden
               />
               <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-7">
                 <span
                   className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                    selected ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
+                    selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                   }`}
                 >
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-start justify-between gap-3 md:max-lg:flex-col md:max-lg:items-stretch md:max-lg:gap-0.5">
-                    <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
-                      {addOn.name}
-                    </h4>
-                    {/^\s*free\b/i.test(addOn.price) ? (
-                      <p className="shrink-0 text-right text-sm font-semibold text-accent sm:text-base md:max-lg:text-left">
+                  {/^\s*free\b/i.test(addOn.price) ? (
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
+                        {addOn.name}
+                      </h4>
+                      <span
+                        className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold md:px-2 md:text-[11px] md:leading-snug ${
+                          selected
+                            ? 'bg-primary text-cream shadow-sm'
+                            : 'border border-primary/25 bg-primary/10 text-primary'
+                        }`}
+                      >
                         {addOn.price}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mb-1 flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                      <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
+                        {addOn.name}
+                      </h4>
+                      <p className="shrink-0 text-sm font-semibold text-primary">
+                        +{addOn.price}
                       </p>
-                    ) : (
-                      <p className="shrink-0 text-right text-sm font-semibold text-secondary sm:text-base md:max-lg:text-left">
-                        +{addOn.price} add-on
-                      </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <p className="text-sm text-secondary">{addOn.description}</p>
                 </div>
               </div>

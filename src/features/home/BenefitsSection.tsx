@@ -39,7 +39,7 @@ export function BenefitsSection() {
         <SectionHeading
           title="Why acupuncture works"
           subtitle="Gentle needles, lasting change — supporting your body’s own capacity to heal"
-          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2 md:mb-3"
+          titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 md:gap-6 lg:gap-8">

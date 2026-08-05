@@ -39,8 +39,8 @@ type BookingService = {
 }
 
 const STEPS: BookingStepperStep[] = [
-  { id: 'service', title: 'Service' },
   { id: 'location', title: 'Location' },
+  { id: 'service', title: 'Service' },
   { id: 'schedule', title: 'Date & Time' },
   { id: 'details', title: 'Your details' },
 ]
@@ -224,8 +224,8 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
 
 /** First control to focus when entering each booking step. */
 const STEP_ENTRY_FOCUS_IDS = [
-  'booking-service',
   'booking-location',
+  'booking-service',
   'booking-date',
   'firstName',
 ] as const
@@ -437,16 +437,16 @@ export default function BookingForm() {
   const validateStep = (
     step: number
   ): { messages: string[]; fields: FieldErrorKey[] } | null => {
-    if (step === 0 && !selectedService) {
-      return {
-        messages: ['Please select a service to continue.'],
-        fields: ['service'],
-      }
-    }
-    if (step === 1 && !selectedLocation) {
+    if (step === 0 && !selectedLocation) {
       return {
         messages: ['Please select a location to continue.'],
         fields: ['location'],
+      }
+    }
+    if (step === 1 && !selectedService) {
+      return {
+        messages: ['Please select a service to continue.'],
+        fields: ['service'],
       }
     }
     if (step === 2) {
@@ -702,8 +702,8 @@ export default function BookingForm() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         nextDisabled={
-          (currentStep === 0 && !selectedService) ||
-          (currentStep === 1 && !selectedLocation) ||
+          (currentStep === 0 && !selectedLocation) ||
+          (currentStep === 1 && !selectedService) ||
           (currentStep === 2 &&
             (!selectedDate ||
               isClosedBookingDate(selectedDate) ||
@@ -714,17 +714,9 @@ export default function BookingForm() {
       >
         {currentStep === 0 && (
           <div className="space-y-6">
-            <p className="text-secondary text-sm flex items-center">
-              <CheckCircle className="w-5 h-5 mr-2 text-primary shrink-0" />
-              <span className="xl:hidden">
-                Choose a location and select your service.
-              </span>
-              <span className="hidden xl:inline">
-                Choose In Clinic or Home Visit, then select a service.
-              </span>
-            </p>
-            <p className="text-sm text-secondary">
-              Treated by Arkinth Garcia, Naturopath &amp; Acupuncturist.
+            <p className="flex items-center text-sm text-secondary">
+              <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
+              Choose how you&apos;d like to be treated
             </p>
 
             <div className="flex border-b border-accent/20">
@@ -749,6 +741,45 @@ export default function BookingForm() {
               </button>
             </div>
 
+            <div className="space-y-4">
+              <p className="flex items-start text-sm text-secondary">
+                <MapPin className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                {activeTab === 'call-out'
+                  ? 'Choose which clinic area this home visit is booked under.'
+                  : 'Choose your preferred clinic'}
+              </p>
+              <div
+                id="booking-location"
+                tabIndex={-1}
+                className={`rounded-lg p-1 outline-none ring-2 ${
+                  hasFieldError('location') ? 'ring-red-400' : 'ring-transparent'
+                }`}
+              >
+                <ClinicLocationCards
+                  locations={clinicLocations}
+                  selectedId={selectedLocation}
+                  onSelect={(id) => {
+                    setSelectedLocation(id)
+                    clearFieldError('location')
+                  }}
+                  name="location"
+                  hasError={hasFieldError('location')}
+                />
+              </div>
+              <FieldInlineError message={fieldErrorMessage('location')} />
+            </div>
+
+            {activeTab === 'call-out' && <TravelPolicyNotice />}
+          </div>
+        )}
+
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <p className="flex items-center text-sm text-secondary">
+              <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
+              Choose the treatment that fits you best
+            </p>
+
             <div
               id="booking-service"
               tabIndex={-1}
@@ -769,43 +800,11 @@ export default function BookingForm() {
             </div>
             <FieldInlineError message={fieldErrorMessage('service')} />
 
-            {activeTab === 'call-out' && <TravelPolicyNotice />}
-
             <OptionalAddOns
               addOns={addOns}
               selectedIds={selectedAddOns}
               onToggle={handleAddOnToggle}
             />
-          </div>
-        )}
-
-        {currentStep === 1 && (
-          <div className="space-y-4">
-            <p className="text-sm text-secondary flex items-start">
-              <MapPin className="w-5 h-5 mr-2 text-primary shrink-0 mt-0.5" />
-              {activeTab === 'call-out'
-                ? 'Choose which clinic area this home visit is booked under.'
-                : 'Select which clinic you will attend.'}
-            </p>
-            <div
-              id="booking-location"
-              tabIndex={-1}
-              className={`rounded-lg p-1 outline-none ring-2 ${
-                hasFieldError('location') ? 'ring-red-400' : 'ring-transparent'
-              }`}
-            >
-              <ClinicLocationCards
-                locations={clinicLocations}
-                selectedId={selectedLocation}
-                onSelect={(id) => {
-                  setSelectedLocation(id)
-                  clearFieldError('location')
-                }}
-                name="location"
-                hasError={hasFieldError('location')}
-              />
-            </div>
-            <FieldInlineError message={fieldErrorMessage('location')} />
           </div>
         )}
 
@@ -823,7 +822,7 @@ export default function BookingForm() {
             </p>
 
             <div className="min-w-0 w-full max-w-full">
-              <label htmlFor="booking-date" className="block text-sm font-medium text-primary mb-2">
+              <label htmlFor="booking-date" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                 Preferred Date <RequiredMark />
               </label>
               <div className="booking-date-field booking-date-field--picker relative">
@@ -856,7 +855,7 @@ export default function BookingForm() {
             <div className="min-w-0 w-full">
               <p
                 id="booking-time-label"
-                className="block text-sm font-medium text-primary mb-1"
+                className="block text-sm font-medium text-[var(--text-dark)] mb-1"
               >
                 Preferred Time Range <RequiredMark />
               </p>
@@ -891,14 +890,6 @@ export default function BookingForm() {
                 message={fieldErrorMessage('time')}
               />
             </div>
-
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
-              <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
-              <p>
-                We will confirm your preferred date and time within 24 hours via email or
-                phone.
-              </p>
-            </div>
           </div>
         )}
 
@@ -911,7 +902,7 @@ export default function BookingForm() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
                 <div className="min-w-0">
-                  <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-2">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     First Name <RequiredMark />
                   </label>
                   <input
@@ -932,7 +923,7 @@ export default function BookingForm() {
                   />
                 </div>
                 <div className="min-w-0">
-                  <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-2">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Last Name <RequiredMark />
                   </label>
                   <input
@@ -953,7 +944,7 @@ export default function BookingForm() {
                   />
                 </div>
                 <div className="min-w-0">
-                  <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Email Address <RequiredMark />
                   </label>
                   <input
@@ -971,7 +962,7 @@ export default function BookingForm() {
                   <FieldInlineError id="email-error" message={fieldErrorMessage('email')} />
                 </div>
                 <div className="min-w-0">
-                  <label htmlFor="phone" className="block text-sm font-medium text-primary mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Phone Number <RequiredMark />
                   </label>
                   <input
@@ -992,7 +983,7 @@ export default function BookingForm() {
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
                 <div className="md:col-span-2 min-w-0 w-full max-w-full">
-                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-primary mb-2">
+                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Date of Birth <RequiredMark />
                   </label>
                   <div className="booking-date-field booking-date-field--picker relative">
