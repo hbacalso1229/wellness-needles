@@ -64,7 +64,7 @@ export function HeroSection({
   backgroundImage,
   backgroundImageClassName = 'object-cover object-center',
   backgroundBlurFill = false,
-  backgroundOverlayClassName = 'bg-gradient-to-br from-primary/65 via-primary/45 to-secondary/35',
+  backgroundOverlayClassName = 'bg-gradient-to-br from-primary/45 via-primary/28 to-secondary/22',
   backgroundClass = 'bg-jungle-gradient',
   textColor = 'text-cream',
   logo,
@@ -127,6 +127,7 @@ export function HeroSection({
             priority
           />
           <div className={`absolute inset-0 ${backgroundOverlayClassName}`} />
+          <div className="absolute inset-0 bg-black/15" aria-hidden />
         </div>
       )}
       
@@ -134,7 +135,7 @@ export function HeroSection({
       <div
         className={`relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${alignmentClasses[alignment]} ${textColor} ${
           hideOnMobile ? 'py-8 sm:py-10 xl:py-12' : 'py-8 sm:py-10 xl:py-16'
-        }`}
+        } ${backgroundImage ? '[text-shadow:0_1px_10px_rgba(0,0,0,0.35)]' : ''}`}
       >
         {/* Logo Section */}
         {logo && (

@@ -1,5 +1,6 @@
 import { Calendar, User, Leaf, Heart, Brain } from 'lucide-react'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { HeroSection } from '../../features'
 
 export default function Blog() {
   const blogPosts = [
@@ -79,22 +80,15 @@ export default function Blog() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-earth text-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="font-serif text-5xl md:text-6xl font-bold mb-6">
-              Wellness Blog
-            </h1>
-            <p className="text-xl mb-8 opacity-90">
-              Insights, tips, and wisdom for your health and wellness journey
-            </p>
-            <p className="text-lg opacity-80">
-              Stay informed about Traditional Chinese Medicine, acupuncture research, 
-              seasonal wellness tips, and holistic health practices.
-            </p>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title="Wellness Blog"
+        subtitle="Insights, tips, and wisdom for your health and wellness journey"
+        description="Stay informed about Traditional Chinese Medicine, acupuncture research, seasonal wellness tips, and holistic health practices."
+        backgroundClass="bg-earth"
+        textColor="text-cream"
+        showFloatingLeaves={false}
+        hideOnMobile={false}
+      />
 
       {/* Featured Post */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">

@@ -43,7 +43,8 @@ export default function ChineseMedicine() {
         title="Traditional Chinese Medicine"
         subtitle="Ancient wisdom meets modern wellness in our holistic approach to health"
         description="Discover the profound principles that have guided healing for over 3,000 years, offering a complete system of medicine that treats the whole person."
-        backgroundImage="/hero_wellness_acupuncture.jpeg"
+        backgroundImage="/chinese_medicine_herbs.jpeg"
+        backgroundImageClassName="object-cover object-center"
         backgroundClass="bg-secondary"
         textColor="text-cream"
         showFloatingLeaves={true}

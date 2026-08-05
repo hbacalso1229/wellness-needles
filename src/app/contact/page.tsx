@@ -85,7 +85,9 @@ export default function Contact() {
         title="Contact Us"
         subtitle="We're here to answer your questions and help you start your wellness journey"
         description="Reach out to us for appointments, questions about our treatments, or to learn more about how acupuncture can benefit your health."
-        backgroundImage="/hero_wellness_acupuncture.jpeg"
+        backgroundImage="/contact_consultation.jpeg"
+        backgroundImageClassName="object-cover object-center"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/45 via-primary/30 to-black/45"
       />
 
       {/* Contact Information — bookings-style sticky layout */}
