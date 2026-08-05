@@ -70,10 +70,9 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-6 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Core Principles
               </h3>
-              <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 md:space-y-6">
                 <div className="flex items-start space-x-4">
                   <div className={`bg-primary ${principleIconClass}`}>
@@ -130,10 +129,9 @@ export default function ChineseMedicine() {
             </div>
 
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-6 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Holistic Approach
               </h3>
-              <div className="mb-6 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   Unlike Western medicine which often focuses on treating symptoms,
@@ -282,10 +280,9 @@ export default function ChineseMedicine() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Complementary Care
               </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   Traditional Chinese Medicine works beautifully alongside conventional
@@ -306,10 +303,9 @@ export default function ChineseMedicine() {
             </div>
 
             <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25">
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-3 font-serif text-lg font-semibold text-[var(--text-dark)] md:mb-4 md:text-xl">
                 Evidence-Based Practice
               </h3>
-              <div className="mb-3 md:mb-4 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-3 md:space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   While respecting traditional knowledge, we stay current with modern

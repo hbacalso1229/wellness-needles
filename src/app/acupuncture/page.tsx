@@ -113,10 +113,9 @@ export default function Acupuncture() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-10 lg:gap-16 items-start">
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Traditional Chinese Medicine Perspective
               </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   According to traditional Chinese medicine, acupuncture works by regulating
@@ -136,10 +135,9 @@ export default function Acupuncture() {
             </div>
 
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-2">
+              <h3 className="mb-4 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Modern Scientific Understanding
               </h3>
-              <div className="mb-4 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
               <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 <p>
                   Modern research shows that acupuncture stimulates the nervous system,
