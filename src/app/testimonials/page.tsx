@@ -210,6 +210,7 @@ export default function Testimonials() {
             slideCount={resultCases.length}
             ariaLabel="Patient results before and after"
             hideDotsFrom="lg"
+            showArrows
             showArrowsFrom="until-lg"
             trackClassName={snapTrackGridLgClassName}
           >
@@ -272,7 +273,7 @@ export default function Testimonials() {
             slideCount={testimonials.length}
             ariaLabel="Patient stories carousel"
             hideDotsFrom="never"
-            showArrowsFrom="always"
+            showArrows
             className="mx-auto max-w-7xl"
             trackClassName={snapTrackHorizontalClassName}
           >
