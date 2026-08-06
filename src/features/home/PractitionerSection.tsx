@@ -20,10 +20,10 @@ export function PractitionerSection() {
           titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,16rem)_1fr] gap-5 md:gap-10 lg:gap-14 items-center max-w-4xl mx-auto">
-          <div className="relative mx-auto w-44 h-44 sm:w-52 sm:h-52">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/25 to-accent/25 rounded-full blur-md" />
-            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-cream shadow-xl">
+        <div className="mx-auto grid max-w-4xl grid-cols-1 items-center gap-5 md:gap-8 lg:grid-cols-[minmax(0,16rem)_1fr] lg:items-start lg:gap-6">
+          <div className="relative mx-auto h-44 w-44 sm:h-52 sm:w-52 lg:mx-0">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold/25 to-accent/25 blur-md" />
+            <div className="relative h-full w-full overflow-hidden rounded-full border-4 border-cream shadow-xl">
               <Image
                 src="/Arkinth_clinic_founder.jpeg"
                 alt="Arkinth Garcia, Naturopath and Acupuncturist"
@@ -46,7 +46,7 @@ export function PractitionerSection() {
           </div>
 
           <div className="text-center lg:text-left">
-            <p className="text-xs font-semibold uppercase tracking-wide text-secondary mb-2">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-secondary">
               Your practitioner
             </p>
             <h2

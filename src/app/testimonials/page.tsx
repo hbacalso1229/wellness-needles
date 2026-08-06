@@ -7,6 +7,9 @@ import {
   SnapCarousel,
   TestimonialCard,
   reviewSlideClassName,
+  snapSlideWideClassName,
+  snapTrackGridLgClassName,
+  snapTrackHorizontalClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -180,8 +183,8 @@ export default function Testimonials() {
       />
 
       {/* Real Patient Results */}
-      <section className="bg-cream py-10 md:py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="scroll-mt-24 bg-cream py-10 md:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Real Patient Results"
             subtitle="Personalized treatment outcomes — clear before and after comparisons"
@@ -207,12 +210,13 @@ export default function Testimonials() {
             slideCount={resultCases.length}
             ariaLabel="Patient results before and after"
             hideDotsFrom="lg"
-            trackClassName="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible lg:pb-0 lg:px-0"
+            showArrowsFrom="until-lg"
+            trackClassName={snapTrackGridLgClassName}
           >
             {resultCases.map((result) => (
               <div
                 key={result.title}
-                className="group/card snap-start shrink-0 w-[min(85vw,22rem)] sm:w-[min(70vw,24rem)] lg:w-auto lg:min-w-0 rounded-xl border border-black/5 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.05)] transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]"
+                className={`group/card ${snapSlideWideClassName} rounded-xl border border-black/5 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.05)] transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]`}
               >
                 <BeforeAfterSlider
                   beforeSrc={result.beforeSrc}
@@ -238,8 +242,8 @@ export default function Testimonials() {
       </section>
 
       {/* What patients say */}
-      <section className="bg-secondary/5 py-8 md:py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="scroll-mt-24 bg-secondary/5 py-8 md:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="What patients say"
             subtitle="Honest feedback from people in our care"
@@ -268,9 +272,9 @@ export default function Testimonials() {
             slideCount={testimonials.length}
             ariaLabel="Patient stories carousel"
             hideDotsFrom="never"
-            showArrows
+            showArrowsFrom="always"
             className="mx-auto max-w-7xl"
-            trackClassName="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-3 -mx-4 px-4 sm:gap-4 sm:-mx-6 sm:px-6 md:mx-0 md:gap-4 md:px-0 md:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            trackClassName={snapTrackHorizontalClassName}
           >
             {testimonials.map((testimonial) => (
               <div
@@ -294,7 +298,7 @@ export default function Testimonials() {
       </section>
 
       {/* CTA band — Book primary, Share subtle text */}
-      <section className="bg-cream py-16 md:py-24">
+      <section className="bg-cream py-16 pb-24 md:py-24">
         <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
           <h2 className="font-serif text-2xl font-bold leading-snug text-[var(--text-dark)] md:text-3xl">
             Ready to experience results like these?

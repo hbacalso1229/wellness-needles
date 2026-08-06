@@ -63,7 +63,7 @@ export default function ChineseMedicine() {
 
       {/* Philosophy Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="The Philosophy of TCM"
             subtitle="Traditional Chinese Medicine is based on the understanding that health comes from balance and harmony within the body and with nature"
