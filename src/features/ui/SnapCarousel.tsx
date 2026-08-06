@@ -44,29 +44,30 @@ export const reviewSlideClassName =
 export const snapSlideWideClassName =
   'snap-start grow-0 shrink-0 basis-[88%] w-[88%] max-w-[22rem] sm:basis-[min(70vw,24rem)] sm:w-[min(70vw,24rem)] sm:max-w-none lg:basis-auto lg:w-auto lg:min-w-0'
 
-/** Switch to "1 / N" when there are more slides than this */
+/** ≤5 slides → dots; 6+ → "1 / N" counter */
 const DOT_PAGE_THRESHOLD = 5
 
 type SnapCarouselProps = {
   children: ReactNode
-  /** Number of pagination dots (usually equals slide count) */
+  /** Number of pagination dots / counter total */
   slideCount: number
   /** Classes for the scroll/grid track — prefer shared snapTrack* exports */
   trackClassName?: string
   className?: string
   ariaLabel?: string
-  /** Hide dots from this breakpoint up; `never` keeps dots on all sizes */
+  /** Hide pagination from this breakpoint up; `never` keeps it on all sizes */
   hideDotsFrom?: 'md' | 'lg' | 'never'
-  /** Show prev/next chevrons (default true) */
+  /**
+   * Desktop side arrows (never shown on mobile — swipe is primary there).
+   * Default false; enable for always-horizontal carousels.
+   */
   showArrows?: boolean
   /**
-   * Arrow placement (default `mobile-only`):
-   * - `mobile-only`: bottom arrows below md — use with snapTrackGridMdClassName
-   * - `until-lg`: bottom arrows below lg — use with snapTrackGridLgClassName
-   * - `always`: bottom arrows on mobile, side arrows from md — use with snapTrackHorizontalClassName
-   * - `md`: side arrows from md only (no mobile arrows)
+   * Where side arrows appear (desktop only):
+   * - `md` (default): from md up
+   * - `until-lg`: from md, hidden at lg (when a grid takes over)
    */
-  showArrowsFrom?: 'always' | 'md' | 'mobile-only' | 'until-lg'
+  showArrowsFrom?: 'md' | 'until-lg'
 }
 
 export function SnapCarousel({
@@ -76,8 +77,8 @@ export function SnapCarousel({
   className = '',
   ariaLabel = 'Carousel pagination',
   hideDotsFrom = 'md',
-  showArrows = true,
-  showArrowsFrom = 'mobile-only',
+  showArrows = false,
+  showArrowsFrom = 'md',
 }: SnapCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -136,38 +137,23 @@ export function SnapCarousel({
   const count = Math.max(slideCount, Children.count(children))
   const canGoPrev = activeIndex > 0
   const canGoNext = activeIndex < count - 1
-
-  const useBottomArrows =
-    showArrows &&
-    (showArrowsFrom === 'mobile-only' ||
-      showArrowsFrom === 'until-lg' ||
-      showArrowsFrom === 'always')
-  const useSideArrows =
-    showArrows && (showArrowsFrom === 'md' || showArrowsFrom === 'always')
+  const useSideArrows = showArrows
 
   const dotsHideClass =
     hideDotsFrom === 'never' ? '' : hideDotsFrom === 'lg' ? 'lg:hidden' : 'md:hidden'
 
-  const bottomArrowVisibility =
+  const sideArrowVisibility =
     showArrowsFrom === 'until-lg'
-      ? 'inline-flex lg:hidden'
-      : 'inline-flex md:hidden'
-  const sideArrowVisibility = 'hidden md:inline-flex'
+      ? 'hidden md:inline-flex lg:hidden'
+      : 'hidden md:inline-flex'
 
   const arrowBaseClass =
-    'h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full border shadow-sm transition-[transform,background-color,border-color,color,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+    'h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
 
   const arrowEnabledClass =
-    'border-accent/30 bg-white text-primary hover:border-primary/40 hover:bg-cream'
+    'border-accent/30 bg-white text-primary shadow-sm hover:border-primary/40 hover:bg-cream'
   const arrowDisabledClass =
-    'cursor-not-allowed border-black/5 bg-[#e4e7e2] text-[var(--text-dark)]/15 shadow-none opacity-40'
-
-  const controlsRowHideClass =
-    showArrowsFrom === 'until-lg'
-      ? 'lg:hidden'
-      : showArrowsFrom === 'mobile-only'
-        ? 'md:hidden'
-        : ''
+    'cursor-not-allowed border-transparent bg-black/[0.06] text-[var(--text-dark)]/25 shadow-none opacity-40'
 
   const track = (
     <div
@@ -178,7 +164,7 @@ export function SnapCarousel({
     </div>
   )
 
-  const arrowButton = (direction: 'prev' | 'next', visibility: string) => {
+  const arrowButton = (direction: 'prev' | 'next') => {
     const isPrev = direction === 'prev'
     const enabled = isPrev ? canGoPrev : canGoNext
     return (
@@ -191,7 +177,7 @@ export function SnapCarousel({
         disabled={!enabled}
         aria-disabled={!enabled}
         aria-label={isPrev ? 'Previous slide' : 'Next slide'}
-        className={`${visibility} ${arrowBaseClass} ${
+        className={`${sideArrowVisibility} ${arrowBaseClass} ${
           enabled ? arrowEnabledClass : arrowDisabledClass
         } self-center`}
       >
@@ -204,80 +190,59 @@ export function SnapCarousel({
     )
   }
 
-  const showControlsRow = count > 1 || useBottomArrows
+  const pagination =
+    count > 1 ? (
+      <nav
+        className={`mt-4 flex w-full items-center justify-center gap-2 ${dotsHideClass}`}
+        aria-label={ariaLabel}
+      >
+        {count > DOT_PAGE_THRESHOLD ? (
+          <p
+            className="text-sm tabular-nums tracking-wide text-[var(--text-dark)]/55"
+            aria-live="polite"
+          >
+            <span className="font-semibold text-[var(--text-dark)]">{activeIndex + 1}</span>
+            <span className="mx-1" aria-hidden>
+              /
+            </span>
+            <span className="sr-only">of </span>
+            {count}
+          </p>
+        ) : (
+          Array.from({ length: count }, (_, index) => {
+            const active = index === activeIndex
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => scrollToSlide(index)}
+                aria-label={`Go to slide ${index + 1}`}
+                aria-current={active ? 'true' : undefined}
+                className={`rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
+                  active
+                    ? 'h-2 w-6 bg-primary'
+                    : 'h-2 w-2 bg-accent/40 hover:bg-accent/60'
+                }`}
+              />
+            )
+          })
+        )}
+      </nav>
+    ) : null
 
   return (
     <div className={className}>
-      {/* Side arrows only from md+ — never overlay mobile cards */}
       {useSideArrows ? (
         <div className="flex items-stretch gap-3 md:gap-4">
-          {arrowButton('prev', sideArrowVisibility)}
+          {arrowButton('prev')}
           {track}
-          {arrowButton('next', sideArrowVisibility)}
+          {arrowButton('next')}
         </div>
       ) : (
         track
       )}
 
-      {/* Mobile controls: arrows below cards, flanking centered dots */}
-      {showControlsRow ? (
-        <div
-          className={`mt-5 flex w-full items-center ${
-            useBottomArrows
-              ? `justify-between gap-4 px-1 ${controlsRowHideClass || 'md:justify-center'}`
-              : 'justify-center'
-          }`}
-        >
-          {useBottomArrows ? arrowButton('prev', bottomArrowVisibility) : null}
-
-          {count > 1 ? (
-            <nav
-              className={`flex items-center justify-center gap-2 ${
-                useBottomArrows ? 'min-w-0 flex-1' : ''
-              } ${dotsHideClass}`}
-              aria-label={ariaLabel}
-            >
-              {count > DOT_PAGE_THRESHOLD ? (
-                <p
-                  className="text-sm tabular-nums tracking-wide text-[var(--text-dark)]/55"
-                  aria-live="polite"
-                >
-                  <span className="font-semibold text-[var(--text-dark)]">
-                    {activeIndex + 1}
-                  </span>
-                  <span className="mx-1" aria-hidden>
-                    /
-                  </span>
-                  <span className="sr-only">of </span>
-                  {count}
-                </p>
-              ) : (
-                Array.from({ length: count }, (_, index) => {
-                  const active = index === activeIndex
-                  return (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => scrollToSlide(index)}
-                      aria-label={`Go to slide ${index + 1}`}
-                      aria-current={active ? 'true' : undefined}
-                      className={`rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${
-                        active
-                          ? 'h-2 w-6 bg-primary'
-                          : 'h-2 w-2 bg-accent/40 hover:bg-accent/60'
-                      }`}
-                    />
-                  )
-                })
-              )}
-            </nav>
-          ) : (
-            <div className="min-w-0 flex-1 md:hidden" aria-hidden />
-          )}
-
-          {useBottomArrows ? arrowButton('next', bottomArrowVisibility) : null}
-        </div>
-      ) : null}
+      {pagination}
     </div>
   )
 }
