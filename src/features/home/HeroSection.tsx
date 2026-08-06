@@ -47,7 +47,7 @@ export function HeroSection() {
       </div>
 
       {/* Extra top padding on mobile so copy isn’t tight under the menu bar */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10 sm:py-12 md:py-12 xl:py-16">
+      <div className="relative z-10 w-full max-w-7xl xl:max-w-[90rem] 2xl:max-w-[110rem] mx-auto pl-8 pr-4 sm:pl-10 sm:pr-6 lg:pl-16 lg:pr-8 xl:pl-20 2xl:pl-24 pt-12 pb-10 sm:py-12 md:py-12 xl:py-16">
         <div className="max-w-xl text-left text-cream">
           <h1 className="font-serif text-[1.75rem] leading-tight sm:text-5xl sm:leading-[1.15] md:text-6xl xl:text-[4.25rem] font-normal tracking-wide">
             <span className="block font-normal">Restore Balance.</span>

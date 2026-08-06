@@ -163,7 +163,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Book — beside menu */}
-          <div className="hidden xl:block shrink-0 xl:ml-6 2xl:ml-8">
+          <div className="hidden xl:block shrink-0 xl:ml-10 2xl:ml-14">
             {bookUsesExternal ? (
               <a
                 href={bookHref}

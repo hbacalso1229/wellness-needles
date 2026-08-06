@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
+  // Keep the Next.js "N" badge off body content during local design review
+  devIndicators: false,
   env: {
     NEXT_PUBLIC_ADMIN_UI_ENABLED: resolveAdminUiEnabled(),
   },

@@ -15,11 +15,11 @@ import {
   Venus,
   type LucideIcon,
 } from 'lucide-react'
-import { FeatureCard, HeroSection, SectionHeading, SnapCarousel } from '../../features'
+import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName, snapTrackGridMdClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 const conditionCardClass =
-  'group snap-start shrink-0 w-[min(72vw,17rem)] sm:w-[min(52vw,18.5rem)] md:w-auto rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 md:p-5 transition-all duration-300'
+  `group ${snapSlideClassName} rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 sm:p-4 md:p-5 transition-all duration-300`
 
 const conditions: {
   title: string
@@ -162,7 +162,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Benefits of Acupuncture"
@@ -173,6 +173,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Zap}
               title="Pain Relief"
               description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
@@ -183,6 +184,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Brain}
               title="Stress Reduction"
               description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
@@ -193,6 +195,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Activity}
               title="Improved Sleep"
               description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
@@ -203,6 +206,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Shield}
               title="Immune Support"
               description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
@@ -213,6 +217,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Heart}
               title="Digestive Health"
               description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
@@ -223,6 +228,7 @@ export default function Acupuncture() {
             <FeatureCard
               flippable
               compact
+              elevated
               icon={Target}
               title="Hormonal Balance"
               description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
@@ -235,7 +241,7 @@ export default function Acupuncture() {
 
       {/* Conditions Treated */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Conditions We Treat"
             subtitle="Acupuncture can effectively address a wide range of health conditions"
@@ -244,7 +250,7 @@ export default function Acupuncture() {
           <SnapCarousel
             slideCount={conditions.length}
             ariaLabel="Conditions carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3 md:gap-4 lg:gap-5"
+            trackClassName={snapTrackGridMdClassName}
           >
             {conditions.map(({ title, icon: Icon, items }) => (
               <div key={title} className={conditionCardClass}>
@@ -254,11 +260,11 @@ export default function Acupuncture() {
                 <h3 className="mb-2 text-lg font-semibold leading-snug text-[var(--text-dark)] md:mb-3 md:text-xl">{title}</h3>
                 <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
                   {items.map((item) => (
-                    <li key={item} className="flex items-center gap-1.5 md:gap-2">
-                      <span className="flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
+                    <li key={item} className="flex items-start gap-1.5 md:gap-2">
+                      <span className="mt-0.5 flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
                         <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
                       </span>
-                      {item}
+                      <span className="min-w-0">{item}</span>
                     </li>
                   ))}
                 </ul>

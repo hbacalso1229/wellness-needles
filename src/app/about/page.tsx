@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import NextImage from 'next/image'
 import { Heart, Award, Target, Clock, Shield } from 'lucide-react'
-import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName } from '../../features'
+import { PulsingLeaf, FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName, snapTrackGridMdClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
 /** Known logo files only — avoid requesting missing .svg/.png (404 spam). */
@@ -219,7 +219,7 @@ export default function About() {
 
       {/* Why Choose Us Section */}
       <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Why Choose Wellness Needles?"
             subtitle="Committed to providing the highest quality care with authentic traditional practices and personal experience"
@@ -228,12 +228,13 @@ export default function About() {
           <SnapCarousel
             slideCount={3}
             ariaLabel="Why choose us carousel"
-            trackClassName="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:overflow-x-hidden md:pb-0 lg:grid-cols-3 md:gap-4 lg:gap-5"
+            trackClassName={snapTrackGridMdClassName}
           >
             <div className={snapSlideClassName}>
               <FeatureCard
                 flippable
                 compact
+                elevated
                 icon={Award}
                 title="Certified Expert"
                 description="Arkinth Garcia is licensed and certified in acupuncture and naturopathic medicine from Dublin's prestigious College of Naturopathic Medicine"
@@ -246,6 +247,7 @@ export default function About() {
               <FeatureCard
                 flippable
                 compact
+                elevated
                 icon={Clock}
                 title="Flexible Scheduling"
                 description="We offer convenient appointment times to fit your busy lifestyle and schedule"
@@ -258,6 +260,7 @@ export default function About() {
               <FeatureCard
                 flippable
                 compact
+                elevated
                 icon={Heart}
                 title="Personal Experience"
                 description="Having experienced the healing power of acupuncture firsthand, Arkinth brings both professional expertise and personal understanding to your care"

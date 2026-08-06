@@ -160,15 +160,15 @@ export function FeatureCard({
 
   const flatIconCircle = (
     <div
-      className={`mx-auto flex items-center justify-center rounded-full bg-white ${
+      className={`mx-auto flex items-center justify-center rounded-full bg-white transition-[transform,color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:motion-safe:group-hover:-translate-y-1.5 md:motion-safe:group-hover:scale-110 ${
         compact
-          ? 'mb-1.5 h-9 w-9 md:mb-3 md:h-14 md:w-14'
+          ? 'mb-2 h-9 w-9 md:mb-2.5 md:h-12 md:w-12'
           : 'mb-2 h-11 w-11 md:mb-5 md:h-16 md:w-16'
       }`}
     >
       <Icon
-        className={`text-secondary/70 ${
-          compact ? 'h-4 w-4 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
+        className={`text-secondary/70 transition-[transform,color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover:text-primary md:motion-safe:group-hover:scale-110 ${
+          compact ? 'h-4 w-4 md:h-6 md:w-6' : 'h-5 w-5 md:h-8 md:w-8'
         }`}
       />
     </div>
@@ -223,9 +223,9 @@ export function FeatureCard({
     setModalOpen(true)
   }
 
-  const minH = compact ? 'min-h-[160px]' : 'min-h-[200px]'
-  const facePad = compact ? 'p-3.5' : 'p-4 md:p-5'
-  const titleClass = `${cardTitleClass} mb-2`
+  const minH = compact ? 'min-h-[240px]' : 'min-h-[220px]'
+  const facePad = compact ? 'p-5 md:p-6' : 'p-4 md:p-5'
+  const titleClass = `${cardTitleClass} ${compact ? 'mb-2' : 'mb-2'}`
 
   const modal =
     portalReady &&
@@ -268,9 +268,12 @@ export function FeatureCard({
       document.body,
     )
 
+  const learnMoreClass =
+    'inline-flex items-center gap-0.5 text-sm font-medium text-primary tracking-wide transition-colors duration-200 md:group-hover:text-primary'
+
   return (
     <div className={`h-full min-w-0 ${className}`}>
-      {/* Mobile: compact teaser → modal */}
+      {/* Mobile: compact teaser → modal (whole card is the tap target) */}
       <div className="h-full md:hidden">
         <button
           ref={teaserRef}
@@ -279,9 +282,9 @@ export function FeatureCard({
           aria-haspopup="dialog"
           aria-expanded={modalOpen}
           aria-label={`${title}. Tap to learn more.`}
-          className={`flex h-full w-full flex-col items-center justify-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${panelClass} ${
+          className={`flex h-full w-full flex-col items-center justify-center text-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream active:bg-accent/10 ${panelClass} ${
             compact
-              ? 'min-h-[5.75rem] p-2'
+              ? 'min-h-[7.5rem] p-5'
               : 'min-h-[7rem] p-2.5 sm:p-3'
           }`}
         >
@@ -289,22 +292,24 @@ export function FeatureCard({
           <h3
             className={`flex items-center justify-center px-0.5 font-semibold leading-snug text-[var(--text-dark)] line-clamp-2 ${
               compact
-                ? 'mb-1 min-h-[2.25rem] text-base sm:text-lg'
+                ? 'mb-2 text-base sm:text-lg'
                 : 'mb-1.5 min-h-[2.5rem] text-lg'
             }`}
           >
             {title}
           </h3>
-          <span className="inline-flex items-center gap-0.5 text-sm text-text-dark tracking-wide">
+          <span className={learnMoreClass} aria-hidden>
             Learn more
-            <ChevronRight className="h-4 w-4" aria-hidden />
+            <ChevronRight className="h-4 w-4" />
           </span>
         </button>
         {modal}
       </div>
 
-      {/* Tablet + desktop: 3D flip */}
-      <div className={`hidden md:block [perspective:1000px] ${minH}`}>
+      {/* Tablet + desktop: 3D flip (whole card is the click target) */}
+      <div
+        className={`hidden md:block [perspective:1000px] ${minH} transition-[transform,filter] duration-300 ease-out motion-safe:hover:-translate-y-1`}
+      >
         <div
           role="button"
           tabIndex={0}
@@ -317,7 +322,7 @@ export function FeatureCard({
           }
           onClick={toggle}
           onKeyDown={onKeyDown}
-          className={`relative w-full h-full ${minH} text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-lg overflow-hidden`}
+          className={`group relative w-full h-full ${minH} text-left cursor-pointer rounded-lg overflow-hidden border border-accent/15 bg-cream shadow-sm transition-[box-shadow,border-color] duration-300 hover:border-primary/25 hover:shadow-md hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
         >
           <div
             className={`feature-card-flip relative w-full h-full ${minH}`}
@@ -326,7 +331,7 @@ export function FeatureCard({
             }}
           >
             <div
-              className={`absolute inset-0 flex flex-col items-center justify-center text-center rounded-lg bg-cream shadow-sm group ${facePad}`}
+              className={`absolute inset-0 flex flex-col items-center justify-center text-center rounded-lg bg-cream ${facePad}`}
               style={{
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
@@ -335,11 +340,14 @@ export function FeatureCard({
             >
               {flatIconCircle}
               <h3 className={titleClass}>{title}</h3>
-              <p className="text-sm text-text-dark tracking-wide">Learn more</p>
+              <span className={learnMoreClass} aria-hidden>
+                Learn more
+                <ChevronRight className="h-4 w-4 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-0.5" />
+              </span>
             </div>
 
             <div
-              className={`absolute inset-0 flex flex-col items-center justify-center text-center rounded-lg bg-cream shadow-sm ${facePad}`}
+              className={`absolute inset-0 flex flex-col items-center justify-center text-center rounded-lg bg-cream ${facePad}`}
               style={{
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
@@ -349,7 +357,7 @@ export function FeatureCard({
               <h3 className={`${cardTitleClass} mb-3`}>
                 {title}
               </h3>
-              <p className="max-w-full overflow-hidden text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
+              <p className="max-w-full text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
                 {description}
               </p>
               {footer ? (
