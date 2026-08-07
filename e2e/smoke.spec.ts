@@ -11,7 +11,9 @@ test.describe('smoke', () => {
 
   test('contact page is reachable', async ({ page }) => {
     await page.goto('/contact/')
-    await expect(page.getByRole('heading', { name: /Get in touch/i })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: /Start Your Journey With Us/i })
+    ).toBeVisible()
   })
 
   test('bookings page is reachable', async ({ page }) => {
