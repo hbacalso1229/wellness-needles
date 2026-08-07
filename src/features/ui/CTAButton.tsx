@@ -15,9 +15,9 @@ export const headerGoldCtaClassName =
 export const headerGoldCtaMobileClassName =
   'inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-gradient-to-b from-[#e8c84a] via-[#d4af37] to-[#c49a2a] text-primary px-2 py-1 text-[11px] font-semibold whitespace-nowrap shadow-md no-underline transition-[filter,box-shadow] duration-200 hover:from-[#f0d45c] hover:via-[#e0c040] hover:to-[#d4af37] hover:brightness-105 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/80 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:gap-1.5 sm:px-3.5 sm:py-1.5 sm:text-sm'
 
-/** Shared solid green section CTA — home Benefits / Services / Practitioner. Equal width; centered in a full-width flex row; hover lift md+ only. Not for booking. */
+/** Shared jungle-green section CTA — home Benefits / Services / Practitioner. Equal width; floating elevation; hover lift md+ only. Not for booking. */
 export const sectionGreenCtaClassName =
-  'inline-flex h-11 w-[17.5rem] max-w-full shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-cream whitespace-nowrap shadow-sm transition-[transform,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white md:motion-safe:hover:-translate-y-px md:hover:bg-secondary md:hover:shadow-md'
+  'inline-flex h-11 w-[17.5rem] max-w-full shrink-0 items-center justify-center gap-2 rounded-full border border-[#1B3B2B]/35 bg-gradient-to-r from-[#3d6b2e] via-[#2d5016] to-[#1B3B2B] px-5 text-sm font-semibold text-cream whitespace-nowrap shadow-[0_8px_24px_rgba(27,59,43,0.32),0_2px_6px_rgba(27,59,43,0.18)] transition-[transform,box-shadow,filter] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white md:motion-safe:hover:-translate-y-1.5 md:hover:shadow-[0_14px_32px_rgba(27,59,43,0.4),0_4px_10px_rgba(27,59,43,0.2)] md:hover:brightness-105 md:motion-safe:active:translate-y-0 md:active:scale-[0.98]'
 
 /** Shared glass-green fill — same tint/blur as Integrative Approach, Evidence, Find Us, etc. */
 export const glassGreenFillClassName =

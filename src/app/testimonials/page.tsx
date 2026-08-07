@@ -131,17 +131,17 @@ export default function Testimonials() {
       imageFit: 'cover' as const,
       title: 'Hair Loss',
       highlight: 'From thinning to fuller hair in 12 weeks',
-      proofPoints: ['Visible improvement documented', 'Shared with patient consent'],
+      proofPoints: ['Clinically documented improvement', 'Shared with patient consent'],
       altBefore: 'Scalp before alopecia treatment showing a bald patch',
       altAfter: 'Scalp after alopecia treatment showing hair regrowth',
     },
     {
       beforeSrc: '/results/eczema-before.png',
       afterSrc: '/results/eczema-after.png',
-      imageFit: 'contain' as const,
+      imageFit: 'cover' as const,
       title: 'Eczema',
       highlight: 'Clearer skin, reduced inflammation',
-      proofPoints: ['Marked improvement over treatment', 'Shared with patient consent'],
+      proofPoints: ['Clear improvement throughout treatment', 'Shared with patient consent'],
       altBefore:
         'Back and legs before eczema treatment showing widespread redness and inflammation',
       altAfter:
@@ -180,27 +180,40 @@ export default function Testimonials() {
       <section className="scroll-mt-24 bg-white py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Real results from real patients"
-            subtitle="Personalised treatments with visible outcomes"
+            title="Real Results. Real Lives Changed."
+            subtitle="Personalised care designed to restore balance—and deliver results you can see and feel."
             className="mb-4 text-center md:mb-5"
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1B3B2B] mb-1.5 md:mb-3"
-            subtitleClassName="text-base sm:text-lg md:text-xl text-[#1B3B2B]/70 max-w-3xl mx-auto leading-relaxed"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
+            subtitleClassName="text-base sm:text-lg md:text-xl text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed"
             leafClassName="h-3.5 w-3.5 shrink-0 text-[#1B3B2B] md:h-4 md:w-4"
           />
 
           <div className="mb-4 flex flex-col items-center gap-2 sm:mb-5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-2 md:mb-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#1B3B2B]/15 bg-white/70 px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-[#1B3B2B] shadow-sm backdrop-blur-[8px]">
-              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-[#1B3B2B] sm:h-4 sm:w-4" aria-hidden />
-              Licensed &amp; certified practitioner
-            </p>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#1B3B2B]/15 bg-white/70 px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-[#1B3B2B] shadow-sm backdrop-blur-[8px]">
-              <HeartHandshake className="h-3.5 w-3.5 shrink-0 text-[#1B3B2B] sm:h-4 sm:w-4" aria-hidden />
-              Shared with consent
-            </p>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#1B3B2B]/15 bg-white/70 px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-[#1B3B2B] shadow-sm backdrop-blur-[8px]">
-              <Star className="h-3.5 w-3.5 shrink-0 fill-[#1B3B2B] text-[#1B3B2B] sm:h-4 sm:w-4" aria-hidden />
-              Trusted by 200+ patients
-            </p>
+            {[
+              {
+                icon: BadgeCheck,
+                label: 'Licensed & certified practitioner',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-cream/95 sm:h-4 sm:w-4',
+              },
+              {
+                icon: HeartHandshake,
+                label: 'Shared with consent',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-cream/95 sm:h-4 sm:w-4',
+              },
+              {
+                icon: Star,
+                label: 'Trusted by 200+ patients',
+                iconClass: 'h-3.5 w-3.5 shrink-0 fill-cream text-cream sm:h-4 sm:w-4',
+              },
+            ].map(({ icon: Icon, label, iconClass }) => (
+              <p
+                key={label}
+                className="inline-flex items-center gap-2 rounded-full border border-[#1B3B2B]/40 bg-gradient-to-r from-[#3d6b2e] via-[#2d5016] to-[#1B3B2B] px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-cream shadow-[0_4px_14px_rgba(27,59,43,0.28)]"
+              >
+                <Icon className={iconClass} aria-hidden />
+                {label}
+              </p>
+            ))}
           </div>
 
           <SnapCarousel
@@ -250,6 +263,9 @@ export default function Testimonials() {
           </p>
 
           <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-5">
+            <p className="mb-1 text-center text-base font-[450] leading-relaxed text-[#2C3E35]/80">
+              Your story can be the next one we celebrate.
+            </p>
             <BookingCtaButton
               variant="gold"
               showArrow={false}
@@ -257,7 +273,7 @@ export default function Testimonials() {
               className={primaryGoldCtaClassName}
             >
               <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-              <span className="whitespace-nowrap">Book your appointment</span>
+              <span className="whitespace-nowrap">Book Your Consultation</span>
             </BookingCtaButton>
             <p className="text-base text-[#1B3B2B]/65">Get a personalised plan</p>
             <a
@@ -281,8 +297,8 @@ export default function Testimonials() {
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
-            title="What patients say"
-            subtitle="Honest feedback from people in our care"
+            title="Real Stories. Real Healing."
+            subtitle="Experiences from patients who've truly felt the difference."
             className="mb-4 text-center md:mb-5"
             titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
           />
@@ -336,8 +352,8 @@ export default function Testimonials() {
       {/* CTA band — glass green closer */}
       <section className={`border-b border-white/50 ${glassGreenFillClassName} pt-4 pb-8 md:pt-5 md:pb-10 lg:pt-6 lg:pb-12`}>
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)] sm:whitespace-nowrap">
-            Ready to experience results like these?
+          <h2 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
+            Ready to Feel This Difference for Yourself?
           </h2>
           <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6 sm:gap-3.5">
             <BookingCtaButton
@@ -347,13 +363,13 @@ export default function Testimonials() {
               className={primaryGoldCtaClassName}
             >
               <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-              <span className="whitespace-nowrap">Start your journey</span>
+              <span className="whitespace-nowrap">Begin Your Care Journey</span>
             </BookingCtaButton>
             <a
               href="/contact/"
               className="group inline-flex items-center gap-1 text-sm font-medium text-primary/65 underline-offset-4 transition-colors duration-300 ease-out hover:text-primary hover:underline"
             >
-              Share your story
+              Share Your Experience
               <ArrowRight
                 className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
                 aria-hidden

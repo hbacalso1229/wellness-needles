@@ -49,7 +49,7 @@ function LayerImage({
   priority?: boolean
 }) {
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#faf8f5] [isolation:isolate]">
+    <div className="absolute inset-0 overflow-hidden [isolation:isolate]">
       <Image
         src={src}
         alt={alt}
@@ -61,7 +61,7 @@ function LayerImage({
             ? 'object-contain object-center'
             : 'object-cover object-center'
         }
-        style={rotate ? { transform: `rotate(${rotate}) scale(1.35)` } : undefined}
+        style={rotate ? { transform: `rotate(${rotate}) scale(1.72)` } : undefined}
       />
     </div>
   )

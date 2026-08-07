@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import NextImage from 'next/image'
-import { Heart, Award, Target, Clock, Shield, Check, Star, ArrowRight, CheckCircle } from 'lucide-react'
+import { Heart, Award, Target, Clock, Shield, Check, Star, ArrowRight, CheckCircle, Calendar } from 'lucide-react'
 import {
   PulsingLeaf,
   FeatureCard,
@@ -366,7 +366,8 @@ export default function About() {
               your wellbeing.
             </p>
             <div className="mt-5 flex justify-center sm:mt-6">
-              <BookingCtaButton variant="gold" showArrow>
+              <BookingCtaButton variant="gold" showArrow={false}>
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 Begin Your Treatment
               </BookingCtaButton>
             </div>

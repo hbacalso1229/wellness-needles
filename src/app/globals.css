@@ -527,12 +527,15 @@ html {
 }
 
 .card-media-wrapper,
-.before-after-slider,
-.before-after-slider img {
+.before-after-slider {
   border-radius: 12px !important;
   overflow: hidden !important;
   isolation: isolate;
   position: relative;
+}
+
+.before-after-slider img {
+  border-radius: 0 !important;
 }
 
 .card-media-wrapper {

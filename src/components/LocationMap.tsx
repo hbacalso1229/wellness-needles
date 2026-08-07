@@ -1,3 +1,7 @@
+'use client'
+
+import { ArrowRight } from 'lucide-react'
+
 interface LocationMapProps {
   query: string
   title: string
@@ -30,9 +34,13 @@ export default function LocationMap({
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 inline-block text-sm font-medium text-accent hover:text-primary transition-colors"
+          className="group mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary underline-offset-4 transition-[gap,color] duration-300 ease-out hover:gap-1.5 hover:text-secondary hover:underline"
         >
-          Get directions
+          Get Directions
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+            aria-hidden
+          />
         </a>
       )}
     </div>
