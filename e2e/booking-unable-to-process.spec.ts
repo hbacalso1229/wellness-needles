@@ -17,6 +17,9 @@ test.describe('booking unable-to-process', () => {
       page.getByRole('link', { name: /Email info@wellnessneedles\.ie/i })
     ).toBeVisible()
 
+    await expect(page.getByRole('banner')).toHaveCount(0)
+    await expect(page.getByRole('contentinfo')).toHaveCount(0)
+
     const back = page.getByRole('link', {
       name: /Back to bookings|Close and return to booking/i,
     })

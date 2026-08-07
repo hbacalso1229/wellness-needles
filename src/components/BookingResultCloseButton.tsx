@@ -9,12 +9,12 @@ const closeButtonClassName =
 const backLinkClassName =
   'inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-dark)]/70 no-underline transition-colors hover:text-[var(--text-dark)] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2'
 
-/** Fixed top-right X — mobile only (all result pages). */
+/** Fixed top-right X — mobile only (full-screen result pages; no site header). */
 export const bookingResultCloseFixedClassName =
-  'fixed right-3 top-[calc(3.5rem+0.5rem)] z-40 sm:right-4 sm:top-[calc(3.5rem+0.75rem)] md:hidden'
+  'fixed right-3 top-3 z-40 sm:right-4 sm:top-4 md:hidden'
 
-/** In-flow back link — tablet + desktop (all result pages). */
-export const bookingResultBackLinkClassName = `mb-4 hidden md:inline-flex ${backLinkClassName}`
+/** In-flow back link was scrolling out of the full-screen viewport — keep it fixed. */
+export const bookingResultBackLinkClassName = `fixed left-4 top-4 z-40 hidden md:inline-flex ${backLinkClassName}`
 
 /** Quiet circular dismiss — fixed top-right; returns to the booking form page. */
 export function BookingResultCloseButton({

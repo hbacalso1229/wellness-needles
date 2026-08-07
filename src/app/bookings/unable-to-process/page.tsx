@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { AlertCircle, Mail, Phone } from 'lucide-react'
 import { CTAButton } from '@/features'
+import { BookingResultBrand } from '@/components/BookingResultBrand'
 import { BookingResultNav } from '@/components/BookingResultCloseButton'
 import { contactConfig } from '@/lib/contact-config'
 
@@ -24,15 +25,17 @@ export default function BookingUnableToProcessPage() {
   }, [])
 
   return (
-    <div className="relative flex min-h-[calc(100dvh-3.5rem)] flex-col bg-white">
+    <div className="relative flex h-dvh max-h-dvh flex-col overflow-hidden bg-white">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_at_top,_rgba(127,176,105,0.12)_0%,_transparent_70%)]"
         aria-hidden
       />
 
-      <section className="relative flex flex-1 flex-col justify-center px-4 py-3 sm:px-6 sm:py-4 md:py-5 lg:justify-start lg:pb-24 lg:pt-16">
-        <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
+      <section className="relative flex flex-1 flex-col overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 md:py-5 lg:px-8 lg:py-8">
+        <div className="mx-auto my-auto w-full max-w-md pt-12 sm:max-w-lg md:max-w-xl md:pt-14">
           <BookingResultNav />
+
+          <BookingResultBrand />
 
           <div className="text-center">
             <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:mb-3 sm:h-12 sm:w-12 lg:mb-5 lg:h-16 lg:w-16">
