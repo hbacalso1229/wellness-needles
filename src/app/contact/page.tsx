@@ -383,7 +383,7 @@ export default function Contact() {
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full max-w-full !min-h-0 !whitespace-normal !px-3.5 !py-2.5 !text-sm leading-snug md:!px-3.5 md:!py-2.5 md:!text-sm !shadow-[0_4px_12px_rgba(196,154,42,0.28)] motion-safe:hover:!-translate-y-0.5 motion-safe:hover:!shadow-[0_6px_16px_rgba(196,154,42,0.35)]"
+                  className="w-full max-w-full"
                 >
                   <Calendar className="h-4 w-4 shrink-0 text-primary" aria-hidden />
                   Book Your Consultation

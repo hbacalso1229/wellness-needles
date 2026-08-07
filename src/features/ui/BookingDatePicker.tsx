@@ -531,7 +531,7 @@ export function BookingDatePicker({
                       ? 'cursor-not-allowed pointer-events-none'
                       : selectedDay
                         ? ''
-                        : 'hover:bg-accent/40 hover:text-[var(--text-dark)]',
+                        : 'hover:border hover:border-white/50 hover:bg-accent/10 hover:text-[var(--text-dark)] hover:backdrop-blur-[3px] supports-[backdrop-filter]:hover:bg-accent/[0.08]',
                     !(selectedDay && !disabled) &&
                       (!inMonth
                         ? disabled

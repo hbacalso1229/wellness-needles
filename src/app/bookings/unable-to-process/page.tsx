@@ -6,11 +6,8 @@ import { CTAButton } from '@/features'
 import { BookingResultCloseButton } from '@/components/BookingResultCloseButton'
 import { contactConfig } from '@/lib/contact-config'
 
-const goldCtaClass =
-  'w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-5 !py-3.5 !text-sm !font-bold shadow-md shadow-primary/25 transition-[transform,box-shadow,filter] duration-200 ease-out sm:!py-3.5 sm:!text-base motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
-
 const outlineCtaClass =
-  'w-full !rounded-full !border-primary/35 !px-4 !py-3 !text-sm !font-medium !text-primary/70 !shadow-none !bg-transparent transition-[transform,color,border-color] duration-200 ease-out hover:!border-primary/55 hover:!bg-transparent hover:!text-primary/90 sm:!py-3 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
+  'w-full !rounded-full !border-primary/35 !px-4 !py-3 !text-sm !font-medium !text-primary/70 !shadow-none !bg-transparent transition-[transform,color,border-color] duration-200 ease-out hover:!border-primary/55 hover:!bg-transparent hover:!text-primary/90 sm:!py-3 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:!scale-[0.97]'
 
 export default function BookingUnableToProcessPage() {
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -80,7 +77,7 @@ export default function BookingUnableToProcessPage() {
               variant="gold"
               size="large"
               showArrow={false}
-              className={goldCtaClass}
+              className={`w-full !min-h-0 !px-5 !py-3.5 !text-sm md:!px-5 md:!py-3.5 md:!text-base motion-safe:hover:!-translate-y-0.5`}
             >
               <Phone className="h-4 w-4 shrink-0 md:h-5 md:w-5" aria-hidden />
               Call {contactConfig.phone.displayText}

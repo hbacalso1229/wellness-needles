@@ -477,7 +477,7 @@ export default function Bookings() {
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !min-h-0 !px-4 !py-2.5 !text-sm md:!px-4 md:!py-2.5 md:!text-base !font-semibold gap-1.5 !shadow-[0_4px_12px_rgba(196,154,42,0.28)] motion-safe:hover:!-translate-y-0.5 motion-safe:hover:!shadow-[0_6px_16px_rgba(196,154,42,0.35)] motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full"
                   >
                     <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now

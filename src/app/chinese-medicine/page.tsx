@@ -71,10 +71,6 @@ const treatmentMethods = [
   },
 ] as const
 
-/** Soft muted gold for calm CM page CTA — less saturated than primaryGold. */
-const mutedGoldCtaClassName =
-  '!from-[#d8c57a] !via-[#c4ae52] !to-[#b39a3f] !shadow-[0_6px_18px_rgba(170,145,50,0.22)] hover:!from-[#e0cf8a] hover:!via-[#cdb45e] hover:!to-[#c4ae52] motion-safe:hover:!shadow-[0_10px_24px_rgba(170,145,50,0.28)]'
-
 const diagnosisMethods: {
   title: string
   body: string
@@ -281,11 +277,7 @@ export default function ChineseMedicine() {
               A calm, personalised approach to restoring balance and supporting your wellbeing.
             </p>
             <div className="mt-5 flex justify-center sm:mt-6">
-              <BookingCtaButton
-                variant="gold"
-                showArrow={false}
-                className={mutedGoldCtaClassName}
-              >
+              <BookingCtaButton variant="gold" showArrow={false}>
                 <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 Book a Consultation
               </BookingCtaButton>

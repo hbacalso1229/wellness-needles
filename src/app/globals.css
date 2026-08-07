@@ -633,8 +633,24 @@ select:-webkit-autofill:active {
   transition: background-color 99999s ease-in-out 0s !important;
 }
 
-/* Keep hCaptcha at native width — constrained parents can squash the logo column */
-.booking-hcaptcha-host iframe {
+/* hCaptcha is a fixed 303×78 iframe — scale it down to fit narrow mobile widths */
+.booking-hcaptcha-scale {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 303px;
+  margin-inline: auto;
+  height: calc(78px * min(1, 100cqw / 303px));
+  overflow: hidden;
+}
+
+.booking-hcaptcha-frame {
+  width: 303px;
+  height: 78px;
+  transform: scale(min(1, 100cqw / 303px));
+  transform-origin: top left;
+}
+
+.booking-hcaptcha-frame iframe {
   max-width: none !important;
   width: 303px !important;
 }

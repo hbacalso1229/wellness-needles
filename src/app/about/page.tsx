@@ -143,12 +143,12 @@ export default function About() {
                 </p>
                 <div className="group relative mb-4 inline-block">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold/20 to-accent/20 blur-md" />
-                  <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-full border-4 border-[#faf9f7] bg-accent shadow-xl">
+                  <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full border-4 border-[#faf9f7] bg-accent shadow-xl md:h-28 md:w-28">
                     <NextImage
                       src="/Arkinth_clinic_founder.jpeg"
                       alt="Arkinth Garcia - Naturopath & Acupuncturist"
-                      width={112}
-                      height={112}
+                      width={160}
+                      height={160}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>

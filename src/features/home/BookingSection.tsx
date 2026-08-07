@@ -1,10 +1,11 @@
 'use client'
 
+import { Calendar } from 'lucide-react'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
-import { primaryGoldCtaClassName } from '../ui/CTAButton'
 
 /** Destination booking CTA — full-width on mobile; header Book stays hug-label via shared class alone. */
-const bookingDestinationCtaClassName = `${primaryGoldCtaClassName} !mx-auto !w-full !px-6 !py-3.5 sm:!w-auto md:!px-8 md:!py-4 focus-visible:ring-offset-[var(--primary,#1B3B2B)]`
+const bookingDestinationCtaClassName =
+  '!mx-auto !w-full sm:!w-auto !px-6 !py-3.5 md:!px-8 md:!py-4 focus-visible:ring-offset-[var(--primary,#1B3B2B)]'
 
 export function BookingSection() {
   return (
@@ -28,9 +29,9 @@ export function BookingSection() {
             <BookingCtaButton
               variant="gold"
               size="large"
-              showArrow
               className={bookingDestinationCtaClassName}
             >
+              <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
               Book your session
             </BookingCtaButton>
           </div>

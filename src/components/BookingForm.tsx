@@ -29,6 +29,13 @@ import {
 /** Web3Forms free-plan hCaptcha sitekey (enable hCaptcha in the Web3Forms dashboard). */
 const WEB3FORMS_HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
 
+/** hCaptcha refuses localhost and renders a broken warning inside the iframe. */
+function isLocalDevHost(): boolean {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname.toLowerCase()
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+}
+
 type BookingService = {
   id: string
   name: string
@@ -172,31 +179,24 @@ function RequiredMark() {
   )
 }
 
-/** Mobile-only validation copy (desktop keeps toast). */
+/** Inline field validation copy (all breakpoints). */
 function FieldInlineError({
   id,
   message,
-  always = false,
 }: {
   id?: string
   message?: string
-  /** Show on all breakpoints (e.g. DOB picker reject). */
-  always?: boolean
 }) {
   if (!message) return null
   return (
     <p
       id={id}
-      className={`mt-2 text-sm text-red-600 max-w-full break-words ${always ? '' : 'md:hidden'}`}
+      className="mt-2 max-w-full break-words text-sm text-red-600"
       role="alert"
     >
       {message}
     </p>
   )
-}
-
-function isMobileViewport(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
 }
 
 type FieldErrorKey =
@@ -323,7 +323,12 @@ export default function BookingForm() {
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
+  const [isLocalHost, setIsLocalHost] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
+
+  useEffect(() => {
+    setIsLocalHost(isLocalDevHost())
+  }, [])
 
   // Never keep a Saturday in state (clinic closed) — snap to the next open day.
   useEffect(() => {
@@ -337,7 +342,8 @@ export default function BookingForm() {
     })
   }, [selectedDate])
 
-  const showSecurityCheck = isBookingEmailConfigured(features)
+  const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
+  const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
 
@@ -377,10 +383,6 @@ export default function BookingForm() {
     setFieldErrorMessages({})
   }
 
-  const showErrorToast = (message: string | string[]) => {
-    setToast({ message, variant: 'error' })
-  }
-
   const reportValidationErrors = (error: {
     messages: string[]
     fields: FieldErrorKey[]
@@ -391,10 +393,6 @@ export default function BookingForm() {
       byField[field] = error.messages[index]
     })
     setFieldErrorMessages(byField)
-    // Desktop: toast summary. Mobile: inline messages only.
-    if (!isMobileViewport()) {
-      showErrorToast(error.messages)
-    }
     focusFirstInvalidField(error.fields)
   }
 
@@ -632,38 +630,45 @@ export default function BookingForm() {
         return
       }
 
-      if (!hCaptchaToken.trim()) {
-        setHCaptchaError('Please complete the security check to send your request.')
-        document.getElementById('booking-security-check')?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-        return
-      }
-
-      setHCaptchaError('')
-
-      setIsSubmitting(true)
-      try {
-        const result = await sendBookingRequestEmail(
-          payload,
-          latestFeatures,
-          hCaptchaToken
+      // hCaptcha / Web3Forms refuse localhost — skip live email send in local dev.
+      if (isLocalDevHost()) {
+        console.warn(
+          '[booking submit] Skipping Web3Forms on localhost (hCaptcha unavailable). Thank-you still opens for UI testing.'
         )
-        if (!result.ok) {
-          setHCaptchaToken('')
-          setHCaptchaError('')
-          hCaptchaRef.current?.resetCaptcha()
-          goToUnableToProcess(
-            result.message ||
-              'Could not send the booking email. Please try again or call the clinic.'
-          )
+      } else {
+        if (!hCaptchaToken.trim()) {
+          setHCaptchaError('Please complete the security check to send your request.')
+          document.getElementById('booking-security-check')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
           return
         }
-        // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
-        confirmationEmailQueued = true
-      } finally {
-        setIsSubmitting(false)
+
+        setHCaptchaError('')
+
+        setIsSubmitting(true)
+        try {
+          const result = await sendBookingRequestEmail(
+            payload,
+            latestFeatures,
+            hCaptchaToken
+          )
+          if (!result.ok) {
+            setHCaptchaToken('')
+            setHCaptchaError('')
+            hCaptchaRef.current?.resetCaptcha()
+            goToUnableToProcess(
+              result.message ||
+                'Could not send the booking email. Please try again or call the clinic.'
+            )
+            return
+          }
+          // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
+          confirmationEmailQueued = true
+        } finally {
+          setIsSubmitting(false)
+        }
       }
     }
 
@@ -848,7 +853,6 @@ export default function BookingForm() {
               <FieldInlineError
                 id="booking-date-error"
                 message={fieldErrorMessage('date')}
-                always
               />
             </div>
 
@@ -1020,13 +1024,12 @@ export default function BookingForm() {
                   <FieldInlineError
                     id="dateOfBirth-error"
                     message={fieldErrorMessage('dateOfBirth')}
-                    always
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary shadow-sm">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
               <p>
                 Submitting sends an appointment request. We will contact you within 24 hours
@@ -1034,10 +1037,25 @@ export default function BookingForm() {
               </p>
             </div>
 
+            {showLocalSecurityNotice && currentStep === 3 && (
+              <div
+                id="booking-security-check"
+                className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[var(--text-dark)]/80"
+                role="status"
+              >
+                <Info className="h-4 w-4 shrink-0 text-amber-700" aria-hidden />
+                <p>
+                  Security check is unavailable on localhost (hCaptcha blocks local hosts).
+                  On the live site, the checkbox appears here. You can still continue to test
+                  the form.
+                </p>
+              </div>
+            )}
+
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
                 <div
-                  className={`booking-hcaptcha-host flex justify-center w-full rounded-lg p-1 transition-colors ${
+                  className={`booking-hcaptcha-host w-full min-w-0 rounded-lg p-1 transition-colors ${
                     hCaptchaError
                       ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
                       : ''
@@ -1045,16 +1063,16 @@ export default function BookingForm() {
                 >
                   {!hCaptchaReady && (
                     <div
-                      className="h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
+                      className="mx-auto h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
                       aria-hidden="true"
                     />
                   )}
                   <div
-                    className={`inline-block max-w-full overflow-x-auto ${
+                    className={`booking-hcaptcha-scale ${
                       hCaptchaReady ? '' : 'sr-only'
                     }`}
                   >
-                    <div className="min-h-[78px] min-w-[303px]">
+                    <div className="booking-hcaptcha-frame">
                       <HCaptcha
                         ref={hCaptchaRef}
                         sitekey={WEB3FORMS_HCAPTCHA_SITEKEY}

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Leaf, Star } from 'lucide-react'
+import { Calendar, Leaf, Star } from 'lucide-react'
 import { CTAButton } from '../ui/CTAButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -94,12 +94,12 @@ export function HeroSection() {
                 href={bookHref}
                 variant="gold"
                 size="large"
-                showArrow
                 className="!px-7 !py-3.5 !text-base sm:!px-9 sm:!py-4 sm:!text-lg"
                 external={isExternal}
                 target={target}
                 rel={rel}
               >
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 Book your session
               </CTAButton>
             </div>

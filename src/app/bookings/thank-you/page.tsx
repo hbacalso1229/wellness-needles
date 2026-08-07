@@ -11,6 +11,7 @@ import {
   HeartHandshake,
   Phone,
   Sparkles,
+  ChevronLeft,
 } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import { BookingResultCloseButton } from '@/components/BookingResultCloseButton'
@@ -99,7 +100,21 @@ export default function BookingThankYouPage() {
       {/* Compact on mobile/tablet so the full confirmation fits in one viewport */}
       <section className="relative flex flex-1 flex-col justify-center px-4 py-3 sm:px-6 sm:py-4 md:py-5 lg:justify-start lg:pb-24 lg:pt-16">
         <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
-          <BookingResultCloseButton onClick={handleClose} />
+          {/* Mobile / tablet: quiet close */}
+          <BookingResultCloseButton
+            onClick={handleClose}
+            className="fixed right-3 top-[calc(3.5rem+0.5rem)] z-40 sm:right-4 sm:top-[calc(3.5rem+0.75rem)] lg:hidden"
+          />
+
+          {/* Desktop back — below header, never overlays nav / Book Appointment */}
+          <Link
+            href="/bookings/"
+            onClick={handleClose}
+            className="mb-4 hidden items-center gap-1.5 text-sm font-medium text-[var(--text-dark)]/70 no-underline transition-colors hover:text-[var(--text-dark)] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2 lg:inline-flex"
+          >
+            <ChevronLeft className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden />
+            Back to bookings
+          </Link>
 
           <div className="mb-3 flex justify-center sm:mb-4 lg:mb-6">
             <Link

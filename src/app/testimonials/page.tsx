@@ -7,7 +7,6 @@ import {
   SectionHeading,
   SnapCarousel,
   TestimonialCard,
-  primaryGoldCtaClassName,
   reviewSlideClassName,
   snapSlideWideClassName,
   snapTrackGridLgClassName,
@@ -266,12 +265,7 @@ export default function Testimonials() {
             <p className="mb-1 text-center text-base font-[450] leading-relaxed text-[#2C3E35]/80">
               Your story can be the next one we celebrate.
             </p>
-            <BookingCtaButton
-              variant="gold"
-              showArrow={false}
-              size="large"
-              className={primaryGoldCtaClassName}
-            >
+            <BookingCtaButton variant="gold" showArrow={false} size="large">
               <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
               <span className="whitespace-nowrap">Book Your Consultation</span>
             </BookingCtaButton>
@@ -356,12 +350,7 @@ export default function Testimonials() {
             Ready to Feel This Difference for Yourself?
           </h2>
           <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6 sm:gap-3.5">
-            <BookingCtaButton
-              variant="gold"
-              showArrow={false}
-              size="large"
-              className={primaryGoldCtaClassName}
-            >
+            <BookingCtaButton variant="gold" showArrow={false} size="large">
               <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
               <span className="whitespace-nowrap">Begin Your Care Journey</span>
             </BookingCtaButton>

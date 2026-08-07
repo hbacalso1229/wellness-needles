@@ -62,11 +62,11 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1">
-                  {/^\s*free\b/i.test(addOn.price) ? (
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
-                      <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
-                        {addOn.name}
-                      </h4>
+                  <div className="mb-1 flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                    <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
+                      {addOn.name}
+                    </h4>
+                    {/^\s*free\b/i.test(addOn.price) ? (
                       <span
                         className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold md:px-2 md:text-[11px] md:leading-snug ${
                           selected
@@ -76,17 +76,12 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                       >
                         {addOn.price}
                       </span>
-                    </div>
-                  ) : (
-                    <div className="mb-1 flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                      <h4 className="min-w-0 font-semibold leading-snug text-[var(--text-dark)]">
-                        {addOn.name}
-                      </h4>
+                    ) : (
                       <p className="shrink-0 text-sm font-semibold text-primary">
                         +{addOn.price}
                       </p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <p className="text-sm text-secondary">{addOn.description}</p>
                 </div>
               </div>
