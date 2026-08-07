@@ -91,7 +91,7 @@ export default function Blog() {
       />
 
       {/* Featured Post */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      <section className="py-8 md:py-10 lg:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-serif text-2xl sm:text-3xl md:text-3xl font-bold text-[var(--text-dark)] mb-3 md:mb-4">
@@ -100,7 +100,7 @@ export default function Blog() {
           </div>
           
           {blogPosts.filter(post => post.featured).map(post => (
-            <div key={post.id} className="bg-accent/5 rounded-lg overflow-hidden shadow-sm">
+            <div key={post.id} className="overflow-hidden rounded-lg border border-accent/15 bg-white shadow-sm">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-primary/20 aspect-video lg:aspect-auto flex items-center justify-center">
                   <div className="text-center">
@@ -117,7 +117,7 @@ export default function Blog() {
                   <h3 className="mb-4 text-2xl font-bold text-[var(--text-dark)] lg:text-3xl">
                     {post.title}
                   </h3>
-                  <p className="mb-6 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
+                  <p className="mb-6 text-base leading-relaxed text-[var(--text-dark)]/70">
                     {post.excerpt}
                   </p>
                   <div className="flex items-center justify-between">
@@ -143,7 +143,7 @@ export default function Blog() {
       </section>
 
       {/* Categories */}
-      <section className="py-12 bg-secondary/5">
+      <section className="bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-4">
             {categories.map((category, index) => (
@@ -152,7 +152,7 @@ export default function Blog() {
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                   index === 0
                     ? 'bg-primary text-cream'
-                    : 'bg-cream text-primary border border-accent/20 hover:bg-accent/10'
+                    : 'bg-white text-primary border border-accent/20 hover:bg-accent/10'
                 }`}
               >
                 {category}
@@ -163,9 +163,9 @@ export default function Blog() {
       </section>
 
       {/* Blog Posts Grid */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      <section className="py-8 md:py-10 lg:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 md:mb-12 lg:mb-16">
+          <div className="mb-6 text-center md:mb-8">
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-3 md:mb-4">
               Latest Articles
             </h2>
@@ -176,7 +176,7 @@ export default function Blog() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.filter(post => !post.featured).map(post => (
-              <article key={post.id} className="bg-accent/5 rounded-lg overflow-hidden shadow-sm card-emboss">
+              <article key={post.id} className="card-emboss overflow-hidden rounded-lg border border-accent/15 bg-white shadow-sm">
                 <div className="bg-primary/20 aspect-video flex items-center justify-center">
                   <div className="text-center">
                     {post.image === 'spring' && <Leaf className="w-12 h-12 text-primary mx-auto mb-2" />}
@@ -199,7 +199,7 @@ export default function Blog() {
                     {post.title}
                   </h3>
                   
-                  <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
+                  <p className="mb-4 line-clamp-3 text-base leading-relaxed text-[var(--text-dark)]/70">
                     {post.excerpt}
                   </p>
                   
@@ -230,7 +230,7 @@ export default function Blog() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-12 md:py-16 lg:py-20 bg-secondary text-cream">
+      <section className="py-8 md:py-10 lg:py-12 bg-secondary text-cream">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
             Stay Connected with Wellness
@@ -243,9 +243,9 @@ export default function Blog() {
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="flex-1 px-4 py-3 rounded-full text-primary bg-cream focus:outline-none focus:ring-2 focus:ring-gold"
+                className="flex-1 px-4 py-3 rounded-full text-primary bg-white focus:outline-none focus:ring-2 focus:ring-gold"
               />
-              <button className="bg-gold text-primary px-6 py-3 rounded-full font-semibold hover:bg-gold/90 transition-colors duration-200">
+              <button className="rounded-full bg-primary px-6 py-3 font-semibold text-cream transition-colors duration-200 hover:bg-secondary">
                 Subscribe
               </button>
             </div>
@@ -257,7 +257,7 @@ export default function Blog() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-primary text-cream">
+      <section className="py-8 md:py-10 lg:py-12 bg-primary text-cream">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
             Ready to Begin Your Wellness Journey?

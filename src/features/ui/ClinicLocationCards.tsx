@@ -75,10 +75,10 @@ export function ClinicLocationCards({
                 <h4 className="mb-1 font-semibold leading-snug text-[var(--text-dark)]">
                   {location.label}
                 </h4>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-base leading-relaxed text-secondary">
                   {location.formatted.street}
                 </p>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-base leading-relaxed text-secondary">
                   {location.formatted.city}, {location.formatted.county}{' '}
                   {location.formatted.postcode}
                 </p>

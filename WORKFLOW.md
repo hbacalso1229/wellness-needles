@@ -243,9 +243,8 @@ Sections (in order):
 ### `/testimonials`
 1. Hero
 2. Before/After image cards (Alopecia, Skin conditions)
-3. Illustrative example stories (disclaimed; not verified patient quotes)
-4. Video testimonials placeholder (coming soon)
-5. CTA to share your story
+3. Verified Google patient reviews (carousel)
+4. CTA to share your story
 
 ### `/contact`
 1. Hero

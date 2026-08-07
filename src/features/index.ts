@@ -4,7 +4,8 @@ export { DecorativeImageCard } from './ui/DecorativeImageCard'
 export { FeatureCard } from './ui/FeatureCard'
 export { TestimonialCard } from './ui/TestimonialCard'
 export { BeforeAfterSlider } from './ui/BeforeAfterSlider'
-export { CTAButton } from './ui/CTAButton'
+export { ClinicalMetricCard } from './ui/ClinicalMetricCard'
+export { CTAButton, primaryGoldCtaClassName, headerGoldCtaClassName, headerGoldCtaMobileClassName, sectionGreenCtaClassName, glassGreenFillClassName, glassGreenBandClassName, glassGreenPanelClassName } from './ui/CTAButton'
 export { ServiceCard } from './ui/ServiceCard'
 export { HeroSection  } from './ui/HeroSection'
 export { OptionalAddOns } from './ui/OptionalAddOns'
@@ -28,9 +29,11 @@ export { SectionHeading } from './ui/SectionHeading'
 export {
   SnapCarousel,
   snapSlideClassName,
+  snapSlidePeekClassName,
   snapSlideWideClassName,
   snapTrackClassName,
   snapTrackGridMdClassName,
+  snapTrackGridSmClassName,
   snapTrackGridLgClassName,
   snapTrackHorizontalClassName,
   reviewSlideClassName,

@@ -43,7 +43,7 @@ function SummaryRow({
   detail?: string
 }) {
   return (
-    <li className="flex items-start gap-3 rounded-lg bg-cream/70 px-3 py-3 sm:px-4 sm:py-3.5">
+    <li className="flex items-start gap-3 rounded-lg bg-white/70 px-3 py-3 sm:px-4 sm:py-3.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-white sm:h-9 sm:w-9">
         <Icon className="h-4 w-4 text-primary sm:h-[1.125rem] sm:w-[1.125rem]" aria-hidden />
       </div>
@@ -88,7 +88,7 @@ export default function BookingThankYouPage() {
   }
 
   return (
-    <div className="relative min-h-[calc(100dvh-4rem)] bg-cream">
+    <div className="relative min-h-[calc(100dvh-3.5rem)] bg-white">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_at_top,_rgba(127,176,105,0.12)_0%,_transparent_70%)]"
         aria-hidden
@@ -119,7 +119,7 @@ export default function BookingThankYouPage() {
               {ready && summary ? `Thank you, ${summary.firstName}` : 'Thank you'}
             </h1>
 
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-base md:text-lg md:leading-relaxed">
+            <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 md:text-lg md:leading-relaxed">
               {ready && summary
                 ? 'We appreciate you trusting Wellness Needles with your care. Your appointment request is with us — we look forward to supporting you.'
                 : 'We appreciate you reaching out. If you just submitted a request, we have it and will be in touch soon.'}
@@ -182,7 +182,7 @@ export default function BookingThankYouPage() {
             </div>
           ) : ready ? (
             <div className="mt-6 rounded-2xl border border-accent/15 bg-white p-5 text-center shadow-sm shadow-primary/5 sm:mt-8 sm:p-6">
-              <p className="text-sm leading-relaxed text-[var(--text-dark)]/70 sm:text-base">
+              <p className="text-base leading-relaxed text-[var(--text-dark)]/70">
                 No booking details were found for this visit. You can request an appointment
                 anytime — it only takes a minute.
               </p>

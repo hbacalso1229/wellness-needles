@@ -94,7 +94,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
           )
         })}
       </div>
-      <div className="mt-4 flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
+      <div className="mt-4 flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary shadow-sm">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
         <p>Add-ons can only be booked in combination with an acupuncture session.</p>
       </div>

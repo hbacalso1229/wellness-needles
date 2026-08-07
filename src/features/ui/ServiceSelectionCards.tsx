@@ -114,7 +114,7 @@ export function ServiceSelectionCards({
                   <Clock className="mr-1 h-4 w-4 shrink-0" aria-hidden />
                   {service.duration}
                 </div>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-base leading-relaxed text-secondary">
                   {service.description}
                 </p>
               </div>

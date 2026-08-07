@@ -27,7 +27,7 @@ export default function BusinessHours({
           ))}
         </div>
         {showEmergencyNote && (
-          <p className="text-secondary text-sm mt-4 italic">
+          <p className="text-secondary text-base mt-4 italic leading-relaxed">
             {contactConfig.businessInfo.emergencyNote}
           </p>
         )}
@@ -42,13 +42,13 @@ export default function BusinessHours({
           {showIcon && <Clock className="w-4 h-4" />}
           <span className="font-medium">Hours:</span>
         </div>
-        <div className="text-sm space-y-1">
+        <div className="text-base space-y-1">
           {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
             <div key={index}>{hours}</div>
           ))}
         </div>
         {showEmergencyNote && (
-          <p className="text-xs mt-2 opacity-80">
+          <p className="text-sm mt-2 opacity-80 leading-relaxed">
             {contactConfig.businessInfo.emergencyNote}
           </p>
         )}
@@ -69,7 +69,7 @@ export default function BusinessHours({
         ))}
       </div>
       {showEmergencyNote && (
-        <p className="text-sm mt-3 opacity-80">
+        <p className="text-base mt-3 opacity-80 leading-relaxed">
           {contactConfig.businessInfo.emergencyNote}
         </p>
       )}

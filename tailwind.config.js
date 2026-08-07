@@ -16,7 +16,7 @@ module.exports = {
         secondary: '#4a7c2a',
         accent: '#7fb069',
         'light-green': '#a7c957',
-        cream: '#faf9f7',
+        cream: '#ffffff',
         earth: '#8b4513',
         gold: '#d4af37',
         'text-dark': '#2a2a28',
@@ -28,7 +28,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        serif: ['var(--font-serif-heading)'],
       },
       backgroundImage: {
         'jungle-gradient': 'linear-gradient(135deg, #2d5016 0%, #4a7c2a 50%, #7fb069 100%)',

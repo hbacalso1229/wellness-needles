@@ -179,7 +179,7 @@ export default function BookingStepper({
         </div>
 
         {/* Sticky Continue bar on mobile; in-flow on sm+ */}
-        <div className="sticky bottom-2 z-20 -mx-5 mt-8 border-t border-accent/15 bg-cream/95 px-5 py-3 backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none">
+        <div className="sticky bottom-2 z-20 -mx-5 mt-8 border-t border-accent/15 bg-white/95 px-5 py-3 backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"

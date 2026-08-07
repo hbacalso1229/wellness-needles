@@ -31,7 +31,7 @@ function Toggle({
   disabled?: boolean
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 p-5 border border-accent/20 rounded-lg bg-cream">
+    <div className="flex items-start justify-between gap-4 p-5 border border-accent/20 rounded-lg bg-white">
       <div className="min-w-0">
         <label
           htmlFor={id}
@@ -60,7 +60,7 @@ function Toggle({
         }`}
       >
         <span
-          className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-cream shadow transition ${
+          className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow transition ${
             checked ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
@@ -186,7 +186,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-white">
       <HeroSection
         title="Booking feature settings"
         backgroundClass="bg-jungle-gradient"
@@ -254,7 +254,7 @@ export default function AdminPage() {
           {features.freshaEnabled && (
             <div className="space-y-4">
               <h2 className="font-serif text-2xl font-bold text-primary">Fresha setup</h2>
-              <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-4">
+              <div className="border border-accent/20 rounded-lg bg-white p-5 space-y-4">
                 <div>
                   <label
                     htmlFor="fresha-booking-url"
@@ -331,7 +331,7 @@ export default function AdminPage() {
             <div className="space-y-4">
               <h2 className="font-serif text-2xl font-bold text-primary">Calendly setup</h2>
 
-              <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-5">
+              <div className="border border-accent/20 rounded-lg bg-white p-5 space-y-5">
                 <p className="text-sm text-secondary">
                   Use two event types so Initial blocks{' '}
                   <span className="font-medium text-primary">
@@ -464,7 +464,7 @@ export default function AdminPage() {
               />
 
               {features.bookingEmailEnabled && (
-                <div className="border border-accent/20 rounded-lg bg-cream p-5 space-y-4">
+                <div className="border border-accent/20 rounded-lg bg-white p-5 space-y-4">
                   <div className="rounded-lg border border-accent/20 bg-white/70 px-4 py-3 text-sm text-secondary space-y-2">
                     <p className="font-semibold text-primary">
                       Patient thank-you email (Web3Forms Autoresponder)

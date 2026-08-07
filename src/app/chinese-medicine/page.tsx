@@ -1,44 +1,112 @@
 'use client'
 
-import { useState } from 'react'
-import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, ChevronDown } from 'lucide-react'
+import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, Calendar, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
-import { FeatureCard, HeroSection, SectionHeading } from '../../features'
+import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { BookingCtaButton } from '@/components/BookingCtaButton'
 
-const diagnosisCardClass =
-  'group w-full bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+const sectionTitleClassName =
+  'font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.5rem] font-bold text-[var(--text-dark)] mb-2 md:mb-3'
 
-const diagnosisMethods = [
+const corePrinciples = [
   {
-    title: 'Pulse Diagnosis',
-    body: 'Practitioners feel the pulse at multiple positions to assess the quality, strength, and rhythm, revealing information about organ function and energy flow.',
+    title: 'Qi (Energy)',
+    body: 'The life force that flows gently through your body',
+    icon: Circle,
+    iconWrap: 'bg-primary/75',
   },
   {
-    title: 'Tongue Examination',
-    body: 'The color, coating, texture, and shape of the tongue provide insights into internal organ systems and overall constitutional health.',
+    title: 'Yin & Yang',
+    body: 'Opposing forces working together to create balance',
+    icon: Target,
+    iconWrap: 'bg-secondary/75',
   },
   {
-    title: 'Observation',
-    body: 'Visual assessment of complexion, eyes, body build, movement, and overall vitality to understand constitutional strengths and imbalances.',
+    title: 'Five Elements',
+    body: 'Interconnected systems supporting your overall health',
+    icon: Leaf,
+    iconWrap: 'bg-accent/80',
   },
   {
-    title: 'Questioning & Listening',
-    body: 'Detailed inquiry about symptoms, lifestyle, emotions, and listening to voice quality and breathing patterns to complete the diagnostic picture.',
+    title: 'Meridians',
+    body: 'Pathways that carry energy where your body needs it most',
+    icon: Zap,
+    iconWrap: 'bg-light-green/80',
   },
 ] as const
 
-const principleIconClass = 'rounded-full p-2 flex-shrink-0'
+const treatmentMethods = [
+  {
+    id: 'acupuncture',
+    icon: Zap,
+    title: 'Acupuncture',
+    description: 'Fine, gentle needles to support balance and ease discomfort',
+    href: '/acupuncture/',
+    ctaLabel: 'Learn more',
+  },
+  {
+    id: 'cupping',
+    icon: Heart,
+    title: 'Cupping',
+    description: 'Releases tension and improves circulation',
+    href: '/bookings/',
+    ctaLabel: 'Explore',
+  },
+  {
+    id: 'moxibustion',
+    icon: Brain,
+    title: 'Moxibustion',
+    description: 'Soothing warmth to relieve and restore',
+    href: '/bookings/',
+    ctaLabel: 'Discover',
+  },
+  {
+    id: 'gua-sha',
+    icon: Circle,
+    title: 'Gua Sha',
+    description: 'Encourages flow, reduces inflammation, and supports recovery',
+    href: '/bookings/',
+    ctaLabel: 'Explore',
+  },
+] as const
+
+/** Soft muted gold for calm CM page CTA — less saturated than primaryGold. */
+const mutedGoldCtaClassName =
+  '!from-[#d8c57a] !via-[#c4ae52] !to-[#b39a3f] !shadow-[0_6px_18px_rgba(170,145,50,0.22)] hover:!from-[#e0cf8a] hover:!via-[#cdb45e] hover:!to-[#c4ae52] motion-safe:hover:!shadow-[0_10px_24px_rgba(170,145,50,0.28)]'
+
+const diagnosisMethods: {
+  title: string
+  body: string
+  icon: LucideIcon
+}[] = [
+  {
+    title: 'Pulse Diagnosis',
+    body: "Understanding how your body's systems are functioning",
+    icon: Activity,
+  },
+  {
+    title: 'Tongue Examination',
+    body: 'Revealing internal balance and overall health',
+    icon: Scan,
+  },
+  {
+    title: 'Observation',
+    body: 'Noticing subtle signs in your body and movement',
+    icon: Eye,
+  },
+  {
+    title: 'Listening & Conversation',
+    body: 'Taking time to truly understand your experience',
+    icon: MessageCircle,
+  },
+]
 
 export default function ChineseMedicine() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
-  const [openDiagnosisIndexes, setOpenDiagnosisIndexes] = useState<Set<number>>(
-    () => new Set()
-  )
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <HeroSection
         title="Traditional Chinese Medicine"
         subtitle="Ancient wisdom meets modern wellness in our holistic approach to health"
@@ -61,94 +129,56 @@ export default function ChineseMedicine() {
         ]}
       />
 
-      {/* Philosophy Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      {/* Philosophy — editorial two-column, no cards */}
+      <section className="bg-white py-10 md:py-14 lg:py-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
-            title="The Philosophy of TCM"
-            subtitle="Traditional Chinese Medicine is based on the understanding that health comes from balance and harmony within the body and with nature"
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
+            title="Healing Begins with Balance"
+            subtitle="True wellbeing comes from harmony — within your body, your mind, and the world around you."
+            titleClassName={sectionTitleClassName}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
             <div>
-              <h3 className="mb-6 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-6 text-lg font-semibold tracking-tight text-[var(--text-dark)] md:text-xl">
                 Core Principles
               </h3>
-              <div className="space-y-4 md:space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className={`bg-primary ${principleIconClass}`}>
-                    <Circle className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Qi (Life Energy)</h4>
-                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                      The fundamental life force that flows through all living things.
-                      Health depends on the smooth and balanced flow of Qi throughout the body.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className={`bg-secondary ${principleIconClass}`}>
-                    <Target className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Yin and Yang</h4>
-                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                      Complementary forces that must be in balance for optimal health.
-                      Disease occurs when these forces become imbalanced.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className={`bg-accent ${principleIconClass}`}>
-                    <Leaf className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Five Elements</h4>
-                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                      Wood, Fire, Earth, Metal, and Water represent different organ systems
-                      and their interconnected relationships in the body.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className={`bg-light-green ${principleIconClass}`}>
-                    <Zap className="w-6 h-6 text-cream" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-[var(--text-dark)] mb-2">Meridian System</h4>
-                    <p className="text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                      Energy pathways that connect different parts of the body,
-                      allowing Qi to flow and nourish organs and tissues.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <ul className="space-y-7 md:space-y-8">
+                {corePrinciples.map(({ title, body, icon: Icon, iconWrap }) => (
+                  <li key={title} className="flex items-start gap-3.5 md:gap-4">
+                    <div
+                      className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-11 md:w-11 ${iconWrap}`}
+                    >
+                      <Icon
+                        className="h-5 w-5 text-cream/90 md:h-6 md:w-6"
+                        strokeWidth={1.5}
+                        aria-hidden
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="mb-1.5 text-base font-semibold text-[var(--text-dark)] md:text-lg">
+                        {title}
+                      </h4>
+                      <p className="text-base leading-[1.75] text-[var(--text-dark)]/70">{body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div>
-              <h3 className="mb-6 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+              <h3 className="mb-6 text-lg font-semibold tracking-tight text-[var(--text-dark)] md:text-xl">
                 Holistic Approach
               </h3>
-              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
+              <div className="space-y-5 text-base leading-[1.8] text-[var(--text-dark)]/70 md:text-lg md:leading-[1.85]">
                 <p>
-                  Unlike Western medicine which often focuses on treating symptoms,
-                  Traditional Chinese Medicine views the body as an interconnected whole,
-                  seeking to identify and address the root causes of illness.
+                  We don&apos;t just treat symptoms — we listen, observe, and understand the whole you.
                 </p>
+                <blockquote className="border-l-[3px] border-gold pl-4 font-serif text-lg font-medium italic leading-relaxed text-[var(--text-dark)] md:pl-5 md:text-xl">
+                  “Healing happens when the body, mind, and spirit are in balance.”
+                </blockquote>
                 <p>
-                  TCM practitioners consider not just physical symptoms, but also
-                  emotional, mental, and spiritual aspects of health, recognizing
-                  that true healing requires balance in all areas of life.
-                </p>
-                <p>
-                  This comprehensive approach often leads to lasting healing rather
-                  than temporary relief, as it works to restore the body&apos;s natural
-                  ability to heal and maintain health.
+                  This approach supports lasting wellbeing, helping your body restore itself naturally.
                 </p>
               </div>
             </div>
@@ -156,175 +186,176 @@ export default function ChineseMedicine() {
         </div>
       </section>
 
-      {/* Treatment Methods */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Treatment Methods — minimalist divider rows */}
+      <section className="bg-white py-10 md:py-14 lg:py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="TCM Treatment Methods"
-            subtitle="We offer a comprehensive range of traditional Chinese medicine therapies"
+            title="Care Tailored to You"
+            subtitle="Gentle, time-tested treatments designed to restore balance and support your natural healing"
+            titleClassName={sectionTitleClassName}
           />
 
-          <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2 md:gap-3 lg:gap-4">
-            <FeatureCard
-              flippable
-              compact
-              icon={Zap}
-              title="Acupuncture"
-              description="Fine needles inserted at specific points to regulate Qi flow and promote healing throughout the body."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            <FeatureCard
-              flippable
-              compact
-              icon={Heart}
-              title="Cupping Therapy"
-              description="Gentle suction therapy that improves circulation, reduces inflammation, and releases muscle tension."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            <FeatureCard
-              flippable
-              compact
-              icon={Brain}
-              title="Moxibustion"
-              description="Therapeutic heat therapy using mugwort herb to warm acupuncture points and strengthen Yang energy."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-            <FeatureCard
-              flippable
-              compact
-              icon={Circle}
-              title="Gua Sha"
-              description="Gentle scraping technique that promotes circulation, reduces inflammation, and supports detoxification."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Diagnosis Methods */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="TCM Diagnostic Methods"
-            subtitle="Traditional Chinese Medicine uses unique diagnostic techniques to understand your health"
-          />
-
-          <div className="mx-auto grid max-w-4xl grid-cols-1 md:grid-cols-2 md:items-stretch gap-2.5 md:gap-4">
-            {diagnosisMethods.map((method, index) => {
-              const isOpen = openDiagnosisIndexes.has(index)
-              return (
-                <button
-                  key={method.title}
-                  type="button"
-                  className={`${diagnosisCardClass} md:h-full`}
-                  aria-expanded={isOpen}
-                  aria-controls={`diagnosis-body-${index}`}
-                  id={`diagnosis-title-${index}`}
-                  onClick={() =>
-                    setOpenDiagnosisIndexes((prev) => {
-                      const next = new Set(prev)
-                      if (next.has(index)) next.delete(index)
-                      else next.add(index)
-                      return next
-                    })
-                  }
+          <ul className="divide-y divide-accent/20 border-y border-accent/20">
+            {treatmentMethods.map(({ id, icon: Icon, title, description, href, ctaLabel }) => (
+              <li key={id} id={id} className="scroll-mt-24">
+                <Link
+                  href={href}
+                  className="group flex flex-col gap-2 px-2 py-4 transition-colors duration-300 ease-out hover:bg-primary/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset md:flex-row md:items-center md:gap-6 md:px-3 md:py-5 lg:gap-8"
                 >
-                  <div className="flex items-center gap-2.5 md:gap-3">
-                    <div className="min-w-0 flex-1 text-left">
-                      <h3 className="font-semibold text-base md:text-lg text-[var(--text-dark)] leading-snug">
-                        {method.title}
-                      </h3>
-                    </div>
-                    <ChevronDown
-                      className={`diagnosis-accordion-chevron h-4 w-4 md:h-5 md:w-5 shrink-0 text-secondary/50 ${
-                        isOpen ? 'rotate-180 text-primary' : ''
-                      }`}
-                      strokeWidth={1.75}
+                  <span className="flex min-w-0 items-center justify-between gap-3 md:w-48 md:shrink-0 md:justify-start lg:w-52">
+                    <span className="flex min-w-0 items-center gap-3">
+                      <Icon
+                        className="h-6 w-6 shrink-0 text-accent/65 transition-colors duration-300 ease-out group-hover:text-primary/80 md:h-7 md:w-7"
+                        strokeWidth={1.5}
+                        aria-hidden
+                      />
+                      <span className="font-semibold text-[var(--text-dark)] transition-colors duration-300 ease-out group-hover:text-primary">
+                        {title}
+                      </span>
+                    </span>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-primary transition-colors duration-300 ease-out group-hover:text-secondary md:hidden">
+                      {ctaLabel}
+                      <ArrowRight
+                        className="h-4 w-4 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+                        aria-hidden
+                      />
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1 text-base leading-relaxed text-[var(--text-dark)]/70">
+                    {description}
+                  </span>
+                  <span className="hidden shrink-0 items-center gap-1 text-sm font-bold text-primary transition-colors duration-300 ease-out group-hover:text-secondary md:inline-flex">
+                    {ctaLabel}
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
                       aria-hidden
                     />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Diagnostic Methods — 4 columns on white */}
+      <section className="bg-white py-10 md:py-14 lg:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Understanding You, Not Just Symptoms"
+            subtitle="A thoughtful approach to uncovering the root cause of imbalance"
+            titleClassName={sectionTitleClassName}
+          />
+
+          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4 lg:gap-0">
+            {diagnosisMethods.map(({ title, body, icon: Icon }, index) => (
+              <div
+                key={title}
+                className={`border-b border-accent/15 pb-6 last:border-b-0 last:pb-0 sm:border-b-0 sm:pb-0 lg:px-6 ${
+                  index > 0 ? 'lg:border-l lg:border-accent/15' : ''
+                } ${index === 0 ? 'lg:pl-0' : ''} ${
+                  index === diagnosisMethods.length - 1 ? 'lg:pr-0' : ''
+                }`}
+              >
+                <div className="mb-2 flex items-center gap-3 lg:mb-0 lg:block">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/[0.08] lg:mb-4">
+                    <Icon className="h-5 w-5 text-accent/65" strokeWidth={1.5} aria-hidden />
                   </div>
-                  <div
-                    id={`diagnosis-body-${index}`}
-                    role="region"
-                    aria-labelledby={`diagnosis-title-${index}`}
-                    className={`diagnosis-accordion-panel grid ${
-                      isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <p
-                        className={`pt-2 md:pt-3 text-left text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed diagnosis-accordion-body ${
-                          isOpen ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      >
-                        {method.body}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
+                  <h3 className="text-base font-semibold text-[var(--text-dark)] lg:mb-3 md:text-lg">
+                    {title}
+                  </h3>
+                </div>
+                <p className="text-base leading-[1.75] text-[var(--text-dark)]/70">{body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mx-auto mt-14 max-w-3xl px-2 text-center md:mt-16">
+            <p className="mb-3 text-base font-[450] leading-relaxed text-[#2C3E35]/80 sm:mb-4">
+              When you&apos;re ready, we&apos;re here to support you.
+            </p>
+            <h3 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
+              Begin Your Journey to Balance
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-3">
+              A calm, personalised approach to restoring balance and supporting your wellbeing.
+            </p>
+            <div className="mt-5 flex justify-center sm:mt-6">
+              <BookingCtaButton
+                variant="gold"
+                showArrow={false}
+                className={mutedGoldCtaClassName}
+              >
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                Book a Consultation
+              </BookingCtaButton>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Integration with Modern Medicine */}
-      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Integrative Approach — glass green full section */}
+      <section className={`${glassGreenBandClassName} py-8 md:py-10 lg:py-12`}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Integrative Approach"
+            title="A More Complete Way to Heal"
             subtitle="Combining the best of traditional wisdom with modern medical understanding"
+            titleClassName={sectionTitleClassName}
           />
+          <p className="mx-auto mb-8 max-w-2xl text-center text-base font-[450] leading-[1.7] text-[#2C3E35] md:mb-10">
+            Because true healing isn&apos;t just about symptoms — it&apos;s about how you feel, every
+            day.
+          </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">
             <div>
               <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                 Complementary Care
               </h3>
-              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
+              <div className="space-y-4 text-base leading-[1.75] text-[var(--text-dark)]/70">
                 <p>
-                  Traditional Chinese Medicine works beautifully alongside conventional
-                  medical treatments, often enhancing their effectiveness while reducing
-                  side effects and supporting overall well-being.
+                  Traditional Chinese Medicine works beautifully alongside conventional medical
+                  treatments, often enhancing their effectiveness while reducing side effects and
+                  supporting overall well-being.
                 </p>
                 <p>
-                  I collaborate with your healthcare team to ensure coordinated care
-                  that addresses all aspects of your health journey, from acute conditions
-                  to long-term wellness maintenance.
+                  We collaborate with your healthcare team to ensure coordinated care that addresses
+                  all aspects of your health journey, from acute conditions to long-term wellness
+                  maintenance.
                 </p>
                 <p>
-                  Many patients find that TCM helps them achieve better results from
-                  conventional treatments while providing additional tools for managing
-                  stress, pain, and other health challenges.
+                  Many patients find that TCM helps them achieve better results from conventional
+                  treatments while providing additional tools for managing stress, pain, and other
+                  health challenges.
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-3.5 md:p-8 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25">
+            <div className="rounded-xl border border-accent/15 bg-white p-4 shadow-sm transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/30 hover:shadow-[0_14px_32px_rgba(27,59,43,0.12)] motion-safe:md:hover:-translate-y-1.5 md:p-8">
               <h3 className="mb-3 text-lg font-semibold text-[var(--text-dark)] md:mb-4 md:text-xl">
                 Evidence-Based Practice
               </h3>
-              <div className="space-y-3 md:space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
+              <div className="space-y-3 text-base leading-[1.75] text-[var(--text-dark)]/70 md:space-y-4">
                 <p>
-                  While respecting traditional knowledge, we stay current with modern
-                  research on TCM practices, ensuring our treatments meet both traditional
-                  standards and contemporary safety protocols.
+                  While respecting traditional knowledge, we stay current with modern research on TCM
+                  practices, ensuring our treatments meet both traditional standards and contemporary
+                  safety protocols.
                 </p>
                 <p>
-                  We use sterile, single-use needles, maintain the highest hygiene standards,
-                  and continuously update our knowledge through ongoing education and
-                  professional development.
+                  We use sterile, single-use needles, maintain the highest hygiene standards, and
+                  continuously update our knowledge through ongoing education and professional
+                  development.
                 </p>
                 <div className="pt-4">
                   <Link
-                    href="/about"
-                    className="text-accent hover:text-primary font-medium inline-flex items-center"
+                    href="/about/"
+                    className="group inline-flex items-center gap-1.5 font-medium text-accent transition-colors duration-300 ease-out hover:text-primary"
                   >
-                    Meet our practitioner <ArrowRight className="ml-2 w-4 h-4" />
+                    Learn Who Will Be Supporting You
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+                      aria-hidden
+                    />
                   </Link>
                 </div>
               </div>

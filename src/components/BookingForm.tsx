@@ -1026,7 +1026,7 @@ export default function BookingForm() {
               </div>
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary shadow-sm">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
               <p>
                 Submitting sends an appointment request. We will contact you within 24 hours

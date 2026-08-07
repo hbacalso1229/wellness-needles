@@ -17,6 +17,12 @@
 /blob-report/
 /playwright/.cache/
 
+# local QA scratch (device screenshots, probe crops, review scripts)
+/tmp-*/
+/tmp-*.mjs
+/tmp-*.log
+/tmp-shot.mjs
+
 # next.js
 /.next/
 /out/

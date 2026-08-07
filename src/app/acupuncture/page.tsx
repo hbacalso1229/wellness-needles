@@ -2,33 +2,137 @@
 
 import {
   Brain,
-  Heart,
-  Zap,
+  BrainCircuit,
   Shield,
-  Target,
-  Activity,
   Check,
-  Wind,
-  Apple,
   Flower2,
+  Leaf,
   ShieldCheck,
+  BadgeCheck,
+  BookOpen,
+  HeartHandshake,
+  ArrowRight,
+  Activity,
   Venus,
+  Apple,
+  Wind,
+  ChevronDown,
+  Calendar,
   type LucideIcon,
 } from 'lucide-react'
-import { FeatureCard, HeroSection, SectionHeading, SnapCarousel, snapSlideClassName, snapTrackGridMdClassName } from '../../features'
+import { useEffect, useRef, useState } from 'react'
+import {
+  HeroSection,
+  SectionHeading,
+  glassGreenBandClassName,
+} from '../../features'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { CTAButton } from '@/features/ui/CTAButton'
 
-const conditionCardClass =
-  `group ${snapSlideClassName} rounded-lg bg-cream/80 shadow-sm card-emboss p-3.5 sm:p-4 md:p-5 transition-all duration-300`
+const howItWorksPerspectives: {
+  badge: string
+  title: string
+  lead: string
+  takeaways: { label: string; detail: string }[]
+  icon: LucideIcon
+}[] = [
+  {
+    badge: 'Traditional',
+    title: 'Traditional Chinese Medicine Perspective',
+    lead:
+      'Acupuncture regulates the flow of Qi (pronounced "chee") — the vital energy that moves through meridians in the body.',
+    takeaways: [
+      { label: 'Qi flow', detail: 'energy moves through meridians' },
+      { label: 'Blockage', detail: 'causes pain or illness when Qi stalls' },
+      { label: 'Acupuncture', detail: 'restores balance with fine needles' },
+    ],
+    icon: Leaf,
+  },
+  {
+    badge: 'Scientific',
+    title: 'Modern Scientific Understanding',
+    lead:
+      'Research shows acupuncture stimulates the nervous system, releasing endorphins and affecting neurotransmitter levels.',
+    takeaways: [
+      { label: 'Nervous system', detail: 'needles stimulate sensory pathways' },
+      { label: 'Endorphins', detail: 'natural pain relief and calm' },
+      { label: 'Evidence', detail: 'MRI changes and WHO recognition' },
+    ],
+    icon: BrainCircuit,
+  },
+]
+
+const authorityBadges = ['WHO', 'Meta-analyses', 'NIH'] as const
+
+const evidencePoints: {
+  title: string
+  description: string
+  icon: LucideIcon
+  iconTone: string
+  iconBg: string
+}[] = [
+  {
+    title: '43+ conditions',
+    description: 'WHO recognizes acupuncture for treating 43+ conditions',
+    icon: BadgeCheck,
+    iconTone: 'text-primary',
+    iconBg: 'bg-primary/10',
+  },
+  {
+    title: 'Chronic pain',
+    description: 'Meta-analyses show significant benefits for chronic pain',
+    icon: BookOpen,
+    iconTone: 'text-[#3D6B4F]',
+    iconBg: 'bg-[#3D6B4F]/10',
+  },
+  {
+    title: 'Low risk',
+    description: 'Low risk of adverse effects; no drug interactions',
+    icon: Shield,
+    iconTone: 'text-accent',
+    iconBg: 'bg-accent/15',
+  },
+  {
+    title: 'Compatible',
+    description: 'Safe alongside conventional medical treatments',
+    icon: HeartHandshake,
+    iconTone: 'text-[#5A8F6A]',
+    iconBg: 'bg-[#5A8F6A]/12',
+  },
+]
+
+const CONDITION_PREVIEW = 3
+
+type ConditionAccent = {
+  icon: string
+  iconBg: string
+  border: string
+  hoverBorder: string
+  bar: string
+  surface: string
+  more: string
+}
 
 const conditions: {
   title: string
-  icon: LucideIcon
+  blurb: string
   items: string[]
+  icon: LucideIcon
+  accent: ConditionAccent
 }[] = [
   {
     title: 'Pain Management',
+    blurb: 'Relieve chronic discomfort and restore mobility',
     icon: Activity,
+    accent: {
+      icon: 'text-[#8B5E4B]',
+      iconBg: 'bg-[#8B5E4B]/10',
+      border: 'border-[#D4B8A8]/55',
+      hoverBorder: 'hover:border-[#C4A090]/80',
+      bar: 'bg-[#A67C68]/45',
+      surface: 'bg-gradient-to-br from-[#FBF7F4] via-white to-[#F5EDE8]/70',
+      more: 'text-[#8B5E4B]',
+    },
     items: [
       'Chronic back pain',
       'Neck and shoulder pain',
@@ -39,12 +143,32 @@ const conditions: {
   },
   {
     title: 'Mental Health',
+    blurb: 'Support emotional balance and better sleep',
     icon: Brain,
+    accent: {
+      icon: 'text-[#6F697A]',
+      iconBg: 'bg-[#6F697A]/10',
+      border: 'border-[#C9C4CF]/55',
+      hoverBorder: 'hover:border-[#B8B2BF]/80',
+      bar: 'bg-[#8A8494]/40',
+      surface: 'bg-gradient-to-br from-[#F7F6F8] via-white to-[#EEEBF1]/70',
+      more: 'text-[#6F697A]',
+    },
     items: ['Anxiety and stress', 'Depression', 'Insomnia', 'PTSD', 'Addiction recovery'],
   },
   {
     title: "Women's Health",
+    blurb: 'Nurture hormonal balance through every stage',
     icon: Venus,
+    accent: {
+      icon: 'text-[#9A6B78]',
+      iconBg: 'bg-[#9A6B78]/10',
+      border: 'border-[#D4B8C0]/55',
+      hoverBorder: 'hover:border-[#C4A8B2]/80',
+      bar: 'bg-[#B88996]/40',
+      surface: 'bg-gradient-to-br from-[#F9F5F6] via-white to-[#F2E9EC]/70',
+      more: 'text-[#9A6B78]',
+    },
     items: [
       'Fertility support',
       'Menstrual irregularities',
@@ -55,17 +179,47 @@ const conditions: {
   },
   {
     title: 'Digestive Issues',
+    blurb: 'Ease gut discomfort and support digestion',
     icon: Apple,
+    accent: {
+      icon: 'text-[#8F7A55]',
+      iconBg: 'bg-[#8F7A55]/10',
+      border: 'border-[#D4C6A8]/55',
+      hoverBorder: 'hover:border-[#C4B698]/80',
+      bar: 'bg-[#A8906E]/45',
+      surface: 'bg-gradient-to-br from-[#F9F6F0] via-white to-[#F3EEE4]/70',
+      more: 'text-[#8F7A55]',
+    },
     items: ['IBS', 'Acid reflux', 'Bloating', 'Constipation', 'Nausea'],
   },
   {
     title: 'Respiratory',
+    blurb: 'Breathe easier and calm irritated airways',
     icon: Wind,
+    accent: {
+      icon: 'text-[#4F7A72]',
+      iconBg: 'bg-[#4F7A72]/10',
+      border: 'border-[#A8C9C2]/50',
+      hoverBorder: 'hover:border-[#92B8B0]/75',
+      bar: 'bg-[#5F8A82]/40',
+      surface: 'bg-gradient-to-br from-[#F3F8F6] via-white to-[#E8F2EF]/70',
+      more: 'text-[#4F7A72]',
+    },
     items: ['Asthma', 'Allergies', 'Sinusitis', 'Chronic cough', 'Bronchitis'],
   },
   {
     title: 'General Wellness',
+    blurb: 'Build resilience and lasting vitality',
     icon: Flower2,
+    accent: {
+      icon: 'text-primary',
+      iconBg: 'bg-accent/12',
+      border: 'border-accent/20',
+      hoverBorder: 'hover:border-primary/30',
+      bar: 'bg-accent/50',
+      surface: 'bg-gradient-to-br from-[#F1F8F4] via-white to-[#E8F3EC]/70',
+      more: 'text-primary',
+    },
     items: [
       'Immune support',
       'Energy enhancement',
@@ -76,12 +230,176 @@ const conditions: {
   },
 ]
 
+function ConditionCard({
+  title,
+  blurb,
+  items,
+  icon: Icon,
+  accent,
+}: (typeof conditions)[number]) {
+  const [expanded, setExpanded] = useState(false)
+  const hiddenCount = Math.max(0, items.length - CONDITION_PREVIEW)
+  const visibleItems = expanded ? items : items.slice(0, CONDITION_PREVIEW)
+
+  return (
+    <article
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border p-5 shadow-[0_3px_16px_rgba(27,59,43,0.04)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accent.surface} ${accent.border} ${accent.hoverBorder} hover:shadow-[0_10px_28px_rgba(27,59,43,0.08)] motion-safe:md:hover:-translate-y-1.5 md:p-6`}
+    >
+      <div className={`absolute inset-x-0 top-0 h-px ${accent.bar}`} aria-hidden />
+
+      <button
+        type="button"
+        className="flex w-full items-start gap-3 text-left md:pointer-events-none md:block"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+      >
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${accent.iconBg} transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-105`}
+        >
+          <Icon className={`h-5 w-5 ${accent.icon}`} strokeWidth={1.75} aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1 md:mt-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-lg font-semibold leading-snug text-[var(--text-dark)] md:text-xl">
+              {title}
+            </h3>
+            <ChevronDown
+              className={`mt-1 h-4 w-4 shrink-0 text-[var(--text-dark)]/40 transition-transform duration-300 md:hidden ${
+                expanded ? 'rotate-180' : ''
+              }`}
+              aria-hidden
+            />
+          </div>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-dark)]/65 md:text-base">
+            {blurb}
+          </p>
+        </div>
+      </button>
+
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-out md:grid-rows-[1fr] ${
+          expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr] md:grid-rows-[1fr]'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <ul className="mt-4 space-y-1.5 text-base leading-relaxed text-[var(--text-dark)]/70">
+            {visibleItems.map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <Check className={`mt-0.5 h-4 w-4 shrink-0 ${accent.icon}`} strokeWidth={2.5} aria-hidden />
+                <span className="min-w-0">{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          {hiddenCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className={`mt-3 inline-flex items-center gap-1 text-sm font-semibold ${accent.more} underline-offset-4 transition-colors hover:underline`}
+            >
+              {expanded ? 'Show less' : `+${hiddenCount} more`}
+              <ArrowRight
+                className={`h-3.5 w-3.5 transition-transform duration-300 ${
+                  expanded ? 'rotate-90' : ''
+                }`}
+                aria-hidden
+              />
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function HowItWorksColumn({
+  badge,
+  title,
+  lead,
+  takeaways,
+  icon: Icon,
+  index,
+}: (typeof howItWorksPerspectives)[number] & { index: number }) {
+  const ref = useRef<HTMLElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (reduceMotion) {
+      setVisible(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.28 },
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <article
+      ref={ref}
+      className={`group rounded-2xl border border-transparent px-4 py-5 transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:md:hover:-translate-y-1.5 motion-safe:md:hover:border-accent/15 motion-safe:md:hover:bg-[#F7FAF8]/80 motion-safe:md:hover:shadow-[0_12px_28px_rgba(27,59,43,0.08)] sm:px-5 md:px-7 md:py-6 ${
+        index === 0 ? 'lg:pr-10' : 'lg:pl-10'
+      }`}
+    >
+      <div className="mb-3.5 flex flex-wrap items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent/12 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-105">
+          <Icon className="h-6 w-6 text-accent" strokeWidth={1.6} aria-hidden />
+        </div>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+          {badge}
+        </span>
+      </div>
+
+      <h3 className="mb-2.5 max-w-sm text-lg font-semibold leading-snug text-[var(--text-dark)] md:text-xl">
+        {title}
+      </h3>
+      <p className="mb-5 max-w-md text-base font-[450] leading-[1.7] text-[#2C3E35]">{lead}</p>
+
+      <ul className="max-w-md space-y-3 text-left text-base leading-[1.65] text-[var(--text-dark)]/70">
+        {takeaways.map(({ label, detail }, i) => (
+          <li
+            key={label}
+            className={`flex items-start gap-2.5 transition-[opacity,transform] duration-500 ease-out motion-reduce:opacity-100 motion-reduce:translate-y-0 ${
+              visible
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-2 opacity-0'
+            }`}
+            style={{ transitionDelay: visible ? `${120 + i * 90}ms` : '0ms' }}
+          >
+            <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/60" aria-hidden />
+            <span className="min-w-0">
+              <span className="font-semibold text-[var(--text-dark)]">{label}</span>
+              <span className="text-[var(--text-dark)]/50"> — </span>
+              {detail}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  )
+}
+
 export default function Acupuncture() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <HeroSection
         title="Why Choose Acupuncture?"
         subtitle="Discover the science and ancient wisdom behind this powerful healing modality"
@@ -105,188 +423,85 @@ export default function Acupuncture() {
         ]}
       />
 
-      {/* How It Works Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* How It Works — editorial 2-col */}
+      <section className="bg-white py-8 md:py-10 lg:py-12">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="How Acupuncture Works"
+            title="How Acupuncture Restores Balance"
             subtitle="Acupuncture works by stimulating specific points on the body to restore the natural flow of energy and promote healing"
           />
+          <p className="mx-auto mb-8 max-w-xl text-center text-base font-[450] leading-[1.7] text-[#2C3E35] md:mb-10">
+            Whether you&apos;re seeking pain relief or overall wellness, acupuncture offers a natural
+            path to balance.
+          </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-10 lg:gap-16 items-start">
-            <div>
-              <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
-                Traditional Chinese Medicine Perspective
-              </h3>
-              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                <p>
-                  According to traditional Chinese medicine, acupuncture works by regulating
-                  the flow of Qi (pronounced &quot;chee&quot;) - the vital energy that flows through
-                  specific pathways called meridians in the body.
-                </p>
-                <p>
-                  When Qi becomes blocked or imbalanced, illness and pain can result.
-                  Acupuncture helps restore this balance by stimulating specific points
-                  along the meridians with fine, sterile needles.
-                </p>
-                <p>
-                  This ancient understanding has guided successful treatments for thousands
-                  of years and continues to provide a framework for holistic healing.
-                </p>
-              </div>
-            </div>
+          <div className="relative grid grid-cols-1 gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-0">
+            {/* Intentional vertical divider — soft gold fade */}
+            <div
+              className="pointer-events-none absolute inset-y-3 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-gold/55 to-transparent lg:block"
+              aria-hidden
+            />
 
-            <div>
-              <h3 className="mb-4 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
-                Modern Scientific Understanding
-              </h3>
-              <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-                <p>
-                  Modern research shows that acupuncture stimulates the nervous system,
-                  releasing natural pain-relieving chemicals like endorphins and affecting
-                  neurotransmitter levels.
-                </p>
-                <p>
-                  Studies using MRI and other imaging techniques show that acupuncture
-                  can influence brain activity, reduce inflammation, and improve blood
-                  circulation to treated areas.
-                </p>
-                <p>
-                  The World Health Organization recognizes acupuncture as effective for
-                  treating numerous conditions, bridging ancient wisdom with modern medicine.
-                </p>
-              </div>
-            </div>
+            {howItWorksPerspectives.map((perspective, index) => (
+              <HowItWorksColumn
+                key={perspective.title}
+                {...perspective}
+                index={index}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-secondary/5">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Benefits of Acupuncture"
-            subtitle="Experience comprehensive healing with proven benefits for mind and body"
-          />
-
-          <div className="grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-3 lg:gap-5">
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Zap}
-              title="Pain Relief"
-              description="Effective treatment for chronic pain, arthritis, back pain, headaches, and muscular tension without side effects."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Brain}
-              title="Stress Reduction"
-              description="Promotes deep relaxation, reduces anxiety, and helps manage stress by balancing the nervous system naturally."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Activity}
-              title="Improved Sleep"
-              description="Regulates sleep patterns and helps with insomnia by addressing underlying imbalances that affect rest."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Shield}
-              title="Immune Support"
-              description="Strengthens the immune system and increases resistance to illness by optimizing the body's natural defenses."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Heart}
-              title="Digestive Health"
-              description="Improves digestion, reduces bloating, and helps with various gastrointestinal conditions through targeted treatment."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-
-            <FeatureCard
-              flippable
-              compact
-              elevated
-              icon={Target}
-              title="Hormonal Balance"
-              description="Helps regulate hormones naturally, supporting fertility, menstrual health, and overall endocrine system function."
-              gradientFrom="from-primary/10"
-              gradientTo="to-primary/10"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Conditions Treated */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      {/* Conditions — interactive category cards */}
+      <section id="conditions-we-treat" className="scroll-mt-24 bg-white py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Conditions We Treat"
-            subtitle="Acupuncture can effectively address a wide range of health conditions"
+            subtitle="Personalised care for the conditions that matter most to you"
           />
 
-          <SnapCarousel
-            slideCount={conditions.length}
-            ariaLabel="Conditions carousel"
-            trackClassName={snapTrackGridMdClassName}
-          >
-            {conditions.map(({ title, icon: Icon, items }) => (
-              <div key={title} className={conditionCardClass}>
-                <div className="mb-2 md:mb-3 flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-white transition-[transform,color] duration-300 group-hover:scale-110">
-                  <Icon className="h-4 w-4 md:h-5 md:w-5 text-secondary/70 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.75} />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold leading-snug text-[var(--text-dark)] md:mb-3 md:text-xl">{title}</h3>
-                <ul className="space-y-1 md:space-y-1.5 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed">
-                  {items.map((item) => (
-                    <li key={item} className="flex items-start gap-1.5 md:gap-2">
-                      <span className="mt-0.5 flex h-4 w-4 md:h-5 md:w-5 shrink-0 items-center justify-center rounded-full bg-accent/20">
-                        <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-accent" strokeWidth={2.5} />
-                      </span>
-                      <span className="min-w-0">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+            {conditions.map((condition) => (
+              <ConditionCard key={condition.title} {...condition} />
             ))}
-          </SnapCarousel>
+          </div>
+
+          <div className="mx-auto mt-10 max-w-3xl px-2 text-center md:mt-12">
+            <h3 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
+              Not sure where to start?
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-3">
+              Let the practitioner support you on your journey to better health and balance.
+            </p>
+            <div className="mt-5 flex justify-center sm:mt-6">
+              <CTAButton
+                href={bookHref}
+                variant="gold"
+                showArrow={false}
+                external={isExternal}
+                target={target}
+                rel={rel}
+              >
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                Book your first session
+              </CTAButton>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Research Section */}
-      <section className="py-8 md:py-16 lg:py-20 bg-secondary/5">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Scientific Evidence — open proof on glass */}
+      <section className={`${glassGreenBandClassName} py-8 md:py-10 lg:py-12`}>
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Scientific Evidence"
+            title="Evidence You Can Trust"
             titleClassName="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
-            className="text-center mb-2 md:mb-4"
+            className="mb-3 text-center md:mb-4"
           />
 
-          <div className="space-y-2 md:space-y-3 text-sm md:text-base leading-relaxed text-[var(--text-dark)]/70">
-            <p>
-              Modern research validates what traditional practitioners have known for millennia
-            </p>
+          <div className="space-y-2 text-left text-base leading-relaxed text-[var(--text-dark)]/70 md:space-y-3 md:text-center">
+            <p>Modern research validates what traditional practitioners have known for millennia</p>
             <p>
               Acupuncture is supported by thousands of published studies, recognized by the WHO for
               dozens of conditions, and backed by NIH guidance for pain care — with a strong safety
@@ -294,22 +509,41 @@ export default function Acupuncture() {
             </p>
           </div>
 
-          <ul className="mx-auto mt-4 max-w-xl space-y-2 text-left text-sm md:mt-6 md:space-y-3 md:text-base leading-relaxed text-[var(--text-dark)]/70">
-            {[
-              'WHO recognizes acupuncture for treating 43+ conditions',
-              'Meta-analyses show significant benefits for chronic pain',
-              'Low risk of adverse effects; no drug interactions',
-              'Safe alongside conventional medical treatments',
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-2.5 md:gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
-                  <Check className="h-3 w-3 text-cream" strokeWidth={2.5} />
-                </span>
-                <span className="leading-snug md:leading-normal">{item}</span>
+          <ul className="mt-4 flex flex-wrap items-center justify-center gap-1.5 md:mt-5">
+            {authorityBadges.map((label) => (
+              <li
+                key={label}
+                className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
+              >
+                {label}
               </li>
             ))}
           </ul>
-          <p className="mt-5 md:mt-8 inline-flex items-center justify-center gap-2 text-sm font-bold text-primary">
+
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-8 md:grid-cols-4 md:gap-3 lg:gap-4">
+            {evidencePoints.map(({ title, description, icon: Icon, iconTone, iconBg }) => (
+              <article
+                key={title}
+                className="group flex items-start gap-3 rounded-xl border border-accent/15 bg-white p-4 shadow-[0_4px_14px_rgba(27,59,43,0.05)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/35 hover:shadow-[0_16px_36px_rgba(27,59,43,0.14)] motion-safe:md:hover:-translate-y-1 md:flex-col md:gap-3 md:p-4 lg:p-5"
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconBg} transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:scale-105`}
+                >
+                  <Icon className={`h-5 w-5 ${iconTone}`} strokeWidth={1.75} aria-hidden />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="mb-1 text-base font-semibold leading-snug text-[var(--text-dark)] md:text-lg">
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-[var(--text-dark)]/70 md:text-base">
+                    {description}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <p className="mt-6 flex items-center justify-center gap-2 text-sm font-bold text-primary md:mt-8">
             <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
             Evidence-based. Safe. Gentle.
           </p>

@@ -45,7 +45,7 @@ export default function Toast({
         className={`flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${
           isError
             ? 'border-red-200 bg-red-50'
-            : 'border-accent/30 bg-cream'
+            : 'border-accent/30 bg-white'
         }`}
       >
         <Icon

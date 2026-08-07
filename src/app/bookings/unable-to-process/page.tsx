@@ -27,7 +27,7 @@ export default function BookingUnableToProcessPage() {
   }, [])
 
   return (
-    <div className="relative min-h-[calc(100dvh-4rem)] bg-cream">
+    <div className="relative min-h-[calc(100dvh-3.5rem)] bg-white">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_at_top,_rgba(127,176,105,0.12)_0%,_transparent_70%)]"
         aria-hidden
@@ -57,7 +57,7 @@ export default function BookingUnableToProcessPage() {
               We&apos;re unable to process your booking
             </h1>
 
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-base md:text-lg md:leading-relaxed">
+            <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 md:text-lg md:leading-relaxed">
               We&apos;re sorry for the inconvenience. Something went wrong while sending
               your appointment request. Please call or email us and we&apos;ll help you
               book a time.
@@ -65,7 +65,7 @@ export default function BookingUnableToProcessPage() {
           </div>
 
           <div className="mt-6 rounded-2xl border border-accent/15 bg-white p-4 text-center shadow-sm shadow-primary/5 sm:mt-8 sm:p-5 md:mt-10 md:p-6">
-            <p className="text-sm leading-relaxed text-[var(--text-dark)]/70 sm:text-base">
+            <p className="text-base leading-relaxed text-[var(--text-dark)]/70">
               Our team is happy to take your booking by phone or email during business
               hours.
             </p>

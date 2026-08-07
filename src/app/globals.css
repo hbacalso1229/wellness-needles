@@ -9,8 +9,8 @@
   --secondary-green: #4a7c2a; /* Medium Forest Green */
   --accent-green: #7fb069; /* Sage Green */
   --light-green: #a7c957; /* Light Bamboo Green */
-  --cream: #faf9f7; /* Paper cream — warm off-white */
-  --warm-white: #fefefe;
+  --cream: #ffffff; /* Clean white mid-page surface */
+  --warm-white: #ffffff;
   --earth-brown: #8b4513; /* Earth Brown */
   --gold-accent: #d4af37; /* Golden Accent */
   --text-dark: #2a2a28;
@@ -27,8 +27,9 @@
   --ocean-accent: linear-gradient(135deg, #84C0DC 0%, #00A2E8 100%);
   --harmony-gradient: linear-gradient(135deg, #7fb069 0%, #84C0DC 50%, #00A2E8 100%);
   
-  --background: var(--cream);
+  --background: #ffffff;
   --foreground: var(--text-dark);
+  --font-serif-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 
 * {
@@ -45,9 +46,9 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Fixed header (h-16) — keep in-page anchors and snap targets clear of the nav */
+/* Fixed header (h-14 / 3.5rem) — keep in-page anchors and snap targets clear of the nav */
 html {
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 4.5rem;
 }
 
 /* Smooth animations */
@@ -275,7 +276,7 @@ html {
 
 /* Embossed marketing cards — hover lift on md+ (static / non-flip cards) */
 .card-emboss {
-  @apply transition-all duration-200 md:motion-safe:hover:-translate-y-0.5 md:hover:shadow-md md:hover:shadow-primary/10;
+  @apply transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:motion-safe:hover:-translate-y-0.5 md:hover:shadow-md md:hover:shadow-primary/10;
 }
 
 /* Booking selectable cards — avoid global * { transition: all } snap/jump */
@@ -336,9 +337,9 @@ html {
 
 @media (min-width: 768px) {
   .page-hero[data-home-hero='true'] {
-    height: calc(100dvh - 4rem);
-    min-height: calc(100dvh - 4rem);
-    max-height: calc(100dvh - 4rem);
+    height: calc(100dvh - 3.5rem);
+    min-height: calc(100dvh - 3.5rem);
+    max-height: calc(100dvh - 3.5rem);
     overflow: hidden;
   }
 }
@@ -450,10 +451,6 @@ html {
   background-color: var(--light-green);
 }
 
-.bg-cream {
-  background-color: var(--cream);
-}
-
 .bg-earth {
   background-color: var(--earth-brown);
 }
@@ -475,7 +472,106 @@ html {
 }
 
 .font-serif {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif-heading);
+}
+
+.result-card-title {
+  font-family: var(--font-serif-heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.patient-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.patient-card h3 {
+  font-family: var(--font-serif-heading), 'Playfair Display', serif;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.patient-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.result-card-caption {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 0;
+}
+
+@media (min-width: 1024px) {
+  .result-card-caption {
+    min-height: 9.5rem;
+  }
+}
+
+.patient-card-subtext {
+  margin-top: auto;
+}
+
+.card-media-wrapper,
+.before-after-slider,
+.before-after-slider img {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  position: relative;
+}
+
+.card-media-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.lab-data-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+@keyframes ba-handle-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.25),
+      0 0 0 0 rgba(212, 175, 55, 0.45);
+  }
+  70% {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.25),
+      0 0 0 12px rgba(212, 175, 55, 0);
+  }
+}
+
+.ba-handle-pulse {
+  animation: ba-handle-pulse 1.4s ease-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ba-handle-pulse {
+    animation: none;
+  }
 }
 
 /* Native date inputs can overflow card bounds on mobile WebKit */

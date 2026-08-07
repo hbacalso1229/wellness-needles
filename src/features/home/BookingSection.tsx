@@ -1,34 +1,39 @@
 'use client'
 
 import { BookingCtaButton } from '@/components/BookingCtaButton'
-import { PulsingLeaf } from '../ui/PulsingLeaf'
+import { primaryGoldCtaClassName } from '../ui/CTAButton'
+
+/** Destination booking CTA — full-width on mobile; header Book stays hug-label via shared class alone. */
+const bookingDestinationCtaClassName = `${primaryGoldCtaClassName} !mx-auto !w-full !px-6 !py-3.5 sm:!w-auto md:!px-8 md:!py-4 focus-visible:ring-offset-[var(--primary,#1B3B2B)]`
 
 export function BookingSection() {
   return (
     <section
-      className="relative py-12 md:py-16 lg:py-20 overflow-hidden bg-jungle-gradient text-cream"
+      className="bg-white pb-12 pt-5 md:pb-14 md:pt-6 lg:pb-16"
       aria-labelledby="booking-heading"
     >
-      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2
-          id="booking-heading"
-          className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4"
-        >
-          Ready when you are
-        </h2>
-        <div className="mb-4 flex items-center justify-center gap-2 md:mb-5" aria-hidden="true">
-          <div className="h-0.5 w-10 rounded-full bg-gold md:w-14" />
-          <PulsingLeaf size="small" color="text-gold/80" />
-          <div className="h-0.5 w-10 rounded-full bg-gold md:w-14" />
-        </div>
-        <p className="text-base md:text-lg text-cream/90 mb-6 md:mb-10 max-w-xl mx-auto leading-relaxed">
-          Take a quiet next step. Book a session and begin restoring balance at a pace that
-          feels right for you.
-        </p>
-        <div className="inline-flex justify-center">
-          <BookingCtaButton variant="gold" size="large" showArrow>
-            Book your session
-          </BookingCtaButton>
+      <div className="mx-auto flex max-w-7xl justify-center px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-lg flex-col items-center rounded-2xl bg-jungle-gradient px-6 py-8 text-center text-cream shadow-[0_14px_40px_rgba(45,80,22,0.22)] sm:w-fit sm:px-10 sm:py-9">
+          <h2
+            id="booking-heading"
+            className="mb-2 font-serif text-2xl font-bold text-cream sm:text-3xl md:mb-3 md:text-4xl"
+          >
+            Ready when you are
+          </h2>
+          <p className="mb-5 text-base leading-relaxed text-cream/75 md:mb-6">
+            Take a quiet next step. Book a session and begin restoring balance at a pace that
+            feels right for you.
+          </p>
+          <div className="flex w-full justify-center">
+            <BookingCtaButton
+              variant="gold"
+              size="large"
+              showArrow
+              className={bookingDestinationCtaClassName}
+            >
+              Book your session
+            </BookingCtaButton>
+          </div>
         </div>
       </div>
     </section>

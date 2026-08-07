@@ -182,13 +182,13 @@ export function HeroSection({
           </h1>
           
           {subtitle && (
-            <p className="text-sm sm:text-base md:text-lg xl:text-2xl mb-3 sm:mb-4 xl:mb-8 font-light">
+            <p className="text-base md:text-lg xl:text-2xl mb-3 sm:mb-4 xl:mb-8 font-light">
               {subtitle}
             </p>
           )}
           
           {description && (
-            <p className="text-sm sm:text-base md:text-lg mb-5 sm:mb-6 xl:mb-12 opacity-90 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg mb-5 sm:mb-6 xl:mb-12 opacity-90 max-w-2xl mx-auto">
               {description}
             </p>
           )}
@@ -201,7 +201,7 @@ export function HeroSection({
                   const isExternal =
                     button.external || /^(https?:\/\/|tel:|mailto:)/i.test(button.href)
                   const linkClassName =
-                    'text-cream/90 hover:text-cream underline underline-offset-4 decoration-cream/50 hover:decoration-cream text-sm sm:text-base font-medium transition-colors'
+                    'text-cream/90 hover:text-cream underline underline-offset-4 decoration-cream/50 hover:decoration-cream text-base font-medium transition-colors'
                   if (isExternal) {
                     return (
                       <a

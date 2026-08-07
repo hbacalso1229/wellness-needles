@@ -61,7 +61,7 @@ public/            # Static assets
 
 - Practitioner: Arkinth Garcia (College of Naturopathic Medicine, Dublin)
 - Dual clinics: Celbridge + Carlow; email `info@wellnessneedles.ie`
-- Testimonials: illustrative / disclaimed where noted
+- Testimonials: verified Google reviews + consented before/after results
 
 ## Technical Requirements
 

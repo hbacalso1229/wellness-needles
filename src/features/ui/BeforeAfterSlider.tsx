@@ -10,7 +10,7 @@ import {
   type KeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { BadgeCheck, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export type BeforeAfterSliderProps = {
   beforeSrc: string
@@ -19,6 +19,8 @@ export type BeforeAfterSliderProps = {
   description?: string
   /** Short result line under the title, e.g. outcome highlight */
   highlight?: string
+  /** Compact trust/proof bullets under the highlight */
+  proofPoints?: string[]
   altBefore: string
   altAfter: string
   /** CSS angle to level tilted source photos, e.g. "-35deg" */
@@ -47,7 +49,7 @@ function LayerImage({
   priority?: boolean
 }) {
   return (
-    <div className="absolute inset-0 overflow-hidden bg-cream">
+    <div className="absolute inset-0 overflow-hidden bg-[#faf8f5] [isolation:isolate]">
       <Image
         src={src}
         alt={alt}
@@ -77,6 +79,7 @@ export function BeforeAfterSlider({
   title,
   description,
   highlight,
+  proofPoints,
   altBefore,
   altAfter,
   beforeRotate,
@@ -88,6 +91,7 @@ export function BeforeAfterSlider({
   const [position, setPosition] = useState(50)
   const [dragging, setDragging] = useState(false)
   const [previewing, setPreviewing] = useState(false)
+  const [hintPulse, setHintPulse] = useState(true)
   const trackRef = useRef<HTMLDivElement>(null)
   const draggingRef = useRef(false)
   const interactedRef = useRef(false)
@@ -131,6 +135,21 @@ export function BeforeAfterSlider({
   const markInteracted = useCallback(() => {
     interactedRef.current = true
     setPreviewing(false)
+    setHintPulse(false)
+  }, [])
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      setHintPulse(false)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      if (!interactedRef.current) setHintPulse(false)
+    }, 3200)
+
+    return () => window.clearTimeout(timeout)
   }, [])
 
   const updateFromClientX = useCallback((clientX: number) => {
@@ -193,13 +212,17 @@ export function BeforeAfterSlider({
     dragging ? '' : 'transition-[clip-path,left] duration-300 ease-out'
 
   const describedBy =
-    [highlight ? highlightId : null, description ? descId : null]
+    [
+      highlight ? highlightId : null,
+      description ? descId : null,
+      proofPoints?.length ? `${titleId}-proof` : null,
+    ]
       .filter(Boolean)
       .join(' ') || undefined
 
   return (
     <figure
-      className={`group/ba mx-auto flex h-full w-full flex-col ${className}`}
+      className={`group/ba patient-card-body w-full ${className}`}
       aria-labelledby={titleId}
       aria-describedby={describedBy}
     >
@@ -211,7 +234,7 @@ export function BeforeAfterSlider({
         aria-valuemax={100}
         aria-valuenow={Math.round(position)}
         aria-label={`Compare before and after: ${title}`}
-        className={`relative w-full touch-none overflow-hidden rounded-lg border border-black/5 bg-cream outline-none select-none ring-1 ring-inset ring-black/[0.06] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white ${aspectClassName} ${
+        className={`before-after-slider card-media-wrapper relative touch-none overflow-hidden border border-[#1B3B2B]/10 bg-[#FAF8F5] outline-none select-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
           dragging ? 'cursor-grabbing' : 'cursor-ew-resize'
         }`}
         onPointerDown={onPointerDown}
@@ -242,11 +265,11 @@ export function BeforeAfterSlider({
         </div>
 
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-16 bg-gradient-to-b from-black/10 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-16 bg-gradient-to-b from-black/15 to-transparent"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-14 bg-gradient-to-t from-black/20 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-14 bg-gradient-to-t from-black/25 to-transparent"
           aria-hidden
         />
 
@@ -256,46 +279,73 @@ export function BeforeAfterSlider({
           aria-hidden
         >
           <div className="absolute inset-y-0 left-1/2 w-12 -translate-x-1/2" />
-          <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-cream shadow-[0_0_0_1px_rgba(45,80,22,0.4)] transition-[box-shadow] duration-200 group-hover/card:shadow-[0_0_0_1px_rgba(45,80,22,0.55)]" />
+          <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#FAF8F5]/90 shadow-[0_0_8px_rgba(0,0,0,0.2)]" />
           <div
-            className={`absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-0.5 rounded-full bg-primary text-cream ring-2 ring-cream shadow-lg transition-[transform,box-shadow,ring-width,ring-color,filter] duration-200 md:size-12 group-hover/card:brightness-110 ${
+            className={`absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-0.5 rounded-full border-2 border-[#1B3B2B] bg-[#FAF8F5] text-[#1B3B2B] shadow-[0_4px_12px_rgba(0,0,0,0.25)] transition-[transform,box-shadow,opacity] duration-200 md:size-12 ${
+              hintPulse ? 'ba-handle-pulse' : ''
+            } ${
               dragging || previewing
-                ? 'scale-[1.08] ring-4 ring-primary/25'
-                : 'group-hover/ba:scale-[1.08] group-hover/ba:ring-4 group-hover/ba:ring-primary/25 group-hover/card:scale-[1.08] group-hover/card:ring-4 group-hover/card:ring-primary/25 group-focus-within/ba:scale-[1.08] group-focus-within/ba:ring-4 group-focus-within/ba:ring-primary/25'
+                ? 'scale-[1.06] shadow-[0_6px_16px_rgba(0,0,0,0.3)]'
+                : 'group-hover/ba:scale-[1.06] group-hover/card:scale-[1.06] group-focus-within/ba:scale-[1.06]'
             }`}
           >
-            <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" strokeWidth={2.5} aria-hidden />
-            <ChevronRight className="h-4 w-4 md:h-5 md:w-5" strokeWidth={2.5} aria-hidden />
+            <ChevronLeft className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+            <ChevronRight className="h-4 w-4" strokeWidth={2.25} aria-hidden />
           </div>
+          {hintPulse ? (
+            <span className="pointer-events-none absolute top-[calc(50%+1.85rem)] left-1/2 -translate-x-1/2 rounded-full bg-[#1B3B2B]/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-[#FAF8F5] shadow-sm backdrop-blur-[2px] md:top-[calc(50%+2.1rem)]">
+              Drag
+            </span>
+          ) : null}
         </div>
 
-        <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full border border-cream/70 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cream backdrop-blur-[4px] md:text-[11px]">
+        <span className="pointer-events-none absolute bottom-3 left-3 z-20 rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/70 backdrop-blur-[4px] bg-black/30">
           Before
         </span>
-        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded-full border border-cream/70 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cream backdrop-blur-[4px] md:text-[11px]">
+        <span className="pointer-events-none absolute bottom-3 right-3 z-20 rounded border border-gold/45 bg-[#1B3B2B]/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#FAF8F5] backdrop-blur-[4px] shadow-sm">
           After
         </span>
       </div>
 
-      <figcaption className="mt-4 flex flex-1 flex-col px-0.5 text-center md:mt-5">
+      <figcaption className="result-card-caption px-0.5 text-center">
         <h3
           id={titleId}
-          className="text-lg font-bold leading-tight tracking-tight text-[var(--text-dark)] md:text-2xl"
+          className="result-card-title text-xl leading-tight text-[var(--text-dark)] md:text-2xl"
         >
           {title}
         </h3>
         {highlight ? (
           <p
             id={highlightId}
-            className="mt-1.5 text-base font-bold leading-snug text-[var(--text-dark)] md:mt-2 md:text-lg"
+            className="mt-1.5 text-base font-medium leading-snug text-[var(--text-dark)]/85 md:mt-2"
           >
             {highlight}
           </p>
         ) : null}
+        {proofPoints && proofPoints.length > 0 ? (
+          <ul
+            id={`${titleId}-proof`}
+            className="mx-auto mt-3 flex w-full max-w-xs flex-col gap-1.5 text-left md:mt-4"
+          >
+            {proofPoints.map((point) => (
+              <li
+                key={point}
+                className="inline-flex items-start gap-1.5 text-xs leading-snug text-[#1B3B2B]/80 md:text-sm"
+              >
+                <BadgeCheck
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1B3B2B]"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {description ? (
           <p
             id={descId}
-            className="mt-1.5 text-xs leading-snug text-secondary md:mt-2 md:text-sm md:leading-relaxed"
+            className="patient-card-subtext pt-3 text-xs leading-snug text-[var(--text-dark)]/55 md:pt-4 md:text-sm md:leading-relaxed"
           >
             {description}
           </p>

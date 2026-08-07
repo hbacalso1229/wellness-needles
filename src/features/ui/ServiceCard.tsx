@@ -51,7 +51,7 @@ export function ServiceCard({
         'group rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition-all duration-300',
         isPrimary
           ? 'bg-primary border border-primary text-cream'
-          : `bg-cream border ${borderColor}`,
+          : `bg-white border ${borderColor}`,
         className,
       ].join(' ')
 
@@ -106,7 +106,7 @@ export function ServiceCard({
 
         {description ? (
           <p
-            className={`text-sm leading-relaxed mb-6 flex-1 ${
+            className={`text-base leading-relaxed mb-6 flex-1 ${
               isPrimary ? 'text-cream/85' : 'text-secondary'
             }`}
           >
@@ -142,7 +142,7 @@ export function ServiceCard({
         {title}
       </h3>
       {description ? (
-        <p className={`text-sm ${isPrimary ? 'text-cream/80' : 'text-secondary'}`}>
+        <p className={`text-base ${isPrimary ? 'text-cream/80' : 'text-secondary'}`}>
           {description}
         </p>
       ) : null}
