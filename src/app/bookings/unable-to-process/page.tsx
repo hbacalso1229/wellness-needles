@@ -1,14 +1,11 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { AlertCircle, Mail, Phone } from 'lucide-react'
-import { CTAButton } from '@/features'
+import { AlertCircle } from 'lucide-react'
+import { SectionHeading, glassGreenPanelClassName } from '@/features'
 import { BookingResultBrand } from '@/components/BookingResultBrand'
 import { BookingResultNav } from '@/components/BookingResultCloseButton'
-import { contactConfig } from '@/lib/contact-config'
-
-const outlineCtaClass =
-  'w-full !rounded-full !border-primary/35 !px-4 !py-2.5 !text-sm !font-medium !text-primary/70 !shadow-none !bg-transparent transition-[transform,color,border-color] duration-200 ease-out hover:!border-primary/55 hover:!bg-transparent hover:!text-primary/90 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:!scale-[0.97]'
+import { BookingResultHelpCard } from '@/components/BookingResultHelpCard'
 
 export default function BookingUnableToProcessPage() {
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -32,68 +29,41 @@ export default function BookingUnableToProcessPage() {
       />
 
       <section className="relative flex flex-1 flex-col overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 md:py-5 lg:px-8 lg:py-8">
-        <div className="mx-auto my-auto w-full max-w-md pt-12 sm:max-w-lg md:max-w-xl md:pt-14">
+        <div className="mx-auto my-auto w-full max-w-md pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-12 sm:max-w-lg md:max-w-xl md:pt-14">
           <BookingResultNav />
 
           <BookingResultBrand />
 
-          <div className="text-center">
-            <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:mb-3 sm:h-12 sm:w-12 lg:mb-5 lg:h-16 lg:w-16">
-              <AlertCircle className="h-6 w-6 text-primary lg:h-8 lg:w-8" aria-hidden />
+          <div className="mb-4 flex justify-center sm:mb-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:h-14 sm:w-14">
+              <AlertCircle className="h-6 w-6 text-primary sm:h-7 sm:w-7" aria-hidden />
             </div>
-
-            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold sm:mb-2 sm:text-xs lg:text-sm">
-              Booking request
-            </p>
-
-            <h1
-              ref={headingRef}
-              tabIndex={-1}
-              className="font-serif text-[1.45rem] font-bold leading-snug text-[var(--text-dark)] outline-none sm:text-2xl lg:text-4xl"
-            >
-              We&apos;re unable to process your booking
-            </h1>
-
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-[0.9375rem] lg:mt-4 lg:text-lg lg:leading-relaxed">
-              We&apos;re sorry for the inconvenience. Something went wrong while sending
-              your appointment request. Please call or email us and we&apos;ll help you
-              book a time.
-            </p>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-accent/15 bg-white p-3 text-center shadow-sm shadow-primary/5 sm:mt-5 sm:p-4 lg:mt-10 lg:p-6">
-            <p className="text-sm leading-relaxed text-[var(--text-dark)]/70 lg:text-base">
+          <SectionHeading
+            titleAs="h1"
+            titleRef={headingRef}
+            titleTabIndex={-1}
+            title="We're unable to process your booking"
+            credit="Booking request — please call or email so we can help."
+            subtitle="We're sorry for the inconvenience. Something went wrong while sending your appointment request. Please call or email us and we'll help you book a time."
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
+            creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
+            subtitleClassName="text-base sm:text-lg text-[var(--text-dark)]/70 max-w-xl mx-auto leading-relaxed"
+            className="text-center mb-4 sm:mb-5 lg:mb-6"
+          />
+
+          <div className={`${glassGreenPanelClassName} p-3.5 text-center sm:p-6`}>
+            <p className="text-base leading-relaxed text-[var(--text-dark)]/70">
               Our team is happy to take your booking by phone or email during business
               hours.
             </p>
-            <p className="mt-2 text-xs text-[var(--text-dark)]/55 sm:mt-3 sm:text-sm">
+            <p className="mt-2 text-sm text-[var(--text-dark)]/55 sm:mt-3">
               Sunday–Friday · 9:00 AM – 8:00 PM · Saturday closed
             </p>
           </div>
 
-          <div className="mx-auto mt-3 flex w-full max-w-sm flex-col items-stretch gap-2.5 pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:mt-4 sm:gap-3 lg:mt-8">
-            <CTAButton
-              href={contactConfig.phone.href}
-              variant="gold"
-              size="medium"
-              showArrow={false}
-              className="w-full"
-            >
-              <Phone className="h-4 w-4 shrink-0" aria-hidden />
-              Call {contactConfig.phone.displayText}
-            </CTAButton>
-
-            <CTAButton
-              href={contactConfig.email.href}
-              variant="outline"
-              size="medium"
-              showArrow={false}
-              className={outlineCtaClass}
-            >
-              <Mail className="h-4 w-4 shrink-0" aria-hidden />
-              Email {contactConfig.email.address}
-            </CTAButton>
-          </div>
+          <BookingResultHelpCard intro="Prefer to call or email — we can help you book." />
         </div>
       </section>
     </div>

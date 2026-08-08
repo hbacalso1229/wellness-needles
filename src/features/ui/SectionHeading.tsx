@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, type Ref } from 'react'
 import { Leaf } from 'lucide-react'
 
 interface SectionHeadingProps {
@@ -12,6 +12,10 @@ interface SectionHeadingProps {
   creditClassName?: string
   leafClassName?: string
   className?: string
+  /** Heading element for the title (default h2). Use h1 on standalone result pages. */
+  titleAs?: 'h1' | 'h2'
+  titleRef?: Ref<HTMLHeadingElement>
+  titleTabIndex?: number
 }
 
 export function SectionHeading({
@@ -23,10 +27,21 @@ export function SectionHeading({
   creditClassName = 'mb-2 text-base text-[var(--text-dark)]/70 md:mb-3',
   leafClassName = 'h-3.5 w-3.5 shrink-0 text-primary md:h-4 md:w-4',
   className = 'text-center mb-6 md:mb-8 lg:mb-10',
+  titleAs = 'h2',
+  titleRef,
+  titleTabIndex,
 }: SectionHeadingProps) {
+  const TitleTag = titleAs
+
   return (
     <div className={className}>
-      <h2 className={titleClassName}>{title}</h2>
+      <TitleTag
+        ref={titleRef}
+        tabIndex={titleTabIndex}
+        className={`${titleClassName}${titleTabIndex !== undefined ? ' outline-none' : ''}`}
+      >
+        {title}
+      </TitleTag>
       {credit ? <p className={creditClassName}>{credit}</p> : null}
       <div className="mb-3 flex items-center justify-center gap-2 md:mb-4" aria-hidden="true">
         <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
