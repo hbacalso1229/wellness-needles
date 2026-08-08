@@ -81,11 +81,13 @@ jobs:
 
       # Deploy the static `out/` folder directly. `vercel build --prebuilt` has been
       # serving Next 404s for exported routes (including /bookings/thank-you/).
+      # Copy `.vercel` so we deploy into the existing project (not a new "out" project).
       - name: Deploy static export to Vercel (preview / staging)
         id: deploy
         run: |
+          cp -R .vercel out/.vercel
           cp vercel.json out/vercel.json
-          url=$(vercel deploy ./out --yes --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --cwd out --yes --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Print staging URL

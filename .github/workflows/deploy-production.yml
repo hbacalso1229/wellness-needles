@@ -83,8 +83,9 @@ jobs:
       - name: Deploy static export to Vercel (production)
         id: deploy
         run: |
+          cp -R .vercel out/.vercel
           cp vercel.json out/vercel.json
-          url=$(vercel deploy ./out --yes --prod --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --cwd out --yes --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Print production URL
