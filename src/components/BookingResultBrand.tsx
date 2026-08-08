@@ -7,7 +7,7 @@ import { contactConfig } from '@/lib/contact-config'
 /** Logo + brand for full-screen booking result pages (no site header/footer). */
 export function BookingResultBrand() {
   return (
-    <div className="mb-3 flex justify-center sm:mb-4 lg:mb-6">
+    <div className="mb-6 flex justify-center sm:mb-7 lg:mb-9">
       <Link
         href="/"
         className="inline-flex items-center gap-2 outline-none transition-opacity hover:opacity-90 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 sm:gap-2.5"
@@ -22,7 +22,7 @@ export function BookingResultBrand() {
             priority
           />
         </span>
-        <span className="font-serif text-lg font-bold tracking-wide text-[var(--text-dark)] sm:text-xl lg:text-2xl">
+        <span className="font-serif text-lg font-extrabold tracking-wide text-primary sm:text-xl lg:text-2xl">
           {contactConfig.businessInfo.name}
         </span>
       </Link>
