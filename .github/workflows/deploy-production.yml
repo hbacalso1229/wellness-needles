@@ -7,7 +7,7 @@ name: Deploy — Production
 
 on:
   workflow_run:
-    workflows: [CI]
+    workflows: [Check — Quality]
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -59,26 +59,43 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+      - name: Build static export for production
+        env:
+          # Hide Admin on production (main branch); legacy form stays the default
+          NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
+          # Baked into static client at build time (GitHub secret)
+          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
+          VERCEL_GIT_COMMIT_REF: main
+        run: npx next build
+
+      - name: Verify booking result routes exist in export
+        run: |
+          test -f out/bookings/thank-you/index.html
+          test -f out/bookings/unable-to-process/index.html
+          test -f out/bookings/index.html
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
       - name: Pull Vercel environment (production)
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build (via Vercel)
-        env:
-          # Hide Admin on production (main branch); legacy form stays the default
-          NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
-          # Baked into static client at build time (GitHub secret — avoids Vercel prebuilt redeploy)
-          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
-          VERCEL_GIT_COMMIT_REF: main
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel (production)
+      # --archive=tgz is required: repo .gitignore has /out/, so a normal deploy
+      # uploads almost nothing (~5KB) and Vercel serves 404 NOT_FOUND.
+      - name: Deploy static export to Vercel (production)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          cp -R .vercel out/.vercel
+          cp vercel.json out/vercel.json
+          url=$(vercel deploy --cwd out --archive=tgz --yes --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
+
+      - name: Verify production site responds
+        run: |
+          set -e
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.url }}/")
+          echo "HTTP $code → ${{ steps.deploy.outputs.url }}/"
+          test "$code" = "200"
 
       - name: Print production URL
         run: echo "Production URL → ${{ steps.deploy.outputs.url }}"
