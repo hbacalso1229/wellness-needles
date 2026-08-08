@@ -58,25 +58,34 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+      - name: Build static export for staging
+        env:
+          # Admin nav + /admin tooling only on staging (dev branch)
+          NEXT_PUBLIC_ADMIN_UI_ENABLED: "true"
+          # Baked into static client at build time (GitHub secret)
+          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
+          VERCEL_GIT_COMMIT_REF: dev
+        run: npx next build
+
+      - name: Verify booking result routes exist in export
+        run: |
+          test -f out/bookings/thank-you/index.html
+          test -f out/bookings/unable-to-process/index.html
+          test -f out/bookings/index.html
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
       - name: Pull Vercel environment (preview)
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build (via Vercel)
-        env:
-          # Admin nav + /admin tooling only on staging (dev branch)
-          NEXT_PUBLIC_ADMIN_UI_ENABLED: "true"
-          # Baked into static client at build time (GitHub secret — avoids Vercel prebuilt redeploy)
-          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
-          VERCEL_GIT_COMMIT_REF: dev
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel (preview / staging)
+      # Deploy the static `out/` folder directly. `vercel build --prebuilt` has been
+      # serving Next 404s for exported routes (including /bookings/thank-you/).
+      - name: Deploy static export to Vercel (preview / staging)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          cp vercel.json out/vercel.json
+          url=$(vercel deploy ./out --yes --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Print staging URL
