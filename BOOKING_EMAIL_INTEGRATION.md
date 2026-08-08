@@ -121,13 +121,17 @@ Create a key at [web3forms.com](https://web3forms.com) for the inbox that should
 
 ## Payload
 
-- Visit type (In Clinic / Home Visit)
-- Location, service / package, add-ons
-- Preferred date & time, practitioner
-- Name, email, phone, date of birth
-- Chief complaint, previous treatment, medications, allergies
+Clinic notification keeps details **once** (avoid duplicating the same fields in `message` and custom fields):
 
-Also sent as Web3Forms dashboard fields: `visit_type`, `location`, `service`, `add_ons`, `preferred_date`, `preferred_time`, `phone`, `chief_complaint`.
+| Web3Forms field | Content |
+|-----------------|---------|
+| `name` / `email` / `to` / `subject` | Contact + routing (Web3Forms defaults) |
+| `message` | Short one-liner only (`New appointment request from the website booking form.`) |
+| `visit_type`, `location`, `service`, `add_ons` | Booking selection |
+| `preferred_date`, `preferred_time`, `practitioner` | Schedule |
+| `phone`, `date_of_birth` | Patient contact details beyond name/email |
+
+Patient thank-you copy belongs in the **Web3Forms Autoresponder Intro** (dashboard), not as extra submission fields. With “Show copy of their submission: Yes”, the patient sees the structured fields above once.
 
 ---
 

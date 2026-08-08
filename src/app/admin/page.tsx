@@ -490,9 +490,13 @@ export default function AdminPage() {
                       </li>
                       <li>
                         Intro: thank-you + we&apos;ll confirm within 24 hours (preferred
-                        time not locked)
+                        time not locked). Put patient-facing copy here only — do not rely
+                        on extra form fields in the clinic email.
                       </li>
-                      <li>Show copy of their submission: Yes</li>
+                      <li>
+                        Show copy of their submission: Yes (one set of booking fields:
+                        visit type, location, service, schedule, contact)
+                      </li>
                       <li>
                         Logo (optional): full https URL to{' '}
                         <code className="text-xs">/logo_wellness.jpeg</code>
