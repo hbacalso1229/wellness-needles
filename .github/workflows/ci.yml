@@ -1,4 +1,4 @@
-name: CI
+name: Check — Quality
 
 # Runs on every PR and on pushes to dev/main.
 # Acts as the quality gate — no deployment here.
