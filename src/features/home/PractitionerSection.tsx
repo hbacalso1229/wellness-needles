@@ -2,15 +2,15 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check } from 'lucide-react'
+import { BadgeCheck, GraduationCap, School, type LucideIcon } from 'lucide-react'
 import { SectionHeading } from '../ui/SectionHeading'
 import { sectionGreenCtaClassName } from '../ui/CTAButton'
 
-const credentials = [
-  'Registered Acupuncturist',
-  'CNM Dublin Graduate',
-  'Naturopathic Specialist',
-] as const
+const credentials: { label: string; icon: LucideIcon }[] = [
+  { label: 'Registered Acupuncturist', icon: BadgeCheck },
+  { label: 'Master’s in Acupuncture', icon: GraduationCap },
+  { label: 'CNM Dublin Graduate', icon: School },
+]
 
 export function PractitionerSection() {
   return (
@@ -55,12 +55,12 @@ export function PractitionerSection() {
               </p>
 
               <ul className="mb-3 flex flex-wrap justify-center gap-1.5 sm:justify-start">
-                {credentials.map((label) => (
+                {credentials.map(({ label, icon: Icon }) => (
                   <li
                     key={label}
                     className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
                   >
-                    <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+                    <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
                     {label}
                   </li>
                 ))}

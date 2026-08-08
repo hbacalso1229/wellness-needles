@@ -509,16 +509,21 @@ export default function Acupuncture() {
             </p>
           </div>
 
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-1.5 md:mt-5">
-            {authorityBadges.map((label) => (
-              <li
-                key={label}
-                className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
-              >
+          <p
+            className="mt-4 text-center text-sm font-medium tracking-wide text-primary md:mt-5"
+            aria-label="Evidence sources"
+          >
+            {authorityBadges.map((label, index) => (
+              <span key={label}>
+                {index > 0 ? (
+                  <span className="mx-2 text-[var(--text-dark)]/30" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
                 {label}
-              </li>
+              </span>
             ))}
-          </ul>
+          </p>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-8 md:grid-cols-4 md:gap-3 lg:gap-4">
             {evidencePoints.map(({ title, description, icon: Icon, iconTone, iconBg }) => (

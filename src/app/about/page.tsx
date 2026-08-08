@@ -3,7 +3,21 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import NextImage from 'next/image'
-import { Heart, Award, Target, Clock, Shield, Check, Star, ArrowRight, CheckCircle, Calendar } from 'lucide-react'
+import {
+  Heart,
+  Award,
+  Target,
+  Clock,
+  Shield,
+  Star,
+  ArrowRight,
+  CheckCircle,
+  Calendar,
+  BadgeCheck,
+  GraduationCap,
+  School,
+  type LucideIcon,
+} from 'lucide-react'
 import {
   PulsingLeaf,
   FeatureCard,
@@ -52,12 +66,11 @@ const insurers = [
   },
 ] as const
 
-const credentials = [
-  'Registered Acupuncturist',
-  'CNM Dublin Graduate',
-  'Master’s in Acupuncture',
-  'Naturopath',
-] as const
+const credentials: { label: string; icon: LucideIcon }[] = [
+  { label: 'Registered Acupuncturist', icon: BadgeCheck },
+  { label: 'Master’s in Acupuncture', icon: GraduationCap },
+  { label: 'CNM Dublin Graduate', icon: School },
+]
 
 const bioSections = [
   {
@@ -175,12 +188,12 @@ export default function About() {
                 </p>
 
                 <ul className="flex flex-wrap justify-center gap-1.5">
-                  {credentials.map((label) => (
+                  {credentials.map(({ label, icon: Icon }) => (
                     <li
                       key={label}
                       className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
                     >
-                      <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+                      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
                       {label}
                     </li>
                   ))}
