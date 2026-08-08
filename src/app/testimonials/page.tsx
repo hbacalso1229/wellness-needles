@@ -192,22 +192,22 @@ export default function Testimonials() {
               {
                 icon: BadgeCheck,
                 label: 'Licensed & certified practitioner',
-                iconClass: 'h-3.5 w-3.5 shrink-0 text-cream/95 sm:h-4 sm:w-4',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4',
               },
               {
                 icon: HeartHandshake,
                 label: 'Shared with consent',
-                iconClass: 'h-3.5 w-3.5 shrink-0 text-cream/95 sm:h-4 sm:w-4',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4',
               },
               {
                 icon: Star,
                 label: 'Trusted by 200+ patients',
-                iconClass: 'h-3.5 w-3.5 shrink-0 fill-cream text-cream sm:h-4 sm:w-4',
+                iconClass: 'h-3.5 w-3.5 shrink-0 fill-primary/20 text-primary sm:h-4 sm:w-4',
               },
             ].map(({ icon: Icon, label, iconClass }) => (
               <p
                 key={label}
-                className="inline-flex items-center gap-2 rounded-full border border-[#1B3B2B]/40 bg-gradient-to-r from-[#3d6b2e] via-[#2d5016] to-[#1B3B2B] px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-cream shadow-[0_4px_14px_rgba(27,59,43,0.28)]"
+                className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-primary"
               >
                 <Icon className={iconClass} aria-hidden />
                 {label}
