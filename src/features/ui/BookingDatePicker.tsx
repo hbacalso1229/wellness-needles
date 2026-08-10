@@ -304,7 +304,7 @@ export function BookingDatePicker({
         <span className={!value ? 'text-[var(--text-dark)]/55' : undefined}>
           {formatDisplayDate(value, placeholder)}
         </span>
-        <Calendar className="w-5 h-5 shrink-0 text-primary" aria-hidden strokeWidth={2.25} />
+        <Calendar className="h-6 w-6 shrink-0 text-primary" aria-hidden strokeWidth={2.25} />
       </button>
 
       {open && (

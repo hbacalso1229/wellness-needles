@@ -46,7 +46,7 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Fixed header (h-14 / 3.5rem) — keep in-page anchors and snap targets clear of the nav */
+/* Fixed header (h-12 mobile / h-14 sm+) — keep in-page anchors and snap targets clear of the nav */
 html {
   scroll-padding-top: 4.5rem;
 }

@@ -33,7 +33,7 @@ test.describe('booking unable-to-process', () => {
       sessionStorage.setItem('e2eForceBookingSubmitFail', '1')
     })
 
-    await page.getByRole('button', { name: 'Book my appointment' }).click()
+    await page.getByRole('button', { name: 'Request appointment' }).click()
 
     await expect(page).toHaveURL(/\/bookings\/unable-to-process\/?$/, {
       timeout: 15_000,

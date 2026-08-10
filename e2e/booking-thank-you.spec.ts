@@ -11,7 +11,7 @@ test.describe('booking thank-you', () => {
   }) => {
     await fillBookingRequestForm(page)
 
-    await page.getByRole('button', { name: 'Book my appointment' }).click()
+    await page.getByRole('button', { name: 'Request appointment' }).click()
 
     await expect(page).toHaveURL(/\/bookings\/thank-you\/?$/, { timeout: 15_000 })
     await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()

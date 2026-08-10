@@ -28,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main className="pt-14">{children}</main>
+      <main className="pt-12 sm:pt-14">{children}</main>
       <Footer />
     </>
   )

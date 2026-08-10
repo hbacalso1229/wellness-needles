@@ -709,7 +709,7 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
-        submitLabel="Book my appointment"
+        submitLabel="Request appointment"
         nextDisabled={
           (currentStep === 0 && !selectedLocation) ||
           (currentStep === 1 && !selectedService) ||
@@ -850,7 +850,12 @@ export default function BookingForm() {
                   hasError={hasFieldError('date')}
                   aria-invalid={hasFieldError('date')}
                   aria-describedby={
-                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
+                    [
+                      'booking-date-hint',
+                      fieldErrorMessage('date') ? 'booking-date-error' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined
                   }
                   onChange={(nextDate) => {
                     setSelectedDate(nextDate)
@@ -862,6 +867,14 @@ export default function BookingForm() {
                   }}
                 />
               </div>
+              <p id="booking-date-hint" className="mt-1.5 text-xs text-secondary">
+                Next available starts from{' '}
+                {new Date(`${defaultPreferredDate()}T12:00:00`).toLocaleDateString('en-IE', {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </p>
               <FieldInlineError
                 id="booking-date-error"
                 message={fieldErrorMessage('date')}
@@ -876,7 +889,7 @@ export default function BookingForm() {
                 Preferred Time Range <RequiredMark />
               </p>
               <p className="text-sm text-secondary mb-3">
-                Select the time range that works best for you.
+                Pick a time that works best for you.
               </p>
               <div
                 id="booking-time"

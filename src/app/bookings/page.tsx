@@ -183,7 +183,7 @@ export default function Bookings() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section — hidden below xl by HeroSection default; keep for tablet+ */}
       <HeroSection
         title="Book Your Appointment"
         subtitle="Take the first step towards better health and wellness"
@@ -197,7 +197,7 @@ export default function Bookings() {
       />
 
       {/* Booking Form or Pricing Display */}
-      <section className="py-8 md:py-10 lg:py-12 bg-white">
+      <section className="py-4 sm:py-8 md:py-10 lg:py-12 bg-white">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
             <div className="min-w-0 order-1">
@@ -206,9 +206,9 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an appointment"
                     credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
-                    subtitle="Choose your service and time. We’ll confirm by email or phone."
-                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
-                    className="text-center mb-10"
+                    subtitle="Choose your service and time. We’ll confirm within 24 hours."
+                    titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 sm:mb-2 md:mb-3"
+                    className="text-center mb-4 sm:mb-8 md:mb-10"
                   />
                   <BookingForm />
                 </div>

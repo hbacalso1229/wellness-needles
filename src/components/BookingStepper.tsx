@@ -29,6 +29,7 @@ type BookingStepperProps = {
   onSubmit: () => void
   children: ReactNode
   nextLabel?: string
+  backLabel?: string
   submitLabel?: string
   isSubmitting?: boolean
   /** Disable Next when the current step is incomplete/invalid. */
@@ -45,7 +46,8 @@ export default function BookingStepper({
   onSubmit,
   children,
   nextLabel = 'Continue',
-  submitLabel = 'Book my appointment',
+  backLabel = 'Back',
+  submitLabel = 'Request appointment',
   isSubmitting = false,
   nextDisabled = false,
   stepFocusId,
@@ -61,6 +63,12 @@ export default function BookingStepper({
   const progressFillPercent =
     steps.length <= 1 ? 100 : (currentStep / (steps.length - 1)) * 100
   const progressReassurance = isLast
+    ? 'Final step — takes 1 minute'
+    : currentStep >= 2
+      ? 'Almost done — just your details left'
+      : `Step ${currentStep + 1} of ${steps.length} – takes ~2 minutes`
+
+  const progressReassuranceDesktop = isLast
     ? 'Final step — confirm your appointment'
     : currentStep >= 2
       ? 'Almost done — just your details left'
@@ -103,13 +111,13 @@ export default function BookingStepper({
   }, [currentStep, stepFocusId])
 
   return (
-    <div ref={sectionRef} className="scroll-mt-24 space-y-5">
+    <div ref={sectionRef} className="scroll-mt-24 space-y-3 sm:space-y-5">
       {/* Progress — desktop / tablet */}
       <nav aria-label="Booking progress" className="hidden sm:block space-y-2.5">
         <div className="relative mx-auto w-full max-w-xl px-2">
-          {/* Continuous journey track */}
+          {/* Continuous journey track — centered on fixed h-11 circle row */}
           <div
-            className="pointer-events-none absolute left-[calc(12.5%+0.5rem)] right-[calc(12.5%+0.5rem)] top-4 h-1.5 -translate-y-1/2 rounded-full bg-accent/25"
+            className="pointer-events-none absolute left-[calc(12.5%+0.5rem)] right-[calc(12.5%+0.5rem)] top-[1.375rem] h-1.5 -translate-y-1/2 rounded-full bg-accent/25"
             aria-hidden
           >
             <div
@@ -127,16 +135,18 @@ export default function BookingStepper({
                   className="flex flex-col items-center text-center"
                   aria-current={current ? 'step' : undefined}
                 >
-                  <span
-                    className={`booking-step-indicator flex items-center justify-center rounded-full font-bold border-2 transition-transform ${
-                      current
-                        ? 'h-10 w-10 text-sm border-primary bg-primary text-white scale-110 shadow-md shadow-primary/25'
-                        : done
-                          ? 'h-8 w-8 text-sm border-primary bg-primary text-white'
-                          : 'h-8 w-8 text-sm border-accent/40 bg-white text-[var(--text-dark)]/70'
-                    }`}
-                  >
-                    {done ? <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={3} /> : index + 1}
+                  <span className="flex h-11 w-11 items-center justify-center">
+                    <span
+                      className={`booking-step-indicator flex items-center justify-center rounded-full font-bold border-2 transition-[transform,box-shadow,background-color,border-color] ${
+                        current
+                          ? 'h-10 w-10 text-sm border-primary bg-primary text-white shadow-md shadow-primary/25'
+                          : done
+                            ? 'h-8 w-8 text-sm border-primary bg-primary text-white'
+                            : 'h-8 w-8 text-sm border-accent/40 bg-white text-[var(--text-dark)]/70'
+                      }`}
+                    >
+                      {done ? <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={3} /> : index + 1}
+                    </span>
                   </span>
                   <span
                     className={`booking-step-indicator mt-1.5 text-sm leading-snug ${
@@ -158,23 +168,18 @@ export default function BookingStepper({
           </ol>
         </div>
         <p className="text-center text-sm font-medium text-secondary">
-          {progressReassurance}
+          {progressReassuranceDesktop}
         </p>
       </nav>
 
-      {/* Progress — mobile */}
-      <div className="sm:hidden space-y-2.5" aria-label="Booking progress">
-        <div className="text-center">
-          <p className="text-sm font-semibold text-primary">
-            {progressReassurance}
-          </p>
-          {activeStep && !isLast ? (
-            <p className="mt-0.5 text-sm font-semibold text-secondary">{activeStep.title}</p>
-          ) : null}
-        </div>
-        <div className="relative mx-auto w-full max-w-xs px-3">
+      {/* Progress — mobile (compact: one label + thin track) */}
+      <div className="sm:hidden space-y-1.5" aria-label="Booking progress">
+        <p className="text-center text-sm font-semibold text-primary leading-snug">
+          {progressReassurance}
+        </p>
+        <div className="relative mx-auto w-full max-w-xs px-2">
           <div
-            className="pointer-events-none absolute left-3 right-3 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-accent/25"
+            className="pointer-events-none absolute left-2 right-2 top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent/25"
             aria-hidden
           >
             <div
@@ -191,10 +196,10 @@ export default function BookingStepper({
                   key={step.id}
                   className={`booking-step-indicator rounded-full border-2 transition-transform ${
                     current
-                      ? 'h-3.5 w-3.5 scale-125 border-primary bg-primary'
+                      ? 'h-3 w-3 scale-125 border-primary bg-primary'
                       : done
-                        ? 'h-3 w-3 border-primary bg-primary'
-                        : 'h-3 w-3 border-accent/40 bg-white'
+                        ? 'h-2.5 w-2.5 border-primary bg-primary'
+                        : 'h-2.5 w-2.5 border-accent/40 bg-white'
                   }`}
                   aria-current={current ? 'step' : undefined}
                   aria-label={`Step ${index + 1}: ${step.title}`}
@@ -205,7 +210,7 @@ export default function BookingStepper({
         </div>
       </div>
 
-      <div className="bg-accent/5 rounded-lg p-5 sm:p-8">
+      <div className="bg-accent/5 rounded-lg p-4 sm:p-8">
         <h2
           ref={headingRef}
           tabIndex={-1}
@@ -218,8 +223,8 @@ export default function BookingStepper({
           {children}
         </div>
 
-        {/* Sticky Continue bar on mobile; in-flow on sm+ */}
-        <div className="sticky bottom-2 z-20 -mx-5 mt-6 border-t border-accent/15 bg-white/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
+        {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
+        <div className="sticky bottom-2 z-20 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
           <div className="flex items-center justify-between gap-3">
             {isFirst ? (
               <span className="inline-flex min-h-11 w-[4.5rem]" aria-hidden />
@@ -228,10 +233,10 @@ export default function BookingStepper({
                 type="button"
                 onClick={onBack}
                 disabled={isSubmitting}
-                className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-bold text-primary underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50 transition-opacity duration-200"
+                className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-bold text-[var(--text-dark)] underline-offset-2 hover:text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
               >
                 <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden strokeWidth={2.5} />
-                Back
+                {backLabel}
               </button>
             )}
             {isLast ? (

@@ -119,6 +119,7 @@ export default function Header() {
   // Stable SSR markup: always Link to /bookings until booking features hydrate.
   const bookUsesExternal = bookCtaReady && bookExternal
   const bookLinkHref = bookUsesExternal ? bookHref : '/bookings/'
+  const hideHeaderBookCta = pathname.startsWith('/bookings')
 
   const headerBookCta = bookUsesExternal ? (
     <a
@@ -138,25 +139,25 @@ export default function Header() {
   return (
     <header className={HEADER_CLASS} suppressHydrationWarning>
       <nav className="w-full overflow-visible pl-3 pr-3 sm:pl-4 sm:pr-4 lg:pr-6">
-        <div className="relative flex h-14 min-w-0 items-center gap-1.5 overflow-visible sm:gap-3">
+        <div className="relative flex h-12 min-w-0 items-center gap-1.5 overflow-visible sm:h-14 sm:gap-3">
           {/* Logo + wordmark — text truncates; logo never clipped */}
           <Link
             href="/"
             className="relative z-[60] flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5 xl:flex-none"
           >
             <span className="relative shrink-0 p-0.5">
-              <span className="relative block size-9 aspect-square overflow-hidden rounded-full bg-white ring-2 ring-primary/15 sm:size-10 sm:ring-[3px]">
+              <span className="relative block size-8 aspect-square overflow-hidden rounded-full bg-white ring-2 ring-primary/15 sm:size-10 sm:ring-[3px]">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
                   fill
-                  sizes="(max-width: 639px) 36px, 40px"
+                  sizes="(max-width: 639px) 32px, 40px"
                   className="object-cover object-center"
                   priority
                 />
               </span>
             </span>
-            <span className="min-w-0 flex-1 truncate font-serif text-base font-bold tracking-wide text-primary sm:flex-none sm:text-lg xl:overflow-visible xl:text-xl">
+            <span className="min-w-0 flex-1 truncate font-serif text-sm font-bold tracking-wide text-primary sm:flex-none sm:text-lg xl:overflow-visible xl:text-xl">
               Wellness Needles
             </span>
           </Link>
@@ -175,31 +176,33 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Desktop Book — beside menu */}
-          <div className="hidden shrink-0 xl:ml-10 xl:block 2xl:ml-14">
-            {bookUsesExternal ? (
-              <a
-                href={bookHref}
-                target={bookTarget}
-                rel={bookRel}
-                className={bookNowClassName}
-              >
-                <BookNowLabel />
-              </a>
-            ) : (
-              <Link href={bookLinkHref} className={bookNowClassName}>
-                <BookNowLabel />
-              </Link>
-            )}
-          </div>
+          {/* Desktop Book — beside menu (hidden on bookings flow) */}
+          {!hideHeaderBookCta ? (
+            <div className="hidden shrink-0 xl:ml-10 xl:block 2xl:ml-14">
+              {bookUsesExternal ? (
+                <a
+                  href={bookHref}
+                  target={bookTarget}
+                  rel={bookRel}
+                  className={bookNowClassName}
+                >
+                  <BookNowLabel />
+                </a>
+              ) : (
+                <Link href={bookLinkHref} className={bookNowClassName}>
+                  <BookNowLabel />
+                </Link>
+              )}
+            </div>
+          ) : null}
 
           {/* Mobile / tablet: Book now + menu — never shrink off-screen */}
           <div className="relative z-[70] ml-auto flex shrink-0 items-center gap-1 sm:gap-2 xl:hidden">
-            {headerBookCta}
+            {!hideHeaderBookCta ? headerBookCta : null}
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex size-10 shrink-0 items-center justify-center text-dark hover:text-dark/70"
+              className="inline-flex size-9 shrink-0 items-center justify-center text-dark hover:text-dark/70 sm:size-10"
               aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-navigation"
@@ -216,7 +219,7 @@ export default function Header() {
         {/* Mobile / tablet Navigation */}
         {isMenuOpen && (
           <div id="mobile-navigation" className="xl:hidden">
-            <div className="max-h-[calc(100dvh-3.5rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/50 backdrop-blur-[2px] px-2 pb-3 pt-2">
+            <div className="max-h-[calc(100dvh-3rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/50 backdrop-blur-[2px] px-2 pb-3 pt-2 sm:max-h-[calc(100dvh-3.5rem)]">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
