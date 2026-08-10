@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
+import { Building2, Calendar, CheckCircle, Home, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
@@ -709,6 +709,7 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        submitLabel="Book my appointment"
         nextDisabled={
           (currentStep === 0 && !selectedLocation) ||
           (currentStep === 1 && !selectedService) ||
@@ -727,23 +728,31 @@ export default function BookingForm() {
               Choose how you&apos;d like to be treated
             </p>
 
-            <div className="flex border-b border-accent/20">
+            <div className="relative flex border-b border-accent/20">
+              <span
+                aria-hidden
+                className={`booking-service-tab__indicator ${
+                  activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
+                }`}
+              />
               <button
                 type="button"
                 onClick={() => handleTabChange('in-clinic')}
-                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
                   activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                 }`}
               >
+                <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                 In Clinic
               </button>
               <button
                 type="button"
                 onClick={() => handleTabChange('call-out')}
-                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
                   activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                 }`}
               >
+                <Home className="h-5 w-5 shrink-0" aria-hidden />
                 <span className="sm:hidden">Home Visits</span>
                 <span className="hidden sm:inline">Call Out (Home Visits)</span>
               </button>
@@ -905,7 +914,7 @@ export default function BookingForm() {
             <div>
               <h3 className="mb-4 flex items-center text-xl font-bold text-[var(--text-dark)]">
                 <User className="w-5 h-5 mr-2" />
-                Personal Information
+                Contact details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
                 <div className="min-w-0">
@@ -978,7 +987,7 @@ export default function BookingForm() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="086 054 3085 or +353 86 054 3085"
+                    placeholder="086 054 3085"
                     inputMode="tel"
                     autoComplete="tel"
                     aria-invalid={hasFieldError('phone')}
@@ -987,9 +996,18 @@ export default function BookingForm() {
                     }
                     className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
                   />
+                  <p className="mt-1.5 text-xs text-secondary">Ireland (+353) — national or international format</p>
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
-                <div className="md:col-span-2 min-w-0 w-full max-w-full">
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-xl font-bold text-[var(--text-dark)]">
+                Additional info
+              </h3>
+              <div className="grid grid-cols-1 gap-6 min-w-0">
+                <div className="min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Date of Birth <RequiredMark />
                   </label>
@@ -1029,7 +1047,7 @@ export default function BookingForm() {
                     message={fieldErrorMessage('dateOfBirth')}
                   />
                 </div>
-                <div className="md:col-span-2 min-w-0 w-full max-w-full">
+                <div className="min-w-0 w-full max-w-full">
                   <label htmlFor="message" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Message
                   </label>
@@ -1055,18 +1073,13 @@ export default function BookingForm() {
             </div>
 
             {showLocalSecurityNotice && currentStep === 3 && (
-              <div
+              <p
                 id="booking-security-check"
-                className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[var(--text-dark)]/80"
+                className="text-center text-xs text-[var(--text-dark)]/45"
                 role="status"
               >
-                <Info className="h-4 w-4 shrink-0 text-amber-700" aria-hidden />
-                <p>
-                  Security check is unavailable on localhost (hCaptcha blocks local hosts).
-                  On the live site, the checkbox appears here. You can still continue to test
-                  the form.
-                </p>
-              </div>
+                Security check skipped on localhost — it appears on the live site.
+              </p>
             )}
 
             {showSecurityCheck && currentStep === 3 && (

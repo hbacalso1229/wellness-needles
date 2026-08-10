@@ -143,12 +143,12 @@ export function TimeRangeCards({
             key={range.id}
             className={`booking-select-card relative block box-border rounded-xl border p-4 ${
               past
-                ? 'cursor-not-allowed border-2 border-accent/10 bg-accent/5 opacity-50'
+                ? 'cursor-not-allowed border-2 border-accent/15 bg-accent/5 opacity-55'
                 : selected
-                  ? 'z-[1] cursor-pointer border-2 border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
+                  ? 'z-[1] cursor-pointer border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20 motion-safe:scale-[1.02]'
                   : hasError
                     ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                    : 'cursor-pointer border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
+                    : 'cursor-pointer border-2 border-accent/30 bg-white [@media(hover:hover)]:hover:border-primary/45 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -164,14 +164,14 @@ export function TimeRangeCards({
               aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : ''}`}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-7 w-7 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-8 w-8 items-center justify-center rounded-full ${
                 selected && !past
                   ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-4 w-4" strokeWidth={3.5} />
+              <Check className="h-5 w-5" strokeWidth={3.5} />
             </span>
             <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8">
               <span

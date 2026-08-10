@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Leaf, Flame, CircleDot, Hand } from 'lucide-react'
+import { Leaf, Flame, CircleDot, Hand, ArrowRight } from 'lucide-react'
 import { FeatureCard } from '../ui/FeatureCard'
 import { SectionHeading } from '../ui/SectionHeading'
 import { sectionGreenCtaClassName, glassGreenBandClassName } from '../ui/CTAButton'
@@ -67,6 +67,10 @@ export function ServicesSection() {
         <div className="mt-8 flex w-full justify-center md:mt-10">
           <Link href="/chinese-medicine/" className={sectionGreenCtaClassName}>
             Explore Chinese medicine
+            <ArrowRight
+              className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-0.5"
+              aria-hidden
+            />
           </Link>
         </div>
       </div>

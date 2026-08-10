@@ -1,6 +1,6 @@
 'use client'
 
-import { Phone, Mail, Calendar } from 'lucide-react'
+import { Building2, Phone, Mail, Calendar, Home } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import {
@@ -206,7 +206,7 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an appointment"
                     credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
-                    subtitle="Share your preferred service and time — we will confirm by email or phone."
+                    subtitle="Choose your service and time. We’ll confirm by email or phone."
                     titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
                     className="text-center mb-10"
                   />
@@ -276,23 +276,31 @@ export default function Bookings() {
 
                   {/* Tab Navigation for Pricing */}
                   <div className={`${glassGreenPanelClassName} p-3.5 sm:p-6 md:p-8`}>
-                    <div className="flex border-b border-accent/20 mb-6">
+                    <div className="relative mb-6 flex border-b border-accent/20">
+                      <span
+                        aria-hidden
+                        className={`booking-service-tab__indicator ${
+                          activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
+                        }`}
+                      />
                       <button
                         type="button"
                         onClick={() => handleTabChange('in-clinic')}
-                        className={`booking-service-tab px-4 sm:px-6 py-3 text-base ${
+                        className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-base ${
                           activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                         }`}
                       >
+                        <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                         In clinic services
                       </button>
                       <button
                         type="button"
                         onClick={() => handleTabChange('call-out')}
-                        className={`booking-service-tab px-4 sm:px-6 py-3 text-base ${
+                        className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-base ${
                           activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                         }`}
                       >
+                        <Home className="h-5 w-5 shrink-0" aria-hidden />
                         Home visit services
                       </button>
                     </div>

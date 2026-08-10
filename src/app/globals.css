@@ -175,50 +175,72 @@ html {
   }
 }
 
-/* In Clinic / Home Visits tabs — clearer active state + underline draw */
+@keyframes booking-continue-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(45, 80, 22, 0.3);
+  }
+  45% {
+    transform: scale(1.06);
+    box-shadow: 0 14px 28px -6px rgba(45, 80, 22, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(45, 80, 22, 0.3);
+  }
+}
+
+/* In Clinic / Home Visits tabs — equal weight; only active gets color + gold underline */
 .booking-service-tab {
   position: relative;
   border-bottom: 2px solid transparent;
   color: var(--text-dark);
-  opacity: 0.88;
+  opacity: 1;
   font-weight: 600;
-  transition:
-    color 0.2s ease,
-    opacity 0.2s ease,
-    font-weight 0.2s ease;
-}
-
-.booking-service-tab::after {
-  content: '';
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: -2px;
-  height: 2.5px;
-  border-radius: 999px;
-  background: var(--primary-green);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .booking-service-tab:hover {
-  opacity: 1;
   color: var(--primary-green);
 }
 
 .booking-service-tab--active {
-  opacity: 1;
   color: var(--primary-green);
-  font-weight: 700;
 }
 
-.booking-service-tab--active::after {
-  transform: scaleX(1);
+.booking-service-tab svg {
+  opacity: 1;
+  color: inherit;
+}
+
+.booking-service-tab__indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2.5px;
+  width: 50%;
+  padding-inline: 0.75rem;
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.booking-service-tab__indicator::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--gold-accent);
+}
+
+.booking-service-tab__indicator--call-out {
+  transform: translateX(100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .booking-service-tab::after {
+  .booking-service-tab,
+  .booking-service-tab__indicator {
     transition: none;
   }
 }
@@ -231,6 +253,14 @@ html {
 
   .booking-step-panel {
     animation: none;
+  }
+
+  @keyframes booking-continue-pop {
+    from,
+    to {
+      transform: none;
+      box-shadow: none;
+    }
   }
 }
 

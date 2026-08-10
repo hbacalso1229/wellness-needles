@@ -28,9 +28,9 @@ export const headerGoldCtaClassName =
 export const headerGoldCtaMobileClassName =
   `inline-flex shrink-0 items-center justify-center gap-1 ${goldBookingFillClassName} px-2 py-1 text-[11px] shadow-[0_8px_22px_rgba(196,154,42,0.32)] no-underline hover:no-underline sm:gap-1.5 sm:px-3.5 sm:py-1.5 sm:text-sm`
 
-/** Shared jungle-green section CTA — home Benefits / Services / Practitioner. Equal width; floating elevation; hover lift md+ only. Not for booking. */
+/** Shared section browse/explore link — home Benefits / Services / Practitioner. Quieter than Book gold CTAs. */
 export const sectionGreenCtaClassName =
-  'inline-flex h-11 w-[17.5rem] max-w-full shrink-0 items-center justify-center gap-2 rounded-full border border-[#1B3B2B]/35 bg-gradient-to-r from-[#3d6b2e] via-[#2d5016] to-[#1B3B2B] px-5 text-sm font-semibold text-cream whitespace-nowrap shadow-[0_8px_24px_rgba(27,59,43,0.32),0_2px_6px_rgba(27,59,43,0.18)] transition-[transform,box-shadow,filter] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white md:motion-safe:hover:-translate-y-1.5 md:hover:shadow-[0_14px_32px_rgba(27,59,43,0.4),0_4px_10px_rgba(27,59,43,0.2)] md:hover:brightness-105 md:motion-safe:active:translate-y-0 md:active:scale-[0.98]'
+  'group inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-primary underline-offset-4 transition-[color,gap] duration-300 ease-out hover:gap-2.5 hover:text-[#1B3B2B] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2'
 
 /** Shared glass-green fill — same tint/blur as Integrative Approach, Evidence, Find Us, etc. */
 export const glassGreenFillClassName =

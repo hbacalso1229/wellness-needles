@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { BadgeCheck, GraduationCap, School, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, GraduationCap, School, ArrowRight, type LucideIcon } from 'lucide-react'
 import { SectionHeading } from '../ui/SectionHeading'
 import { sectionGreenCtaClassName } from '../ui/CTAButton'
 
@@ -85,6 +85,10 @@ export function PractitionerSection() {
         <div className="mt-5 flex w-full justify-center md:mt-6">
           <Link href="/about/" className={sectionGreenCtaClassName}>
             Read Arkinth’s full story
+            <ArrowRight
+              className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-0.5"
+              aria-hidden
+            />
           </Link>
         </div>
       </div>

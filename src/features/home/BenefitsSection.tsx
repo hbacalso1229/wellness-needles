@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, Brain, Activity, Heart } from 'lucide-react'
+import { Zap, Brain, Activity, Heart, ArrowRight } from 'lucide-react'
 import { FeatureCard } from '../ui/FeatureCard'
 import { SectionHeading } from '../ui/SectionHeading'
 import { sectionGreenCtaClassName } from '../ui/CTAButton'
@@ -63,6 +63,10 @@ export function BenefitsSection() {
         <div className="mt-8 flex w-full justify-center md:mt-10">
           <Link href="/acupuncture/" className={sectionGreenCtaClassName}>
             Learn more about acupuncture
+            <ArrowRight
+              className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-0.5"
+              aria-hidden
+            />
           </Link>
         </div>
       </div>
