@@ -153,12 +153,11 @@ export default function Testimonials() {
   return (
     <div className="min-h-screen">
       <HeroSection
-        title="Patient Testimonials"
-        subtitle="Real stories from people who chose acupuncture with Wellness Needles"
-        description="Hear from patients in their own words — shared with consent — about how treatment supported their health and wellbeing."
+        title="Real results from real patients"
+        subtitle="In their own words — verified reviews from people treated at Wellness Needles."
         backgroundImage="/testimonials_patient_treatment.jpeg"
         backgroundImageClassName="object-cover object-center"
-        backgroundOverlayClassName="bg-gradient-to-b from-black/50 via-primary/32 to-black/50"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         backgroundClass="bg-primary"
         textColor="text-cream"
         showFloatingLeaves={true}
@@ -173,7 +172,28 @@ export default function Testimonials() {
             rel,
           },
         ]}
-      />
+      >
+        <div className="mx-auto mt-3 flex max-w-2xl flex-col items-center gap-3 sm:mt-4 sm:gap-4">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-cream/95 sm:text-base">
+            <span className="inline-flex items-center gap-0.5" aria-hidden>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+              ))}
+            </span>
+            <span>5-star verified Google reviews</span>
+          </div>
+          <ul className="flex flex-wrap justify-center gap-2">
+            {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
+              <li
+                key={category}
+                className="rounded-full border border-cream/35 bg-cream/10 px-3 py-1 text-xs font-semibold tracking-wide text-cream/95 sm:text-sm"
+              >
+                {category}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </HeroSection>
 
       {/* Real Patient Results — light canvas to match site header */}
       <section className="scroll-mt-24 bg-white py-8 md:py-10 lg:py-12">

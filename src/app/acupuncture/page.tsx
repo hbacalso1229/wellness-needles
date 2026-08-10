@@ -401,27 +401,33 @@ export default function Acupuncture() {
   return (
     <div className="min-h-screen">
       <HeroSection
-        title="Why Choose Acupuncture?"
-        subtitle="Discover the science and ancient wisdom behind this powerful healing modality"
-        description="Acupuncture has been used for over 3,000 years to treat a wide range of conditions, and modern research continues to validate its effectiveness."
+        title="Relieve pain. Restore balance."
+        subtitle="Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by modern practice."
         backgroundImage="/acupuncture_facial_treatment.jpeg"
         backgroundImageClassName="object-cover object-[55%_52%]"
-        backgroundOverlayClassName="bg-gradient-to-b from-black/45 via-primary/30 to-black/45"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         backgroundClass="bg-secondary"
         textColor="text-cream"
         showFloatingLeaves={true}
-        ctaWrapperClassName="xl:hidden"
-        ctaButtons={[
-          {
-            text: 'Schedule your treatment',
-            href: bookHref,
-            variant: 'gold',
-            external: isExternal,
-            target,
-            rel,
-          },
-        ]}
-      />
+      >
+        <ul className="mx-auto mt-2 flex max-w-xl list-none flex-col gap-2.5 text-left text-base sm:mt-3 sm:gap-3 sm:text-lg">
+          {[
+            'Relieves chronic pain naturally',
+            'Reduces stress and anxiety',
+            'Improves sleep quality',
+            'Supports hormonal balance',
+          ].map((benefit) => (
+            <li key={benefit} className="flex items-start gap-2.5">
+              <Check
+                className="mt-0.5 h-5 w-5 shrink-0 text-gold"
+                aria-hidden
+                strokeWidth={2.5}
+              />
+              <span className="leading-snug text-cream/95">{benefit}</span>
+            </li>
+          ))}
+        </ul>
+      </HeroSection>
 
       {/* How It Works — editorial 2-col */}
       <section className="bg-white py-8 md:py-10 lg:py-12">

@@ -3,7 +3,6 @@
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, Calendar, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
-import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 const sectionTitleClassName =
@@ -99,31 +98,30 @@ const diagnosisMethods: {
 ]
 
 export default function ChineseMedicine() {
-  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
-
   return (
     <div className="min-h-screen">
       <HeroSection
-        title="Traditional Chinese Medicine"
-        subtitle="Ancient wisdom meets modern wellness in our holistic approach to health"
-        description="Discover the profound principles that have guided healing for over 3,000 years, offering a complete system of medicine that treats the whole person."
+        title="Traditional Chinese Medicine, tailored to you"
+        subtitle="A holistic system that treats the root of imbalance — body, mind, and energy together."
+        description="Treating the root cause—not just the symptoms."
         backgroundImage="/chinese_medicine_herbs.jpeg"
         backgroundImageClassName="object-cover object-center"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         backgroundClass="bg-secondary"
         textColor="text-cream"
         showFloatingLeaves={true}
-        ctaWrapperClassName="xl:hidden"
-        ctaButtons={[
-          {
-            text: 'Begin your healing journey',
-            href: bookHref,
-            variant: 'gold',
-            external: isExternal,
-            target,
-            rel,
-          },
-        ]}
-      />
+      >
+        <ul className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-2 sm:mt-4">
+          {['Qi (energy)', 'Yin & Yang', 'Root-cause care'].map((principle) => (
+            <li
+              key={principle}
+              className="rounded-full border border-cream/35 bg-cream/10 px-3 py-1 text-xs font-semibold tracking-wide text-cream/95 sm:text-sm"
+            >
+              {principle}
+            </li>
+          ))}
+        </ul>
+      </HeroSection>
 
       {/* Philosophy — editorial two-column, no cards */}
       <section className="bg-white py-10 md:py-14 lg:py-16">

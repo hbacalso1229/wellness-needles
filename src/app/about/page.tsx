@@ -122,10 +122,10 @@ export default function About() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <HeroSection
-        title="About Wellness Needles"
-        subtitle="Dedicated to bringing you the finest in traditional Chinese medicine and acupuncture therapy"
-        description="Our practice combines ancient healing wisdom with modern understanding to provide comprehensive wellness solutions tailored to your unique needs."
+        title="Meet the care behind Wellness Needles"
+        subtitle="Personalised acupuncture and naturopathic care with Arkinth Garcia — focused on listening, root causes, and lasting wellbeing."
         backgroundImage="/hero_wellness_acupuncture.jpeg"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         showFloatingLeaves={true}
         ctaWrapperClassName="xl:hidden"
         ctaButtons={[
@@ -184,7 +184,7 @@ export default function About() {
                 </h3>
                 <p className="mb-2 text-base text-secondary">Naturopath &amp; Acupuncturist</p>
                 <p className="mb-3 text-base text-secondary">
-                  Qualified from the College of Naturopathic Medicine, Dublin
+                  Helping patients restore balance and feel better every day.
                 </p>
 
                 <ul className="flex flex-wrap justify-center gap-1.5">
