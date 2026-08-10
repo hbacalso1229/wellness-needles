@@ -34,6 +34,11 @@ interface FeatureCardProps {
    * Also enabled automatically when elevated + compact (e.g. home Services).
    */
   softIcon?: boolean
+  /**
+   * Layout alignment for static (non-flippable) cards.
+   * `start` = left-aligned icon+copy row on mobile; centered column from md+.
+   */
+  align?: 'center' | 'start'
   /** Optional content shown below the description (e.g. link or tag) */
   footer?: ReactNode
   /** Override default serif card title (e.g. sans for denser home grids) */
@@ -51,6 +56,7 @@ export function FeatureCard({
   compact = false,
   elevated = false,
   softIcon = false,
+  align = 'center',
   footer,
   titleClassName,
   href,
@@ -156,12 +162,15 @@ export function FeatureCard({
   const iconBadgeClass = softBadge
     ? 'border border-accent/25 bg-white shadow-sm'
     : 'bg-white'
+  const alignStart = align === 'start'
 
   const hoverIconCircle = (
     <div
-      className={`group/icon mx-auto flex shrink-0 items-center justify-center rounded-full ${iconBadgeClass} ${
+      className={`group/icon flex shrink-0 items-center justify-center rounded-full ${iconBadgeClass} ${
+        alignStart ? 'mx-0 md:mx-auto' : 'mx-auto'
+      } ${
         softBadge
-          ? 'mb-2 h-12 w-12 md:mb-3 md:h-14 md:w-14 md:transition-[transform,color,background-color] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] md:motion-safe:group-hover:scale-105'
+          ? `${alignStart ? 'mb-0 h-11 w-11' : 'mb-2 h-12 w-12'} md:mb-3 md:h-14 md:w-14 md:transition-[transform,color,background-color] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] md:motion-safe:group-hover:scale-105`
           : `md:transition-[transform,color,background-color] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] md:will-change-transform md:motion-safe:hover:-translate-y-3 md:motion-safe:hover:scale-125 md:motion-safe:group-hover:-translate-y-3 md:motion-safe:group-hover:scale-125 ${
               compact
                 ? 'mb-1.5 h-9 w-9 md:mb-3 md:h-14 md:w-14'
@@ -173,7 +182,7 @@ export function FeatureCard({
         strokeWidth={1.75}
         className={`${
           softBadge
-            ? 'h-6 w-6 text-accent md:h-8 md:w-8'
+            ? `${alignStart ? 'h-5 w-5' : 'h-6 w-6'} text-accent md:h-8 md:w-8`
             : `text-secondary/70 md:transition-[transform,color] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover/icon:text-primary md:group-hover:text-primary md:motion-safe:group-hover/icon:scale-110 md:motion-safe:group-hover:scale-110 ${
                 compact ? 'h-4 w-4 md:h-7 md:w-7' : 'h-5 w-5 md:h-8 md:w-8'
               }`
@@ -203,12 +212,20 @@ export function FeatureCard({
     titleClassName ??
     'text-lg font-semibold leading-snug text-[var(--text-dark)] md:text-xl'
 
-  const panelClass = elevated
-    ? 'rounded-lg border border-accent/15 bg-white shadow-sm'
-    : 'rounded-lg border border-transparent bg-transparent shadow-none md:border-accent/15 md:bg-white md:shadow-sm'
+  // elevated + align=start: flat list on mobile, full card from md
+  const panelClass =
+    elevated && alignStart
+      ? 'rounded-lg border border-transparent bg-transparent shadow-none md:border-accent/15 md:bg-white md:shadow-sm'
+      : elevated
+        ? 'rounded-lg border border-accent/15 bg-white shadow-sm'
+        : 'rounded-lg border border-transparent bg-transparent shadow-none md:border-accent/15 md:bg-white md:shadow-sm'
 
   const learnMoreStatic = href ? (
-    <span className="mt-3 inline-flex items-center justify-center gap-1 text-sm font-bold text-primary underline-offset-4 md:mt-4 md:transition-[gap,color] md:duration-200 md:group-hover:gap-1.5 md:group-hover:text-secondary md:group-hover:underline">
+    <span
+      className={`mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary underline-offset-4 md:mt-4 md:transition-[gap,color] md:duration-200 md:group-hover:gap-1.5 md:group-hover:text-secondary md:group-hover:underline ${
+        alignStart ? 'justify-start md:justify-center' : 'justify-center'
+      }`}
+    >
       Learn more
       <ArrowRight
         className="h-4 w-4 md:transition-transform md:duration-200 md:motion-safe:group-hover:translate-x-0.5"
@@ -217,23 +234,24 @@ export function FeatureCard({
     </span>
   ) : null
 
-  const staticCardInner = (
+  const staticCardInner = alignStart ? (
+    <>
+      {/* Mobile: icon beside copy. md+: centered column (desktop card look) */}
+      <div className="flex flex-row items-start gap-3 text-left md:flex-col md:items-center md:gap-0 md:text-center">
+        {hoverIconCircle}
+        <div className="min-w-0 flex-1 md:flex md:w-full md:flex-col md:items-center">
+          <h3 className={`${cardTitleClass} mb-1.5 md:mb-3`}>{title}</h3>
+          <p className="text-base leading-relaxed text-[var(--text-dark)]/70">{description}</p>
+          {learnMoreStatic}
+          {footer ? <div className="mt-3 md:mt-4">{footer}</div> : null}
+        </div>
+      </div>
+    </>
+  ) : (
     <>
       {hoverIconCircle}
-      <h3
-        className={`${cardTitleClass} mb-2 md:mb-3 ${
-          compact ? 'min-h-[2.75rem] md:min-h-[3.5rem]' : ''
-        }`}
-      >
-        {title}
-      </h3>
-      <p
-        className={`text-base leading-relaxed text-[var(--text-dark)]/70 ${
-          compact ? 'min-h-[3rem] flex-1 md:min-h-[3.5rem]' : ''
-        }`}
-      >
-        {description}
-      </p>
+      <h3 className={`${cardTitleClass} mb-2 md:mb-3`}>{title}</h3>
+      <p className="flex-1 text-base leading-relaxed text-[var(--text-dark)]/70">{description}</p>
       {learnMoreStatic}
       {footer ? <div className="mt-3 md:mt-4">{footer}</div> : null}
     </>
@@ -242,10 +260,17 @@ export function FeatureCard({
   const elevatedHoverClass =
     'md:motion-safe:hover:-translate-y-1.5 md:hover:border-primary/30 md:hover:shadow-[0_14px_32px_rgba(27,59,43,0.12)]'
 
-  const staticCardClassName = `group flex h-full flex-col text-center card-emboss md:transition-[transform,border-color,box-shadow] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] ${panelClass} ${
-    compact ? 'p-4 md:p-5' : 'p-5 md:p-6'
+  // Benefits use align=start without elevated (flat mobile); still need md+ card hover like Services
+  const staticCardClassName = `group flex h-full flex-col card-emboss md:transition-[transform,border-color,box-shadow] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+    alignStart ? 'items-stretch text-left md:text-center' : 'text-center'
+  } ${panelClass} ${
+    compact
+      ? alignStart
+        ? 'p-0 py-1 md:p-5'
+        : 'p-4 md:p-5'
+      : 'p-5 md:p-6'
   } ${
-    href || elevated ? elevatedHoverClass : ''
+    href || elevated || alignStart ? elevatedHoverClass : ''
   } ${
     href
       ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white'

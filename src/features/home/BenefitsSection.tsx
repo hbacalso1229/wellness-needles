@@ -44,13 +44,13 @@ export function BenefitsSection() {
           className="text-center mb-5 md:mb-6 lg:mb-8"
         />
 
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:gap-6 lg:gap-8 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 md:gap-6 lg:gap-8 xl:grid-cols-4">
           {benefits.map((benefit) => (
             <FeatureCard
               key={benefit.title}
               compact
-              elevated
               softIcon
+              align="start"
               icon={benefit.icon}
               title={benefit.title}
               description={benefit.description}

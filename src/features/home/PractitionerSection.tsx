@@ -29,7 +29,7 @@ export function PractitionerSection() {
 
         <article className="mx-auto max-w-4xl rounded-[20px] border border-[#1B3B2B]/08 bg-white p-4 shadow-[0_6px_20px_rgba(27,59,43,0.06)] md:p-5">
           <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-[12.5rem_1fr] md:gap-6 lg:grid-cols-[15rem_1fr]">
-            <div className="relative mx-auto h-48 w-48 shrink-0 overflow-hidden rounded-2xl border border-accent/15 bg-accent/10 shadow-sm sm:mx-0 sm:aspect-square sm:h-auto sm:w-full">
+            <div className="relative mx-auto h-48 w-48 shrink-0 overflow-hidden rounded-full border border-accent/15 bg-accent/10 shadow-sm sm:mx-0 sm:aspect-square sm:h-auto sm:w-full sm:rounded-2xl">
               <Image
                 src="/Arkinth_clinic_founder.jpeg"
                 alt="Arkinth Garcia, Naturopath and Acupuncturist"

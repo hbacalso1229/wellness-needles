@@ -103,6 +103,13 @@ const evidencePoints: {
 
 const CONDITION_PREVIEW = 3
 
+const heroBenefits = [
+  'Relieves chronic pain naturally',
+  'Reduces stress and anxiety',
+  'Improves sleep quality',
+  'Supports hormonal balance',
+] as const
+
 type ConditionAccent = {
   icon: string
   iconBg: string
@@ -239,11 +246,12 @@ function ConditionCard({
 }: (typeof conditions)[number]) {
   const [expanded, setExpanded] = useState(false)
   const hiddenCount = Math.max(0, items.length - CONDITION_PREVIEW)
+  // Mobile: chevron shows all items. md+: preview-3 until "+N more".
   const visibleItems = expanded ? items : items.slice(0, CONDITION_PREVIEW)
 
   return (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border p-5 shadow-[0_3px_16px_rgba(27,59,43,0.04)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accent.surface} ${accent.border} ${accent.hoverBorder} hover:shadow-[0_10px_28px_rgba(27,59,43,0.08)] motion-safe:md:hover:-translate-y-1.5 md:p-6`}
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border p-4 shadow-[0_3px_16px_rgba(27,59,43,0.04)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accent.surface} ${accent.border} ${accent.hoverBorder} hover:shadow-[0_10px_28px_rgba(27,59,43,0.08)] motion-safe:md:hover:-translate-y-1.5 md:p-6`}
     >
       <div className={`absolute inset-x-0 top-0 h-px ${accent.bar}`} aria-hidden />
 
@@ -295,7 +303,7 @@ function ConditionCard({
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className={`mt-3 inline-flex items-center gap-1 text-sm font-semibold ${accent.more} underline-offset-4 transition-colors hover:underline`}
+              className={`mt-3 hidden items-center gap-1 text-sm font-semibold underline-offset-4 transition-colors hover:underline md:inline-flex ${accent.more}`}
             >
               {expanded ? 'Show less' : `+${hiddenCount} more`}
               <ArrowRight
@@ -411,12 +419,7 @@ export default function Acupuncture() {
         showFloatingLeaves={true}
       >
         <ul className="mx-auto mt-2 flex max-w-xl list-none flex-col gap-2.5 text-left text-base sm:mt-3 sm:gap-3 sm:text-lg">
-          {[
-            'Relieves chronic pain naturally',
-            'Reduces stress and anxiety',
-            'Improves sleep quality',
-            'Supports hormonal balance',
-          ].map((benefit) => (
+          {heroBenefits.map((benefit) => (
             <li key={benefit} className="flex items-start gap-2.5">
               <Check
                 className="mt-0.5 h-5 w-5 shrink-0 text-gold"
@@ -429,19 +432,57 @@ export default function Acupuncture() {
         </ul>
       </HeroSection>
 
+      {/* Mobile page intro — hero is xl-only */}
+      <section className="bg-[#F7FAF8] px-4 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-6 xl:hidden">
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Relieve pain. Restore balance.
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+            Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by
+            modern practice.
+          </p>
+          <ul className="mx-auto mt-5 flex max-w-sm list-none flex-col gap-2.5 text-left text-base sm:mt-6">
+            {heroBenefits.map((benefit) => (
+              <li key={benefit} className="flex items-start gap-2.5">
+                <Check
+                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                  aria-hidden
+                  strokeWidth={2.5}
+                />
+                <span className="leading-snug text-[var(--text-dark)]/85">{benefit}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 flex justify-center sm:mt-7">
+            <CTAButton
+              href={bookHref}
+              variant="gold"
+              showArrow={false}
+              external={isExternal}
+              target={target}
+              rel={rel}
+            >
+              <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+              Book your first session
+            </CTAButton>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works — editorial 2-col */}
-      <section className="bg-white py-8 md:py-10 lg:py-12">
+      <section className="bg-white py-5 sm:py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="How Acupuncture Restores Balance"
             subtitle="Acupuncture works by stimulating specific points on the body to restore the natural flow of energy and promote healing"
           />
-          <p className="mx-auto mb-8 max-w-xl text-center text-base font-[450] leading-[1.7] text-[#2C3E35] md:mb-10">
+          <p className="mx-auto mb-8 hidden max-w-xl text-center text-base font-[450] leading-[1.7] text-[#2C3E35] sm:block md:mb-10">
             Whether you&apos;re seeking pain relief or overall wellness, acupuncture offers a natural
             path to balance.
           </p>
 
-          <div className="relative grid grid-cols-1 gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-0">
+          <div className="relative grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-2 lg:gap-0">
             {/* Intentional vertical divider — soft gold fade */}
             <div
               className="pointer-events-none absolute inset-y-3 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-gold/55 to-transparent lg:block"
@@ -460,7 +501,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Conditions — interactive category cards */}
-      <section id="conditions-we-treat" className="scroll-mt-24 bg-white py-8 md:py-10 lg:py-12">
+      <section id="conditions-we-treat" className="scroll-mt-24 bg-white py-5 sm:py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Conditions We Treat"
@@ -498,7 +539,7 @@ export default function Acupuncture() {
       </section>
 
       {/* Scientific Evidence — open proof on glass */}
-      <section className={`${glassGreenBandClassName} py-8 md:py-10 lg:py-12`}>
+      <section className={`${glassGreenBandClassName} py-5 sm:py-8 md:py-10 lg:py-12`}>
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Evidence You Can Trust"
@@ -508,7 +549,7 @@ export default function Acupuncture() {
 
           <div className="space-y-2 text-left text-base leading-relaxed text-[var(--text-dark)]/70 md:space-y-3 md:text-center">
             <p>Modern research validates what traditional practitioners have known for millennia</p>
-            <p>
+            <p className="hidden sm:block">
               Acupuncture is supported by thousands of published studies, recognized by the WHO for
               dozens of conditions, and backed by NIH guidance for pain care — with a strong safety
               profile when delivered by trained practitioners.
@@ -531,7 +572,29 @@ export default function Acupuncture() {
             ))}
           </p>
 
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-8 md:grid-cols-4 md:gap-3 lg:gap-4">
+          {/* Mobile: flat list */}
+          <ul className="mt-5 space-y-3 sm:hidden">
+            {evidencePoints.map(({ title, description, icon: Icon, iconTone, iconBg }) => (
+              <li key={title} className="flex items-start gap-3">
+                <div
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${iconBg}`}
+                >
+                  <Icon className={`h-4 w-4 ${iconTone}`} strokeWidth={1.75} aria-hidden />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base font-semibold leading-snug text-[var(--text-dark)]">
+                    {title}
+                  </h3>
+                  <p className="mt-0.5 text-sm leading-relaxed text-[var(--text-dark)]/70">
+                    {description}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* sm+: card grid */}
+          <div className="mt-6 hidden grid-cols-1 gap-3 sm:mt-8 sm:grid sm:grid-cols-2 md:grid-cols-4 md:gap-3 lg:gap-4">
             {evidencePoints.map(({ title, description, icon: Icon, iconTone, iconBg }) => (
               <article
                 key={title}

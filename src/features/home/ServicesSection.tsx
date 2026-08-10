@@ -48,12 +48,13 @@ export function ServicesSection() {
           className="text-center mb-5 md:mb-6 lg:mb-8"
         />
 
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:gap-6 lg:gap-8 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 md:gap-6 lg:gap-8 xl:grid-cols-4">
           {services.map((service) => (
             <FeatureCard
               key={service.title}
               compact
               elevated
+              align="start"
               href={service.href}
               icon={service.icon}
               title={service.title}
