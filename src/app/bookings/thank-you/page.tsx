@@ -7,6 +7,7 @@ import {
   MapPin,
   Clock,
   HeartHandshake,
+  MessageSquare,
 } from 'lucide-react'
 import { SectionHeading, glassGreenPanelClassName } from '@/features'
 import { BookingResultBrand } from '@/components/BookingResultBrand'
@@ -161,6 +162,13 @@ export default function BookingThankYouPage() {
                   label="Preferred time"
                   value={summary.time}
                 />
+                {summary.message ? (
+                  <SummaryRow
+                    icon={MessageSquare}
+                    label="Message"
+                    value={summary.message}
+                  />
+                ) : null}
               </ul>
 
               <div className="mt-4 space-y-1.5 border-t border-accent/20 pt-3 text-center sm:mt-5 sm:pt-4">

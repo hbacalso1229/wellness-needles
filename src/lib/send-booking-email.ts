@@ -19,6 +19,8 @@ export type BookingEmailPayload = {
   email: string
   phone: string
   dateOfBirth: string
+  /** Optional patient note from Personal Information (not the Web3Forms reserved `message`). */
+  message?: string
 }
 
 /** Short clinic message — booking details live in structured fields only. */
@@ -95,6 +97,7 @@ export async function sendBookingRequestEmail(
 
   const fullName = `${payload.firstName} ${payload.lastName}`.trim()
   const preferredDateDisplay = formatDisplayDate(payload.date)
+  const patientMessage = payload.message?.trim() ?? ''
 
   try {
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -123,6 +126,7 @@ export async function sendBookingRequestEmail(
         practitioner: payload.practitioner,
         phone: payload.phone,
         date_of_birth: payload.dateOfBirth,
+        ...(patientMessage ? { patient_message: patientMessage } : {}),
       }),
     })
 

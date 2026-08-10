@@ -130,6 +130,7 @@ Clinic notification keeps details **once** (avoid duplicating the same fields in
 | `visit_type`, `location`, `service`, `add_ons` | Booking selection |
 | `preferred_date`, `preferred_time`, `practitioner` | Schedule |
 | `phone`, `date_of_birth` | Patient contact details beyond name/email |
+| `patient_message` | Optional note from Personal Information (omitted when empty) |
 
 Patient thank-you copy belongs in the **Web3Forms Autoresponder Intro** (dashboard), not as extra submission fields. With “Show copy of their submission: Yes”, the patient sees the structured fields above once.
 

@@ -319,6 +319,7 @@ export default function BookingForm() {
     email: '',
     phone: '',
     dateOfBirth: '',
+    message: '',
   })
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
@@ -552,6 +553,7 @@ export default function BookingForm() {
       email: '',
       phone: '',
       dateOfBirth: '',
+      message: '',
     })
     resetHCaptcha()
   }
@@ -680,6 +682,7 @@ export default function BookingForm() {
       date: payload.date,
       time: payload.time,
       serviceType: payload.serviceType,
+      message: payload.message?.trim() || undefined,
     })
     resetForm()
     setToast(null)
@@ -1024,6 +1027,20 @@ export default function BookingForm() {
                   <FieldInlineError
                     id="dateOfBirth-error"
                     message={fieldErrorMessage('dateOfBirth')}
+                  />
+                </div>
+                <div className="md:col-span-2 min-w-0 w-full max-w-full">
+                  <label htmlFor="message" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Anything we should know before your visit? (optional)"
+                    className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
                 </div>
               </div>
