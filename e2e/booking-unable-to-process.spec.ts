@@ -10,16 +10,19 @@ test.describe('booking unable-to-process', () => {
     ).toBeVisible()
     await expect(page.getByText(/sorry for the inconvenience/i)).toBeVisible()
 
-    await expect(
-      page.getByRole('link', { name: /Call \+?353|Call 0/i })
-    ).toBeVisible()
-    await expect(
-      page.getByRole('link', { name: /Email info@wellnessneedles\.ie/i })
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Need help/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Call Now/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Send a message/i })).toBeVisible()
+    await expect(page.getByText(/\+?353|086/i).first()).toBeVisible()
 
-    const close = page.getByRole('link', { name: /Close and return to booking/i })
-    await expect(close).toHaveAttribute('href', /\/bookings\/?/)
-    await close.click()
+    await expect(page.getByRole('banner')).toHaveCount(0)
+    await expect(page.getByRole('contentinfo')).toHaveCount(0)
+
+    const back = page.getByRole('link', {
+      name: /Back to bookings|Close and return to booking/i,
+    })
+    await expect(back).toHaveAttribute('href', /\/bookings\/?/)
+    await back.click()
     await expect(page).toHaveURL(/\/bookings\/?$/)
   })
 

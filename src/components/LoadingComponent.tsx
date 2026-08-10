@@ -5,7 +5,7 @@ import { PulsingLeaf } from '@/features/ui/PulsingLeaf'
 
 export default function LoadingComponent() {
   return (
-    <div className="min-h-screen jungle-gradient flex flex-col items-center justify-center pt-16">
+    <div className="min-h-screen jungle-gradient flex flex-col items-center justify-center pt-14">
       {/* Main Loading Content */}
       <div className="flex flex-col items-center space-y-8 relative">
         {/* Floating Leaves Background */}
@@ -68,9 +68,9 @@ export default function LoadingComponent() {
         <div className="text-center space-y-2 relative z-10">
           <p className="text-lg text-cream/90 animate-pulse">Loading...</p>
           <div className="flex space-x-1 justify-center">
-            <div className="w-2 h-2 bg-cream rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-            <div className="w-2 h-2 bg-cream/80 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-2 h-2 bg-cream/60 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-2 h-2 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
           </div>
         </div>
 
@@ -78,20 +78,20 @@ export default function LoadingComponent() {
         <div className="w-full max-w-4xl space-y-6 mt-12 relative z-10">
           {/* Hero Section Skeleton */}
           <div className="space-y-4">
-            <div className="h-8 bg-cream/20 rounded-lg animate-pulse"></div>
-            <div className="h-6 bg-cream/15 rounded-lg animate-pulse w-3/4 mx-auto"></div>
-            <div className="h-4 bg-cream/10 rounded-lg animate-pulse w-1/2 mx-auto"></div>
+            <div className="h-8 bg-white/20 rounded-lg animate-pulse"></div>
+            <div className="h-6 bg-white/15 rounded-lg animate-pulse w-3/4 mx-auto"></div>
+            <div className="h-4 bg-white/10 rounded-lg animate-pulse w-1/2 mx-auto"></div>
           </div>
 
           {/* Content Cards Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-cream/10 rounded-xl p-6 space-y-4 animate-pulse">
-                <div className="w-12 h-12 bg-cream/30 rounded-full"></div>
-                <div className="h-6 bg-cream/25 rounded"></div>
+              <div key={item} className="bg-white/10 rounded-xl p-6 space-y-4 animate-pulse">
+                <div className="w-12 h-12 bg-white/30 rounded-full"></div>
+                <div className="h-6 bg-white/25 rounded"></div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-cream/20 rounded w-full"></div>
-                  <div className="h-4 bg-cream/20 rounded w-2/3"></div>
+                  <div className="h-4 bg-white/20 rounded w-full"></div>
+                  <div className="h-4 bg-white/20 rounded w-2/3"></div>
                 </div>
               </div>
             ))}
@@ -99,9 +99,9 @@ export default function LoadingComponent() {
 
           {/* Additional Content Lines */}
           <div className="space-y-3 mt-8">
-            <div className="h-4 bg-cream/15 rounded animate-pulse"></div>
-            <div className="h-4 bg-cream/10 rounded animate-pulse w-5/6"></div>
-            <div className="h-4 bg-cream/5 rounded animate-pulse w-4/5"></div>
+            <div className="h-4 bg-white/15 rounded animate-pulse"></div>
+            <div className="h-4 bg-white/10 rounded animate-pulse w-5/6"></div>
+            <div className="h-4 bg-white/5 rounded animate-pulse w-4/5"></div>
           </div>
         </div>
       </div>

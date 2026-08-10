@@ -33,10 +33,10 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
 
       {open ? (
         <div className="border-t border-accent/15 px-4 pb-4 pt-3">
-          <p className="text-sm leading-relaxed text-secondary mb-3">
+          <p className="text-base leading-relaxed text-secondary mb-3">
             Travel fees may apply outside the included radius.
           </p>
-          <ul className="text-sm leading-relaxed text-secondary space-y-2">
+          <ul className="text-base leading-relaxed text-secondary space-y-2">
             <li className="flex items-start gap-2">
               <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
               <span>Within 10 km included</span>

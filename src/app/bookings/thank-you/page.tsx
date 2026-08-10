@@ -7,11 +7,12 @@ import {
   MapPin,
   Clock,
   HeartHandshake,
-  Phone,
-  Sparkles,
+  MessageSquare,
 } from 'lucide-react'
-import { contactConfig } from '@/lib/contact-config'
-import { BookingResultCloseButton } from '@/components/BookingResultCloseButton'
+import { SectionHeading, glassGreenPanelClassName } from '@/features'
+import { BookingResultBrand } from '@/components/BookingResultBrand'
+import { BookingResultNav } from '@/components/BookingResultCloseButton'
+import { BookingResultHelpCard } from '@/components/BookingResultHelpCard'
 import {
   clearBookingThankYouSummary,
   readBookingThankYouSummary,
@@ -43,8 +44,8 @@ function SummaryRow({
   detail?: string
 }) {
   return (
-    <li className="flex items-start gap-3 rounded-lg bg-cream/70 px-3 py-3 sm:px-4 sm:py-3.5">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-white sm:h-9 sm:w-9">
+    <li className="flex items-start gap-3 rounded-xl border border-accent/15 bg-white px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-accent/10 sm:h-9 sm:w-9">
         <Icon className="h-4 w-4 text-primary sm:h-[1.125rem] sm:w-[1.125rem]" aria-hidden />
       </div>
       <div className="min-w-0 flex-1 text-left">
@@ -87,53 +88,52 @@ export default function BookingThankYouPage() {
     clearBookingThankYouSummary()
   }
 
+  const title =
+    ready && summary ? `Thank you, ${summary.firstName}` : 'Thank you'
+
+  const subtitle =
+    ready && summary ? (
+      <>
+        We appreciate you trusting{' '}
+        <span className="font-bold text-primary">Wellness Needles</span> with your
+        care. Your appointment request is with us — we look forward to supporting
+        you.
+      </>
+    ) : (
+      'We appreciate you reaching out. If you just submitted a request, we have it and will be in touch soon.'
+    )
+
   return (
-    <div className="relative min-h-[calc(100dvh-4rem)] bg-cream">
+    <div className="relative flex h-dvh max-h-dvh flex-col overflow-hidden bg-white">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_at_top,_rgba(127,176,105,0.12)_0%,_transparent_70%)]"
         aria-hidden
       />
 
-      <section className="relative px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12 md:pb-20 md:pt-16 lg:pb-24 lg:pt-20">
-        <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
-          <BookingResultCloseButton onClick={handleClose} />
+      <section className="relative flex flex-1 flex-col overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 md:py-5 lg:px-8 lg:py-8">
+        <div className="mx-auto my-auto w-full max-w-md pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-12 sm:max-w-lg md:max-w-xl md:pt-14">
+          <BookingResultNav onNavigate={handleClose} />
 
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-accent/30 bg-accent/15 shadow-sm sm:mb-5 sm:h-16 sm:w-16 md:h-[4.5rem] md:w-[4.5rem]">
-              <CheckCircle2
-                className="h-7 w-7 text-primary sm:h-8 sm:w-8 md:h-9 md:w-9"
-                aria-hidden
-              />
-            </div>
+          <BookingResultBrand />
 
-            <p className="mb-2 inline-flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary/80 sm:text-sm">
-              <Sparkles className="h-3.5 w-3.5 text-gold" aria-hidden />
-              Request received
-            </p>
-
-            <h1
-              ref={headingRef}
-              tabIndex={-1}
-              className="font-serif text-[1.65rem] font-bold leading-snug text-primary outline-none sm:text-3xl md:text-4xl"
-            >
-              {ready && summary ? `Thank you, ${summary.firstName}` : 'Thank you'}
-            </h1>
-
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-base md:text-lg md:leading-relaxed">
-              {ready && summary
-                ? 'We appreciate you trusting Wellness Needles with your care. Your appointment request is with us — we look forward to supporting you.'
-                : 'We appreciate you reaching out. If you just submitted a request, we have it and will be in touch soon.'}
-            </p>
-          </div>
+          <SectionHeading
+            titleAs="h1"
+            titleRef={headingRef}
+            titleTabIndex={-1}
+            title={title}
+            credit="Request received — we will confirm by email or phone."
+            subtitle={subtitle}
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
+            creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
+            subtitleClassName="text-base sm:text-lg text-[var(--text-dark)]/70 max-w-xl mx-auto leading-relaxed"
+            className="text-center mb-4 sm:mb-5 lg:mb-6"
+          />
 
           {ready && summary ? (
-            <div className="mt-6 rounded-2xl border border-accent/15 bg-white p-4 shadow-sm shadow-primary/5 sm:mt-8 sm:p-5 md:mt-10 md:p-6">
+            <div className={`${glassGreenPanelClassName} p-3.5 sm:p-6`}>
               <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                <HeartHandshake
-                  className="h-4 w-4 shrink-0 text-primary sm:h-5 sm:w-5"
-                  aria-hidden
-                />
-                <h2 className="text-sm font-semibold text-primary sm:text-base">
+                <HeartHandshake className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                <h2 className="text-base font-semibold text-primary sm:text-lg">
                   Your booking confirmation
                 </h2>
               </div>
@@ -162,48 +162,47 @@ export default function BookingThankYouPage() {
                   label="Preferred time"
                   value={summary.time}
                 />
+                {summary.message ? (
+                  <SummaryRow
+                    icon={MessageSquare}
+                    label="Message"
+                    value={summary.message}
+                  />
+                ) : null}
               </ul>
 
-              <div className="mt-4 space-y-2 border-t border-accent/15 pt-3 text-center sm:mt-5 sm:pt-4">
+              <div className="mt-4 space-y-1.5 border-t border-accent/20 pt-3 text-center sm:mt-5 sm:pt-4">
                 {summary.email ? (
-                  <p className="break-words text-xs leading-relaxed text-[var(--text-dark)]/70 sm:text-sm">
+                  <p className="break-words text-sm leading-relaxed text-[var(--text-dark)]/70">
                     A confirmation email is on its way to{' '}
-                    <span className="font-medium text-[var(--text-dark)]/85">
+                    <span className="font-bold text-[var(--text-dark)]">
                       {summary.email}
                     </span>
                     .
                   </p>
                 ) : null}
-                <p className="text-xs leading-relaxed text-[var(--text-dark)]/60 sm:text-sm">
-                  We&apos;ll contact you within 24 hours to confirm. Your preferred time is
-                  not locked until then.
+                <p className="text-sm leading-relaxed text-[var(--text-dark)]/60">
+                  We&apos;ll contact you within 24 hours to confirm. Your preferred time
+                  is not locked until then.
                 </p>
               </div>
             </div>
           ) : ready ? (
-            <div className="mt-6 rounded-2xl border border-accent/15 bg-white p-5 text-center shadow-sm shadow-primary/5 sm:mt-8 sm:p-6">
-              <p className="text-sm leading-relaxed text-[var(--text-dark)]/70 sm:text-base">
-                No booking details were found for this visit. You can request an appointment
-                anytime — it only takes a minute.
+            <div className={`${glassGreenPanelClassName} p-4 text-center sm:p-6`}>
+              <p className="text-base leading-relaxed text-[var(--text-dark)]/70">
+                No booking details were found for this visit. You can request an
+                appointment anytime — it only takes a minute.
               </p>
             </div>
           ) : (
             <div
-              className="mt-6 h-48 animate-pulse rounded-2xl bg-accent/10 sm:mt-8 sm:h-56"
+              className={`${glassGreenPanelClassName} h-40 animate-pulse sm:h-44`}
               aria-hidden
             />
           )}
 
-          {ready && summary ? (
-            <p className="mt-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-center sm:mt-8">
-              <a
-                href={contactConfig.phone.href}
-                className="inline-flex min-h-11 items-center justify-center gap-2 py-2 text-sm font-medium text-primary/75 transition-colors hover:text-primary sm:text-base"
-              >
-                <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                Call {contactConfig.phone.displayText}
-              </a>
-            </p>
+          {ready ? (
+            <BookingResultHelpCard intro="Questions about your request? Call or email and we can help." />
           ) : null}
         </div>
       </section>

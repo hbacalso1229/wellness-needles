@@ -18,7 +18,16 @@ test.describe('booking thank-you', () => {
     await expect(page.getByText(/Your booking confirmation/i)).toBeVisible()
     await expect(page.getByText(/Initial Consultation/i).first()).toBeVisible()
 
-    await page.getByRole('link', { name: /Close and return to booking/i }).click()
+    // Full-screen result: site chrome gone; in-page brand remains
+    await expect(page.getByRole('banner')).toHaveCount(0)
+    await expect(page.getByRole('contentinfo')).toHaveCount(0)
+    await expect(
+      page.getByRole('link', { name: /Wellness Needles/i }).first()
+    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Need help/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Call Now/i })).toBeVisible()
+
+    await page.getByRole('link', { name: /Back to bookings|Close and return to booking/i }).click()
     await expect(page).toHaveURL(/\/bookings\/?$/)
   })
 })

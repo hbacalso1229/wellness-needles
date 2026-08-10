@@ -19,7 +19,12 @@ export type BookingEmailPayload = {
   email: string
   phone: string
   dateOfBirth: string
+  /** Optional patient note from Personal Information (not the Web3Forms reserved `message`). */
+  message?: string
 }
+
+/** Short clinic message — booking details live in structured fields only. */
+const CLINIC_MESSAGE = 'New appointment request from the website booking form.'
 
 function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
@@ -32,42 +37,6 @@ function formatDisplayDate(isoDate: string): string {
     month: 'long',
     year: 'numeric',
   })
-}
-
-function formatBookingMessage(payload: BookingEmailPayload): string {
-  const preferredDate = formatDisplayDate(payload.date)
-  const lines = [
-    'New appointment request from the website booking form.',
-    '',
-    `Visit type: ${payload.serviceType}`,
-    `Location: ${payload.locationLabel || 'Not specified'}`,
-    `Service: ${payload.serviceLabel || 'Not specified'}`,
-    `Add-ons: ${payload.addOnLabels?.length ? payload.addOnLabels.join(', ') : 'None'}`,
-    `Preferred date: ${preferredDate}`,
-    `Preferred time: ${payload.time}`,
-    `Practitioner: ${payload.practitioner}`,
-    '',
-    `Name: ${payload.firstName} ${payload.lastName}`,
-    `Email: ${payload.email}`,
-    `Phone: ${payload.phone}`,
-    `Date of birth: ${payload.dateOfBirth}`,
-  ]
-  return lines.join('\n')
-}
-
-/** Patient-facing summary included in Web3Forms submission (Autoresponder copy). */
-function formatPatientBookingSummary(payload: BookingEmailPayload): string {
-  const preferredDate = formatDisplayDate(payload.date)
-  return [
-    `Service: ${payload.serviceLabel || 'Not specified'}`,
-    `Visit type: ${payload.serviceType}`,
-    `Location: ${payload.locationLabel || 'Not specified'}`,
-    `Preferred date: ${preferredDate}`,
-    `Preferred time: ${payload.time}`,
-    '',
-    'We will contact you within 24 hours to confirm your appointment.',
-    'Your preferred time is not locked until we confirm.',
-  ].join('\n')
 }
 
 export type SendBookingEmailResult =
@@ -84,11 +53,12 @@ export const BOOKING_REQUEST_INBOX = contactConfig.email.address
 /**
  * Sends the booking request to the clinic inbox via Web3Forms.
  *
+ * Details are sent once as structured fields (not duplicated in `message`).
  * Patient thank-you email: enable **Autoresponder** on this form in the Web3Forms
  * dashboard (Pro). It replies to the submission `email` field. Suggested settings:
  * - Subject: We received your appointment request — Wellness Needles
  * - Intro: thank-you + we’ll confirm within 24 hours (preferred time not locked)
- * - Show copy of their submission: Yes (includes booking_summary / structured fields)
+ * - Show copy of their submission: Yes (structured booking fields once)
  * - Logo (optional): full https URL to /logo_wellness.jpeg
  * - Note: Autoresponder typically works on production sites, not localhost
  */
@@ -127,6 +97,7 @@ export async function sendBookingRequestEmail(
 
   const fullName = `${payload.firstName} ${payload.lastName}`.trim()
   const preferredDateDisplay = formatDisplayDate(payload.date)
+  const patientMessage = payload.message?.trim() ?? ''
 
   try {
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -143,20 +114,19 @@ export async function sendBookingRequestEmail(
         email: payload.email,
         replyto: payload.email,
         to: emailTo,
-        message: formatBookingMessage(payload),
+        message: CLINIC_MESSAGE,
         'h-captcha-response': token,
-        // Structured fields for Web3Forms dashboard + Autoresponder submission copy
+        // Single detail list for clinic email + Autoresponder submission copy
         visit_type: payload.serviceType,
-        location: payload.locationLabel || '',
-        service: payload.serviceLabel || '',
-        add_ons: payload.addOnLabels?.join(', ') || 'None',
+        location: payload.locationLabel || 'Not specified',
+        service: payload.serviceLabel || 'Not specified',
+        add_ons: payload.addOnLabels?.length ? payload.addOnLabels.join(', ') : 'None',
         preferred_date: preferredDateDisplay,
         preferred_time: payload.time,
+        practitioner: payload.practitioner,
         phone: payload.phone,
         date_of_birth: payload.dateOfBirth,
-        booking_summary: formatPatientBookingSummary(payload),
-        patient_note:
-          'Thank you for your appointment request. We appreciate you trusting Wellness Needles with your care. We will contact you within 24 hours to confirm — your preferred time is not locked until then.',
+        ...(patientMessage ? { patient_message: patientMessage } : {}),
       }),
     })
 

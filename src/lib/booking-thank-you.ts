@@ -10,6 +10,8 @@ export type BookingThankYouSummary = {
   date: string
   time: string
   serviceType: string
+  /** Optional note from Personal Information. */
+  message?: string
 }
 
 function parseSummary(raw: string | null): BookingThankYouSummary | null {
@@ -29,6 +31,10 @@ function parseSummary(raw: string | null): BookingThankYouSummary | null {
       date: parsed.date,
       time: parsed.time,
       serviceType: parsed.serviceType,
+      message:
+        typeof parsed.message === 'string' && parsed.message.trim()
+          ? parsed.message.trim()
+          : undefined,
     }
   } catch {
     return null

@@ -2,11 +2,15 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { isAdminUiEnabled } from '@/lib/admin-ui'
+import { headerGoldCtaClassName, headerGoldCtaMobileClassName } from '@/features/ui/CTAButton'
+
+const HEADER_CLASS =
+  'fixed top-0 z-50 w-full overflow-visible border-b border-white/40 bg-white/40 backdrop-blur-[2px] supports-[backdrop-filter]:bg-white/30 shadow-sm'
 
 function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
@@ -31,6 +35,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = normalizePathname(usePathname())
   const [navReady, setNavReady] = useState(false)
+  const pathnameReadyRef = useRef(false)
   const {
     href: bookHref,
     isExternal: bookExternal,
@@ -51,10 +56,8 @@ export default function Header() {
     ...(isAdminUiEnabled() ? [{ href: '/admin/', label: 'Admin' }] : []),
   ]
 
-  const bookNowClassName =
-    'inline-flex items-center justify-center gap-2 no-underline bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-5 py-2 rounded-full text-sm font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:no-underline'
-  const bookNowHeaderMobileClassName =
-    'inline-flex items-center justify-center gap-1 no-underline bg-gradient-to-b from-[#e8c84a] to-gold text-primary px-2.5 py-1 rounded-full text-xs font-semibold normal-case shadow-md whitespace-nowrap transition-all duration-300 hover:from-[#f0d45c] hover:to-[#c9a52f] hover:no-underline sm:gap-1.5 sm:px-3.5 sm:py-1.5 sm:text-sm'
+  const bookNowClassName = headerGoldCtaClassName
+  const bookNowHeaderMobileClassName = headerGoldCtaMobileClassName
 
   // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
   useEffect(() => {
@@ -72,26 +75,36 @@ export default function Header() {
   const navLinkClass = (href: string) => {
     const active = isNavActive(href)
     return [
-      'text-sm font-medium whitespace-nowrap transition-colors duration-200',
+      'text-sm font-semibold whitespace-nowrap transition-colors duration-200 outline-none',
+      'focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
       active
-        ? 'text-primary border-b-2 border-gold pb-0.5'
-        : 'text-secondary hover:text-primary',
+        ? 'font-bold text-primary border-b-2 border-gold pb-0.5'
+        : 'text-dark/80 hover:text-primary',
     ].join(' ')
   }
 
   const mobileNavLinkClass = (href: string) => {
     const active = isNavActive(href)
     return [
-      'block px-3 py-2.5 text-base font-medium rounded-md transition-colors duration-200',
+      'block px-3 py-2.5 text-base font-semibold rounded-md transition-colors duration-200 outline-none',
+      'focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
       active
-        ? 'text-primary bg-gold/10 border-l-2 border-gold'
-        : 'text-secondary hover:text-primary hover:bg-accent/10',
+        ? 'font-bold text-primary bg-gold/10 border-l-2 border-gold'
+        : 'text-dark/80 hover:text-primary hover:bg-accent/10',
     ].join(' ')
   }
 
   // Close the drawer when navigating or resizing up to desktop nav.
   useEffect(() => {
     setIsMenuOpen(false)
+    // Skip the first run (mount) so hydration is undisturbed; blur after real navigations.
+    if (pathnameReadyRef.current) {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+    } else {
+      pathnameReadyRef.current = true
+    }
   }, [pathname])
   useEffect(() => {
     const onResize = () => {
@@ -106,6 +119,7 @@ export default function Header() {
   // Stable SSR markup: always Link to /bookings until booking features hydrate.
   const bookUsesExternal = bookCtaReady && bookExternal
   const bookLinkHref = bookUsesExternal ? bookHref : '/bookings/'
+  const hideHeaderBookCta = pathname.startsWith('/bookings')
 
   const headerBookCta = bookUsesExternal ? (
     <a
@@ -123,33 +137,33 @@ export default function Header() {
   )
 
   return (
-    <header className="fixed top-0 w-full z-50 overflow-visible border-b border-accent/20 bg-[rgba(249,247,244,0.88)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(249,247,244,0.78)]">
-      <nav className="w-full pl-2 sm:pl-3 pr-3 sm:pr-4 lg:pr-6 overflow-visible">
-        <div className="relative flex items-center gap-2 sm:gap-3 h-16 overflow-visible">
-          {/* Logo + wordmark — can shrink on phones so Book + hamburger stay visible */}
+    <header className={HEADER_CLASS} suppressHydrationWarning>
+      <nav className="w-full overflow-visible pl-3 pr-3 sm:pl-4 sm:pr-4 lg:pr-6">
+        <div className="relative flex h-12 min-w-0 items-center gap-1.5 overflow-visible sm:h-14 sm:gap-3">
+          {/* Logo + wordmark — text truncates; logo never clipped */}
           <Link
             href="/"
-            className="relative z-[60] flex min-w-0 items-center gap-1.5 sm:gap-3"
+            className="relative z-[60] flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5 xl:flex-none"
           >
-            <span className="relative shrink-0">
-              <span className="relative block size-10 overflow-hidden rounded-full bg-cream ring-2 ring-cream aspect-square sm:size-12 sm:ring-[3px]">
+            <span className="relative shrink-0 p-0.5">
+              <span className="relative block size-8 aspect-square overflow-hidden rounded-full bg-white ring-2 ring-primary/15 sm:size-10 sm:ring-[3px]">
                 <Image
                   src="/logo_wellness.jpeg"
                   alt="Wellness Needles Logo"
                   fill
-                  sizes="(max-width: 639px) 40px, 48px"
+                  sizes="(max-width: 639px) 32px, 40px"
                   className="object-cover object-center"
                   priority
                 />
               </span>
             </span>
-            <span className="min-w-0 truncate font-serif text-sm font-medium tracking-wide text-primary sm:text-base xl:overflow-visible xl:text-xl">
+            <span className="min-w-0 flex-1 truncate font-serif text-sm font-bold tracking-wide text-primary sm:flex-none sm:text-lg xl:overflow-visible xl:text-xl">
               Wellness Needles
             </span>
           </Link>
 
           {/* Desktop Navigation — spaced from brand */}
-          <div className="hidden xl:flex items-center gap-x-3 xl:gap-x-4 2xl:gap-x-5 min-w-0 xl:ml-24 2xl:ml-28">
+          <div className="hidden min-w-0 items-center gap-x-3 xl:ml-24 xl:flex xl:gap-x-4 2xl:ml-28 2xl:gap-x-5">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -162,39 +176,41 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Desktop Book — beside menu */}
-          <div className="hidden xl:block shrink-0 xl:ml-10 2xl:ml-14">
-            {bookUsesExternal ? (
-              <a
-                href={bookHref}
-                target={bookTarget}
-                rel={bookRel}
-                className={bookNowClassName}
-              >
-                <BookNowLabel />
-              </a>
-            ) : (
-              <Link href={bookLinkHref} className={bookNowClassName}>
-                <BookNowLabel />
-              </Link>
-            )}
-          </div>
+          {/* Desktop Book — beside menu (hidden on bookings flow) */}
+          {!hideHeaderBookCta ? (
+            <div className="hidden shrink-0 xl:ml-10 xl:block 2xl:ml-14">
+              {bookUsesExternal ? (
+                <a
+                  href={bookHref}
+                  target={bookTarget}
+                  rel={bookRel}
+                  className={bookNowClassName}
+                >
+                  <BookNowLabel />
+                </a>
+              ) : (
+                <Link href={bookLinkHref} className={bookNowClassName}>
+                  <BookNowLabel />
+                </Link>
+              )}
+            </div>
+          ) : null}
 
-          {/* Mobile / tablet: Book now + menu */}
-          <div className="xl:hidden ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {headerBookCta}
+          {/* Mobile / tablet: Book now + menu — never shrink off-screen */}
+          <div className="relative z-[70] ml-auto flex shrink-0 items-center gap-1 sm:gap-2 xl:hidden">
+            {!hideHeaderBookCta ? headerBookCta : null}
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center p-2.5 -mr-1 text-[var(--text-dark)] hover:text-[var(--text-dark)]/70"
+              className="inline-flex size-9 shrink-0 items-center justify-center text-dark hover:text-dark/70 sm:size-10"
               aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-navigation"
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6 text-[var(--text-dark)]" strokeWidth={2} />
+                <X className="h-6 w-6 text-dark" strokeWidth={2} />
               ) : (
-                <Menu className="h-6 w-6 text-[var(--text-dark)]" strokeWidth={2} />
+                <Menu className="h-6 w-6 text-dark" strokeWidth={2} />
               )}
             </button>
           </div>
@@ -203,7 +219,7 @@ export default function Header() {
         {/* Mobile / tablet Navigation */}
         {isMenuOpen && (
           <div id="mobile-navigation" className="xl:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-cream border-t border-blue-light/30 max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <div className="max-h-[calc(100dvh-3rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/50 backdrop-blur-[2px] px-2 pb-3 pt-2 sm:max-h-[calc(100dvh-3.5rem)]">
               {navItems.map((item) => (
                 <Link
                   key={item.href}

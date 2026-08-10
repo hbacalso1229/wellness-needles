@@ -282,8 +282,8 @@ export function BookingDatePicker({
   }
 
   const triggerClassName = hasError
-    ? 'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40 text-left flex items-center justify-between gap-3 text-[var(--text-dark)]'
-    : 'w-full min-w-0 max-w-full box-border px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-white text-left flex items-center justify-between gap-3 text-[var(--text-dark)]'
+    ? 'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 bg-red-50/40 text-left flex items-center justify-between gap-3 text-[var(--text-dark)] transition-colors'
+    : 'w-full min-w-0 max-w-full box-border px-4 py-3 border-2 border-accent/35 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/35 focus:border-primary bg-white text-left flex items-center justify-between gap-3 text-[var(--text-dark)] transition-colors [@media(hover:hover)]:hover:border-primary/50 [@media(hover:hover)]:hover:bg-accent/5'
 
   const monthLabel = MONTH_OPTIONS[visibleMonth.getMonth()]
   const yearLabel = visibleMonth.getFullYear()
@@ -301,8 +301,10 @@ export function BookingDatePicker({
         onClick={() => setOpen((prev) => !prev)}
         className={triggerClassName}
       >
-        <span>{formatDisplayDate(value, placeholder)}</span>
-        <Calendar className="w-5 h-5 shrink-0 text-[var(--text-dark)]/70" aria-hidden />
+        <span className={!value ? 'text-[var(--text-dark)]/55' : undefined}>
+          {formatDisplayDate(value, placeholder)}
+        </span>
+        <Calendar className="h-6 w-6 shrink-0 text-primary" aria-hidden strokeWidth={2.25} />
       </button>
 
       {open && (
@@ -531,7 +533,7 @@ export function BookingDatePicker({
                       ? 'cursor-not-allowed pointer-events-none'
                       : selectedDay
                         ? ''
-                        : 'hover:bg-accent/40 hover:text-[var(--text-dark)]',
+                        : 'hover:border hover:border-white/50 hover:bg-accent/10 hover:text-[var(--text-dark)] hover:backdrop-blur-[3px] supports-[backdrop-filter]:hover:bg-accent/[0.08]',
                     !(selectedDay && !disabled) &&
                       (!inMonth
                         ? disabled

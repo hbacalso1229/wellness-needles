@@ -223,7 +223,7 @@ export function TestimonialCard({
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className="relative max-h-[min(90dvh,36rem)] w-full max-w-md overflow-y-auto rounded-xl border border-accent/20 bg-cream px-4 pb-5 pt-3 pointer-events-auto"
+          className="relative max-h-[min(90dvh,36rem)] w-full max-w-md overflow-y-auto rounded-xl border border-accent/20 bg-white px-4 pb-5 pt-3 pointer-events-auto"
           onClick={(event) => event.stopPropagation()}
         >
           <button
@@ -259,7 +259,7 @@ export function TestimonialCard({
           </div>
 
           <Quote className="mb-2 h-6 w-6 text-accent/30" aria-hidden />
-          <p id={descId} className="text-sm leading-relaxed text-secondary md:text-base md:leading-7">
+          <p id={descId} className="text-base leading-relaxed text-secondary md:leading-7">
             &quot;{quoteBody}&quot;
           </p>
         </div>
@@ -269,7 +269,7 @@ export function TestimonialCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col rounded-xl border border-accent/15 bg-white p-5 shadow-none transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 hover:border-primary/30 md:p-6 ${className}`}
+      className={`group relative flex h-full flex-col rounded-xl border border-[#1B3B2B]/12 bg-white p-5 shadow-[0_1px_2px_rgba(27,59,43,0.04)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-safe:md:hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(27,59,43,0.1)] md:p-6 ${className}`}
     >
       <div className="mb-4 flex items-start gap-3">
         {avatar}
@@ -289,7 +289,7 @@ export function TestimonialCard({
       </div>
 
       <Quote className="mb-2 h-4 w-4 text-accent/30 md:h-5 md:w-5" aria-hidden />
-      <p className="mb-4 line-clamp-3 flex-1 text-sm italic leading-relaxed text-secondary md:line-clamp-4 md:text-base md:leading-7">
+      <p className="mb-4 line-clamp-3 flex-1 text-base italic leading-relaxed text-secondary md:line-clamp-4 md:leading-7">
         &quot;{previewBody}&quot;
       </p>
 

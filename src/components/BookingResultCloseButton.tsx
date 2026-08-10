@@ -1,27 +1,56 @@
 'use client'
 
 import Link from 'next/link'
-import { X } from 'lucide-react'
+import { ChevronLeft, X } from 'lucide-react'
 
-const closeClassName =
-  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-cream text-primary/75 shadow-none transition-[transform,color,background-color,border-color] duration-200 hover:border-primary/35 hover:bg-white hover:text-primary motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+const closeButtonClassName =
+  'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[var(--text-dark)]/25 bg-white text-[var(--text-dark)] shadow-sm transition-[transform,color,background-color,border-color] duration-200 hover:border-[var(--text-dark)]/45 hover:bg-white hover:text-[var(--text-dark)] motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white'
 
-/** Quiet circular dismiss — returns to the booking form page. */
+const backLinkClassName =
+  'inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-dark)]/70 no-underline transition-colors hover:text-[var(--text-dark)] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2'
+
+/** Fixed top-right X — mobile only (full-screen result pages; no site header). */
+export const bookingResultCloseFixedClassName =
+  'fixed right-3 top-3 z-40 sm:right-4 sm:top-4 md:hidden'
+
+/** In-flow back link was scrolling out of the full-screen viewport — keep it fixed. */
+export const bookingResultBackLinkClassName = `fixed left-4 top-4 z-40 hidden md:inline-flex ${backLinkClassName}`
+
+/** Quiet circular dismiss — fixed top-right; returns to the booking form page. */
 export function BookingResultCloseButton({
   onClick,
+  className,
 }: {
   onClick?: () => void
+  className?: string
 }) {
   return (
-    <div className="mb-4 flex justify-end sm:mb-5">
+    <div className={className ?? bookingResultCloseFixedClassName}>
       <Link
         href="/bookings/"
         onClick={onClick}
-        className={closeClassName}
+        className={closeButtonClassName}
         aria-label="Close and return to booking"
       >
-        <X className="size-5 shrink-0" strokeWidth={2} aria-hidden />
+        <X className="size-5 shrink-0" strokeWidth={2.25} aria-hidden />
       </Link>
     </div>
+  )
+}
+
+/** Shared result-page nav: X on mobile, Back to bookings on tablet+. */
+export function BookingResultNav({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <>
+      <BookingResultCloseButton onClick={onNavigate} />
+      <Link
+        href="/bookings/"
+        onClick={onNavigate}
+        className={bookingResultBackLinkClassName}
+      >
+        <ChevronLeft className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden />
+        Back to bookings
+      </Link>
+    </>
   )
 }

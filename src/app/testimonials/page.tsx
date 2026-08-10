@@ -2,6 +2,7 @@
 
 import {
   BeforeAfterSlider,
+  ClinicalMetricCard,
   HeroSection,
   SectionHeading,
   SnapCarousel,
@@ -10,10 +11,12 @@ import {
   snapSlideWideClassName,
   snapTrackGridLgClassName,
   snapTrackHorizontalClassName,
+  glassGreenBandClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
-import { BadgeCheck, Calendar, HeartHandshake, Star } from 'lucide-react'
+import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -118,54 +121,43 @@ export default function Testimonials() {
       : testimonials.reduce((sum, t) => sum + t.rating, 0) / reviewCount
   const ratingAverageLabel = ratingAverage.toFixed(1)
 
-  const resultCases = [
+  const photoResultCases = [
     {
       beforeSrc: '/results/alopecia-before.png',
       afterSrc: '/results/alopecia-after.png',
       beforeRotate: '-42deg',
       afterRotate: '32deg',
       imageFit: 'cover' as const,
-      title: 'Hair loss',
-      highlight: 'Visible hair regrowth',
-      description: 'Observed after tailored acupuncture plan',
+      title: 'Hair Loss',
+      highlight: 'From thinning to fuller hair in 12 weeks',
+      proofPoints: ['Clinically documented improvement', 'Shared with patient consent'],
       altBefore: 'Scalp before alopecia treatment showing a bald patch',
       altAfter: 'Scalp after alopecia treatment showing hair regrowth',
     },
     {
       beforeSrc: '/results/eczema-before.png',
       afterSrc: '/results/eczema-after.png',
-      imageFit: 'contain' as const,
+      imageFit: 'cover' as const,
       title: 'Eczema',
-      highlight: 'Reduced redness and inflammation',
-      description: 'Clinically guided treatment results',
+      highlight: 'Clearer skin, reduced inflammation',
+      proofPoints: ['Clear improvement throughout treatment', 'Shared with patient consent'],
       altBefore:
         'Back and legs before eczema treatment showing widespread redness and inflammation',
       altAfter:
         'Back and legs after eczema treatment with reduced redness and clearer skin',
     },
-    {
-      beforeSrc: '/results/sperm-concentration-before.png',
-      afterSrc: '/results/sperm-concentration-after.png',
-      imageFit: 'contain' as const,
-      title: 'Sperm concentration',
-      highlight: 'Normalized sperm count',
-      description: 'Increased from 3.2 to 27.21 M/ml',
-      altBefore:
-        'Semen analysis before treatment: sperm concentration 3.2 million per ml, below normal',
-      altAfter:
-        'Semen analysis after treatment: sperm concentration 27.21 million per ml, within normal range',
-    },
   ]
 
+  const resultSlideCount = photoResultCases.length + 1
+  const resultCardClass = `patient-card group/card ${snapSlideWideClassName} rounded-xl border border-[#1B3B2B]/10 bg-white shadow-[0_6px_20px_rgba(27,59,43,0.06)] transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-safe:hover:-translate-y-1.5 hover:border-primary/30 motion-safe:hover:shadow-[0_14px_32px_rgba(27,59,43,0.12)]`
   return (
     <div className="min-h-screen">
       <HeroSection
-        title="Patient Testimonials"
-        subtitle="Real stories from people who chose acupuncture with Wellness Needles"
-        description="Hear from patients in their own words — shared with consent — about how treatment supported their health and wellbeing."
+        title="Real results from real patients"
+        subtitle="In their own words — verified reviews from people treated at Wellness Needles."
         backgroundImage="/testimonials_patient_treatment.jpeg"
         backgroundImageClassName="object-cover object-center"
-        backgroundOverlayClassName="bg-gradient-to-b from-black/50 via-primary/32 to-black/50"
+        backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         backgroundClass="bg-primary"
         textColor="text-cream"
         showFloatingLeaves={true}
@@ -180,45 +172,111 @@ export default function Testimonials() {
             rel,
           },
         ]}
-      />
+      >
+        <div className="mx-auto mt-3 flex max-w-2xl flex-col items-center gap-3 sm:mt-4 sm:gap-4">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-cream/95 sm:text-base">
+            <span className="inline-flex items-center gap-0.5" aria-hidden>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+              ))}
+            </span>
+            <span>5-star verified Google reviews</span>
+          </div>
+          <ul className="flex flex-wrap justify-center gap-2">
+            {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
+              <li
+                key={category}
+                className="rounded-full border border-cream/35 bg-cream/10 px-3 py-1 text-xs font-semibold tracking-wide text-cream/95 sm:text-sm"
+              >
+                {category}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </HeroSection>
 
-      {/* Real Patient Results */}
-      <section className="scroll-mt-24 bg-cream py-10 md:py-16 lg:py-20">
+      {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
+      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Real results from real patients
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+            In their own words — verified reviews from people treated at Wellness Needles.
+          </p>
+          <div className="mx-auto mt-4 flex max-w-md flex-col items-center gap-3 sm:mt-5">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-dark)]/85 sm:text-base">
+              <span className="inline-flex items-center gap-0.5" aria-hidden>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+                ))}
+              </span>
+              <span>5-star verified Google reviews</span>
+            </div>
+            <ul className="flex flex-wrap justify-center gap-2">
+              {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
+                <li
+                  key={category}
+                  className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary sm:text-sm"
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Real Patient Results — light canvas to match site header */}
+      <section className="scroll-mt-24 bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Real Patient Results"
-            subtitle="Personalized treatment outcomes — clear before and after comparisons"
-            className="mb-6 text-center md:mb-10"
+            title="Real Results. Real Lives Changed."
+            subtitle="Personalised care designed to restore balance—and deliver results you can see and feel."
+            className="mb-4 text-center md:mb-5"
             titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
+            subtitleClassName="text-base sm:text-lg md:text-xl text-[var(--text-dark)]/70 max-w-3xl mx-auto leading-relaxed"
+            leafClassName="h-3.5 w-3.5 shrink-0 text-[#1B3B2B] md:h-4 md:w-4"
           />
 
-          <div className="mb-8 flex flex-col items-center gap-2 text-sm tracking-[0.2px] text-secondary/80 sm:mb-12 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-1.5 md:mb-14">
-            <p className="inline-flex items-center gap-2.5">
-              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-secondary/80 sm:h-4 sm:w-4" aria-hidden />
-              Licensed &amp; certified practitioner
-            </p>
-            <span className="hidden text-secondary/40 sm:inline" aria-hidden>
-              •
-            </span>
-            <p className="inline-flex items-center gap-2.5">
-              <HeartHandshake className="h-3.5 w-3.5 shrink-0 text-secondary/80 sm:h-4 sm:w-4" aria-hidden />
-              Stories &amp; photos shared with consent
-            </p>
+          <div className="mb-4 flex flex-col items-center gap-2 sm:mb-5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-2 md:mb-6">
+            {[
+              {
+                icon: BadgeCheck,
+                label: 'Licensed & certified practitioner',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4',
+              },
+              {
+                icon: HeartHandshake,
+                label: 'Shared with consent',
+                iconClass: 'h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4',
+              },
+              {
+                icon: Star,
+                label: 'Trusted by 200+ patients',
+                iconClass: 'h-3.5 w-3.5 shrink-0 fill-primary/20 text-primary sm:h-4 sm:w-4',
+              },
+            ].map(({ icon: Icon, label, iconClass }) => (
+              <p
+                key={label}
+                className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 text-[13px] tracking-[0.3px] text-primary"
+              >
+                <Icon className={iconClass} aria-hidden />
+                {label}
+              </p>
+            ))}
           </div>
 
           <SnapCarousel
-            slideCount={resultCases.length}
+            slideCount={resultSlideCount}
             ariaLabel="Patient results before and after"
             hideDotsFrom="lg"
             showArrows
             showArrowsFrom="until-lg"
             trackClassName={snapTrackGridLgClassName}
           >
-            {resultCases.map((result) => (
-              <div
-                key={result.title}
-                className={`group/card ${snapSlideWideClassName} rounded-xl border border-black/5 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.05)] transition-[transform,box-shadow] duration-200 ease-out motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]`}
-              >
+            {photoResultCases.map((result) => (
+              <div key={result.title} className={resultCardClass}>
                 <BeforeAfterSlider
                   beforeSrc={result.beforeSrc}
                   afterSrc={result.afterSrc}
@@ -228,31 +286,70 @@ export default function Testimonials() {
                   aspectClassName="aspect-[4/3]"
                   title={result.title}
                   highlight={result.highlight}
-                  description={result.description}
+                  proofPoints={result.proofPoints}
                   altBefore={result.altBefore}
                   altAfter={result.altAfter}
                 />
               </div>
             ))}
+
+            <article className={resultCardClass} aria-labelledby="lab-result-title">
+              <ClinicalMetricCard
+                title="Sperm Concentration"
+                headingId="lab-result-title"
+                beforeValue={3.2}
+                afterValue={27.21}
+                unit="M/ml"
+                healthyMin={15}
+                scaleMax={40}
+                increaseLabel="+750%"
+                highlight="From below range to healthy concentration"
+                proofPoints={['Within clinical range', 'Medically verified']}
+              />
+            </article>
           </SnapCarousel>
 
-          <p className="mt-10 text-center text-sm tracking-[0.2px] text-secondary/70 md:mt-12">
+          <p className="mt-5 text-center text-sm tracking-[0.2px] text-[#1B3B2B]/65 md:mt-6">
             Clinically observed results · Individual results may vary
           </p>
+
+          <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-5">
+            <p className="mb-1 text-center text-base font-[450] leading-relaxed text-[#2C3E35]/80">
+              Your story can be the next one we celebrate.
+            </p>
+            <BookingCtaButton variant="gold" showArrow={false} size="large">
+              <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+              <span className="whitespace-nowrap">Book Your Consultation</span>
+            </BookingCtaButton>
+            <p className="text-base text-[#1B3B2B]/65">Get a personalised plan</p>
+            <a
+              href="#patient-stories"
+              className="group inline-flex items-center gap-1 text-sm font-medium text-[#1B3B2B]/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-[#1B3B2B] hover:underline"
+            >
+              View more results
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+                aria-hidden
+              />
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* What patients say */}
-      <section className="scroll-mt-24 bg-secondary/5 py-8 md:py-16 lg:py-20">
+      {/* What patients say — glass green proof band */}
+      <section
+        id="patient-stories"
+        className={`scroll-mt-24 ${glassGreenBandClassName} pt-8 pb-4 md:pt-10 md:pb-5 lg:pt-12 lg:pb-6`}
+      >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
-            title="What patients say"
-            subtitle="Honest feedback from people in our care"
-            className="mb-6 text-center md:mb-8"
+            title="Real Stories. Real Healing."
+            subtitle="Experiences from patients who've truly felt the difference."
+            className="mb-4 text-center md:mb-5"
             titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 md:mb-3"
           />
 
-          <div className="mb-8 flex flex-col items-center gap-1 text-center text-sm text-secondary/80 md:mb-10">
+          <div className="mb-5 flex flex-col items-center gap-1 text-center text-base text-secondary/80 md:mb-6">
             <p className="inline-flex items-center gap-1.5">
               <span className="inline-flex" aria-hidden>
                 {[...Array(5)].map((_, i) => (
@@ -298,35 +395,26 @@ export default function Testimonials() {
         </div>
       </section>
 
-      {/* CTA band — Book primary, Share subtle text */}
-      <section className="bg-cream py-16 pb-24 md:py-24">
-        <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
-          <h2 className="font-serif text-2xl font-bold leading-snug text-[var(--text-dark)] md:text-3xl">
-            Ready to experience results like these?
-          </h2>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:gap-3.5">
-            <BookingCtaButton
-              variant="gold"
-              showArrow={false}
-              size="large"
-              className="w-full max-w-sm !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-5 !py-3 !text-sm !font-bold whitespace-nowrap shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out md:!px-6 md:!py-3.5 md:!text-base motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
-            >
-              <Calendar className="h-4 w-4 shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
-              <span className="whitespace-nowrap">Book your appointment</span>
-            </BookingCtaButton>
-            <a
-              href="/contact/"
-              className="text-sm font-medium text-primary/65 underline-offset-4 transition-colors hover:text-primary hover:underline"
-            >
-              Share your story
-            </a>
-          </div>
-          <p className="mt-6 flex items-center justify-center gap-1.5 text-sm text-[var(--text-dark)]/60 md:mt-8">
-            <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
-            <span>Trusted by 200+ patients</span>
-          </p>
-        </div>
-      </section>
+      <BookingSection
+        title="Ready to Feel This Difference for Yourself?"
+        description=""
+        ctaLabel="Begin Your Care Journey"
+      >
+        <a
+          href="/contact/"
+          className="group mt-3 inline-flex items-center gap-1 text-sm font-medium text-cream/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-cream hover:underline sm:mt-3.5"
+        >
+          Share Your Experience
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+            aria-hidden
+          />
+        </a>
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-cream/60 md:mt-6">
+          <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
+          <span>Trusted by 200+ patients</span>
+        </p>
+      </BookingSection>
     </div>
   )
 }

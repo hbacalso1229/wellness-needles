@@ -32,7 +32,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 | `/about` | Practice story, Arkinth Garcia, mission/values |
 | `/acupuncture` | How acupuncture works, benefits, conditions |
 | `/chinese-medicine` | TCM philosophy and methods |
-| `/testimonials` | Illustrative stories + before/after imagery |
+| `/testimonials` | Verified Google reviews + before/after imagery |
 | `/blog` | Article listing only (no detail routes yet) |
 | `/contact` | Dual locations, maps, FAQ (contact form gated) |
 | `/bookings` | Pricing + Calendly **or** legacy stepper (Admin) |

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Leaf, Star } from 'lucide-react'
+import { Calendar, Leaf, Star } from 'lucide-react'
 import { CTAButton } from '../ui/CTAButton'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 
@@ -94,24 +94,24 @@ export function HeroSection() {
                 href={bookHref}
                 variant="gold"
                 size="large"
-                showArrow
-                className="!px-7 !py-3.5 !text-base font-bold !shadow-lg !shadow-black/25 motion-safe:hover:-translate-y-0.5 sm:!px-9 sm:!py-4 sm:!text-lg"
+                className="!px-7 !py-3.5 !text-base sm:!px-9 sm:!py-4 sm:!text-lg"
                 external={isExternal}
                 target={target}
                 rel={rel}
               >
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 Book your session
               </CTAButton>
             </div>
             <a
               href="#practitioner"
-              className="text-center text-sm font-normal text-cream/70 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream/90 hover:decoration-cream/70 sm:text-left sm:text-base"
+              className="text-center text-base font-normal text-cream/70 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream/90 hover:decoration-cream/70 sm:text-left"
             >
               Meet Arkinth
             </a>
           </div>
 
-          <p className="mt-5 flex items-center justify-center gap-1.5 text-sm text-cream/85 sm:mt-6 sm:justify-start">
+          <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-cream/85 sm:mt-6 sm:justify-start">
             <span className="inline-flex items-center gap-0.5 text-gold" aria-hidden>
               <Star className="h-3.5 w-3.5 fill-current" />
               <Star className="h-3.5 w-3.5 fill-current" />

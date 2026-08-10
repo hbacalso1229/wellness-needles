@@ -1,6 +1,6 @@
 'use client'
 
-import { Phone, Mail, Calendar } from 'lucide-react'
+import { Building2, Phone, Mail, Calendar, Home } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import {
@@ -11,6 +11,7 @@ import {
   HeroSection,
   TravelPolicyNotice,
   SectionHeading,
+  glassGreenPanelClassName,
 } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
@@ -182,7 +183,7 @@ export default function Bookings() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section — hidden below xl by HeroSection default; keep for tablet+ */}
       <HeroSection
         title="Book Your Appointment"
         subtitle="Take the first step towards better health and wellness"
@@ -196,7 +197,7 @@ export default function Bookings() {
       />
 
       {/* Booking Form or Pricing Display */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      <section className="py-4 sm:py-8 md:py-10 lg:py-12 bg-white">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
             <div className="min-w-0 order-1">
@@ -205,9 +206,9 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an appointment"
                     credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
-                    subtitle="Share your preferred service and time — we will confirm by email or phone."
-                    titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
-                    className="text-center mb-10"
+                    subtitle="Choose your service and time. We’ll confirm within 24 hours."
+                    titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 sm:mb-2 md:mb-3"
+                    className="text-center mb-4 sm:mb-8 md:mb-10"
                   />
                   <BookingForm />
                 </div>
@@ -227,7 +228,7 @@ export default function Bookings() {
                           Ready to book your appointment?
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                        <p className="text-secondary text-sm mb-4">
+                        <p className="text-secondary text-base mb-4">
                           Call us directly to schedule your consultation and begin your path to better health
                         </p>
                         <a
@@ -246,7 +247,7 @@ export default function Bookings() {
                           Book on Fresha
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                        <p className="text-secondary text-sm mb-4 text-center">
+                        <p className="text-secondary text-base mb-4 text-center">
                           Review services below, then continue to Fresha to pick a time and
                           confirm your booking.
                         </p>
@@ -274,24 +275,32 @@ export default function Bookings() {
                   </div>
 
                   {/* Tab Navigation for Pricing */}
-                  <div className={`${panelClass} !p-3.5 sm:!p-6 md:!p-8`}>
-                    <div className="flex border-b border-accent/20 mb-6">
+                  <div className={`${glassGreenPanelClassName} p-3.5 sm:p-6 md:p-8`}>
+                    <div className="relative mb-6 flex border-b border-accent/20">
+                      <span
+                        aria-hidden
+                        className={`booking-service-tab__indicator ${
+                          activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
+                        }`}
+                      />
                       <button
                         type="button"
                         onClick={() => handleTabChange('in-clinic')}
-                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                        className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-base ${
                           activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                         }`}
                       >
+                        <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                         In clinic services
                       </button>
                       <button
                         type="button"
                         onClick={() => handleTabChange('call-out')}
-                        className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                        className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-base ${
                           activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                         }`}
                       >
+                        <Home className="h-5 w-5 shrink-0" aria-hidden />
                         Home visit services
                       </button>
                     </div>
@@ -316,7 +325,7 @@ export default function Bookings() {
                           : 'Clinic location'}
                       </h3>
                       <div className="mb-2 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                      <p className="text-sm text-secondary mb-4">
+                      <p className="text-base text-secondary mb-4">
                         {activeTab === 'call-out'
                           ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
                           : 'Choose your preferred clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
@@ -353,8 +362,8 @@ export default function Bookings() {
                         </div>
                         <h3 className="font-semibold text-xl text-[var(--text-dark)] mb-2">Arkinth Garcia</h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                        <p className="text-secondary text-sm mb-2">Naturopath & Acupuncturist</p>
-                        <p className="text-secondary text-sm">
+                        <p className="text-secondary text-base mb-2">Naturopath & Acupuncturist</p>
+                        <p className="text-secondary text-base">
                           Qualified from the College of Naturopathic Medicine, Dublin. Specializing in
                           pain management, mental health conditions, digestive issues, and fertility support.
                         </p>
@@ -369,15 +378,15 @@ export default function Bookings() {
                           Confirm your booking
                         </h3>
                         <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
-                        <p className="text-sm text-secondary">
+                        <p className="text-base text-secondary">
                           Pick a time in the calendar below to confirm your appointment.
                           Your selections above are included with the booking.
                         </p>
                       </div>
 
                       {canOpenScheduler && (
-                        <div className="mb-5 rounded-xl border border-accent/15 bg-cream p-4 max-w-2xl mx-auto">
-                          <p className="font-semibold text-primary mb-2 text-center text-sm sm:text-base">
+                        <div className="mb-5 rounded-xl border border-accent/15 bg-white p-4 max-w-2xl mx-auto">
+                          <p className="font-semibold text-primary mb-2 text-center text-base">
                             Your booking summary
                           </p>
                           <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
@@ -423,7 +432,7 @@ export default function Bookings() {
                       )}
 
                       {!canOpenScheduler ? (
-                        <div className="rounded-xl border border-dashed border-accent/40 bg-cream/60 px-5 py-10 text-center max-w-xl mx-auto">
+                        <div className="rounded-xl border border-dashed border-accent/40 bg-white/60 px-5 py-10 text-center max-w-xl mx-auto">
                           <Calendar
                             className="w-8 h-8 text-primary/50 mx-auto mb-3"
                             aria-hidden
@@ -431,7 +440,7 @@ export default function Bookings() {
                           <p className="font-medium text-primary mb-1">
                             Calendar not ready yet
                           </p>
-                          <p className="text-sm text-secondary">
+                          <p className="text-base text-secondary">
                             Select a service and location above to open the calendar.
                           </p>
                         </div>
@@ -461,27 +470,27 @@ export default function Bookings() {
 
             {/* Quick call/email — below form on mobile; sticky side column on tablet+ */}
             <aside
-              className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-3 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-4 lg:p-5"
+              className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
-              <h3 className="mb-0.5 text-base font-semibold text-primary md:mb-1 md:text-lg">
+              <h3 className="mb-1 text-lg font-bold leading-snug text-primary">
                 Need help?
               </h3>
-              <p className="mb-3 text-sm leading-relaxed text-[var(--text-dark)]/70 md:mb-4 md:text-base">
+              <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">
                 Prefer to call or email — we can help you book.
               </p>
-              <div className="flex flex-col gap-2 md:gap-2.5">
+              <div className="flex flex-col gap-2.5">
                 <div>
                   <CTAButton
                     href={contactConfig.phone.href}
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-semibold gap-1.5 transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full"
                   >
                     <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
+                  <p className="mt-1.5 text-center text-base text-[var(--text-dark)]/70 md:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
@@ -500,12 +509,12 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-cream/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    className="w-full !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
                     <Mail className="h-4 w-4 shrink-0" aria-hidden />
                     Send a message
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-sm text-[var(--text-dark)]/70 md:mt-2">
+                  <p className="mt-1.5 text-center text-base text-[var(--text-dark)]/70 md:mt-2">
                     We reply within 24 hours
                   </p>
                 </div>

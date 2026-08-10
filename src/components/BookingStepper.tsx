@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
-import { Check } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Check, ChevronLeft } from 'lucide-react'
 
 export type BookingStepperStep = {
   id: string
@@ -29,6 +29,7 @@ type BookingStepperProps = {
   onSubmit: () => void
   children: ReactNode
   nextLabel?: string
+  backLabel?: string
   submitLabel?: string
   isSubmitting?: boolean
   /** Disable Next when the current step is incomplete/invalid. */
@@ -45,6 +46,7 @@ export default function BookingStepper({
   onSubmit,
   children,
   nextLabel = 'Continue',
+  backLabel = 'Back',
   submitLabel = 'Request appointment',
   isSubmitting = false,
   nextDisabled = false,
@@ -53,9 +55,34 @@ export default function BookingStepper({
   const headingRef = useRef<HTMLHeadingElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const prevStepRef = useRef(currentStep)
+  const prevNextDisabledRef = useRef(nextDisabled)
+  const [continueJustEnabled, setContinueJustEnabled] = useState(false)
   const isFirst = currentStep === 0
   const isLast = currentStep === steps.length - 1
   const activeStep = steps[currentStep]
+  const progressFillPercent =
+    steps.length <= 1 ? 100 : (currentStep / (steps.length - 1)) * 100
+  const progressReassurance = isLast
+    ? 'Final step — takes 1 minute'
+    : currentStep >= 2
+      ? 'Almost done — just your details left'
+      : `Step ${currentStep + 1} of ${steps.length} – takes ~2 minutes`
+
+  const progressReassuranceDesktop = isLast
+    ? 'Final step — confirm your appointment'
+    : currentStep >= 2
+      ? 'Almost done — just your details left'
+      : `Step ${currentStep + 1} of ${steps.length} – takes ~2 minutes`
+
+  useEffect(() => {
+    const wasDisabled = prevNextDisabledRef.current
+    prevNextDisabledRef.current = nextDisabled
+    if (wasDisabled && !nextDisabled && !isLast) {
+      setContinueJustEnabled(true)
+      const t = window.setTimeout(() => setContinueJustEnabled(false), 600)
+      return () => window.clearTimeout(t)
+    }
+  }, [nextDisabled, isLast])
 
   useEffect(() => {
     if (prevStepRef.current === currentStep) return
@@ -84,88 +111,106 @@ export default function BookingStepper({
   }, [currentStep, stepFocusId])
 
   return (
-    <div ref={sectionRef} className="scroll-mt-24 space-y-6">
+    <div ref={sectionRef} className="scroll-mt-24 space-y-3 sm:space-y-5">
       {/* Progress — desktop / tablet */}
-      <nav aria-label="Booking progress" className="hidden sm:block">
-        <ol className="flex items-center justify-between gap-2">
-          {steps.map((step, index) => {
-            const done = index < currentStep
-            const current = index === currentStep
-            return (
-              <li
-                key={step.id}
-                className="flex flex-1 items-center last:flex-none"
-                aria-current={current ? 'step' : undefined}
-              >
-                <div className="flex flex-col items-center text-center min-w-[5rem]">
-                  <span
-                    className={`booking-step-indicator flex items-center justify-center rounded-full font-bold border-2 transition-transform ${
-                      current
-                        ? 'h-11 w-11 text-base border-primary bg-primary text-white scale-110 shadow-md shadow-primary/25'
-                        : done
-                          ? 'h-9 w-9 text-sm border-primary bg-primary text-white'
-                          : 'h-9 w-9 text-sm border-accent/30 text-[var(--text-dark)]/45'
-                    }`}
-                  >
-                    {done ? <Check className="h-4 w-4" aria-hidden strokeWidth={3} /> : index + 1}
+      <nav aria-label="Booking progress" className="hidden sm:block space-y-2.5">
+        <div className="relative mx-auto w-full max-w-xl px-2">
+          {/* Continuous journey track — centered on fixed h-11 circle row */}
+          <div
+            className="pointer-events-none absolute left-[calc(12.5%+0.5rem)] right-[calc(12.5%+0.5rem)] top-[1.375rem] h-1.5 -translate-y-1/2 rounded-full bg-accent/25"
+            aria-hidden
+          >
+            <div
+              className="booking-step-connector h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+              style={{ width: `${progressFillPercent}%` }}
+            />
+          </div>
+          <ol className="relative z-[1] grid grid-cols-4 gap-0">
+            {steps.map((step, index) => {
+              const done = index < currentStep
+              const current = index === currentStep
+              return (
+                <li
+                  key={step.id}
+                  className="flex flex-col items-center text-center"
+                  aria-current={current ? 'step' : undefined}
+                >
+                  <span className="flex h-11 w-11 items-center justify-center">
+                    <span
+                      className={`booking-step-indicator flex items-center justify-center rounded-full font-bold border-2 transition-[transform,box-shadow,background-color,border-color] ${
+                        current
+                          ? 'h-10 w-10 text-sm border-primary bg-primary text-white shadow-md shadow-primary/25'
+                          : done
+                            ? 'h-8 w-8 text-sm border-primary bg-primary text-white'
+                            : 'h-8 w-8 text-sm border-accent/40 bg-white text-[var(--text-dark)]/70'
+                      }`}
+                    >
+                      {done ? <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={3} /> : index + 1}
+                    </span>
                   </span>
                   <span
-                    className={`booking-step-indicator mt-2 text-xs leading-snug ${
+                    className={`booking-step-indicator mt-1.5 text-sm leading-snug ${
                       current
                         ? 'font-bold text-primary'
                         : done
                           ? 'font-semibold text-[var(--text-dark)]'
-                          : 'font-medium text-[var(--text-dark)]/45'
+                          : 'font-semibold text-[var(--text-dark)]/65'
                     }`}
                   >
-                    <span className="block text-[10px] uppercase tracking-wide opacity-70">
+                    <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-80">
                       Step {index + 1}
                     </span>
                     {step.title}
                   </span>
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`booking-step-connector mx-2 h-0.5 flex-1 ${
-                      done ? 'bg-primary' : 'bg-accent/20'
-                    }`}
-                    aria-hidden
-                  />
-                )}
-              </li>
-            )
-          })}
-        </ol>
+                </li>
+              )
+            })}
+          </ol>
+        </div>
+        <p className="text-center text-sm font-medium text-secondary">
+          {progressReassuranceDesktop}
+        </p>
       </nav>
 
-      {/* Progress — mobile */}
-      <div className="sm:hidden space-y-3" aria-label="Booking progress">
-        <p className="text-sm font-semibold text-primary text-center">
-          Step {currentStep + 1}: {activeStep?.title}
+      {/* Progress — mobile (compact: one label + thin track) */}
+      <div className="sm:hidden space-y-1.5" aria-label="Booking progress">
+        <p className="text-center text-sm font-semibold text-primary leading-snug">
+          {progressReassurance}
         </p>
-        <div className="flex justify-center gap-2">
-          {steps.map((step, index) => {
-            const done = index < currentStep
-            const current = index === currentStep
-            return (
-              <span
-                key={step.id}
-                className={`booking-step-indicator rounded-full transition-transform ${
-                  current
-                    ? 'h-3 w-3 bg-primary scale-125'
-                    : done
-                      ? 'h-2.5 w-2.5 bg-primary'
-                      : 'h-2.5 w-2.5 bg-accent/30'
-                }`}
-                aria-current={current ? 'step' : undefined}
-                aria-label={`Step ${index + 1}: ${step.title}`}
-              />
-            )
-          })}
+        <div className="relative mx-auto w-full max-w-xs px-2">
+          <div
+            className="pointer-events-none absolute left-2 right-2 top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent/25"
+            aria-hidden
+          >
+            <div
+              className="booking-step-connector h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+              style={{ width: `${progressFillPercent}%` }}
+            />
+          </div>
+          <div className="relative z-[1] flex items-center justify-between">
+            {steps.map((step, index) => {
+              const done = index < currentStep
+              const current = index === currentStep
+              return (
+                <span
+                  key={step.id}
+                  className={`booking-step-indicator rounded-full border-2 transition-transform ${
+                    current
+                      ? 'h-3 w-3 scale-125 border-primary bg-primary'
+                      : done
+                        ? 'h-2.5 w-2.5 border-primary bg-primary'
+                        : 'h-2.5 w-2.5 border-accent/40 bg-white'
+                  }`}
+                  aria-current={current ? 'step' : undefined}
+                  aria-label={`Step ${index + 1}: ${step.title}`}
+                />
+              )
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="bg-accent/5 rounded-lg p-5 sm:p-8">
+      <div className="bg-accent/5 rounded-lg p-4 sm:p-8">
         <h2
           ref={headingRef}
           tabIndex={-1}
@@ -178,23 +223,28 @@ export default function BookingStepper({
           {children}
         </div>
 
-        {/* Sticky Continue bar on mobile; in-flow on sm+ */}
-        <div className="sticky bottom-2 z-20 -mx-5 mt-8 border-t border-accent/15 bg-cream/95 px-5 py-3 backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none">
+        {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
+        <div className="sticky bottom-2 z-20 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
           <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isFirst || isSubmitting}
-              className="px-5 py-2.5 text-sm rounded-full font-semibold border-2 border-accent/30 text-primary hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 motion-safe:active:scale-[0.97]"
-            >
-              Back
-            </button>
+            {isFirst ? (
+              <span className="inline-flex min-h-11 w-[4.5rem]" aria-hidden />
+            ) : (
+              <button
+                type="button"
+                onClick={onBack}
+                disabled={isSubmitting}
+                className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-bold text-[var(--text-dark)] underline-offset-2 hover:text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
+              >
+                <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden strokeWidth={2.5} />
+                {backLabel}
+              </button>
+            )}
             {isLast ? (
               <button
                 type="button"
                 onClick={onSubmit}
                 disabled={isSubmitting}
-                className="bg-primary text-white px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold shadow-md shadow-primary/20 hover:bg-secondary transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97]"
+                className="bg-primary text-white px-6 py-3 text-base rounded-full font-semibold shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97]"
               >
                 {isSubmitting ? 'Sending…' : submitLabel}
               </button>
@@ -203,7 +253,11 @@ export default function BookingStepper({
                 type="button"
                 onClick={onNext}
                 disabled={isSubmitting || nextDisabled}
-                className="bg-primary text-white px-5 sm:px-6 py-2.5 text-sm rounded-full font-semibold shadow-md shadow-primary/20 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97]"
+                className={`bg-primary text-white px-6 py-3 text-base rounded-full font-semibold shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] ${
+                  continueJustEnabled
+                    ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
+                    : ''
+                }`}
               >
                 {nextLabel}
               </button>

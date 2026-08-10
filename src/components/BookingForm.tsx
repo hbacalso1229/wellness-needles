@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import { Calendar, CheckCircle, Info, MapPin, User } from 'lucide-react'
+import { Building2, Calendar, CheckCircle, Home, Info, MapPin, User } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
@@ -28,6 +28,13 @@ import {
 
 /** Web3Forms free-plan hCaptcha sitekey (enable hCaptcha in the Web3Forms dashboard). */
 const WEB3FORMS_HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
+
+/** hCaptcha refuses localhost and renders a broken warning inside the iframe. */
+function isLocalDevHost(): boolean {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname.toLowerCase()
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+}
 
 type BookingService = {
   id: string
@@ -172,31 +179,24 @@ function RequiredMark() {
   )
 }
 
-/** Mobile-only validation copy (desktop keeps toast). */
+/** Inline field validation copy (all breakpoints). */
 function FieldInlineError({
   id,
   message,
-  always = false,
 }: {
   id?: string
   message?: string
-  /** Show on all breakpoints (e.g. DOB picker reject). */
-  always?: boolean
 }) {
   if (!message) return null
   return (
     <p
       id={id}
-      className={`mt-2 text-sm text-red-600 max-w-full break-words ${always ? '' : 'md:hidden'}`}
+      className="mt-2 max-w-full break-words text-sm text-red-600"
       role="alert"
     >
       {message}
     </p>
   )
-}
-
-function isMobileViewport(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
 }
 
 type FieldErrorKey =
@@ -319,11 +319,17 @@ export default function BookingForm() {
     email: '',
     phone: '',
     dateOfBirth: '',
+    message: '',
   })
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
+  const [isLocalHost, setIsLocalHost] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
+
+  useEffect(() => {
+    setIsLocalHost(isLocalDevHost())
+  }, [])
 
   // Never keep a Saturday in state (clinic closed) — snap to the next open day.
   useEffect(() => {
@@ -337,7 +343,8 @@ export default function BookingForm() {
     })
   }, [selectedDate])
 
-  const showSecurityCheck = isBookingEmailConfigured(features)
+  const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
+  const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
 
@@ -377,10 +384,6 @@ export default function BookingForm() {
     setFieldErrorMessages({})
   }
 
-  const showErrorToast = (message: string | string[]) => {
-    setToast({ message, variant: 'error' })
-  }
-
   const reportValidationErrors = (error: {
     messages: string[]
     fields: FieldErrorKey[]
@@ -391,10 +394,6 @@ export default function BookingForm() {
       byField[field] = error.messages[index]
     })
     setFieldErrorMessages(byField)
-    // Desktop: toast summary. Mobile: inline messages only.
-    if (!isMobileViewport()) {
-      showErrorToast(error.messages)
-    }
     focusFirstInvalidField(error.fields)
   }
 
@@ -554,6 +553,7 @@ export default function BookingForm() {
       email: '',
       phone: '',
       dateOfBirth: '',
+      message: '',
     })
     resetHCaptcha()
   }
@@ -632,38 +632,45 @@ export default function BookingForm() {
         return
       }
 
-      if (!hCaptchaToken.trim()) {
-        setHCaptchaError('Please complete the security check to send your request.')
-        document.getElementById('booking-security-check')?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-        return
-      }
-
-      setHCaptchaError('')
-
-      setIsSubmitting(true)
-      try {
-        const result = await sendBookingRequestEmail(
-          payload,
-          latestFeatures,
-          hCaptchaToken
+      // hCaptcha / Web3Forms refuse localhost — skip live email send in local dev.
+      if (isLocalDevHost()) {
+        console.warn(
+          '[booking submit] Skipping Web3Forms on localhost (hCaptcha unavailable). Thank-you still opens for UI testing.'
         )
-        if (!result.ok) {
-          setHCaptchaToken('')
-          setHCaptchaError('')
-          hCaptchaRef.current?.resetCaptcha()
-          goToUnableToProcess(
-            result.message ||
-              'Could not send the booking email. Please try again or call the clinic.'
-          )
+      } else {
+        if (!hCaptchaToken.trim()) {
+          setHCaptchaError('Please complete the security check to send your request.')
+          document.getElementById('booking-security-check')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
           return
         }
-        // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
-        confirmationEmailQueued = true
-      } finally {
-        setIsSubmitting(false)
+
+        setHCaptchaError('')
+
+        setIsSubmitting(true)
+        try {
+          const result = await sendBookingRequestEmail(
+            payload,
+            latestFeatures,
+            hCaptchaToken
+          )
+          if (!result.ok) {
+            setHCaptchaToken('')
+            setHCaptchaError('')
+            hCaptchaRef.current?.resetCaptcha()
+            goToUnableToProcess(
+              result.message ||
+                'Could not send the booking email. Please try again or call the clinic.'
+            )
+            return
+          }
+          // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
+          confirmationEmailQueued = true
+        } finally {
+          setIsSubmitting(false)
+        }
       }
     }
 
@@ -675,6 +682,7 @@ export default function BookingForm() {
       date: payload.date,
       time: payload.time,
       serviceType: payload.serviceType,
+      message: payload.message?.trim() || undefined,
     })
     resetForm()
     setToast(null)
@@ -701,6 +709,7 @@ export default function BookingForm() {
         onNext={handleNext}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        submitLabel="Request appointment"
         nextDisabled={
           (currentStep === 0 && !selectedLocation) ||
           (currentStep === 1 && !selectedService) ||
@@ -719,23 +728,31 @@ export default function BookingForm() {
               Choose how you&apos;d like to be treated
             </p>
 
-            <div className="flex border-b border-accent/20">
+            <div className="relative flex border-b border-accent/20">
+              <span
+                aria-hidden
+                className={`booking-service-tab__indicator ${
+                  activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
+                }`}
+              />
               <button
                 type="button"
                 onClick={() => handleTabChange('in-clinic')}
-                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
                   activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
                 }`}
               >
+                <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                 In Clinic
               </button>
               <button
                 type="button"
                 onClick={() => handleTabChange('call-out')}
-                className={`booking-service-tab px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
                   activeTab === 'call-out' ? 'booking-service-tab--active' : ''
                 }`}
               >
+                <Home className="h-5 w-5 shrink-0" aria-hidden />
                 <span className="sm:hidden">Home Visits</span>
                 <span className="hidden sm:inline">Call Out (Home Visits)</span>
               </button>
@@ -833,7 +850,12 @@ export default function BookingForm() {
                   hasError={hasFieldError('date')}
                   aria-invalid={hasFieldError('date')}
                   aria-describedby={
-                    fieldErrorMessage('date') ? 'booking-date-error' : undefined
+                    [
+                      'booking-date-hint',
+                      fieldErrorMessage('date') ? 'booking-date-error' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined
                   }
                   onChange={(nextDate) => {
                     setSelectedDate(nextDate)
@@ -845,10 +867,17 @@ export default function BookingForm() {
                   }}
                 />
               </div>
+              <p id="booking-date-hint" className="mt-1.5 text-xs text-secondary">
+                Next available starts from{' '}
+                {new Date(`${defaultPreferredDate()}T12:00:00`).toLocaleDateString('en-IE', {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </p>
               <FieldInlineError
                 id="booking-date-error"
                 message={fieldErrorMessage('date')}
-                always
               />
             </div>
 
@@ -860,7 +889,7 @@ export default function BookingForm() {
                 Preferred Time Range <RequiredMark />
               </p>
               <p className="text-sm text-secondary mb-3">
-                Select the time range that works best for you.
+                Pick a time that works best for you.
               </p>
               <div
                 id="booking-time"
@@ -898,7 +927,7 @@ export default function BookingForm() {
             <div>
               <h3 className="mb-4 flex items-center text-xl font-bold text-[var(--text-dark)]">
                 <User className="w-5 h-5 mr-2" />
-                Personal Information
+                Contact details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
                 <div className="min-w-0">
@@ -971,7 +1000,7 @@ export default function BookingForm() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="086 054 3085 or +353 86 054 3085"
+                    placeholder="086 054 3085"
                     inputMode="tel"
                     autoComplete="tel"
                     aria-invalid={hasFieldError('phone')}
@@ -980,9 +1009,18 @@ export default function BookingForm() {
                     }
                     className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
                   />
+                  <p className="mt-1.5 text-xs text-secondary">Ireland (+353) — national or international format</p>
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
-                <div className="md:col-span-2 min-w-0 w-full max-w-full">
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-xl font-bold text-[var(--text-dark)]">
+                Additional info
+              </h3>
+              <div className="grid grid-cols-1 gap-6 min-w-0">
+                <div className="min-w-0 w-full max-w-full">
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Date of Birth <RequiredMark />
                   </label>
@@ -1020,13 +1058,26 @@ export default function BookingForm() {
                   <FieldInlineError
                     id="dateOfBirth-error"
                     message={fieldErrorMessage('dateOfBirth')}
-                    always
+                  />
+                </div>
+                <div className="min-w-0 w-full max-w-full">
+                  <label htmlFor="message" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Anything we should know before your visit? (optional)"
+                    className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-white px-4 py-3 text-sm text-secondary shadow-sm">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
               <p>
                 Submitting sends an appointment request. We will contact you within 24 hours
@@ -1034,10 +1085,20 @@ export default function BookingForm() {
               </p>
             </div>
 
+            {showLocalSecurityNotice && currentStep === 3 && (
+              <p
+                id="booking-security-check"
+                className="text-center text-xs text-[var(--text-dark)]/45"
+                role="status"
+              >
+                Security check skipped on localhost — it appears on the live site.
+              </p>
+            )}
+
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
                 <div
-                  className={`booking-hcaptcha-host flex justify-center w-full rounded-lg p-1 transition-colors ${
+                  className={`booking-hcaptcha-host w-full min-w-0 rounded-lg p-1 transition-colors ${
                     hCaptchaError
                       ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
                       : ''
@@ -1045,16 +1106,16 @@ export default function BookingForm() {
                 >
                   {!hCaptchaReady && (
                     <div
-                      className="h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
+                      className="mx-auto h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
                       aria-hidden="true"
                     />
                   )}
                   <div
-                    className={`inline-block max-w-full overflow-x-auto ${
+                    className={`booking-hcaptcha-scale ${
                       hCaptchaReady ? '' : 'sr-only'
                     }`}
                   >
-                    <div className="min-h-[78px] min-w-[303px]">
+                    <div className="booking-hcaptcha-frame">
                       <HCaptcha
                         ref={hCaptchaRef}
                         sitekey={WEB3FORMS_HCAPTCHA_SITEKEY}

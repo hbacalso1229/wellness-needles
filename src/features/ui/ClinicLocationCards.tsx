@@ -38,10 +38,10 @@ export function ClinicLocationCards({
             key={location.id}
             className={`booking-select-card relative block box-border cursor-pointer rounded-xl border p-4 ${
               selected
-                ? 'z-[1] border-2 border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
+                ? 'z-[1] border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20 motion-safe:scale-[1.02]'
                 : hasError
                   ? 'border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                  : 'border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
+                  : 'border-2 border-accent/25 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -54,14 +54,14 @@ export function ClinicLocationCards({
               aria-label={location.label}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-7 w-7 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-8 w-8 items-center justify-center rounded-full ${
                 selected
                   ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-4 w-4" strokeWidth={3.5} />
+              <Check className="h-5 w-5" strokeWidth={3.5} />
             </span>
             <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
@@ -75,10 +75,10 @@ export function ClinicLocationCards({
                 <h4 className="mb-1 font-semibold leading-snug text-[var(--text-dark)]">
                   {location.label}
                 </h4>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-base leading-relaxed text-secondary">
                   {location.formatted.street}
                 </p>
-                <p className="text-sm leading-relaxed text-secondary">
+                <p className="text-base leading-relaxed text-secondary">
                   {location.formatted.city}, {location.formatted.county}{' '}
                   {location.formatted.postcode}
                 </p>

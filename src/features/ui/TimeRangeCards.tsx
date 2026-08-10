@@ -6,6 +6,7 @@ export type TimeRangeOption = {
   readonly id: string
   readonly label: string
   readonly window: string
+  readonly hint: string
   readonly icon: LucideIcon
 }
 
@@ -14,18 +15,21 @@ export const TIME_RANGES: ReadonlyArray<TimeRangeOption> = [
     id: 'morning',
     label: 'Morning',
     window: '9:00 AM – 12:00 PM',
+    hint: 'Most popular',
     icon: Sunrise,
   },
   {
     id: 'afternoon',
     label: 'Afternoon',
     window: '12:00 PM – 4:00 PM',
+    hint: 'Limited availability',
     icon: Sun,
   },
   {
     id: 'evening',
     label: 'Evening',
     window: '4:00 PM – 7:00 PM',
+    hint: 'Next available',
     icon: Moon,
   },
 ]
@@ -141,14 +145,14 @@ export function TimeRangeCards({
         return (
           <label
             key={range.id}
-            className={`booking-select-card relative block box-border rounded-xl border p-4 ${
+            className={`booking-select-card relative block box-border rounded-xl border p-4 min-h-[7.5rem] ${
               past
-                ? 'cursor-not-allowed border-2 border-accent/10 bg-accent/5 opacity-50'
+                ? 'cursor-not-allowed border-2 border-accent/20 bg-accent/[0.04]'
                 : selected
-                  ? 'z-[1] cursor-pointer border-2 border-primary bg-primary/10 shadow-md shadow-primary/10 motion-safe:scale-[1.02]'
+                  ? 'z-[1] cursor-pointer border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20 motion-safe:scale-[1.02]'
                   : hasError
                     ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                    : 'cursor-pointer border-2 border-accent/15 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
+                    : 'cursor-pointer border-2 border-accent/40 bg-white shadow-sm [@media(hover:hover)]:hover:border-primary/50 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -161,29 +165,56 @@ export function TimeRangeCards({
                 if (!past) onSelect(range.id)
               }}
               className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
-              aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : ''}`}
+              aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : `, ${range.hint}`}`}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-3 right-3 z-0 flex h-7 w-7 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-8 w-8 items-center justify-center rounded-full ${
                 selected && !past
                   ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-4 w-4" strokeWidth={3.5} />
+              <Check className="h-5 w-5" strokeWidth={3.5} />
             </span>
-            <div className="pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8">
+            <div
+              className={`pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8 ${
+                past ? 'opacity-60' : ''
+              }`}
+            >
               <span
                 className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                  selected && !past ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
+                  selected && !past
+                    ? 'bg-primary text-cream'
+                    : past
+                      ? 'bg-accent/15 text-secondary'
+                      : 'bg-primary/10 text-primary'
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0">
-                <h4 className="font-semibold leading-snug text-[var(--text-dark)]">{range.label}</h4>
-                <p className="text-sm leading-relaxed text-secondary mt-0.5">{range.window}</p>
+                <h4
+                  className={`font-semibold leading-snug ${
+                    past ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]'
+                  }`}
+                >
+                  {range.label}
+                </h4>
+                <p
+                  className={`text-sm leading-relaxed mt-0.5 ${
+                    past ? 'text-secondary/80' : 'text-secondary'
+                  }`}
+                >
+                  {range.window}
+                </p>
+                {past ? (
+                  <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-secondary">
+                    Unavailable
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-xs font-semibold text-primary/80">{range.hint}</p>
+                )}
               </div>
             </div>
           </label>

@@ -2,7 +2,7 @@
 
 import { Calendar, Send, MessageCircle, ChevronDown, Info, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { HeroSection, SectionHeading } from '../../features'
+import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
 import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
@@ -25,6 +25,11 @@ const faqs = [
       "Treatment plans vary based on your condition and health goals. Most patients see improvements within 3-6 sessions, but we'll discuss a personalized plan during your consultation.",
   },
 ] as const
+
+const locationBlurbs: Record<string, string> = {
+  celbridge: 'A calm, welcoming space designed for your care.',
+  carlow: 'Conveniently located with easy access and parking.',
+}
 
 function ContactDetailCard({
   icon: Icon,
@@ -91,14 +96,14 @@ export default function Contact() {
       />
 
       {/* Contact Information — bookings-style sticky layout */}
-      <section className="bg-cream py-8 md:py-12 lg:py-16">
+      <section className="bg-white py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
+          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] md:items-start md:gap-6 lg:gap-8">
             <div className="order-1 min-w-0 space-y-5 md:space-y-8">
               <div>
                 <SectionHeading
-                  title="Get in touch"
-                  subtitle="Reach us by phone, email, or visit one of our clinics"
+                  title="Start Your Journey With Us"
+                  subtitle="Whether you have a question or you're ready to begin, we're here to support you."
                   className="mb-6 text-center md:mb-8"
                 />
 
@@ -107,7 +112,7 @@ export default function Contact() {
                     <h3 className="mb-2 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                       Send us a message
                     </h3>
-                    <div className="mb-4 md:mb-6 h-0.5 w-8 md:w-10 rounded-full bg-gold" aria-hidden="true" />
+                    <div className="mb-4 h-0.5 w-8 rounded-full bg-gold md:mb-6 md:w-10" aria-hidden="true" />
 
                     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -277,7 +282,7 @@ export default function Contact() {
                     </ul>
                     <p
                       role="note"
-                      className="mt-4 flex items-start gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2.5 text-sm font-semibold text-primary shadow-sm"
+                      className="mt-4 flex items-start gap-2 rounded-lg border border-primary/20 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-primary shadow-sm"
                     >
                       <Info
                         className="mt-0.5 h-4 w-4 shrink-0 text-primary"
@@ -291,8 +296,8 @@ export default function Contact() {
                   {/* Phone, email, clinics — right on desktop */}
                   <div className="space-y-3 md:space-y-4">
                     <ContactDetailCard icon={contactConfig.phone.icon} title="Phone">
-                      <p className="text-[var(--text-dark)]/70 text-sm mb-2">
-                        Call us during business hours for immediate assistance
+                      <p className="text-[var(--text-dark)]/70 text-base mb-2">
+                        Speak with us directly—we&apos;re here to help.
                       </p>
                       <a
                         href={contactConfig.phone.href}
@@ -303,8 +308,8 @@ export default function Contact() {
                     </ContactDetailCard>
 
                     <ContactDetailCard icon={contactConfig.email.icon} title="Email">
-                      <p className="text-[var(--text-dark)]/70 text-sm mb-2">
-                        We respond to emails within 24 hours
+                      <p className="text-[var(--text-dark)]/70 text-base mb-2">
+                        Send us a message—we&apos;ll get back to you within 24 hours.
                       </p>
                       <a
                         href={contactConfig.email.href}
@@ -317,7 +322,7 @@ export default function Contact() {
                     <ContactDetailCard icon={contactConfig.address.icon} title="Clinics">
                       {contactConfig.features.mapIntegrationEnabled ? (
                         <>
-                          <p className="text-[var(--text-dark)]/70 text-sm mb-2">Find us</p>
+                          <p className="text-[var(--text-dark)]/70 text-base mb-2">Visit us in person</p>
                           <p className="mb-2 text-[var(--text-dark)]">
                             <span className="font-semibold">Celbridge</span>
                             {' and '}
@@ -329,11 +334,11 @@ export default function Contact() {
                           >
                             See maps and directions
                           </a>
-                          <p className="text-[var(--text-dark)]/70 text-sm mt-2">Convenient parking available</p>
+                          <p className="text-[var(--text-dark)]/70 text-base mt-2">Convenient parking available</p>
                         </>
                       ) : (
                         <>
-                          <p className="text-[var(--text-dark)]/70 text-sm mb-2">Find us</p>
+                          <p className="text-[var(--text-dark)]/70 text-base mb-2">Visit us in person</p>
                           <div className="mb-2 space-y-3 text-[var(--text-dark)]/80">
                             {contactConfig.address.locations.map((location) => (
                               <div key={location.full}>
@@ -354,7 +359,7 @@ export default function Contact() {
                               </div>
                             ))}
                           </div>
-                          <p className="text-[var(--text-dark)]/70 text-sm">Convenient parking available</p>
+                          <p className="text-[var(--text-dark)]/70 text-base">Convenient parking available</p>
                         </>
                       )}
                     </ContactDetailCard>
@@ -365,23 +370,23 @@ export default function Contact() {
 
             {/* Quick book — sticky sidebar from tablet up; below content on mobile */}
             <aside
-              className="order-2 mx-auto mt-6 w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
+              className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
               <h3 className="mb-1 text-lg font-bold text-primary leading-snug">
-                Ready to book your appointment?
+                Ready to Begin Your Care Journey?
               </h3>
-              <p className="mb-4 text-sm leading-relaxed text-[var(--text-dark)]/70">
-                Choose a time that works for you — it only takes a minute.
+              <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">
+                Choose a time that suits you—your path to balance starts here.
               </p>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 <BookingCtaButton
                   variant="gold"
                   size="medium"
                   showArrow={false}
-                  className="w-full !rounded-full !bg-gradient-to-b !from-[#e8c84a] !to-gold text-primary !px-4 !py-2.5 !text-sm !font-bold whitespace-nowrap shadow-md shadow-primary/25 gap-2 transition-[transform,box-shadow,filter] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg motion-safe:hover:shadow-gold/40 motion-safe:hover:brightness-105 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97] hover:!from-[#f0d45c] hover:!to-[#c9a52f]"
+                  className="w-full max-w-full"
                 >
-                  <Calendar className="w-4 h-4 shrink-0 text-primary" aria-hidden />
-                  <span className="whitespace-nowrap">Book your appointment</span>
+                  <Calendar className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+                  Book Your Consultation
                 </BookingCtaButton>
                 <p className="px-0.5 text-center text-xs font-semibold leading-snug text-[var(--text-dark)]/60">
                   No payment required • Instant confirmation
@@ -389,7 +394,7 @@ export default function Contact() {
                 {contactConfig.features.liveChatEnabled && (
                   <button
                     type="button"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-cream px-4 py-2.5 text-sm font-medium text-primary shadow-md shadow-primary/10 transition-all duration-200 hover:border-primary hover:shadow-md"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-white px-4 py-2.5 text-sm font-medium text-primary shadow-md shadow-primary/10 transition-all duration-200 hover:border-primary hover:shadow-md"
                   >
                     <MessageCircle className="w-4 h-4 shrink-0" aria-hidden />
                     Start live chat
@@ -402,14 +407,14 @@ export default function Contact() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-12 md:py-16 lg:py-20 bg-cream">
+      <section className="py-8 md:py-10 lg:py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Frequently Asked Questions"
+            title="Your Questions, Answered"
             subtitle="Quick answers to common questions"
           />
 
-          <div className="flex flex-col gap-2.5 md:gap-6">
+          <div className="flex flex-col gap-2.5 md:gap-3">
             {faqs.map((faq, index) => {
               const isOpen = openFaqIndexes.has(index)
               return (
@@ -453,7 +458,7 @@ export default function Contact() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`pt-2 md:pt-3 text-sm md:text-base text-[var(--text-dark)]/70 leading-relaxed diagnosis-accordion-body ${
+                        className={`pt-2 md:pt-3 text-base text-[var(--text-dark)]/70 leading-relaxed diagnosis-accordion-body ${
                           isOpen ? 'opacity-100' : 'opacity-0'
                         }`}
                       >
@@ -470,11 +475,14 @@ export default function Contact() {
 
       {/* Map Section */}
       {contactConfig.features.mapIntegrationEnabled && (
-        <section id="find-us" className="pt-8 pb-8 md:pt-12 md:pb-10 bg-secondary/5 scroll-mt-20">
+        <section
+          id="find-us"
+          className={`scroll-mt-20 ${glassGreenBandClassName} pb-8 pt-8 md:pb-10 md:pt-12`}
+        >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              title="Find Us"
-              subtitle="Visit us in Celbridge or Carlow"
+              title="Visit Us in Person"
+              subtitle="Two convenient locations to support your care."
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-6">
@@ -483,8 +491,15 @@ export default function Contact() {
                   key={location.full}
                   className={interactiveCardClass}
                 >
-                  <h3 className="mb-3 font-semibold text-base text-[var(--text-dark)]">{location.label}</h3>
-                  <div className="text-[var(--text-dark)]/80 text-sm leading-snug mb-4">
+                  <h3 className="mb-1.5 font-semibold text-base text-[var(--text-dark)] md:text-lg">
+                    {location.label}
+                  </h3>
+                  {locationBlurbs[location.id] ? (
+                    <p className="mb-3 text-sm leading-relaxed text-[var(--text-dark)]/70">
+                      {locationBlurbs[location.id]}
+                    </p>
+                  ) : null}
+                  <div className="text-[var(--text-dark)]/80 text-base leading-relaxed mb-4">
                     <div>{location.formatted.street}</div>
                     <div>
                       {location.formatted.city}, {location.formatted.county}{' '}
@@ -498,6 +513,16 @@ export default function Contact() {
                   />
                 </div>
               ))}
+            </div>
+
+            <div className="mt-8 flex flex-col items-center gap-3 text-center md:mt-10">
+              <p className="text-base font-[450] leading-relaxed text-[#2C3E35]/80">
+                Prefer to plan your visit first?
+              </p>
+              <BookingCtaButton variant="gold" showArrow={false}>
+                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                Book Your Consultation
+              </BookingCtaButton>
             </div>
           </div>
         </section>
