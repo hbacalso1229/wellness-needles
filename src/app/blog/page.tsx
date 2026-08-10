@@ -1,6 +1,6 @@
 import { Calendar, User, Leaf, Heart, Brain } from 'lucide-react'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { HeroSection } from '../../features'
+import { BookingSection } from '../../features/home/BookingSection'
 
 export default function Blog() {
   const blogPosts = [
@@ -256,21 +256,11 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-8 md:py-10 lg:py-12 bg-primary text-cream">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
-            Ready to Begin Your Wellness Journey?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Put these insights into practice with personalized acupuncture treatments
-          </p>
-          <BookingCtaButton variant="gold">
-            <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-            Schedule your consultation
-          </BookingCtaButton>
-        </div>
-      </section>
+      <BookingSection
+        title="Ready to Begin Your Wellness Journey?"
+        description="Put these insights into practice with personalized acupuncture treatments"
+        ctaLabel="Schedule your consultation"
+      />
     </div>
   )
 }

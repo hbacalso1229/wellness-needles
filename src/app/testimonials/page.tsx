@@ -12,9 +12,9 @@ import {
   snapTrackGridLgClassName,
   snapTrackHorizontalClassName,
   glassGreenBandClassName,
-  glassGreenFillClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
@@ -395,34 +395,26 @@ export default function Testimonials() {
         </div>
       </section>
 
-      {/* CTA band — glass green closer */}
-      <section className={`border-b border-white/50 ${glassGreenFillClassName} pt-4 pb-8 md:pt-5 md:pb-10 lg:pt-6 lg:pb-12`}>
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
-            Ready to Feel This Difference for Yourself?
-          </h2>
-          <div className="mt-5 flex flex-col items-center gap-3 sm:mt-6 sm:gap-3.5">
-            <BookingCtaButton variant="gold" showArrow={false} size="large">
-              <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-              <span className="whitespace-nowrap">Begin Your Care Journey</span>
-            </BookingCtaButton>
-            <a
-              href="/contact/"
-              className="group inline-flex items-center gap-1 text-sm font-medium text-primary/65 underline-offset-4 transition-colors duration-300 ease-out hover:text-primary hover:underline"
-            >
-              Share Your Experience
-              <ArrowRight
-                className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
-                aria-hidden
-              />
-            </a>
-          </div>
-          <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-[var(--text-dark)]/60 md:mt-6">
-            <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
-            <span>Trusted by 200+ patients</span>
-          </p>
-        </div>
-      </section>
+      <BookingSection
+        title="Ready to Feel This Difference for Yourself?"
+        description=""
+        ctaLabel="Begin Your Care Journey"
+      >
+        <a
+          href="/contact/"
+          className="group mt-3 inline-flex items-center gap-1 text-sm font-medium text-cream/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-cream hover:underline sm:mt-3.5"
+        >
+          Share Your Experience
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
+            aria-hidden
+          />
+        </a>
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-cream/60 md:mt-6">
+          <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
+          <span>Trusted by 200+ patients</span>
+        </p>
+      </BookingSection>
     </div>
   )
 }

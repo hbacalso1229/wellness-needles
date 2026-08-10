@@ -1,9 +1,9 @@
 'use client'
 
-import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, Calendar, type LucideIcon } from 'lucide-react'
+import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { BookingSection } from '../../features/home/BookingSection'
 
 const sectionTitleClassName =
   'font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.5rem] font-bold text-[var(--text-dark)] mb-2 md:mb-3'
@@ -289,25 +289,15 @@ export default function ChineseMedicine() {
             ))}
           </div>
 
-          <div className="mx-auto mt-14 max-w-3xl px-2 text-center md:mt-16">
-            <p className="mb-3 text-base font-[450] leading-relaxed text-[#2C3E35]/80 sm:mb-4">
-              When you&apos;re ready, we&apos;re here to support you.
-            </p>
-            <h3 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
-              Begin Your Journey to Balance
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-3">
-              A calm, personalised approach to restoring balance and supporting your wellbeing.
-            </p>
-            <div className="mt-5 flex justify-center sm:mt-6">
-              <BookingCtaButton variant="gold" showArrow={false}>
-                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                Book a Consultation
-              </BookingCtaButton>
-            </div>
-          </div>
         </div>
       </section>
+
+      <BookingSection
+        eyebrow="When you're ready, we're here to support you."
+        title="Begin Your Journey to Balance"
+        description="A calm, personalised approach to restoring balance and supporting your wellbeing."
+        ctaLabel="Book a Consultation"
+      />
 
       {/* Integrative Approach — glass green full section */}
       <section className={`${glassGreenBandClassName} py-8 md:py-10 lg:py-12`}>

@@ -12,7 +12,6 @@ import {
   Star,
   ArrowRight,
   CheckCircle,
-  Calendar,
   BadgeCheck,
   GraduationCap,
   School,
@@ -28,8 +27,8 @@ import {
   snapTrackGridSmClassName,
   glassGreenBandClassName,
 } from '../../features'
+import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
-import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 /** Known logo files only — avoid requesting missing .svg/.png (404 spam). */
 const insurers = [
@@ -336,70 +335,62 @@ export default function About() {
               />
             </div>
           </SnapCarousel>
-
-          <div className="mx-auto mt-10 max-w-2xl md:mt-12" aria-label="Patient review">
-            <blockquote className="rounded-xl border border-accent/20 bg-accent/10 px-5 py-5 text-left shadow-[0_3px_14px_rgba(27,59,43,0.05)] md:px-6 md:py-6">
-              <div className="mb-4">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <cite className="not-italic text-sm font-semibold text-[var(--text-dark)] md:text-base">
-                    Pavlo Nikulin
-                  </cite>
-                  <span
-                    className="inline-flex items-center gap-0.5 text-gold"
-                    aria-label="5 out of 5 stars"
-                  >
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
-                    ))}
-                  </span>
-                </div>
-                <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
-                  Lower back pain
-                </span>
-                <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-secondary md:text-xs">
-                  <time dateTime="2026-07-22">22 July 2026</time>
-                  <span aria-hidden>·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <CheckCircle className="h-3 w-3 shrink-0 text-accent md:h-3.5 md:w-3.5" aria-hidden />
-                    Verified Google review
-                  </span>
-                </p>
-              </div>
-
-              <p className="font-serif text-base font-medium italic leading-relaxed text-[var(--text-dark)]">
-                “I&apos;d been struggling with lower back pain for so long, and after just two sessions,
-                I finally felt relief again.”
-              </p>
-
-              <p className="mt-4">
-                <Link
-                  href="/testimonials/"
-                  className="inline-flex items-center gap-1 text-sm font-bold text-primary underline-offset-4 transition-[gap,color] duration-300 ease-out hover:gap-1.5 hover:text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                >
-                  Read More Patient Stories
-                  <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
-                </Link>
-              </p>
-            </blockquote>
-          </div>
-
-          <div className="mx-auto mt-10 max-w-3xl px-2 text-center md:mt-12">
-            <h3 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
-              Ready to Feel the Difference?
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-3">
-              Experience personalized care designed to restore balance, ease discomfort, and support
-              your wellbeing.
-            </p>
-            <div className="mt-5 flex justify-center sm:mt-6">
-              <BookingCtaButton variant="gold" showArrow={false}>
-                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                Begin Your Treatment
-              </BookingCtaButton>
-            </div>
-          </div>
         </div>
       </section>
+
+      <BookingSection
+        title="Ready to Feel the Difference?"
+        description="Experience personalized care designed to restore balance, ease discomfort, and support your wellbeing."
+        ctaLabel="Begin Your Treatment"
+        leading={
+          <blockquote
+            aria-label="Patient review"
+            className="flex h-full flex-col rounded-2xl border border-accent/20 bg-accent/10 px-5 py-5 text-left shadow-[0_3px_14px_rgba(27,59,43,0.05)] md:px-6 md:py-6"
+          >
+            <div className="mb-4">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                <cite className="not-italic text-sm font-semibold text-[var(--text-dark)] md:text-base">
+                  Pavlo Nikulin
+                </cite>
+                <span
+                  className="inline-flex items-center gap-0.5 text-gold"
+                  aria-label="5 out of 5 stars"
+                >
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
+                  ))}
+                </span>
+              </div>
+              <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
+                Lower back pain
+              </span>
+              <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-secondary md:text-xs">
+                <time dateTime="2026-07-22">22 July 2026</time>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3 shrink-0 text-accent md:h-3.5 md:w-3.5" aria-hidden />
+                  Verified Google review
+                </span>
+              </p>
+            </div>
+
+            <p className="font-serif text-base font-medium italic leading-relaxed text-[var(--text-dark)]">
+              “I&apos;d been struggling with lower back pain for so long, and after just two sessions,
+              I finally felt relief again.”
+            </p>
+
+            <p className="mt-auto pt-4">
+              <Link
+                href="/testimonials/"
+                className="inline-flex items-center gap-1 text-sm font-bold text-primary underline-offset-4 transition-[gap,color] duration-300 ease-out hover:gap-1.5 hover:text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                Read More Patient Stories
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
+              </Link>
+            </p>
+          </blockquote>
+        }
+      />
 
       {/* Insurance */}
       <section className={`${glassGreenBandClassName} py-5 sm:py-8 md:py-10 lg:py-12`}>

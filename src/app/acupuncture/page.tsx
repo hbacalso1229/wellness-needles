@@ -17,7 +17,6 @@ import {
   Apple,
   Wind,
   ChevronDown,
-  Calendar,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -26,8 +25,7 @@ import {
   SectionHeading,
   glassGreenBandClassName,
 } from '../../features'
-import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
-import { CTAButton } from '@/features/ui/CTAButton'
+import { BookingSection } from '../../features/home/BookingSection'
 
 const howItWorksPerspectives: {
   badge: string
@@ -404,8 +402,6 @@ function HowItWorksColumn({
 }
 
 export default function Acupuncture() {
-  const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
-
   return (
     <div className="min-h-screen">
       <HeroSection
@@ -501,29 +497,14 @@ export default function Acupuncture() {
             ))}
           </div>
 
-          <div className="mx-auto mt-10 max-w-3xl px-2 text-center md:mt-12">
-            <h3 className="font-serif text-[clamp(1.15rem,4.2vw,2.25rem)] font-bold leading-snug text-[var(--text-dark)]">
-              Not sure where to start?
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-3">
-              Let the practitioner support you on your journey to better health and balance.
-            </p>
-            <div className="mt-5 flex justify-center sm:mt-6">
-              <CTAButton
-                href={bookHref}
-                variant="gold"
-                showArrow={false}
-                external={isExternal}
-                target={target}
-                rel={rel}
-              >
-                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                Book your first session
-              </CTAButton>
-            </div>
-          </div>
         </div>
       </section>
+
+      <BookingSection
+        title="Not sure where to start?"
+        description="Let the practitioner support you on your journey to better health and balance."
+        ctaLabel="Book your first session"
+      />
 
       {/* Scientific Evidence — open proof on glass */}
       <section className={`${glassGreenBandClassName} py-5 sm:py-8 md:py-10 lg:py-12`}>
