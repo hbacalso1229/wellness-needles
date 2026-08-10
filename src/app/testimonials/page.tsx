@@ -195,8 +195,40 @@ export default function Testimonials() {
         </div>
       </HeroSection>
 
+      {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
+      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Real results from real patients
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+            In their own words — verified reviews from people treated at Wellness Needles.
+          </p>
+          <div className="mx-auto mt-4 flex max-w-md flex-col items-center gap-3 sm:mt-5">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-dark)]/85 sm:text-base">
+              <span className="inline-flex items-center gap-0.5" aria-hidden>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+                ))}
+              </span>
+              <span>5-star verified Google reviews</span>
+            </div>
+            <ul className="flex flex-wrap justify-center gap-2">
+              {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
+                <li
+                  key={category}
+                  className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary sm:text-sm"
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Real Patient Results — light canvas to match site header */}
-      <section className="scroll-mt-24 bg-white py-8 md:py-10 lg:py-12">
+      <section className="scroll-mt-24 bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Real Results. Real Lives Changed."

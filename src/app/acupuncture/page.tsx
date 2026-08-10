@@ -432,8 +432,8 @@ export default function Acupuncture() {
         </ul>
       </HeroSection>
 
-      {/* Mobile page intro — hero is xl-only */}
-      <section className="bg-[#F7FAF8] px-4 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-6 xl:hidden">
+      {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
+      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
           <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Relieve pain. Restore balance.
@@ -454,24 +454,11 @@ export default function Acupuncture() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 flex justify-center sm:mt-7">
-            <CTAButton
-              href={bookHref}
-              variant="gold"
-              showArrow={false}
-              external={isExternal}
-              target={target}
-              rel={rel}
-            >
-              <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-              Book your first session
-            </CTAButton>
-          </div>
         </div>
       </section>
 
       {/* How It Works — editorial 2-col */}
-      <section className="bg-white py-5 sm:py-8 md:py-10 lg:py-12">
+      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="How Acupuncture Restores Balance"

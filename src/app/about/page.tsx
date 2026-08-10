@@ -140,23 +140,36 @@ export default function About() {
         ]}
       />
 
+      {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
+      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Meet the care behind Wellness Needles
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+            Personalised acupuncture and naturopathic care with Arkinth Garcia — focused on
+            listening, root causes, and lasting wellbeing.
+          </p>
+        </div>
+      </section>
+
       {/* Our Story Section */}
-      <section className="bg-white py-8 md:py-10 lg:py-12">
+      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Top row: Practitioner (left) + Mission/Vision (right) */}
           <div className="mb-8 grid grid-cols-1 items-stretch gap-4 md:mb-12 md:gap-8 lg:grid-cols-2 lg:gap-12">
-            {/* Your Practitioner tile */}
+            {/* Your Practitioner tile — decorated card on all breakpoints */}
             <div className="card-emboss relative flex flex-col justify-center overflow-hidden rounded-xl border border-accent/20 bg-secondary/5 p-3.5 text-center shadow-md md:p-8">
               <div className="absolute left-0 top-0 h-16 w-16 -translate-x-8 -translate-y-8 rounded-full bg-gradient-to-br from-gold/10 to-accent/10" />
               <div className="absolute bottom-0 right-0 h-24 w-24 translate-x-12 translate-y-12 rounded-full bg-gradient-to-br from-primary/5 to-secondary/5" />
 
               <div className="relative z-10">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-secondary">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-secondary md:mb-4">
                   Your Practitioner
                 </p>
-                <div className="group relative mb-4 inline-block">
+                <div className="group relative mb-3 inline-block md:mb-4">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold/20 to-accent/20 blur-md" />
-                  <div className="relative mx-auto h-40 w-40 overflow-hidden rounded-full border-4 border-[#faf9f7] bg-accent shadow-xl md:h-28 md:w-28">
+                  <div className="relative mx-auto h-36 w-36 overflow-hidden rounded-full border-4 border-[#faf9f7] bg-accent shadow-xl md:h-40 md:w-40">
                     <NextImage
                       src="/Arkinth_clinic_founder.jpeg"
                       alt="Arkinth Garcia - Naturopath & Acupuncturist"
@@ -179,7 +192,7 @@ export default function About() {
                   </div>
                 </div>
 
-                <h3 className="mb-1 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
+                <h3 className="mb-1 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                   Arkinth Garcia
                 </h3>
                 <p className="mb-2 text-base text-secondary">Naturopath &amp; Acupuncturist</p>
@@ -253,7 +266,7 @@ export default function About() {
             <h2 className="mb-4 font-serif text-2xl font-bold text-[var(--text-dark)] sm:text-3xl md:mb-6 md:text-4xl">
               About Arkinth Garcia
             </h2>
-            <div className="space-y-6 md:space-y-8">
+            <div className="space-y-5 md:space-y-8">
               {bioSections.map((section) => (
                 <div key={section.heading}>
                   <h3 className="mb-2 font-serif text-lg font-semibold text-[var(--text-dark)] md:text-xl">
@@ -268,7 +281,7 @@ export default function About() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="bg-white py-8 md:py-10 lg:py-12">
+      <section className="bg-white py-5 sm:py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Feel the Difference in Your Care"
@@ -389,7 +402,7 @@ export default function About() {
       </section>
 
       {/* Insurance */}
-      <section className={`${glassGreenBandClassName} py-8 md:py-10 lg:py-12`}>
+      <section className={`${glassGreenBandClassName} py-5 sm:py-8 md:py-10 lg:py-12`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Insurance"

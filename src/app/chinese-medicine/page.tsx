@@ -123,8 +123,33 @@ export default function ChineseMedicine() {
         </ul>
       </HeroSection>
 
+      {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
+      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Traditional Chinese Medicine, tailored to you
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+            A holistic system that treats the root of imbalance — body, mind, and energy together.
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-sm font-medium text-primary sm:mt-3 sm:text-base">
+            Treating the root cause—not just the symptoms.
+          </p>
+          <ul className="mx-auto mt-4 flex max-w-md flex-wrap justify-center gap-2 sm:mt-5">
+            {['Qi (energy)', 'Yin & Yang', 'Root-cause care'].map((principle) => (
+              <li
+                key={principle}
+                className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary sm:text-sm"
+              >
+                {principle}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* Philosophy — editorial two-column, no cards */}
-      <section className="bg-white py-10 md:py-14 lg:py-16">
+      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-14 lg:py-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Healing Begins with Balance"
