@@ -108,14 +108,6 @@ const heroBenefits = [
   'Supports hormonal balance',
 ] as const
 
-/** Mobile intro fold — short badge labels (desktop hero keeps heroBenefits). */
-const mobileIntroBadges = [
-  'Chronic Pain Relief',
-  'Stress & Anxiety',
-  'Sleep Quality',
-  'Hormonal Health',
-] as const
-
 type ConditionAccent = {
   icon: string
   iconBg: string
@@ -439,10 +431,6 @@ export default function Acupuncture() {
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
       <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
-            Acupuncture &amp; Natural Care
-          </p>
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Relieve Pain. Restore Balance.
           </h1>
@@ -450,17 +438,6 @@ export default function Acupuncture() {
             Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by
             modern practice.
           </p>
-          <ul className="mx-auto mt-3 grid max-w-md list-none grid-cols-2 gap-2 sm:mt-3.5 sm:gap-2.5">
-            {mobileIntroBadges.map((label) => (
-              <li
-                key={label}
-                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#ECEEE8] px-3 py-2 text-sm font-medium text-primary"
-              >
-                <Check className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.5} />
-                <span className="leading-snug">{label}</span>
-              </li>
-            ))}
-          </ul>
           <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>

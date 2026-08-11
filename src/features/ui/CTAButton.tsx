@@ -30,7 +30,7 @@ export const headerGoldCtaMobileClassName =
 
 /** Shared section browse/explore link — home Benefits / Services / Practitioner. Quieter than Book gold CTAs. */
 export const sectionGreenCtaClassName =
-  'group inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-primary underline-offset-4 transition-[color,gap] duration-300 ease-out hover:gap-2.5 hover:text-[#1B3B2B] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2'
+  'group inline-flex items-center gap-1.5 rounded-sm text-sm font-semibold text-primary underline-offset-4 transition-[color,gap] duration-300 ease-out hover:gap-2.5 hover:text-[#1B3B2B] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2'
 
 /** Shared glass-green fill — same tint/blur as Integrative Approach, Evidence, Find Us, etc. */
 export const glassGreenFillClassName =
