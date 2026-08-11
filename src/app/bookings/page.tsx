@@ -204,7 +204,7 @@ export default function Bookings() {
               {bookingFormEnabled ? (
                 <div>
                   <SectionHeading
-                    title="Request an appointment"
+                    title="Request an Appointment"
                     credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
                     subtitle="Choose your service and time. We’ll confirm within 24 hours."
                     titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 sm:mb-2 md:mb-3"
@@ -472,7 +472,7 @@ export default function Bookings() {
             <aside
               className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
-              <h3 className="mb-1 text-lg font-bold leading-snug text-primary">
+              <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">
                 Need help?
               </h3>
               <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">

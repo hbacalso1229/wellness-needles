@@ -167,14 +167,14 @@ export default function BookingStepper({
             })}
           </ol>
         </div>
-        <p className="text-center text-sm font-medium text-secondary">
+        <p className="text-center text-sm font-medium text-[#1B3B2B]">
           {progressReassuranceDesktop}
         </p>
       </nav>
 
       {/* Progress — mobile (compact: one label + thin track) */}
       <div className="sm:hidden space-y-1.5" aria-label="Booking progress">
-        <p className="text-center text-sm font-semibold text-primary leading-snug">
+        <p className="text-center text-sm font-semibold leading-snug text-[#1B3B2B]">
           {progressReassurance}
         </p>
         <div className="relative mx-auto w-full max-w-xs px-2">
