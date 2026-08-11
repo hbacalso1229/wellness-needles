@@ -829,13 +829,7 @@ export default function BookingForm() {
           <div className="space-y-6">
             <p className="flex items-start text-base text-secondary">
               <Calendar className="mt-0.5 mr-2 h-5 w-5 shrink-0 text-primary" />
-              <span>
-                Pick your preferred date and a time range.
-                <br />
-                <span className="font-medium text-[var(--primary-green)]">
-                  This is a request only — we will confirm within 24 hours.
-                </span>
-              </span>
+              Pick your preferred date and a time range.
             </p>
 
             <div className="min-w-0 w-full max-w-full">
