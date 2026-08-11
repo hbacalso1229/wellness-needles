@@ -148,7 +148,7 @@ export default function About() {
       {/* Hero Section */}
       <HeroSection
         title="Meet the care behind Wellness Needles"
-        subtitle="Personalised acupuncture and naturopathic care with Arkinth Garcia — focused on listening, root causes, and lasting wellbeing."
+        subtitle="Personalised acupuncture & naturopathic care focused on root causes and lasting wellbeing."
         backgroundImage="/hero_wellness_acupuncture.jpeg"
         backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
         showFloatingLeaves={true}
@@ -166,16 +166,15 @@ export default function About() {
       />
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
+      <section className="bg-white px-4 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Meet Your Practitioner
           </h1>
           <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
-            Personalised acupuncture and naturopathic care with Arkinth Garcia — focused on
-            listening, root causes, and lasting wellbeing.
+            Personalised acupuncture & naturopathic care focused on root causes and lasting
+            wellbeing.
           </p>
-          <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>
 
@@ -223,7 +222,9 @@ export default function About() {
                 </h3>
                 <p className="mb-2 text-base text-secondary">Naturopath &amp; Acupuncturist</p>
                 <p className="mb-3 text-base text-secondary">
-                  Helping patients restore balance and feel better every day.
+                  Helping patients restore balance and feel better
+                  <br />
+                  every day.
                 </p>
 
                 <ul className="flex flex-col items-stretch gap-2 md:flex-row md:flex-wrap md:justify-center md:gap-1.5">
