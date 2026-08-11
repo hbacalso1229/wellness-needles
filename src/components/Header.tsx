@@ -10,7 +10,7 @@ import { isAdminUiEnabled } from '@/lib/admin-ui'
 import { headerGoldCtaClassName, headerGoldCtaMobileClassName } from '@/features/ui/CTAButton'
 
 const HEADER_CLASS =
-  'fixed top-0 z-50 w-full overflow-visible border-b border-white/40 bg-white/40 backdrop-blur-[2px] supports-[backdrop-filter]:bg-white/30 shadow-sm'
+  'fixed inset-x-0 top-0 z-50 w-full overflow-visible border-b border-white/40 shadow-sm bg-white/90 backdrop-blur-md max-xl:supports-[backdrop-filter]:bg-white/80 xl:bg-white/40 xl:backdrop-blur-[2px] xl:supports-[backdrop-filter]:bg-white/30'
 
 function BookNowLabel({ compact = false }: { compact?: boolean }) {
   return (
@@ -219,7 +219,7 @@ export default function Header() {
         {/* Mobile / tablet Navigation */}
         {isMenuOpen && (
           <div id="mobile-navigation" className="xl:hidden">
-            <div className="max-h-[calc(100dvh-3rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/50 backdrop-blur-[2px] px-2 pb-3 pt-2 sm:max-h-[calc(100dvh-3.5rem)]">
+            <div className="max-h-[calc(100dvh-3rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/90 px-2 pb-3 pt-2 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 sm:max-h-[calc(100dvh-3.5rem)]">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
