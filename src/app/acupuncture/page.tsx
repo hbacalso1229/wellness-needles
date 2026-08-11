@@ -17,6 +17,9 @@ import {
   Apple,
   Wind,
   ChevronDown,
+  Zap,
+  Moon,
+  Scale,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -429,16 +432,37 @@ export default function Acupuncture() {
       </HeroSection>
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
+      <section className="bg-white px-4 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
+          <span className="mb-3 inline-flex rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+            Holistic Healing
+          </span>
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
-            Relieve Pain. Restore Balance.
+            Relieve Pain.
+            <br />
+            Restore Balance.
           </h1>
           <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
-            Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by
-            modern practice.
+            Gentle care rooted in traditional Chinese medicine and supported by modern practice.
           </p>
-          <div className="mt-3 border-t border-accent/20" aria-hidden />
+          <ul className="mt-3 flex list-none flex-wrap items-center justify-center gap-2">
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
+              <Zap className="h-3.5 w-3.5 shrink-0 text-orange-500" aria-hidden strokeWidth={2.25} />
+              Pain
+            </li>
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
+              <Leaf className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.25} />
+              Stress
+            </li>
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
+              <Moon className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden strokeWidth={2.25} />
+              Sleep
+            </li>
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
+              <Scale className="h-3.5 w-3.5 shrink-0 text-orange-500" aria-hidden strokeWidth={2.25} />
+              Balance
+            </li>
+          </ul>
         </div>
       </section>
 

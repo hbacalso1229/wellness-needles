@@ -196,7 +196,7 @@ export default function Testimonials() {
       </HeroSection>
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
+      <section className="bg-white px-4 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Real Results. Real Patients.
@@ -204,17 +204,17 @@ export default function Testimonials() {
           <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
             In their own words — verified reviews from people treated at Wellness Needles.
           </p>
-          <div className="mx-auto mt-3 flex max-w-md flex-col items-center sm:mt-3.5">
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-dark)]/85 sm:text-base">
+          <div className="mx-auto mt-3 flex justify-center sm:mt-3.5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-white px-3.5 py-1.5">
+              <span className="text-sm font-bold text-primary">5.0</span>
               <span className="inline-flex items-center gap-0.5" aria-hidden>
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+                  <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
                 ))}
               </span>
-              <span>5-star verified Google reviews</span>
-            </div>
+              <span className="text-sm text-[var(--text-dark)]/70">Google Reviews</span>
+            </span>
           </div>
-          <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>
 
