@@ -16,7 +16,7 @@ import {
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
-import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight, Check } from 'lucide-react'
+import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
@@ -198,17 +198,13 @@ export default function Testimonials() {
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
       <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
-            Patient Stories
-          </p>
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Real Results. Real Patients.
           </h1>
           <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
             In their own words — verified reviews from people treated at Wellness Needles.
           </p>
-          <div className="mx-auto mt-3 flex max-w-md flex-col items-center gap-3 sm:mt-3.5">
+          <div className="mx-auto mt-3 flex max-w-md flex-col items-center sm:mt-3.5">
             <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--text-dark)]/85 sm:text-base">
               <span className="inline-flex items-center gap-0.5" aria-hidden>
                 {[0, 1, 2, 3, 4].map((i) => (
@@ -217,17 +213,6 @@ export default function Testimonials() {
               </span>
               <span>5-star verified Google reviews</span>
             </div>
-            <ul className="flex flex-wrap justify-center gap-2">
-              {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
-                <li
-                  key={category}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#ECEEE8] px-3 py-2 text-sm font-medium text-primary"
-                >
-                  <Check className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.5} />
-                  {category}
-                </li>
-              ))}
-            </ul>
           </div>
           <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>

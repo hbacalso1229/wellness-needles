@@ -168,10 +168,6 @@ export default function About() {
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
       <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
-            Personalized Care
-          </p>
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Meet Your Practitioner
           </h1>
@@ -189,7 +185,7 @@ export default function About() {
           {/* Top row: Practitioner (left) + Mission/Vision (right) */}
           <div className="mb-8 grid grid-cols-1 items-stretch gap-4 md:mb-12 md:gap-8 lg:grid-cols-2 lg:gap-12">
             {/* Your Practitioner tile — decorated card on all breakpoints */}
-            <div className="card-emboss relative flex flex-col justify-center overflow-hidden rounded-xl border border-accent/20 bg-secondary/5 p-3.5 text-center shadow-md md:p-8">
+            <div className="card-emboss relative flex flex-col justify-center overflow-hidden rounded-xl border border-accent/20 bg-cream p-3.5 text-center shadow-md md:bg-secondary/5 md:p-8">
               <div className="absolute left-0 top-0 h-16 w-16 -translate-x-8 -translate-y-8 rounded-full bg-gradient-to-br from-gold/10 to-accent/10" />
               <div className="absolute bottom-0 right-0 h-24 w-24 translate-x-12 translate-y-12 rounded-full bg-gradient-to-br from-primary/5 to-secondary/5" />
 
