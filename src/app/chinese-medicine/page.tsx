@@ -1,6 +1,6 @@
 'use client'
 
-import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, type LucideIcon } from 'lucide-react'
+import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, Check, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
 import { BookingSection } from '../../features/home/BookingSection'
@@ -124,32 +124,38 @@ export default function ChineseMedicine() {
       </HeroSection>
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+            Chinese Medicine
+          </p>
+          <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
             Traditional Chinese Medicine, tailored to you
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+          <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
             A holistic system that treats the root of imbalance — body, mind, and energy together.
           </p>
-          <p className="mx-auto mt-2 max-w-md text-sm font-medium text-primary sm:mt-3 sm:text-base">
+          <p className="mx-auto mt-2 max-w-md text-sm font-medium text-primary sm:mt-2.5 sm:text-base">
             Treating the root cause—not just the symptoms.
           </p>
-          <ul className="mx-auto mt-4 flex max-w-md flex-wrap justify-center gap-2 sm:mt-5">
+          <ul className="mx-auto mt-3 flex max-w-md flex-wrap justify-center gap-2 sm:mt-3.5">
             {['Qi (energy)', 'Yin & Yang', 'Root-cause care'].map((principle) => (
               <li
                 key={principle}
-                className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary sm:text-sm"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#ECEEE8] px-3 py-2 text-sm font-medium text-primary"
               >
+                <Check className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.5} />
                 {principle}
               </li>
             ))}
           </ul>
+          <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>
 
       {/* Philosophy — editorial two-column, no cards */}
-      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-14 lg:py-16">
+      <section className="bg-white pb-5 pt-4 sm:pb-8 sm:pt-5 md:py-14 lg:py-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionHeading
             title="Healing Begins with Balance"

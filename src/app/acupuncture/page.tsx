@@ -108,6 +108,14 @@ const heroBenefits = [
   'Supports hormonal balance',
 ] as const
 
+/** Mobile intro fold — short badge labels (desktop hero keeps heroBenefits). */
+const mobileIntroBadges = [
+  'Chronic Pain Relief',
+  'Stress & Anxiety',
+  'Sleep Quality',
+  'Hormonal Health',
+] as const
+
 type ConditionAccent = {
   icon: string
   iconBg: string
@@ -388,7 +396,7 @@ function HowItWorksColumn({
             }`}
             style={{ transitionDelay: visible ? `${120 + i * 90}ms` : '0ms' }}
           >
-            <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/60" aria-hidden />
+            <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
             <span className="min-w-0">
               <span className="font-semibold text-[var(--text-dark)]">{label}</span>
               <span className="text-[var(--text-dark)]/50"> — </span>
@@ -429,35 +437,39 @@ export default function Acupuncture() {
       </HeroSection>
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
-            Relieve pain. Restore balance.
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+            Acupuncture &amp; Natural Care
+          </p>
+          <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Relieve Pain. Restore Balance.
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+          <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
             Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by
             modern practice.
           </p>
-          <ul className="mx-auto mt-5 flex max-w-sm list-none flex-col gap-2.5 text-left text-base sm:mt-6">
-            {heroBenefits.map((benefit) => (
-              <li key={benefit} className="flex items-start gap-2.5">
-                <Check
-                  className="mt-0.5 h-5 w-5 shrink-0 text-primary"
-                  aria-hidden
-                  strokeWidth={2.5}
-                />
-                <span className="leading-snug text-[var(--text-dark)]/85">{benefit}</span>
+          <ul className="mx-auto mt-3 grid max-w-md list-none grid-cols-2 gap-2 sm:mt-3.5 sm:gap-2.5">
+            {mobileIntroBadges.map((label) => (
+              <li
+                key={label}
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#ECEEE8] px-3 py-2 text-sm font-medium text-primary"
+              >
+                <Check className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.5} />
+                <span className="leading-snug">{label}</span>
               </li>
             ))}
           </ul>
+          <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>
 
       {/* How It Works — editorial 2-col */}
-      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
+      <section className="bg-white pb-5 pt-4 sm:pb-8 sm:pt-5 md:py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="How Acupuncture Restores Balance"
+            title="How Acupuncture Works"
             subtitle="Acupuncture works by stimulating specific points on the body to restore the natural flow of energy and promote healing"
           />
           <p className="mx-auto mb-8 hidden max-w-xl text-center text-base font-[450] leading-[1.7] text-[#2C3E35] sm:block md:mb-10">
