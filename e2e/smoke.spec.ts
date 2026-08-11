@@ -3,7 +3,9 @@ import { test, expect } from './fixtures'
 test.describe('smoke', () => {
   test('home loads with brand and book CTA', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('banner').getByText('Wellness Needles')).toBeVisible()
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: /Wellness Needles home/i })
+    ).toBeVisible()
     await expect(
       page.getByRole('link', { name: /Book your appointment|Book Appointment/i }).first()
     ).toBeVisible()

@@ -51,10 +51,10 @@ export default function LoadingComponent() {
         <div className="relative z-10">
           <div className="relative w-24 h-24 mb-4">
             <Image
-              src="/logo_wellness.jpeg"
+              src="/logo_wellness_transparent.png"
               alt="Wellness Needles Logo"
               fill
-              className="rounded-full object-cover ring-4 ring-cream/30 shadow-lg animate-pulse"
+              className="object-contain animate-pulse"
             />
           </div>
           

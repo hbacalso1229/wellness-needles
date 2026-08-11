@@ -10,15 +10,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-2.5 md:mb-4">
+            <div className="flex items-center gap-2.5 mb-2.5 md:mb-4">
               <Image
-                src="/logo_wellness.jpeg"
-                alt="Wellness Needles Logo"
-                width={36}
-                height={36}
-                className="size-8 md:size-10 rounded-full object-cover ring-2 ring-cream/30"
+                src="/logo_wellness_icon.png"
+                alt=""
+                width={44}
+                height={22}
+                className="h-6 w-auto md:h-8 object-contain"
               />
-              <span className="font-serif text-lg md:text-xl font-semibold">
+              <span className="font-serif text-lg md:text-xl font-semibold text-cream">
                 {contactConfig.businessInfo.name}
               </span>
             </div>

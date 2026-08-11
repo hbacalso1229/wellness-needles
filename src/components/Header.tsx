@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import { Calendar, Menu, X } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
@@ -33,6 +34,9 @@ function normalizePathname(path: string | null) {
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuMounted, setIsMenuMounted] = useState(false)
+  const [isMenuSlidingIn, setIsMenuSlidingIn] = useState(false)
+  const [portalReady, setPortalReady] = useState(false)
   const pathname = normalizePathname(usePathname())
   const [navReady, setNavReady] = useState(false)
   const pathnameReadyRef = useRef(false)
@@ -62,7 +66,26 @@ export default function Header() {
   // Apply active styles only after mount so SSR/client pathname quirks don't hydrate-mismatch.
   useEffect(() => {
     setNavReady(true)
+    setPortalReady(true)
   }, [])
+
+  // Keep drawer mounted through close animation; lock body scroll while open.
+  useEffect(() => {
+    if (isMenuOpen) {
+      setIsMenuMounted(true)
+      const prevOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      // Defer slide-in so the initial -translate-x-full paint can apply first.
+      const t = window.setTimeout(() => setIsMenuSlidingIn(true), 20)
+      return () => {
+        window.clearTimeout(t)
+        document.body.style.overflow = prevOverflow
+      }
+    }
+    setIsMenuSlidingIn(false)
+    const t = window.setTimeout(() => setIsMenuMounted(false), 500)
+    return () => window.clearTimeout(t)
+  }, [isMenuOpen])
 
   const isNavActive = (href: string) => {
     if (!navReady) return false
@@ -136,105 +159,139 @@ export default function Header() {
     </Link>
   )
 
+  const closeMenu = () => setIsMenuOpen(false)
+
+  const mobileDrawer =
+    portalReady && isMenuMounted
+      ? createPortal(
+          <div className="xl:hidden" aria-hidden={!isMenuOpen}>
+            <button
+              type="button"
+              tabIndex={isMenuOpen ? 0 : -1}
+              className={`mobile-nav-backdrop fixed inset-x-0 bottom-0 top-12 z-[40] bg-black/35 sm:top-14 ${
+                isMenuSlidingIn ? 'is-open opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+              aria-label="Close navigation menu"
+              onClick={closeMenu}
+            />
+            <div
+              id="mobile-navigation"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site navigation"
+              className={`mobile-nav-drawer fixed bottom-0 left-0 top-12 z-[45] flex w-[min(20rem,86vw)] max-w-full flex-col border-r border-accent/15 bg-white sm:top-14 ${
+                isMenuSlidingIn ? 'is-open translate-x-0' : '-translate-x-full'
+              }`}
+            >
+              <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-2 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                {navItems.map((item, index) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${mobileNavLinkClass(item.href)}${
+                      isMenuSlidingIn ? ' mobile-nav-link-enter' : ''
+                    }`}
+                    style={
+                      isMenuSlidingIn
+                        ? { animationDelay: `${220 + index * 90}ms` }
+                        : undefined
+                    }
+                    aria-current={isNavActive(item.href) ? 'page' : undefined}
+                    onClick={closeMenu}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </div>,
+          document.body
+        )
+      : null
+
   return (
-    <header className={HEADER_CLASS} suppressHydrationWarning>
-      <nav className="w-full overflow-visible pl-3 pr-3 sm:pl-4 sm:pr-4 lg:pr-6">
-        <div className="relative flex h-12 min-w-0 items-center gap-1.5 overflow-visible sm:h-14 sm:gap-3">
-          {/* Logo + wordmark — text truncates; logo never clipped */}
-          <Link
-            href="/"
-            className="relative z-[60] flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5 xl:flex-none"
-          >
-            <span className="relative shrink-0 p-0.5">
-              <span className="relative block size-8 aspect-square overflow-hidden rounded-full bg-white ring-2 ring-primary/15 sm:size-10 sm:ring-[3px]">
+    <>
+      <header className={HEADER_CLASS} suppressHydrationWarning>
+        <nav className="w-full overflow-visible pl-3 pr-3 sm:pl-4 sm:pr-4 lg:pr-6">
+          <div className="relative flex h-12 min-w-0 items-center overflow-visible sm:h-14">
+            {/* Mobile / tablet: hamburger — left */}
+            <div className="relative z-[70] flex shrink-0 items-center xl:hidden">
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((open) => !open)}
+                className="inline-flex size-9 shrink-0 items-center justify-center text-dark hover:text-dark/70 sm:size-10"
+                aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-navigation"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6 text-dark" strokeWidth={2} />
+                ) : (
+                  <Menu className="h-6 w-6 text-dark" strokeWidth={2} />
+                )}
+              </button>
+            </div>
+
+            {/* Logo — leftmost on desktop; centered on mobile/tablet */}
+            <Link
+              href="/"
+              className="relative z-[60] block max-xl:absolute max-xl:left-1/2 max-xl:top-1/2 max-xl:-translate-x-1/2 max-xl:-translate-y-1/2 xl:shrink-0"
+              aria-label="Wellness Needles home"
+            >
+              <span className="relative block h-10 w-[5.5rem] sm:h-11 sm:w-24 xl:h-11 xl:w-24">
                 <Image
-                  src="/logo_wellness.jpeg"
-                  alt="Wellness Needles Logo"
+                  src="/logo_wellness_transparent.png"
+                  alt=""
                   fill
-                  sizes="(max-width: 639px) 32px, 40px"
-                  className="object-cover object-center"
+                  sizes="96px"
+                  className="object-contain object-center"
                   priority
                 />
               </span>
-            </span>
-            <span className="min-w-0 flex-1 truncate font-serif text-sm font-bold tracking-wide text-primary sm:flex-none sm:text-lg xl:overflow-visible xl:text-xl">
-              Wellness Needles
-            </span>
-          </Link>
+            </Link>
 
-          {/* Desktop Navigation — spaced from brand */}
-          <div className="hidden min-w-0 items-center gap-x-3 xl:ml-24 xl:flex xl:gap-x-4 2xl:ml-28 2xl:gap-x-5">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={navLinkClass(item.href)}
-                aria-current={isNavActive(item.href) ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop Book — beside menu (hidden on bookings flow) */}
-          {!hideHeaderBookCta ? (
-            <div className="hidden shrink-0 xl:ml-10 xl:block 2xl:ml-14">
-              {bookUsesExternal ? (
-                <a
-                  href={bookHref}
-                  target={bookTarget}
-                  rel={bookRel}
-                  className={bookNowClassName}
-                >
-                  <BookNowLabel />
-                </a>
-              ) : (
-                <Link href={bookLinkHref} className={bookNowClassName}>
-                  <BookNowLabel />
-                </Link>
-              )}
-            </div>
-          ) : null}
-
-          {/* Mobile / tablet: Book now + menu — never shrink off-screen */}
-          <div className="relative z-[70] ml-auto flex shrink-0 items-center gap-1 sm:gap-2 xl:hidden">
-            {!hideHeaderBookCta ? headerBookCta : null}
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex size-9 shrink-0 items-center justify-center text-dark hover:text-dark/70 sm:size-10"
-              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-navigation"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6 text-dark" strokeWidth={2} />
-              ) : (
-                <Menu className="h-6 w-6 text-dark" strokeWidth={2} />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile / tablet Navigation */}
-        {isMenuOpen && (
-          <div id="mobile-navigation" className="xl:hidden">
-            <div className="max-h-[calc(100dvh-3rem)] space-y-1 overflow-y-auto border-t border-white/40 bg-white/90 px-2 pb-3 pt-2 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 sm:max-h-[calc(100dvh-3.5rem)]">
+            {/* Desktop Navigation */}
+            <div className="hidden min-w-0 items-center gap-x-3 xl:ml-6 xl:flex xl:gap-x-4 2xl:ml-8 2xl:gap-x-5">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={mobileNavLinkClass(item.href)}
+                  className={navLinkClass(item.href)}
                   aria-current={isNavActive(item.href) ? 'page' : undefined}
-                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
+
+            {/* Desktop Book — directly after nav */}
+            {!hideHeaderBookCta ? (
+              <div className="hidden shrink-0 xl:ml-6 xl:block 2xl:ml-8">
+                {bookUsesExternal ? (
+                  <a
+                    href={bookHref}
+                    target={bookTarget}
+                    rel={bookRel}
+                    className={bookNowClassName}
+                  >
+                    <BookNowLabel />
+                  </a>
+                ) : (
+                  <Link href={bookLinkHref} className={bookNowClassName}>
+                    <BookNowLabel />
+                  </Link>
+                )}
+              </div>
+            ) : null}
+
+            {/* Mobile / tablet: CTA — right */}
+            <div className="relative z-[70] ml-auto flex shrink-0 items-center xl:hidden">
+              {!hideHeaderBookCta ? headerBookCta : null}
+            </div>
           </div>
-        )}
-      </nav>
-    </header>
+        </nav>
+      </header>
+      {mobileDrawer}
+    </>
   )
 }

@@ -59,7 +59,7 @@ export const BOOKING_REQUEST_INBOX = contactConfig.email.address
  * - Subject: We received your appointment request — Wellness Needles
  * - Intro: thank-you + we’ll confirm within 24 hours (preferred time not locked)
  * - Show copy of their submission: Yes (structured booking fields once)
- * - Logo (optional): full https URL to /logo_wellness.jpeg
+ * - Logo (optional): full https URL to /logo_wellness_transparent.png
  * - Note: Autoresponder typically works on production sites, not localhost
  */
 export async function sendBookingRequestEmail(

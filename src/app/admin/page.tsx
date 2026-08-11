@@ -499,7 +499,7 @@ export default function AdminPage() {
                       </li>
                       <li>
                         Logo (optional): full https URL to{' '}
-                        <code className="text-xs">/logo_wellness.jpeg</code>
+                        <code className="text-xs">/logo_wellness_transparent.png</code>
                       </li>
                       <li>
                         Typically works on production sites — not localhost / some
