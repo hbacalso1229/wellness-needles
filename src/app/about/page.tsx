@@ -71,6 +71,32 @@ const credentials: { label: string; icon: LucideIcon }[] = [
   { label: 'CNM Dublin Graduate', icon: School },
 ]
 
+const carePillars: {
+  title: string
+  body: string
+  icon: LucideIcon
+  iconBg: string
+}[] = [
+  {
+    title: 'Our Mission',
+    body: 'To restore balance and promote healing through authentic traditional Chinese medicine',
+    icon: Target,
+    iconBg: 'bg-primary',
+  },
+  {
+    title: 'Our Vision',
+    body: 'A community where holistic wellness is accessible to all who seek healing',
+    icon: Heart,
+    iconBg: 'bg-secondary',
+  },
+  {
+    title: 'Our Values',
+    body: 'Authenticity, compassion, and dedication to the highest standards of care',
+    icon: Shield,
+    iconBg: 'bg-accent',
+  },
+]
+
 const bioSections = [
   {
     heading: 'My Journey',
@@ -140,20 +166,25 @@ export default function About() {
       />
 
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
-      <section className="bg-white px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-6 xl:hidden">
+      <section className="bg-white px-4 pb-0 pt-3 sm:px-6 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <h1 className="font-serif text-3xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
-            Meet the care behind Wellness Needles
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ECEEE8] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary sm:mb-2.5 sm:text-xs">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+            Personalized Care
+          </p>
+          <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
+            Meet Your Practitioner
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-4 sm:text-lg">
+          <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
             Personalised acupuncture and naturopathic care with Arkinth Garcia — focused on
             listening, root causes, and lasting wellbeing.
           </p>
+          <div className="mt-3 border-t border-accent/20" aria-hidden />
         </div>
       </section>
 
       {/* Our Story Section */}
-      <section className="bg-white pb-5 pt-6 sm:pb-8 sm:pt-8 md:py-10 lg:py-12">
+      <section className="bg-white pb-5 pt-3 sm:pb-8 sm:pt-4 md:py-10 lg:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Top row: Practitioner (left) + Mission/Vision (right) */}
           <div className="mb-8 grid grid-cols-1 items-stretch gap-4 md:mb-12 md:gap-8 lg:grid-cols-2 lg:gap-12">
@@ -163,7 +194,7 @@ export default function About() {
               <div className="absolute bottom-0 right-0 h-24 w-24 translate-x-12 translate-y-12 rounded-full bg-gradient-to-br from-primary/5 to-secondary/5" />
 
               <div className="relative z-10">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-secondary md:mb-4">
+                <p className="mb-3 hidden text-xs font-semibold uppercase tracking-wide text-secondary md:mb-4 md:block">
                   Your Practitioner
                 </p>
                 <div className="group relative mb-3 inline-block md:mb-4">
@@ -199,63 +230,51 @@ export default function About() {
                   Helping patients restore balance and feel better every day.
                 </p>
 
-                <ul className="flex flex-wrap justify-center gap-1.5">
+                <ul className="flex flex-col items-stretch gap-2 md:flex-row md:flex-wrap md:justify-center md:gap-1.5">
                   {credentials.map(({ label, icon: Icon }) => (
                     <li
                       key={label}
-                      className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
+                      className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-accent/25 bg-[#ECEEE8] px-3 py-2 text-sm font-semibold text-primary md:w-auto md:gap-1 md:bg-accent/10 md:px-2.5 md:py-0.5 md:text-[11px] md:font-medium"
                     >
-                      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
+                      <Icon className="h-3.5 w-3.5 shrink-0 md:h-3 md:w-3" strokeWidth={2.25} aria-hidden />
                       {label}
                     </li>
                   ))}
                 </ul>
+
+                {/* Mission / Vision / Values — inside card on mobile only */}
+                <div className="mt-5 border-t border-dashed border-accent/35 pt-1 text-left md:hidden">
+                  {carePillars.map(({ title, body, icon: Icon, iconBg }) => (
+                    <div key={title} className="flex items-center gap-3 py-4">
+                      <div className={`shrink-0 rounded-full p-2.5 ${iconBg}`}>
+                        <Icon className="h-5 w-5 text-cream" aria-hidden />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-[var(--text-dark)]">{title}</h3>
+                        <p className="text-base leading-[1.7] text-[var(--text-dark)]/70">{body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Mission / Vision / Values */}
-            <div className="rounded-lg bg-white p-3.5 md:p-8">
+            {/* Mission / Vision / Values — side column from md up */}
+            <div className="hidden rounded-lg bg-white p-3.5 md:block md:p-8">
               <div className="space-y-4 md:space-y-6">
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div className="shrink-0 rounded-full bg-primary p-2.5 md:p-3">
-                    <Target className="h-5 w-5 text-cream md:h-6 md:w-6" />
+                {carePillars.map(({ title, body, icon: Icon, iconBg }) => (
+                  <div key={title} className="flex items-center gap-3 md:gap-4">
+                    <div className={`shrink-0 rounded-full p-2.5 md:p-3 ${iconBg}`}>
+                      <Icon className="h-5 w-5 text-cream md:h-6 md:w-6" aria-hidden />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-[var(--text-dark)] md:text-lg">
+                        {title}
+                      </h3>
+                      <p className="text-base leading-[1.7] text-[var(--text-dark)]/70">{body}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-[var(--text-dark)] md:text-lg">
-                      Our Mission
-                    </h3>
-                    <p className="text-base leading-[1.7] text-[var(--text-dark)]/70">
-                      To restore balance and promote healing through authentic traditional Chinese
-                      medicine
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div className="shrink-0 rounded-full bg-secondary p-2.5 md:p-3">
-                    <Heart className="h-5 w-5 text-cream md:h-6 md:w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-[var(--text-dark)] md:text-lg">
-                      Our Vision
-                    </h3>
-                    <p className="text-base leading-[1.7] text-[var(--text-dark)]/70">
-                      A community where holistic wellness is accessible to all who seek healing
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div className="shrink-0 rounded-full bg-accent p-2.5 md:p-3">
-                    <Shield className="h-5 w-5 text-cream md:h-6 md:w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-[var(--text-dark)] md:text-lg">
-                      Our Values
-                    </h3>
-                    <p className="text-base leading-[1.7] text-[var(--text-dark)]/70">
-                      Authenticity, compassion, and dedication to the highest standards of care
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
