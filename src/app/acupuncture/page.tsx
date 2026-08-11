@@ -447,7 +447,7 @@ export default function Acupuncture() {
           </p>
           <ul className="mt-3 flex list-none flex-wrap items-center justify-center gap-2">
             <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
-              <Zap className="h-3.5 w-3.5 shrink-0 text-orange-500" aria-hidden strokeWidth={2.25} />
+              <Zap className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden strokeWidth={2.25} />
               Pain
             </li>
             <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
@@ -459,7 +459,7 @@ export default function Acupuncture() {
               Sleep
             </li>
             <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
-              <Scale className="h-3.5 w-3.5 shrink-0 text-orange-500" aria-hidden strokeWidth={2.25} />
+              <Scale className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden strokeWidth={2.25} />
               Balance
             </li>
           </ul>
