@@ -723,7 +723,7 @@ export default function BookingForm() {
       >
         {currentStep === 0 && (
           <div className="space-y-6">
-            <p className="flex items-center text-sm text-secondary">
+            <p className="flex items-center text-base text-secondary">
               <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
               Choose how you&apos;d like to be treated
             </p>
@@ -759,7 +759,7 @@ export default function BookingForm() {
             </div>
 
             <div className="space-y-4">
-              <p className="flex items-start text-sm text-secondary">
+              <p className="flex items-start text-base text-secondary">
                 <MapPin className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 {activeTab === 'call-out'
                   ? 'Choose which clinic area this home visit is booked under.'
@@ -792,7 +792,7 @@ export default function BookingForm() {
 
         {currentStep === 1 && (
           <div className="space-y-6">
-            <p className="flex items-center text-sm text-secondary">
+            <p className="flex items-center text-base text-secondary">
               <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
               Choose the treatment that fits you best
             </p>
@@ -827,8 +827,8 @@ export default function BookingForm() {
 
         {currentStep === 2 && (
           <div className="space-y-6">
-            <p className="text-sm text-secondary flex items-start">
-              <Calendar className="w-5 h-5 mr-2 text-primary shrink-0 mt-0.5" />
+            <p className="flex items-start text-base text-secondary">
+              <Calendar className="mt-0.5 mr-2 h-5 w-5 shrink-0 text-primary" />
               <span>
                 Pick your preferred date and a time range.
                 <br />
@@ -1077,7 +1077,7 @@ export default function BookingForm() {
               </div>
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm text-secondary">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm font-semibold text-secondary">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
               <p>
                 Submitting sends an appointment request. We will contact you within 24 hours

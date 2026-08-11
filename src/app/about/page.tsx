@@ -227,13 +227,13 @@ export default function About() {
                   every day.
                 </p>
 
-                <ul className="flex flex-col items-stretch gap-2 md:flex-row md:flex-wrap md:justify-center md:gap-1.5">
+                <ul className="flex flex-wrap justify-center gap-1.5">
                   {credentials.map(({ label, icon: Icon }) => (
                     <li
                       key={label}
-                      className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-accent/25 bg-[#ECEEE8] px-3 py-2 text-sm font-semibold text-primary md:w-auto md:gap-1 md:bg-accent/10 md:px-2.5 md:py-0.5 md:text-[11px] md:font-medium"
+                      className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-white px-2.5 py-1 text-[11px] font-medium text-primary"
                     >
-                      <Icon className="h-3.5 w-3.5 shrink-0 md:h-3 md:w-3" strokeWidth={2.25} aria-hidden />
+                      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
                       {label}
                     </li>
                   ))}
