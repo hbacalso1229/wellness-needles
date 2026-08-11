@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, Send, MessageCircle, ChevronDown, Info, type LucideIcon } from 'lucide-react'
+import { Calendar, Send, MessageCircle, ChevronDown, Info, Lock, Check, User, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
 import { contactConfig } from '../../lib/contact-config'
@@ -282,10 +282,10 @@ export default function Contact() {
                     </ul>
                     <p
                       role="note"
-                      className="mt-4 flex items-start gap-2 rounded-lg border border-primary/20 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-primary shadow-sm"
+                      className="mt-4 flex items-start gap-2 rounded-lg border border-primary/20 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-[#1B3B2B] shadow-sm"
                     >
                       <Info
-                        className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                        className="mt-0.5 h-4 w-4 shrink-0 text-[#1B3B2B]"
                         strokeWidth={2}
                         aria-hidden
                       />
@@ -372,8 +372,8 @@ export default function Contact() {
             <aside
               className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
-              <h3 className="mb-1 text-lg font-bold text-primary leading-snug">
-                Ready to Begin Your Care Journey?
+              <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">
+                Start Your Wellness Journey
               </h3>
               <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">
                 Choose a time that suits you—your path to balance starts here.
@@ -388,9 +388,46 @@ export default function Contact() {
                   <Calendar className="h-4 w-4 shrink-0 text-primary" aria-hidden />
                   Book Your Consultation
                 </BookingCtaButton>
-                <p className="px-0.5 text-center text-xs font-semibold leading-snug text-[var(--text-dark)]/60">
-                  No payment required • Instant confirmation
-                </p>
+                <div className="overflow-hidden rounded-lg border border-accent/20 bg-white/80 px-2.5 py-2.5 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/15">
+                      <Lock className="h-3.5 w-3.5 text-gold" aria-hidden strokeWidth={2.25} />
+                    </span>
+                    <p className="min-w-0 text-xs font-bold leading-snug text-primary">
+                      No Payment Required Today
+                    </p>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-0 border-t border-accent/20 pt-2">
+                    <div className="flex min-w-0 items-start gap-1.5 border-r border-accent/20 pr-2">
+                      <Check
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary"
+                        aria-hidden
+                        strokeWidth={2.5}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold leading-snug text-primary">
+                          Free cancellation
+                        </p>
+                        <p className="mt-0.5 text-[10px] leading-snug text-[var(--text-dark)]/60">
+                          Up to 24 hours before
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex min-w-0 items-start gap-1.5 pl-2">
+                      <User
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7B6B8A]"
+                        aria-hidden
+                        strokeWidth={2.25}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold leading-snug text-primary">Direct Care</p>
+                        <p className="mt-0.5 text-[10px] leading-snug text-[var(--text-dark)]/60">
+                          With Arkinth Garcia
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {contactConfig.features.liveChatEnabled && (
                   <button
                     type="button"

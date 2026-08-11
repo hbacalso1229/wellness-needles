@@ -15,7 +15,7 @@ export function BookingResultHelpCard({
 }) {
   return (
     <aside className="mx-auto mt-4 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 sm:mt-5 sm:p-5 lg:mt-8">
-      <h3 className="mb-1 text-lg font-bold leading-snug text-primary">Need help?</h3>
+      <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">Need help?</h3>
       <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">{intro}</p>
       <div className="flex flex-col gap-2.5">
         <div>
