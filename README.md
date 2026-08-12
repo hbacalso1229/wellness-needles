@@ -136,7 +136,7 @@ Static export (`output: 'export'`). Typical flow: push `dev` for Preview / stagi
 | Staging | `dev` | https://wellness-needles.vercel.app |
 | Production | `main` | https://wellnessneedles.ie |
 
-Staging aliases each preview deploy to `wellness-needles.vercel.app`. Production uses `vercel deploy --prod`, which assigns only the `.ie` production domains (so it does not overwrite the staging hostname).
+Staging aliases each preview deploy to `wellness-needles.vercel.app` and saves that deployment URL. Production uses `vercel deploy --prod` for the `.ie` domains, then restores the staging hostname from the saved URL (because `--prod` reclaims `.vercel.app`).
 
 **Live booking rule:** In production, enable **only one** scheduling product — **Fresha or Calendly** (never both). Admin toggles are mutually exclusive for that reason; running both would risk double-booking the same practitioner across Celbridge and Carlow.
 
