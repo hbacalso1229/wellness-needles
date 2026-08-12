@@ -113,26 +113,38 @@ jobs:
           PROD_DEPLOYMENT: ${{ steps.deploy.outputs.deployment }}
         run: |
           set -euo pipefail
-          # --prod reclaims wellness-needles.vercel.app; point it back at the latest
-          # non-production READY deployment (excluding this production cutover).
+          # --prod reclaims wellness-needles.vercel.app. Prefer a preview that actually
+          # has Admin tooling (our staging builds), not an arbitrary GitHub preview.
           prod_host="${PROD_DEPLOYMENT#https://}"
           prod_host="${prod_host%/}"
-          staging_host=$(curl -sS \
+          mapfile -t candidates < <(curl -sS \
             "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=30" \
             -H "Authorization: Bearer ${VERCEL_TOKEN}" \
             | jq -r --arg prod "$prod_host" '
-              [.deployments[]
-                | select((.readyState == "READY" or .state == "READY")
-                  and (.target != "production")
-                  and .url
-                  and .url != $prod)]
-              | .[0].url // empty
+              .deployments[]
+              | select((.readyState == "READY" or .state == "READY")
+                and (.target != "production")
+                and .url
+                and .url != $prod)
+              | .url
             ')
-          if [ -z "$staging_host" ]; then
-            echo "::error::Could not find a staging preview deployment to restore. Run Deploy — Staging first."
+
+          staging_url=""
+          for host in "${candidates[@]}"; do
+            echo "Checking candidate https://${host}/admin/ …"
+            html=$(curl -sS --max-time 20 "https://${host}/admin/" || true)
+            if echo "$html" | grep -qE 'Booking feature|Legacy stepper|Fresha booking|Calendly'; then
+              staging_url="https://${host}"
+              echo "Selected staging candidate: ${staging_url}"
+              break
+            fi
+          done
+
+          if [ -z "$staging_url" ]; then
+            echo "::error::Could not find an Admin-enabled staging preview. Run Deploy — Staging first."
             exit 1
           fi
-          staging_url="https://${staging_host}"
+
           echo "Restoring ${STAGING_HOST} → ${staging_url}"
           vercel alias set "$staging_url" "$STAGING_HOST" --token="${VERCEL_TOKEN}"
 
