@@ -23,6 +23,15 @@ export default function Testimonials() {
 
   const testimonials = [
     {
+      name: 'Luiza Barbi',
+      condition: 'Pain relief',
+      date: '10 August 2026',
+      rating: 5,
+      source: 'Verified Google review',
+      emphasis: 'for the first time in weeks, pain-free',
+      text: 'I had a wonderful experience with Arkinth. I went for acupuncture after being in pain for about a month, and I was genuinely amazed by how much better I felt after my first session. I left feeling great and, for the first time in weeks, pain-free! Arkinth was very professional, attentive and welcoming. He took the time to listen and made me feel comfortable throughout the whole treatment. I\'m really happy with my experience and already looking forward to my next session. I would definitely recommend him!',
+    },
+    {
       name: 'Maria Bray',
       condition: 'Gastritis & energy',
       date: '4 August 2026',
