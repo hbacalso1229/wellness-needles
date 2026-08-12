@@ -131,6 +131,13 @@ Replace placeholders under `public/` with practice photos and headshots.
 
 Static export (`output: 'export'`). Typical flow: push `dev` for Preview / staging, merge to `main` for Production.
 
+| Environment | Branch | Stable URL |
+|-------------|--------|------------|
+| Staging | `dev` | https://wellness-needles.vercel.app |
+| Production | `main` | https://wellnessneedles.ie |
+
+Staging aliases each preview deploy to `wellness-needles.vercel.app`. Production aliases only the `.ie` domains (so it does not overwrite the staging hostname).
+
 **Live booking rule:** In production, enable **only one** scheduling product — **Fresha or Calendly** (never both). Admin toggles are mutually exclusive for that reason; running both would risk double-booking the same practitioner across Celbridge and Carlow.
 
 ### Fresha setup checklist
