@@ -107,26 +107,34 @@ jobs:
       - name: Restore staging alias after --prod
         env:
           STAGING_HOST: wellness-needles.vercel.app
-          STAGING_DEPLOYMENT_URL: ${{ vars.STAGING_DEPLOYMENT_URL }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PROD_DEPLOYMENT: ${{ steps.deploy.outputs.deployment }}
         run: |
           set -euo pipefail
-          staging_url="${STAGING_DEPLOYMENT_URL:-}"
+          # --prod reclaims wellness-needles.vercel.app; point it back at the latest
+          # non-production READY deployment (excluding this production cutover).
+          staging_url=$(curl -sS \
+            "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=30" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            | python3 -c '
+import json, sys, os
+prod = os.environ.get("PROD_DEPLOYMENT", "").rstrip("/").replace("https://", "")
+data = json.load(sys.stdin)
+for item in data.get("deployments", []):
+    if item.get("readyState") != "READY" and item.get("state") != "READY":
+        continue
+    if item.get("target") == "production":
+        continue
+    url = item.get("url") or ""
+    if not url or url == prod:
+        continue
+    print("https://" + url)
+    break
+')
           if [ -z "$staging_url" ]; then
-            echo "No STAGING_DEPLOYMENT_URL var — looking up latest preview deployment…"
-            staging_url=$(curl -sS \
-              "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=20" \
-              -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-              | python3 -c 'import json,sys
-d=json.load(sys.stdin)
-for item in d.get("deployments", []):
-  if item.get("state")=="READY" and item.get("target")!="production":
-    print("https://"+item["url"]); break')
-          fi
-          if [ -z "$staging_url" ]; then
-            echo "::error::Could not find a staging deployment to restore. Run Deploy — Staging."
+            echo "::error::Could not find a staging preview deployment to restore. Run Deploy — Staging first."
             exit 1
           fi
           echo "Restoring ${STAGING_HOST} → ${staging_url}"
@@ -147,12 +155,11 @@ for item in d.get("deployments", []):
           if echo "$admin_html" | grep -qE 'Booking feature|Legacy stepper|Fresha booking|Calendly'; then
             echo "Staging alias restored with Admin tooling — OK"
           else
-            echo "::error::Staging alias restore did not serve Admin tooling."
+            echo "::error::Staging alias restore did not serve Admin tooling. Run Deploy — Staging, then re-run production."
             exit 1
           fi
 
-          # Production must keep Admin off on its own deployment URL.
-          prod_admin=$(curl -sS --max-time 30 "${{ steps.deploy.outputs.deployment }}/admin/")
+          prod_admin=$(curl -sS --max-time 30 "${PROD_DEPLOYMENT}/admin/")
           if echo "$prod_admin" | grep -q 'Admin unavailable'; then
             echo "Production deployment keeps Admin unavailable — OK"
           else
