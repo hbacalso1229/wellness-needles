@@ -83,30 +83,45 @@ jobs:
       # --archive=tgz is required: repo .gitignore has /out/, so a normal deploy
       # uploads almost nothing (~5KB) and Vercel serves 404 NOT_FOUND.
       #
-      # Do not use --prod: that would also claim wellness-needles.vercel.app, which is
-      # reserved as the stable staging hostname. Alias only the live .ie domains.
+      # Use --prod so Vercel assigns production domains (wellnessneedles.ie + www).
+      # Those are the only production domains — wellness-needles.vercel.app stays free
+      # for the staging alias. Do not `vercel alias set` the .ie hosts here: cert
+      # issuance fails while DNS still points at the old Azure host.
       - name: Deploy static export to Vercel (production)
         id: deploy
-        env:
-          PRODUCTION_HOST: wellnessneedles.ie
-          PRODUCTION_WWW_HOST: www.wellnessneedles.ie
         run: |
           set -euo pipefail
           cp -R .vercel out/.vercel
           cp vercel.json out/vercel.json
-          deployment=$(vercel deploy --cwd out --archive=tgz --yes --token=${{ secrets.VERCEL_TOKEN }})
+          deployment=$(vercel deploy --cwd out --archive=tgz --yes --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "deployment=$deployment" >> "$GITHUB_OUTPUT"
-          vercel alias set "$deployment" "$PRODUCTION_HOST" --token=${{ secrets.VERCEL_TOKEN }}
-          vercel alias set "$deployment" "$PRODUCTION_WWW_HOST" --token=${{ secrets.VERCEL_TOKEN }}
-          echo "url=https://${PRODUCTION_HOST}" >> "$GITHUB_OUTPUT"
+          echo "url=https://wellnessneedles.ie" >> "$GITHUB_OUTPUT"
 
       - name: Verify production site responds
         run: |
-          set -e
-          # Verify the deployment URL first (custom domain may wait on DNS).
+          set -euo pipefail
+          # Always verify the deployment URL (custom domain may wait on DNS/TLS).
           code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.deployment }}/")
           echo "HTTP $code → ${{ steps.deploy.outputs.deployment }}/"
           test "$code" = "200"
+
+      - name: Confirm staging alias untouched
+        env:
+          STAGING_HOST: https://wellness-needles.vercel.app
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${STAGING_HOST}/")
+          echo "HTTP $code → ${STAGING_HOST}/"
+          test "$code" = "200"
+
+          # Staging builds bake Admin UI on; production builds bake it off.
+          admin_html=$(curl -sS --max-time 30 "${STAGING_HOST}/admin/")
+          if echo "$admin_html" | grep -qE 'Booking feature|Legacy stepper|Fresha booking|Calendly'; then
+            echo "Staging alias still serves Admin tooling — OK"
+          else
+            echo "::error::Staging alias no longer looks like the staging build. Re-run Deploy — Staging."
+            exit 1
+          fi
 
       - name: Print production URL
         run: |
