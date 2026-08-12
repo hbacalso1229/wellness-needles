@@ -1,0 +1,75 @@
+name: Ops — Add Custom Domain
+
+# Attach wellnessneedles.ie (+ www → apex redirect) to the Vercel project
+# using existing repo secrets, then print verification / DNS guidance.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add_domain:
+    name: Attach wellnessneedles.ie on Vercel
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Add apex domain to project
+        run: |
+          set -euo pipefail
+          echo "Adding wellnessneedles.ie to project…"
+          curl -sS -X POST \
+            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"wellnessneedles.ie"}' \
+            | tee apex-add.json
+          echo
+
+      - name: Add www domain with redirect to apex
+        run: |
+          set -euo pipefail
+          echo "Adding www.wellnessneedles.ie → wellnessneedles.ie…"
+          curl -sS -X POST \
+            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"www.wellnessneedles.ie","redirect":"wellnessneedles.ie","redirectStatusCode":308}' \
+            | tee www-add.json
+          echo
+
+      - name: Fetch domain config (DNS records)
+        run: |
+          set -euo pipefail
+          echo "=== Project domains ==="
+          curl -sS \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/domains?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            | tee project-domains.json
+          echo
+          echo "=== Apex domain config ==="
+          curl -sS \
+            "https://api.vercel.com/v6/domains/wellnessneedles.ie/config?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            | tee apex-config.json
+          echo
+          echo "=== WWW domain config ==="
+          curl -sS \
+            "https://api.vercel.com/v6/domains/www.wellnessneedles.ie/config?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            | tee www-config.json
+          echo
+
+      - name: Upload domain API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-domain-config
+          path: |
+            apex-add.json
+            www-add.json
+            project-domains.json
+            apex-config.json
+            www-config.json
+          retention-days: 7
