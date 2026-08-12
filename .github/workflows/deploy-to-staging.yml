@@ -17,6 +17,9 @@ jobs:
     name: Build & Deploy to Staging (Vercel Preview)
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      variables: write
     environment:
       name: staging
       url: ${{ steps.deploy.outputs.url }}
@@ -120,6 +123,15 @@ jobs:
             sleep 5
           done
           test "$code" = "200"
+
+      - name: Remember staging deployment for production restores
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # --prod reassigns wellness-needles.vercel.app; production restores from this var.
+          gh variable set STAGING_DEPLOYMENT_URL --body "${{ steps.deploy.outputs.deployment }}"
+          echo "Saved STAGING_DEPLOYMENT_URL=${{ steps.deploy.outputs.deployment }}"
 
       - name: Print staging URL
         run: |
