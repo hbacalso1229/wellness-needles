@@ -260,11 +260,22 @@ function isValidIrishPhone(value: string): boolean {
   return false
 }
 
-/** Strip to Irish subscriber digits (9 digits, no trunk 0 / country code). */
+/**
+ * Strip to Irish subscriber digits (9 digits, no trunk 0 / country code).
+ * Always strip country code when the value is international (`+…` / `00353…`)
+ * or a long pasted `353…` — otherwise short stored values like `+353 86`
+ * round-trip as `35386` and corrupt the local input on backspace.
+ */
 function irishSubscriberDigits(raw: string): string {
+  const hasPlus = raw.trimStart().startsWith('+')
   let digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('00353')) digits = digits.slice(5)
-  else if (digits.startsWith('353') && digits.length > 9) digits = digits.slice(3)
+
+  if (digits.startsWith('00353')) {
+    digits = digits.slice(5)
+  } else if (digits.startsWith('353') && (hasPlus || digits.length > 9)) {
+    digits = digits.slice(3)
+  }
+
   if (digits.startsWith('0')) digits = digits.slice(1)
   return digits.slice(0, 9)
 }
