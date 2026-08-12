@@ -260,37 +260,52 @@ function isValidIrishPhone(value: string): boolean {
   return false
 }
 
-/** Live format for Irish numbers: `086 054 3085` or `+353 86 054 3085`. */
-function formatIrishPhoneInput(raw: string): string {
-  const startsWithPlus = raw.trimStart().startsWith('+')
-  const digits = raw.replace(/\D/g, '')
+/** Strip to Irish subscriber digits (9 digits, no trunk 0 / country code). */
+function irishSubscriberDigits(raw: string): string {
+  let digits = raw.replace(/\D/g, '')
+  if (digits.startsWith('00353')) digits = digits.slice(5)
+  else if (digits.startsWith('353') && digits.length > 9) digits = digits.slice(3)
+  if (digits.startsWith('0')) digits = digits.slice(1)
+  return digits.slice(0, 9)
+}
 
-  // International: +353 / 353 / 00353 → +353 XX XXX XXXX
-  const isIntl =
-    startsWithPlus || digits.startsWith('353') || digits.startsWith('00353')
-
-  if (isIntl) {
-    let local = digits
-    if (local.startsWith('00353')) local = local.slice(5)
-    else if (local.startsWith('353')) local = local.slice(3)
-    // Drop trunk 0 if user typed +353 0…
-    if (local.startsWith('0')) local = local.slice(1)
-    local = local.slice(0, 9)
-
-    const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
-      (g) => g.length > 0
-    )
-    return groups.length > 0 ? `+353 ${groups.join(' ')}` : '+353'
-  }
-
-  // National: 0XX XXX XXXX (max 10 digits)
-  const national = digits.slice(0, 10)
-  const groups = [
-    national.slice(0, 3),
-    national.slice(3, 6),
-    national.slice(6, 10),
-  ].filter((g) => g.length > 0)
+/** Live format for the local input beside +353: `86 054 3085`. */
+function formatIrishLocalPhoneInput(raw: string): string {
+  const local = irishSubscriberDigits(raw)
+  const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
+    (g) => g.length > 0
+  )
   return groups.join(' ')
+}
+
+/** Compose stored/submit value: `+353 86 054 3085` (empty if no digits). */
+function toIrishE164(raw: string): string {
+  const local = irishSubscriberDigits(raw)
+  if (!local) return ''
+  const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
+    (g) => g.length > 0
+  )
+  return `+353 ${groups.join(' ')}`
+}
+
+/** Local digits for the visible input from stored `+353…` / national value. */
+function irishLocalFromStored(stored: string): string {
+  return formatIrishLocalPhoneInput(stored)
+}
+
+function IrishFlagIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 9 6"
+      className={className}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect width="3" height="6" fill="#169B62" />
+      <rect x="3" width="3" height="6" fill="#FFFFFF" />
+      <rect x="6" width="3" height="6" fill="#FF883E" />
+    </svg>
+  )
 }
 
 export default function BookingForm() {
@@ -411,7 +426,7 @@ export default function BookingForm() {
   ) => {
     const name = e.target.name
     const value =
-      name === 'phone' ? formatIrishPhoneInput(e.target.value) : e.target.value
+      name === 'phone' ? toIrishE164(e.target.value) : e.target.value
 
     setFormData({
       ...formData,
@@ -490,11 +505,11 @@ export default function BookingForm() {
       }
       if (!formData.phone.trim()) {
         fields.push('phone')
-        messages.push('Please enter your phone number.')
+        messages.push('Please enter your mobile number.')
       } else if (!isValidIrishPhone(formData.phone)) {
         fields.push('phone')
         messages.push(
-          'Please enter a valid Irish phone number (e.g. 086 054 3085 or +353 86 054 3085).'
+          'Please enter a valid Irish mobile number (e.g. 86 054 3085).'
         )
       }
       if (!formData.dateOfBirth.trim()) {
@@ -986,24 +1001,40 @@ export default function BookingForm() {
                 </div>
                 <div className="min-w-0">
                   <label htmlFor="phone" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
-                    Phone Number <RequiredMark />
+                    Mobile Number <RequiredMark />
                   </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="086 054 3085"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    aria-invalid={hasFieldError('phone')}
-                    aria-describedby={
-                      fieldErrorMessage('phone') ? 'phone-error' : undefined
+                  <div
+                    className={
+                      hasFieldError('phone')
+                        ? 'flex w-full min-w-0 max-w-full box-border items-stretch overflow-hidden rounded-lg border-2 border-red-500 bg-red-50/40 focus-within:ring-2 focus-within:ring-red-400'
+                        : 'flex w-full min-w-0 max-w-full box-border items-stretch overflow-hidden rounded-lg border border-accent/30 bg-white focus-within:border-transparent focus-within:ring-2 focus-within:ring-accent'
                     }
-                    className={hasFieldError('phone') ? fieldErrorClassName : inputClassName}
-                  />
-                  <p className="mt-1.5 text-xs text-secondary">Ireland (+353) — national or international format</p>
+                  >
+                    <div
+                      className="flex shrink-0 items-center gap-2 border-r border-accent/30 px-3 py-3"
+                      aria-hidden="true"
+                    >
+                      <IrishFlagIcon className="h-4 w-6 shrink-0 rounded-[1px] shadow-sm ring-1 ring-black/10" />
+                      <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
+                        +353
+                      </span>
+                    </div>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={irishLocalFromStored(formData.phone)}
+                      onChange={handleChange}
+                      placeholder="86 054 3085"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      aria-invalid={hasFieldError('phone')}
+                      aria-describedby={
+                        fieldErrorMessage('phone') ? 'phone-error' : undefined
+                      }
+                      className="min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--text-dark)] outline-none focus:ring-0"
+                    />
+                  </div>
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
               </div>

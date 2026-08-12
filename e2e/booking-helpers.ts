@@ -32,7 +32,7 @@ export async function fillBookingRequestForm(page: Page) {
   await page.getByLabel(/First Name/i).fill('E2E')
   await page.getByLabel(/Last Name/i).fill('Tester')
   await page.getByLabel(/Email Address/i).fill('e2e.tester@example.com')
-  await page.getByLabel(/Phone Number/i).fill('0860543085')
+  await page.getByLabel(/Mobile Number/i).fill('860543085')
 
   await page.locator('#dateOfBirth').click()
   const dobDialog = page.getByRole('dialog', { name: /Choose date of birth/i })
