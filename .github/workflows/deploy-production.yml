@@ -115,28 +115,24 @@ jobs:
           set -euo pipefail
           # --prod reclaims wellness-needles.vercel.app; point it back at the latest
           # non-production READY deployment (excluding this production cutover).
-          staging_url=$(curl -sS \
+          prod_host="${PROD_DEPLOYMENT#https://}"
+          prod_host="${prod_host%/}"
+          staging_host=$(curl -sS \
             "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=30" \
             -H "Authorization: Bearer ${VERCEL_TOKEN}" \
-            | python3 -c '
-import json, sys, os
-prod = os.environ.get("PROD_DEPLOYMENT", "").rstrip("/").replace("https://", "")
-data = json.load(sys.stdin)
-for item in data.get("deployments", []):
-    if item.get("readyState") != "READY" and item.get("state") != "READY":
-        continue
-    if item.get("target") == "production":
-        continue
-    url = item.get("url") or ""
-    if not url or url == prod:
-        continue
-    print("https://" + url)
-    break
-')
-          if [ -z "$staging_url" ]; then
+            | jq -r --arg prod "$prod_host" '
+              [.deployments[]
+                | select((.readyState == "READY" or .state == "READY")
+                  and (.target != "production")
+                  and .url
+                  and .url != $prod)]
+              | .[0].url // empty
+            ')
+          if [ -z "$staging_host" ]; then
             echo "::error::Could not find a staging preview deployment to restore. Run Deploy — Staging first."
             exit 1
           fi
+          staging_url="https://${staging_host}"
           echo "Restoring ${STAGING_HOST} → ${staging_url}"
           vercel alias set "$staging_url" "$STAGING_HOST" --token="${VERCEL_TOKEN}"
 
