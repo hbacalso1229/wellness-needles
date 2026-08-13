@@ -1181,7 +1181,7 @@ export default function BookingForm() {
                 id="booking-time-label"
                 className="mb-1 block text-sm font-medium text-[var(--text-dark)]"
               >
-                Preferred Time Range <RequiredMark />
+                Preferred time <RequiredMark />
               </p>
               <p className="mb-3 text-sm text-[var(--text-dark)]/70">
                 Pick a time that works best for you.
