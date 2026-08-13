@@ -136,9 +136,21 @@ function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'da
                     <div style="font-size:14px;line-height:1.45;color:#1B3B2B;opacity:0.7;margin-bottom:14px;">
                       Questions about your request? Call or email and we can help.
                     </div>
-                    <a href="${PHONE_HREF}" style="display:inline-block;background:#C9A227;color:#1B3B2B;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:999px;margin-bottom:6px;">Call Now</a>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:6px;">
+                      <tr>
+                        <td align="center" bgcolor="#C9A227" style="border-radius:999px;">
+                          <a href="${PHONE_HREF}" style="display:block;box-sizing:border-box;width:100%;padding:10px 18px;background:#C9A227;color:#1B3B2B;text-decoration:none;font-weight:700;border-radius:999px;">Call Now</a>
+                        </td>
+                      </tr>
+                    </table>
                     <div style="font-size:14px;color:#1B3B2B;opacity:0.7;margin-bottom:12px;">${PHONE_DISPLAY}</div>
-                    <a href="${EMAIL_HREF}" style="display:inline-block;border:1px solid rgba(27,59,43,0.25);color:#1B3B2B;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:999px;background:#ffffff;">Send a message</a>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="center" bgcolor="#ffffff" style="border-radius:999px;border:1px solid rgba(27,59,43,0.25);">
+                          <a href="${EMAIL_HREF}" style="display:block;box-sizing:border-box;width:100%;padding:10px 18px;color:#1B3B2B;text-decoration:none;font-weight:600;border-radius:999px;">Send a message</a>
+                        </td>
+                      </tr>
+                    </table>
                     <div style="font-size:14px;color:#1B3B2B;opacity:0.7;margin-top:8px;">We reply within 24 hours</div>
                   </td>
                 </tr>

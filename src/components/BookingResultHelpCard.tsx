@@ -4,8 +4,10 @@ import { Mail, Phone } from 'lucide-react'
 import { CTAButton } from '@/features'
 import { contactConfig } from '@/lib/contact-config'
 
+const helpCtaClass = '!flex !w-full items-center justify-center'
+
 const messageCtaClass =
-  'w-full !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
+  `${helpCtaClass} !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]`
 
 /** Bookings-style help card for full-screen result pages. */
 export function BookingResultHelpCard({
@@ -24,7 +26,7 @@ export function BookingResultHelpCard({
             variant="gold"
             size="medium"
             showArrow={false}
-            className="w-full"
+            className={helpCtaClass}
           >
             <Phone className="h-4 w-4 shrink-0" aria-hidden />
             Call Now
