@@ -48,6 +48,26 @@ export function getEnvWeb3FormsAccessKey(): string {
   )
 }
 
+export type CaptchaProvider = 'hcaptcha' | 'turnstile'
+
+/** Staging/local default is hCaptcha. Production Release sets `turnstile`. */
+export function getCaptchaProvider(): CaptchaProvider {
+  if (typeof process === 'undefined') return 'hcaptcha'
+  if (process.env.NEXT_PUBLIC_E2E === 'true') return 'hcaptcha'
+  const raw = (process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER || '').trim().toLowerCase()
+  return raw === 'turnstile' ? 'turnstile' : 'hcaptcha'
+}
+
+export function getTurnstileSiteKey(): string {
+  if (typeof process === 'undefined') return ''
+  if (process.env.NEXT_PUBLIC_E2E === 'true') return ''
+  return (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '').trim()
+}
+
+export function isTurnstileCaptchaEnabled(): boolean {
+  return getCaptchaProvider() === 'turnstile' && Boolean(getTurnstileSiteKey())
+}
+
 function pickWeb3FormsAccessKey(
   ...candidates: Array<string | undefined | null>
 ): string {
@@ -73,8 +93,8 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
     freshaBookingUrl: contactConfig.fresha.bookingUrl,
-    // Shared deploys: env key alone is enough — email is on by default for all visitors.
-    bookingEmailEnabled: Boolean(envAccessKey),
+    // Shared deploys: env key or Turnstile production (Function holds the access key).
+    bookingEmailEnabled: Boolean(envAccessKey) || isTurnstileCaptchaEnabled(),
     bookingEmailAccessKey: envAccessKey,
     bookingEmailTo: contactConfig.email.address,
   }
@@ -225,7 +245,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
     const bookingEmailEnabled =
       process.env.NEXT_PUBLIC_E2E === 'true'
         ? false
-        : getEnvWeb3FormsAccessKey()
+        : getEnvWeb3FormsAccessKey() || isTurnstileCaptchaEnabled()
           ? true
           : typeof parsed.bookingEmailEnabled === 'boolean'
             ? parsed.bookingEmailEnabled
@@ -297,11 +317,13 @@ export function writeBookingFeatures(features: BookingFeatureFlags): void {
 }
 
 export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean {
-  return (
-    features.bookingEmailEnabled &&
-    isValidWeb3FormsAccessKey(features.bookingEmailAccessKey) &&
-    isValidEmailAddress(features.bookingEmailTo)
-  )
+  if (!features.bookingEmailEnabled || !isValidEmailAddress(features.bookingEmailTo)) {
+    return false
+  }
+  if (isTurnstileCaptchaEnabled()) {
+    return true
+  }
+  return isValidWeb3FormsAccessKey(features.bookingEmailAccessKey)
 }
 
 export function isFreshaBookingConfigured(features: BookingFeatureFlags): boolean {

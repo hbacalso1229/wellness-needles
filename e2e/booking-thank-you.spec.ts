@@ -2,7 +2,7 @@ import { test, expect } from './fixtures'
 import { fillBookingRequestForm } from './booking-helpers'
 
 /**
- * Requires `npm run build:e2e` so submit skips hCaptcha / live email
+ * Requires `npm run build:e2e` so submit skips captcha / live email
  * and redirects to the thank-you page.
  */
 test.describe('booking thank-you', () => {

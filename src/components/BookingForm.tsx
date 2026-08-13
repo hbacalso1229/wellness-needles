@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import {
@@ -13,9 +14,9 @@ import {
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey } from '@/lib/booking-features'
+import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled } from '@/lib/booking-features'
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
-import { sendBookingRequestEmail } from '@/lib/send-booking-email'
+import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import {
   OptionalAddOns,
@@ -433,8 +434,13 @@ export default function BookingForm() {
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [turnstileError, setTurnstileError] = useState('')
   const [isLocalHost, setIsLocalHost] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
+  const turnstileSiteKey = getTurnstileSiteKey()
+  const useTurnstile = isTurnstileCaptchaEnabled()
 
   useEffect(() => {
     setIsLocalHost(isLocalDevHost())
@@ -473,6 +479,12 @@ export default function BookingForm() {
     setHCaptchaReady(false)
     setHCaptchaError('')
     hCaptchaRef.current?.resetCaptcha()
+  }
+
+  const resetTurnstile = () => {
+    setTurnstileToken('')
+    setTurnstileError('')
+    turnstileRef.current?.reset()
   }
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
@@ -706,6 +718,7 @@ export default function BookingForm() {
     setFullNameInput('')
     setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     resetHCaptcha()
+    resetTurnstile()
   }
 
   const handleSubmit = async () => {
@@ -782,13 +795,23 @@ export default function BookingForm() {
         return
       }
 
-      // hCaptcha / Web3Forms refuse localhost — skip live email send in local dev.
+      // Captcha / live email: skip on localhost. Staging uses hCaptcha + Web3Forms.
+      // Production uses Turnstile + Pages Function.
       if (isLocalDevHost()) {
         console.warn(
-          '[booking submit] Skipping Web3Forms on localhost (hCaptcha unavailable). Thank-you still opens for UI testing.'
+          '[booking submit] Skipping live booking email on localhost. Thank-you still opens for UI testing.'
         )
       } else {
-        if (!hCaptchaToken.trim()) {
+        const useTurnstileWidget = useTurnstile
+        if (useTurnstileWidget && !turnstileToken.trim()) {
+          setTurnstileError('Please wait for the security check to finish, then send your request.')
+          document.getElementById('booking-security-check')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
+          return
+        }
+        if (!useTurnstileWidget && !hCaptchaToken.trim()) {
           setHCaptchaError('Please complete the security check to send your request.')
           document.getElementById('booking-security-check')?.scrollIntoView({
             behavior: 'smooth',
@@ -798,18 +821,24 @@ export default function BookingForm() {
         }
 
         setHCaptchaError('')
+        setTurnstileError('')
 
         setIsSubmitting(true)
         try {
-          const result = await sendBookingRequestEmail(
-            payload,
-            latestFeatures,
-            hCaptchaToken
-          )
+          const result = useTurnstileWidget
+            ? await sendTurnstileBookingRequest(payload, turnstileToken)
+            : await sendBookingRequestEmail(
+                payload,
+                latestFeatures,
+                hCaptchaToken
+              )
           if (!result.ok) {
             setHCaptchaToken('')
+            setTurnstileToken('')
             setHCaptchaError('')
+            setTurnstileError('')
             hCaptchaRef.current?.resetCaptcha()
+            turnstileRef.current?.reset()
             goToUnableToProcess(
               result.message ||
                 'Could not send the booking email. Please try again or call the clinic.'
@@ -1351,53 +1380,90 @@ export default function BookingForm() {
 
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
-                <div
-                  className={`booking-hcaptcha-host w-full min-w-0 rounded-lg p-1 transition-colors ${
-                    hCaptchaError
-                      ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
-                      : ''
-                  }`}
-                >
-                  {!hCaptchaReady && (
+                {useTurnstile ? (
+                  <>
                     <div
-                      className="mx-auto h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div
-                    className={`booking-hcaptcha-scale ${
-                      hCaptchaReady ? '' : 'sr-only'
-                    }`}
-                  >
-                    <div className="booking-hcaptcha-frame">
-                      <HCaptcha
-                        ref={hCaptchaRef}
-                        sitekey={WEB3FORMS_HCAPTCHA_SITEKEY}
-                        size="normal"
-                        reCaptchaCompat={false}
-                        onLoad={() => setHCaptchaReady(true)}
-                        onVerify={(token) => {
-                          setHCaptchaToken(token)
-                          setHCaptchaError('')
+                      className={`flex justify-center rounded-lg p-1 transition-colors ${
+                        turnstileError
+                          ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
+                          : ''
+                      }`}
+                    >
+                      <Turnstile
+                        ref={turnstileRef}
+                        siteKey={turnstileSiteKey}
+                        options={{ size: 'flexible', theme: 'light' }}
+                        onSuccess={(token) => {
+                          setTurnstileToken(token)
+                          setTurnstileError('')
                         }}
                         onExpire={() => {
-                          setHCaptchaToken('')
-                          setHCaptchaError('Security check expired. Please verify again.')
+                          setTurnstileToken('')
+                          setTurnstileError('Security check expired. Please wait a moment and try again.')
                         }}
                         onError={() => {
-                          setHCaptchaToken('')
-                          setHCaptchaReady(true)
-                          setHCaptchaError('Security check failed to load. Please try again.')
+                          setTurnstileToken('')
+                          setTurnstileError('Security check failed to load. Please try again.')
                         }}
                       />
                     </div>
-                  </div>
-                </div>
-                {hCaptchaError ? (
-                  <p className="text-center text-sm text-red-700" role="alert">
-                    {hCaptchaError}
-                  </p>
-                ) : null}
+                    {turnstileError ? (
+                      <p className="text-center text-sm text-red-700" role="alert">
+                        {turnstileError}
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className={`booking-hcaptcha-host w-full min-w-0 rounded-lg p-1 transition-colors ${
+                        hCaptchaError
+                          ? 'ring-2 ring-red-400 ring-offset-2 ring-offset-cream'
+                          : ''
+                      }`}
+                    >
+                      {!hCaptchaReady && (
+                        <div
+                          className="mx-auto h-[78px] w-full max-w-[303px] rounded-md bg-accent/10 animate-pulse"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <div
+                        className={`booking-hcaptcha-scale ${
+                          hCaptchaReady ? '' : 'sr-only'
+                        }`}
+                      >
+                        <div className="booking-hcaptcha-frame">
+                          <HCaptcha
+                            ref={hCaptchaRef}
+                            sitekey={WEB3FORMS_HCAPTCHA_SITEKEY}
+                            size="normal"
+                            reCaptchaCompat={false}
+                            onLoad={() => setHCaptchaReady(true)}
+                            onVerify={(token) => {
+                              setHCaptchaToken(token)
+                              setHCaptchaError('')
+                            }}
+                            onExpire={() => {
+                              setHCaptchaToken('')
+                              setHCaptchaError('Security check expired. Please verify again.')
+                            }}
+                            onError={() => {
+                              setHCaptchaToken('')
+                              setHCaptchaReady(true)
+                              setHCaptchaError('Security check failed to load. Please try again.')
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {hCaptchaError ? (
+                      <p className="text-center text-sm text-red-700" role="alert">
+                        {hCaptchaError}
+                      </p>
+                    ) : null}
+                  </>
+                )}
               </div>
             )}
           </div>

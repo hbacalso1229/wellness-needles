@@ -146,3 +146,77 @@ export async function sendBookingRequestEmail(
     }
   }
 }
+
+const TURNSTILE_BOOKING_TIMEOUT_MS = 15_000
+
+/**
+ * Production clinic send: Pages Function verifies Turnstile then posts to Web3Forms.
+ * Staging/local must not call this (no Function / hCaptcha path instead).
+ */
+export async function sendTurnstileBookingRequest(
+  payload: BookingEmailPayload,
+  turnstileToken: string
+): Promise<SendBookingEmailResult> {
+  const token = turnstileToken.trim()
+  if (!token) {
+    return {
+      ok: false,
+      reason: 'captcha-required',
+      message: 'Please complete the security check to send your request.',
+    }
+  }
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), TURNSTILE_BOOKING_TIMEOUT_MS)
+
+  try {
+    const response = await fetch('/api/booking-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        turnstileToken: token,
+        ...payload,
+      }),
+    })
+
+    const contentType = response.headers.get('content-type') || ''
+    const data = contentType.includes('application/json')
+      ? ((await response.json().catch(() => null)) as {
+          ok?: boolean
+          reason?: string
+          error?: string
+          message?: string
+        } | null)
+      : null
+
+    if (!response.ok || !data?.ok) {
+      const reason =
+        data?.reason === 'captcha-required' ||
+        data?.reason === 'not-configured' ||
+        data?.reason === 'disabled'
+          ? data.reason
+          : 'request-failed'
+      return {
+        ok: false,
+        reason,
+        message:
+          data?.message ||
+          data?.error ||
+          'Could not send the booking email. Please try again or call the clinic.',
+      }
+    }
+    return { ok: true }
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'request-failed',
+      message: error instanceof Error ? error.message : 'Network error while sending email.',
+    }
+  } finally {
+    clearTimeout(timer)
+  }
+}
