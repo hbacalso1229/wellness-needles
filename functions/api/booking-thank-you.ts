@@ -57,19 +57,67 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;')
 }
 
+/** Site tokens — keep the email visually aligned with /bookings/thank-you. */
+const PRIMARY = '#2d5016'
+const SECONDARY = '#4a7c2a'
+const GOLD = '#d4af37'
+const HEADING = '#1B3B2B'
+const TEXT = '#2a2a28'
+const SANS = "Arial,Helvetica,sans-serif"
+const SERIF = "Georgia,'Times New Roman',serif"
+
 function row(label: string, value: string, detail?: string): string {
   const detailHtml = detail
-    ? `<div style="margin-top:4px;font-size:13px;color:#1B3B2B;opacity:0.65;">${escapeHtml(detail)}</div>`
+    ? `<div style="margin-top:4px;font-family:${SANS};font-size:13px;line-height:1.35;color:${TEXT};opacity:0.65;">${escapeHtml(detail)}</div>`
     : ''
   return `
     <tr>
-      <td style="padding:10px 14px;border:1px solid rgba(127,176,105,0.25);border-radius:12px;background:#ffffff;">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#1B3B2B;opacity:0.5;font-weight:600;">${escapeHtml(label)}</div>
-        <div style="margin-top:4px;font-size:15px;font-weight:600;color:#1B3B2B;line-height:1.35;">${escapeHtml(value)}</div>
+      <td style="padding:10px 14px;border:1px solid #d4e4cc;border-radius:12px;background:#ffffff;">
+        <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT};opacity:0.5;font-weight:500;">${escapeHtml(label)}</div>
+        <div style="margin-top:4px;font-family:${SANS};font-size:15px;font-weight:600;color:${TEXT};line-height:1.35;">${escapeHtml(value)}</div>
         ${detailHtml}
       </td>
     </tr>
     <tr><td style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>`
+}
+
+/** Full-width pill — table cell is the button so Gmail cannot shrink to the label. */
+function fullWidthPill(href: string, label: string, variant: 'gold' | 'outline'): string {
+  const gold = variant === 'gold'
+  const tdStyle = gold
+    ? `width:100%;background-color:${GOLD};border-radius:999px;padding:10px 16px;`
+    : `width:100%;background-color:#ffffff;border:2px solid ${PRIMARY};border-radius:999px;padding:8px 16px;`
+  const aStyle = [
+    'display:block',
+    'width:100%',
+    `font-family:${SANS}`,
+    'font-size:14px',
+    gold ? 'font-weight:700' : 'font-weight:500',
+    `color:${PRIMARY}`,
+    'text-decoration:none',
+    'text-align:center',
+    'line-height:1.25',
+  ].join(';')
+  return `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:separate;">
+      <tr>
+        <td width="100%" align="center" bgcolor="${gold ? GOLD : '#ffffff'}" style="${tdStyle}">
+          <a href="${href}" style="${aStyle}">${label}</a>
+        </td>
+      </tr>
+    </table>`
+}
+
+function orDivider(): string {
+  const line = `background-color:#d4e4cc;height:1px;font-size:0;line-height:0;`
+  return `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin:10px 0;">
+      <tr>
+        <td width="42%" valign="middle" style="${line}">&nbsp;</td>
+        <td width="16%" align="center" valign="middle" style="font-family:${SANS};font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${SECONDARY};white-space:nowrap;padding:0 8px;">Or</td>
+        <td width="42%" valign="middle" style="${line}">&nbsp;</td>
+      </tr>
+    </table>`
 }
 
 function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> & ThankYouBody): string {
@@ -86,80 +134,89 @@ function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'da
 
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width" /></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;color:#1B3B2B;">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:${SANS};color:${TEXT};">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;">
     <tr>
       <td align="center" style="padding:28px 16px;">
-        <table role="presentation" width="100%" style="max-width:480px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:448px;width:100%;">
           <tr>
-            <td align="center" style="padding-bottom:20px;">
-              <img src="${logoUrl}" alt="Wellness Needles" width="160" style="display:block;max-width:160px;height:auto;" />
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-size:28px;line-height:1.25;color:#1B3B2B;">Thank you, ${escapeHtml(body.firstName)}</h1>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding-bottom:8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1B3B2B;opacity:0.7;">
-              Request received — we will confirm by email or phone.
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding-bottom:20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1B3B2B;opacity:0.75;">
-              We appreciate you trusting <strong style="color:#1B3B2B;">Wellness Needles</strong> with your care.
-              Your appointment request is with us — we look forward to supporting you.
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:18px;border:1px solid rgba(127,176,105,0.3);border-radius:16px;background:rgba(127,176,105,0.08);">
-              <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#2F6B4F;margin-bottom:12px;">
-                Your booking confirmation
-              </div>
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-family:Arial,Helvetica,sans-serif;">
-                ${rows}
-              </table>
-              <div style="border-top:1px solid rgba(127,176,105,0.25);margin-top:8px;padding-top:14px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1B3B2B;opacity:0.7;">
-                A confirmation email is on its way to <strong style="opacity:1;color:#1B3B2B;">${escapeHtml(body.email)}</strong>.
-                <br />We'll contact you within 24 hours to confirm. Your preferred time is not locked until then.
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-top:20px;">
-              <table role="presentation" width="100%" style="border:1px solid rgba(127,176,105,0.25);border-radius:12px;background:rgba(127,176,105,0.1);font-family:Arial,Helvetica,sans-serif;">
+            <td align="center" style="padding-bottom:24px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="padding:18px;text-align:center;">
-                    <div style="font-size:17px;font-weight:700;color:#1B3B2B;margin-bottom:6px;">Need help?</div>
-                    <div style="font-size:14px;line-height:1.45;color:#1B3B2B;opacity:0.7;margin-bottom:14px;">
-                      Questions about your request? Call or email and we can help.
-                    </div>
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:6px;">
-                      <tr>
-                        <td align="center" bgcolor="#C9A227" style="border-radius:999px;">
-                          <a href="${PHONE_HREF}" style="display:block;box-sizing:border-box;width:100%;padding:10px 18px;background:#C9A227;color:#1B3B2B;text-decoration:none;font-weight:700;border-radius:999px;">Call Now</a>
-                        </td>
-                      </tr>
-                    </table>
-                    <div style="font-size:14px;color:#1B3B2B;opacity:0.7;margin-bottom:12px;">${PHONE_DISPLAY}</div>
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td align="center" bgcolor="#ffffff" style="border-radius:999px;border:1px solid rgba(27,59,43,0.25);">
-                          <a href="${EMAIL_HREF}" style="display:block;box-sizing:border-box;width:100%;padding:10px 18px;color:#1B3B2B;text-decoration:none;font-weight:600;border-radius:999px;">Send a message</a>
-                        </td>
-                      </tr>
-                    </table>
-                    <div style="font-size:14px;color:#1B3B2B;opacity:0.7;margin-top:8px;">We reply within 24 hours</div>
+                  <td valign="middle" style="padding-right:10px;">
+                    <img src="${logoUrl}" alt="Wellness Needles" width="40" height="40" style="display:block;width:40px;height:40px;border:0;" />
+                  </td>
+                  <td valign="middle" style="font-family:${SERIF};font-size:18px;font-weight:800;letter-spacing:0.04em;color:${PRIMARY};">
+                    Wellness Needles
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding-top:22px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#1B3B2B;opacity:0.5;">
-              <a href="${SITE}/" style="color:#2F6B4F;text-decoration:none;">www.wellnessneedles.ie</a>
+            <td align="center" style="padding-bottom:8px;">
+              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${HEADING};">Thank you, ${escapeHtml(body.firstName)}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:10px;font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;">
+              Request received — we will confirm by email or phone.
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:16px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td valign="middle" style="width:32px;border-top:2px solid ${GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                  <td valign="middle" style="padding:0 8px;font-size:11px;line-height:11px;color:${PRIMARY};">&#9670;</td>
+                  <td valign="middle" style="width:32px;border-top:2px solid ${GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:20px;font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT};opacity:0.7;">
+              We appreciate you trusting <strong style="color:${PRIMARY};">Wellness Needles</strong> with your care.
+              Your appointment request is with us — we look forward to supporting you.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:14px 16px 16px;border:1px solid #d4e4cc;border-radius:12px;background:#f4f8f2;">
+              <div style="font-family:${SANS};font-size:16px;font-weight:600;color:${TEXT};margin-bottom:12px;">
+                Your booking confirmation
+              </div>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                ${rows}
+              </table>
+              <div style="border-top:1px solid #d4e4cc;margin-top:4px;padding-top:12px;text-align:center;font-family:${SANS};font-size:14px;line-height:1.5;color:${TEXT};opacity:0.7;">
+                A confirmation email is on its way to <strong style="opacity:1;color:${TEXT};">${escapeHtml(body.email)}</strong>.
+                <br />We'll contact you within 24 hours to confirm. Your preferred time is not locked until then.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top:20px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:320px;border:1px solid #d4e4cc;border-radius:12px;background:#eef5ea;">
+                <tr>
+                  <td style="padding:16px;text-align:center;">
+                    <div style="font-family:${SANS};font-size:18px;font-weight:700;line-height:1.3;color:${HEADING};margin-bottom:4px;">Need help?</div>
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT};opacity:0.7;margin-bottom:16px;">
+                      Questions about your request? Call or email and we can help.
+                    </div>
+                    ${fullWidthPill(PHONE_HREF, 'Call Now', 'gold')}
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;margin:6px 0 0;">${PHONE_DISPLAY}</div>
+                    ${orDivider()}
+                    ${fullWidthPill(EMAIL_HREF, 'Send a message', 'outline')}
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;margin-top:6px;">We reply within 24 hours</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top:22px;font-family:${SANS};font-size:12px;color:${TEXT};opacity:0.5;">
+              <a href="${SITE}/" style="color:${SECONDARY};text-decoration:none;">www.wellnessneedles.ie</a>
             </td>
           </tr>
         </table>
@@ -226,7 +283,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     body: JSON.stringify({
       from: FROM,
       to: [email],
-      subject: 'We received your appointment request — Wellness Needles',
+      subject: 'Appointment request received — Wellness Needles',
       html,
     }),
   })

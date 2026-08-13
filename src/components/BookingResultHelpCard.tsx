@@ -4,10 +4,8 @@ import { Mail, Phone } from 'lucide-react'
 import { CTAButton } from '@/features'
 import { contactConfig } from '@/lib/contact-config'
 
-const helpCtaClass = '!flex !w-full items-center justify-center'
-
 const messageCtaClass =
-  `${helpCtaClass} !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]`
+  '!rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
 
 /** Bookings-style help card for full-screen result pages. */
 export function BookingResultHelpCard({
@@ -19,14 +17,14 @@ export function BookingResultHelpCard({
     <aside className="mx-auto mt-4 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 sm:mt-5 sm:p-5 lg:mt-8">
       <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">Need help?</h3>
       <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">{intro}</p>
-      <div className="flex flex-col gap-2.5">
-        <div>
+      <div className="flex w-full flex-col gap-2.5">
+        <div className="w-full">
           <CTAButton
             href={contactConfig.phone.href}
             variant="gold"
             size="medium"
             showArrow={false}
-            className={helpCtaClass}
+            fullWidth
           >
             <Phone className="h-4 w-4 shrink-0" aria-hidden />
             Call Now
@@ -44,12 +42,13 @@ export function BookingResultHelpCard({
           <div className="h-px flex-1 bg-accent/25" />
         </div>
 
-        <div>
+        <div className="w-full">
           <CTAButton
             href={contactConfig.email.href}
             variant="outline"
             size="medium"
             showArrow={false}
+            fullWidth
             className={messageCtaClass}
           >
             <Mail className="h-4 w-4 shrink-0" aria-hidden />
