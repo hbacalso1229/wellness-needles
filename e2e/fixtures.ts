@@ -1,6 +1,6 @@
 import { test as base, expect } from '@playwright/test'
 
-/** Fresh storage so Admin localStorage cannot enable Web3Forms/hCaptcha. */
+/** Fresh storage so leftover localStorage cannot enable Web3Forms/hCaptcha. */
 export const test = base.extend({
   context: async ({ context }, use) => {
     await context.addInitScript(() => {

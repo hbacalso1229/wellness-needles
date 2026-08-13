@@ -54,13 +54,8 @@ export const BOOKING_REQUEST_INBOX = contactConfig.email.address
  * Sends the booking request to the clinic inbox via Web3Forms.
  *
  * Details are sent once as structured fields (not duplicated in `message`).
- * Patient thank-you email: enable **Autoresponder** on this form in the Web3Forms
- * dashboard (Pro). It replies to the submission `email` field. Suggested settings:
- * - Subject: We received your appointment request — Wellness Needles
- * - Intro: thank-you + we’ll confirm within 24 hours (preferred time not locked)
- * - Show copy of their submission: Yes (structured booking fields once)
- * - Logo (optional): full https URL to /logo_wellness_transparent.png
- * - Note: Autoresponder typically works on production sites, not localhost
+ * Patient thank-you email: Resend via Cloudflare Pages Function `/api/booking-thank-you`
+ * (Autoresponder must stay OFF on Web3Forms).
  */
 export async function sendBookingRequestEmail(
   payload: BookingEmailPayload,
@@ -82,7 +77,7 @@ export async function sendBookingRequestEmail(
       ok: false,
       reason: 'not-configured',
       message:
-        'Booking email needs a valid Web3Forms access key (UUID) and recipient email. Check .env.local or Admin → Booking email setup.',
+        'Booking email needs a valid Web3Forms access key (UUID) and recipient email. Set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY (or the production secret on Release builds).',
     }
   }
 
@@ -134,7 +129,7 @@ export async function sendBookingRequestEmail(
     if (!response.ok || !data.success) {
       const rawMessage = data.message || 'Email service rejected the request.'
       const message = /access_key|form_id|uuid/i.test(rawMessage)
-        ? 'Web3Forms rejected the access key. It must be a valid UUID from https://web3forms.com — check .env.local or Admin, then restart the dev server.'
+        ? 'Web3Forms rejected the access key. It must be a valid UUID from https://web3forms.com — check NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY, then rebuild.'
         : rawMessage
       return {
         ok: false,

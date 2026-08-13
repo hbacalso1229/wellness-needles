@@ -14,6 +14,7 @@ import BookingStepper, { type BookingStepperStep } from '@/components/BookingSte
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey } from '@/lib/booking-features'
+import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import {
@@ -766,17 +767,17 @@ export default function BookingForm() {
       window.location.replace(unableUrl)
     }
 
-    let confirmationEmailQueued = false
+    let patientConfirmationEmailQueued = false
 
     if (features.bookingEmailEnabled) {
-      // Re-read so Admin saves / env fallback are always current at submit time
+      // Re-read so env fallback is always current at submit time
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
         goToUnableToProcess(
           latestFeatures.bookingEmailAccessKey &&
             !isValidWeb3FormsAccessKey(latestFeatures.bookingEmailAccessKey)
-            ? 'Web3Forms access key must be a valid UUID. Check .env.local or Admin → Booking email setup, then restart the dev server.'
-            : 'Booking email is enabled but not configured. Add the Web3Forms access key in Admin (dev) or set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY.'
+            ? 'Web3Forms access key must be a valid UUID. Check NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY and rebuild.'
+            : 'Booking email is enabled but not configured. Set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY for this environment.'
         )
         return
       }
@@ -815,8 +816,27 @@ export default function BookingForm() {
             )
             return
           }
-          // Clinic email sent; patient Autoresponder fires when enabled in Web3Forms (Pro).
-          confirmationEmailQueued = true
+          // Clinic email sent (Web3Forms). Patient thank-you via Resend when available
+          // (Cloudflare production). Staging/local skip Resend without blocking thank-you.
+          const patientEmail = payload.email.trim()
+          if (patientEmail) {
+            try {
+              const patientResult = await sendPatientThankYouEmail({
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+                email: patientEmail,
+                serviceLabel: payload.serviceLabel,
+                locationLabel: payload.locationLabel,
+                date: payload.date,
+                time: payload.time,
+                serviceType: payload.serviceType,
+                message: payload.message?.trim() || undefined,
+              })
+              patientConfirmationEmailQueued = patientResult.ok
+            } catch (error) {
+              console.error('[booking submit] patient thank-you failed', error)
+            }
+          }
         } finally {
           setIsSubmitting(false)
         }
@@ -826,7 +846,8 @@ export default function BookingForm() {
     saveBookingThankYouSummary({
       firstName: payload.firstName,
       lastName: payload.lastName,
-      email: confirmationEmailQueued ? payload.email : undefined,
+      // Only claim "email on its way" when Resend actually accepted the send.
+      email: patientConfirmationEmailQueued ? payload.email : undefined,
       serviceLabel: payload.serviceLabel,
       locationLabel: payload.locationLabel,
       date: payload.date,

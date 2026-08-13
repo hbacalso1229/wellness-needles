@@ -96,7 +96,7 @@ export const contactConfig = {
     },
   },
   fresha: {
-    // Paste the real Fresha booking link in Admin, or replace this placeholder.
+    // Paste the real Fresha booking link here (marketing /admin removed).
     bookingUrl: 'https://www.fresha.com/a/YOUR-BUSINESS',
   },
   features: {

@@ -1,10 +1,11 @@
 # Wellness Needles - AI Coding Instructions
 
-**Visual system:** see [`BRANDING_AND_PATTERNS.md`](../BRANDING_AND_PATTERNS.md) for brand tokens, CTA hierarchy, card chrome, heroes, and mobile patterns.
+**Visual system:** see [`BRANDING_AND_PATTERNS.md`](../BRANDING_AND_PATTERNS.md) for brand tokens, CTA hierarchy, card chrome, heroes, and mobile patterns.  
+**Go-live:** see [`docs/GO_LIVE_ARCHITECTURE.md`](../docs/GO_LIVE_ARCHITECTURE.md).
 
 ## Project Overview
 
-Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ireland). Tropical/jungle theme. Static export (`output: 'export'`) — no server API routes.
+Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ireland). Tropical/jungle theme. Static export (`output: 'export'`). Clinic booking mail via Web3Forms; patient thank-you via Cloudflare Pages Function + Resend.
 
 ## Key Architecture Patterns
 
@@ -17,34 +18,36 @@ Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ir
 
 ### Component Structure
 - Fixed header (`pt-16` offset), persistent footer
-- Nav: Home, About, Acupuncture, Chinese Medicine, Testimonials, Contact, Bookings, **Admin**, Book Now CTA
+- Nav: Home, About, Acupuncture, Chinese Medicine, Testimonials, Contact, Bookings, Book Now CTA
 - Icons: Lucide React
 
-### Booking / Admin
-- Defaults in `src/lib/contact-config.ts` (`calendlyEnabled: true`, `bookingFormEnabled: false`)
-- Runtime overrides: `/admin` → `booking-features.ts` / `useBookingFeatures` (localStorage)
-- Calendly embed vs legacy stepper are mutually exclusive in Admin
-- Legacy form email: Web3Forms via `send-booking-email.ts`
-- Prefer `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` for shared deploys (Vercel Preview + Production) — not GitHub Secrets
-- When env key is set: email forced on; Admin key field hidden; toggle locked
-- Setup checklists live in README / BOOKING_EMAIL_INTEGRATION.md — keep Admin UI lean
+### Booking (Phase 1)
+- Defaults in `src/lib/contact-config.ts` (`bookingFormEnabled: true`; Calendly/Fresha off)
+- Marketing `/admin` **removed** — change modes in `contact-config.ts`
+- Clinic email: Web3Forms via `send-booking-email.ts` → `info@` (Autoresponder **OFF**)
+- Patient thank-you: `send-patient-thank-you.ts` → `/api/booking-thank-you` (Resend From `info@`)
+- Staging key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`; prod Release: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION`
+- Failure → `/bookings/unable-to-process/`; success → `/bookings/thank-you/`
+- Production deploy: GitHub **Release published** → Cloudflare Pages only
 
 ## Development Conventions
 
 ### File Organization
 ```
-src/app/           # App Router pages only (incl. /admin)
+src/app/           # App Router pages (no /admin)
 src/components/    # Shared UI (Header, Footer, BookingForm, CalendlyEmbed, …)
 src/features/      # Home sections + reusable UI primitives
 src/hooks/         # e.g. useBookingFeatures
-src/lib/           # contact-config, booking-features, send-booking-email
-public/            # Static assets
+src/lib/           # contact-config, booking-features, send-booking-email, send-patient-thank-you
+functions/api/     # Cloudflare Pages Functions (Resend)
+public/            # Static assets (+ _redirects apex→www)
+docs/              # Go-live architecture + release checklist
 ```
 
 ### Separation of Concerns
 - App pages compose features/components; keep pages thin
 - Contact/business defaults → `contact-config.ts`
-- Booking runtime flags → `booking-features.ts` (not scattered localStorage)
+- Booking flags → `booking-features.ts` (env Web3Forms key wins)
 
 ### Styling
 - Tailwind + semantic classes (`.text-primary`, `.bg-accent`)
@@ -61,6 +64,7 @@ public/            # Static assets
 
 - Practitioner: Arkinth Garcia (College of Naturopathic Medicine, Dublin)
 - Dual clinics: Celbridge + Carlow; email `info@wellnessneedles.ie`
+- Canonical site: `https://www.wellnessneedles.ie`
 - Testimonials: verified Google reviews + consented before/after results
 
 ## Technical Requirements
@@ -76,11 +80,12 @@ npm run lint      # ESLint
 
 ### Key Files
 - `src/app/globals.css` — theme
-- `src/lib/contact-config.ts` — contact + default flags + Calendly URL
-- `src/lib/booking-features.ts` — Admin flags + Web3Forms env
-- `src/app/admin/page.tsx` — feature toggles (no auth)
+- `src/lib/contact-config.ts` — contact + default flags
+- `src/lib/booking-features.ts` — flags + Web3Forms env
+- `src/lib/send-patient-thank-you.ts` — client → Pages Function
+- `functions/api/booking-thank-you.ts` — Resend HTML ≈ thank-you page
 - `src/components/Header.tsx` — navigation
-- `BOOKING_EMAIL_INTEGRATION.md` / `README.md` — deploy & email setup
+- `BOOKING_EMAIL_INTEGRATION.md` / `README.md` / `docs/GO_LIVE_ARCHITECTURE.md`
 
 ## Code Style Guidelines
 
@@ -88,19 +93,18 @@ npm run lint      # ESLint
 - Functional components + TypeScript
 - Mobile-first Tailwind breakpoints
 - Prefer existing patterns over new abstractions
-- Do not put long setup checklists back into Admin UI — document in Markdown
+- Document setup in Markdown — no marketing `/admin`
 
 ## Common Tasks
 
 ### Env / deploy
 1. Copy `.env.example` → `.env.local` for local Web3Forms key
-2. Set the same var in Vercel for Preview (`dev`) and Production (`main`)
-3. Redeploy after env changes
+2. Staging: push `dev` (Vercel) with `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`
+3. Production: publish a GitHub Release (Cloudflare Pages + prod secrets)
 
 ### Booking mode
-1. `/admin` — toggle Calendly vs legacy form
-2. Calendly: paste Share URL; follow README Calendly checklist
-3. Legacy email: prefer env key; Admin recipient override is per-browser
+1. Edit `contact-config.ts` features (legacy / Calendly / Fresha — one only)
+2. Legacy email: env Web3Forms key; patient thank-you via Resend on Pages
 
 ### Adding pages
 1. `src/app/[route]/page.tsx`
