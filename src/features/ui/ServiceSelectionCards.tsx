@@ -45,7 +45,7 @@ export function ServiceSelectionCards({
   largePrice = false,
 }: ServiceSelectionCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {services.map((service) => {
         const selected = selectedId === service.id
         const Icon = iconForService(service.id)
@@ -53,9 +53,9 @@ export function ServiceSelectionCards({
         return (
           <label
             key={service.id}
-            className={`booking-select-card relative block box-border cursor-pointer rounded-xl border p-4 ${
+            className={`booking-select-card relative block min-w-0 box-border cursor-pointer rounded-xl border p-4 ${
               selected
-                ? 'z-[1] border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20 motion-safe:scale-[1.02]'
+                ? 'z-[1] border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20'
                 : hasError
                   ? 'border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
                   : 'border-2 border-accent/25 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'

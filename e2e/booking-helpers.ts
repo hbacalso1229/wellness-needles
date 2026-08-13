@@ -37,9 +37,13 @@ export async function fillBookingRequestForm(page: Page) {
     await page.getByLabel(/Last Name/i).fill('Tester')
   }
   await page.getByLabel(/Email Address/i).fill('e2e.tester@example.com')
-  await page.getByLabel(/Phone Number/i).fill('860543085')
+  await page.locator('#phone').fill('860543085')
 
-  await page.locator('#dateOfBirth').click()
+  const dobTrigger = page.locator('#dateOfBirth')
+  await dobTrigger.evaluate((el) =>
+    el.scrollIntoView({ block: 'center', inline: 'nearest' })
+  )
+  await dobTrigger.click({ force: true })
   const dobDialog = page.getByRole('dialog', { name: /Choose date of birth/i })
   await expect(dobDialog).toBeVisible()
 

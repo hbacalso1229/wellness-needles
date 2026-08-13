@@ -268,10 +268,3 @@ export const DEFAULT_PHONE_COUNTRY_ID = 'IE'
 export function getPhoneCountry(id: string): PhoneCountry {
   return PHONE_COUNTRIES.find((country) => country.id === id) ?? PHONE_COUNTRIES[0]
 }
-
-/** Regional-indicator flag emoji from an ISO 3166-1 alpha-2 code. */
-export function phoneFlagEmoji(countryId: string): string {
-  return countryId
-    .toUpperCase()
-    .replace(/[A-Z]/g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
-}

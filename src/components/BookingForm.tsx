@@ -85,7 +85,7 @@ function BookingStepIntro({
         <Icon className="h-5 w-5 text-primary sm:h-7 sm:w-7" aria-hidden strokeWidth={1.75} />
       </span>
       {titleNode ? (
-        <p className="whitespace-nowrap font-serif text-base font-bold text-[var(--text-dark)] sm:text-2xl">
+        <p className="whitespace-nowrap font-sans text-sm font-semibold text-[var(--text-dark)] sm:text-lg">
           {titleNode}
         </p>
       ) : null}
