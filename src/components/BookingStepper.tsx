@@ -237,12 +237,12 @@ export default function BookingStepper({
         {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
         <div className="sticky bottom-2 z-20 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
           {isFirst ? (
-            <div className="sm:flex sm:justify-center">
+            <div className="flex justify-center">
               <button
                 type="button"
                 onClick={onNext}
                 disabled={isSubmitting || nextDisabled}
-                className={`w-full bg-primary py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:w-auto sm:min-w-[16rem] sm:px-14 ${
+                className={`min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14 ${
                   continueJustEnabled
                     ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                     : ''
@@ -267,7 +267,7 @@ export default function BookingStepper({
                   type="button"
                   onClick={onSubmit}
                   disabled={isSubmitting}
-                  className="min-w-0 bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14"
+                  className="min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14"
                 >
                   {isSubmitting ? 'Sending…' : submitLabel}
                 </button>
@@ -276,7 +276,7 @@ export default function BookingStepper({
                   type="button"
                   onClick={onNext}
                   disabled={isSubmitting || nextDisabled}
-                  className={`min-w-0 bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14 ${
+                  className={`min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14 ${
                     continueJustEnabled
                       ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                       : ''
