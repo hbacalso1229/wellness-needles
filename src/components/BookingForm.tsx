@@ -585,6 +585,16 @@ export default function BookingForm() {
     setIsLocalHost(isLocalDevHost())
   }, [])
 
+  useEffect(() => {
+    const mq = window.matchMedia(MD_MIN_WIDTH_QUERY)
+    const syncFullNameFromSplit = () => {
+      if (mq.matches) return
+      setFullNameInput(joinFullName(formData.firstName, formData.lastName))
+    }
+    mq.addEventListener('change', syncFullNameFromSplit)
+    return () => mq.removeEventListener('change', syncFullNameFromSplit)
+  }, [formData.firstName, formData.lastName])
+
   // Never keep a Saturday in state (clinic closed) — snap to the next open day.
   useEffect(() => {
     if (!isClosedBookingDate(selectedDate)) return
@@ -1045,8 +1055,7 @@ export default function BookingForm() {
                 }`}
               >
                 <Home className="h-5 w-5 shrink-0" aria-hidden />
-                <span className="sm:hidden">Home Visits</span>
-                <span className="hidden sm:inline">Call Out (Home Visits)</span>
+                Home Visits
               </button>
             </div>
 
@@ -1256,6 +1265,7 @@ export default function BookingForm() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
+                      autoComplete="given-name"
                       placeholder="Enter your first name"
                       aria-invalid={hasFieldError('firstName')}
                       aria-describedby={
@@ -1278,6 +1288,7 @@ export default function BookingForm() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
+                      autoComplete="family-name"
                       placeholder="Enter your last name"
                       aria-invalid={hasFieldError('lastName')}
                       aria-describedby={
