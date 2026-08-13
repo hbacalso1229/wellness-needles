@@ -489,7 +489,7 @@ export default function Bookings() {
                     variant="gold"
                     size="medium"
                     showArrow={false}
-                    className="!flex !w-full items-center justify-center"
+                    fullWidth
                   >
                     <Phone className="h-4 w-4 shrink-0" aria-hidden />
                     Call Now
@@ -513,7 +513,8 @@ export default function Bookings() {
                     variant="outline"
                     size="medium"
                     showArrow={false}
-                    className="!flex !w-full items-center justify-center !rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
+                    fullWidth
+                    className="!rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]"
                   >
                     <Mail className="h-4 w-4 shrink-0" aria-hidden />
                     Send a message

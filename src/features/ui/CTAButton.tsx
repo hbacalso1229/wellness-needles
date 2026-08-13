@@ -49,6 +49,8 @@ interface CTAButtonProps {
   size?: 'medium' | 'large'
   showArrow?: boolean
   className?: string
+  /** Stretch to the parent width instead of shrinking to the label. */
+  fullWidth?: boolean
   /** Open in a new tab (external Fresha / absolute URLs). */
   external?: boolean
   target?: string
@@ -62,6 +64,7 @@ export function CTAButton({
   size = 'large',
   showArrow = false,
   className = '',
+  fullWidth = false,
   external = false,
   target,
   rel,
@@ -78,10 +81,14 @@ export function CTAButton({
     large: 'px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg',
   }
 
+  const layoutClass = fullWidth
+    ? 'flex w-full items-center justify-center'
+    : 'inline-flex items-center justify-center'
+
   const classes =
     variant === 'gold'
-      ? `inline-flex items-center justify-center ${goldBookingFillClassName} ${goldSizeClassName[size]} ${className}`
-      : `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-md ${className}`
+      ? `${layoutClass} ${goldBookingFillClassName} ${goldSizeClassName[size]} ${className}`
+      : `${variantClasses[variant]} ${sizeClasses[size]} rounded-full font-semibold transition-all duration-300 ${layoutClass} shadow-md ${className}`
   const isExternal = external || /^(https?:\/\/|tel:|mailto:)/i.test(href)
 
   if (isExternal) {

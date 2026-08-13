@@ -124,7 +124,7 @@ export default function BookingThankYouPage() {
             title={title}
             credit="Request received — we will confirm by email or phone."
             subtitle={subtitle}
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1B3B2B] mb-2 md:mb-3"
             creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
             subtitleClassName="text-base sm:text-lg text-[var(--text-dark)]/70 max-w-xl mx-auto leading-relaxed"
             className="text-center mb-4 sm:mb-5 lg:mb-6"
@@ -133,8 +133,8 @@ export default function BookingThankYouPage() {
           {ready && summary ? (
             <div className={`${glassGreenPanelClassName} p-3.5 sm:p-6`}>
               <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                <HeartHandshake className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                <h2 className="text-base font-semibold text-primary sm:text-lg">
+                <HeartHandshake className="h-5 w-5 shrink-0 text-[var(--text-dark)]" aria-hidden />
+                <h2 className="text-base font-semibold text-[var(--text-dark)] sm:text-lg">
                   Your booking confirmation
                 </h2>
               </div>
