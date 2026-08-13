@@ -89,17 +89,59 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
+          # Capture deployment URL so we can verify even if custom-domain SSL is still settling.
+          deploy_log=$(mktemp)
           npx wrangler@4 pages deploy out \
             --project-name=wellness-needles \
-            --commit-dirty=true
+            --commit-dirty=true | tee "$deploy_log"
+          deployment=$(grep -oE 'https://[a-zA-Z0-9.-]+\.pages\.dev' "$deploy_log" | tail -n 1 || true)
+          if [ -z "$deployment" ]; then
+            deployment="https://wellness-needles.pages.dev"
+          fi
+          echo "deployment=$deployment" >> "$GITHUB_OUTPUT"
           echo "url=https://www.wellnessneedles.ie" >> "$GITHUB_OUTPUT"
 
-      - name: Verify production site responds
+      - name: Verify Cloudflare deployment responds
         run: |
-          set -e
-          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 "https://www.wellnessneedles.ie/")
-          echo "HTTP $code → https://www.wellnessneedles.ie/"
+          set -euo pipefail
+          dep="${{ steps.deploy.outputs.deployment }}"
+          code="000"
+          for i in 1 2 3 4 5 6 7 8; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 "${dep}/" || true)
+            echo "Attempt $i: HTTP $code → ${dep}/"
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 5
+          done
           test "$code" = "200"
 
+          for path in bookings/ bookings/thank-you/ bookings/unable-to-process/; do
+            pcode=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${dep}/${path}")
+            echo "HTTP $pcode → ${dep}/${path}"
+            test "$pcode" = "200"
+          done
+
+      - name: Verify canonical www (best-effort with retries)
+        run: |
+          set -euo pipefail
+          code="000"
+          for i in 1 2 3 4 5 6 7 8; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 45 "https://www.wellnessneedles.ie/" || true)
+            echo "Attempt $i: HTTP $code → https://www.wellnessneedles.ie/"
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 8
+          done
+          if [ "$code" != "200" ]; then
+            echo "::warning::www.wellnessneedles.ie is not 200 yet (got $code). Deployment URL is healthy — check Cloudflare custom domain / SSL."
+          else
+            echo "Canonical www OK"
+          fi
+
       - name: Print production URL
-        run: echo "Production URL → https://www.wellnessneedles.ie"
+        run: |
+          echo "Cloudflare deployment → ${{ steps.deploy.outputs.deployment }}"
+          echo "Production URL → https://www.wellnessneedles.ie"
+          echo "Staging stays on → https://wellness-needles.vercel.app"

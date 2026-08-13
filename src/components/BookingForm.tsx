@@ -767,10 +767,10 @@ export default function BookingForm() {
       window.location.replace(unableUrl)
     }
 
-    let confirmationEmailQueued = false
+    let patientConfirmationEmailQueued = false
 
     if (features.bookingEmailEnabled) {
-      // Re-read so Admin saves / env fallback are always current at submit time
+      // Re-read so env fallback is always current at submit time
       const latestFeatures = readBookingFeatures()
       if (!isBookingEmailConfigured(latestFeatures)) {
         goToUnableToProcess(
@@ -816,14 +816,12 @@ export default function BookingForm() {
             )
             return
           }
-          // Clinic email sent (Web3Forms). Patient thank-you via Resend.
-          // Await briefly so the request starts; keepalive keeps it alive across thank-you navigation.
-          // Resend failure must not block thank-you (clinic already has the request).
-          confirmationEmailQueued = true
+          // Clinic email sent (Web3Forms). Patient thank-you via Resend when available
+          // (Cloudflare production). Staging/local skip Resend without blocking thank-you.
           const patientEmail = payload.email.trim()
           if (patientEmail) {
             try {
-              await sendPatientThankYouEmail({
+              const patientResult = await sendPatientThankYouEmail({
                 firstName: payload.firstName,
                 lastName: payload.lastName,
                 email: patientEmail,
@@ -834,6 +832,7 @@ export default function BookingForm() {
                 serviceType: payload.serviceType,
                 message: payload.message?.trim() || undefined,
               })
+              patientConfirmationEmailQueued = patientResult.ok
             } catch (error) {
               console.error('[booking submit] patient thank-you failed', error)
             }
@@ -847,7 +846,8 @@ export default function BookingForm() {
     saveBookingThankYouSummary({
       firstName: payload.firstName,
       lastName: payload.lastName,
-      email: confirmationEmailQueued ? payload.email : undefined,
+      // Only claim "email on its way" when Resend actually accepted the send.
+      email: patientConfirmationEmailQueued ? payload.email : undefined,
       serviceLabel: payload.serviceLabel,
       locationLabel: payload.locationLabel,
       date: payload.date,

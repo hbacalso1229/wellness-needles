@@ -62,11 +62,19 @@ Localhost skips the live Web3Forms send (hCaptcha unavailable) but still opens t
 
 ## Failure behaviour (locked)
 
+| Env | Host | Clinic Web3Forms | Patient Resend | Apology page |
+|-----|------|------------------|----------------|--------------|
+| Staging | `*.vercel.app` | Yes (staging key) | Skipped (no Pages Function) | Yes |
+| Production | `www.wellnessneedles.ie` | Yes (prod key) | `/api/booking-thank-you` | Yes |
+| Localhost | `localhost` | Skipped | Skipped | Yes (UI) |
+
+Thank-you page only shows “confirmation email is on its way” when Resend returns success (production).
+
 | Outcome | Site |
 |---------|------|
-| Web3Forms success | `/bookings/thank-you/` (+ Resend best-effort) |
+| Web3Forms success | `/bookings/thank-you/` (+ Resend on production) |
 | Web3Forms / clinic send **failure** | **`/bookings/unable-to-process/`** |
-| Resend fails after Web3Forms OK | Still thank-you (clinic has the request) |
+| Resend fails / skipped after Web3Forms OK | Still thank-you (clinic has the request) |
 
 ---
 
