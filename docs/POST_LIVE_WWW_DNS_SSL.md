@@ -43,18 +43,31 @@ wellnessneedles.ie         Pages custom domain (proxied A/AAAA via CF)
 
 **Run:** GitHub → Actions → **Ops — Fix www DNS** → Run workflow (`main`).
 
-Token needs **Zone → DNS → Edit** on `wellnessneedles.ie`. Redirect Rule creation may also need Zone Rulesets / Redirect permission; if API warns, add the rule once in Cloudflare UI.
+Token needs **Zone → DNS → Edit** on `wellnessneedles.ie`.
+
+**Redirect Rule — add once in Cloudflare UI** (ops API may warn if token lacks Zone Rulesets / Redirect):
+
+1. Cloudflare → domain `wellnessneedles.ie` → **Rules** → **Redirect Rules** → **Create rule**  
+2. Rule name: `Apex to www`  
+3. If… **Custom filter expression**: `(http.host eq "wellnessneedles.ie")`  
+4. Then… **Dynamic** redirect → `concat("https://www.wellnessneedles.ie", http.request.uri.path)`  
+5. Status **301**, preserve query string **On** → Deploy  
+
+Optional token add-on so ops can create this automatically: **Zone → Redirect → Edit** (or Rulesets Edit).
 
 ### 2. Azure (kill old host) — owner (required for permanent phone fix)
 
 While Azure still answers on the old IP, any phone with **stale DNS** keeps seeing the blue Azure 404 (Azure’s own page says this: “Client cache is still pointing the domain to old IP”).
+
+**Verified still true:** `https://www.wellnessneedles.ie` forced to `13.70.37.114` still returns Azure **404**.
 
 **Owner steps (Azure Portal):**
 
 1. Open the old **Static Web App** or **App Service** that used to host this site  
 2. **Custom domains** → remove `www.wellnessneedles.ie` and `wellnessneedles.ie`  
 3. If unused: **delete** or stop the app entirely  
-4. Do **not** re-add these hostnames to Azure
+4. Do **not** re-add these hostnames to Azure  
+5. Re-test: forcing the old IP should no longer serve a branded Azure “this domain” page (connection may fail or show a generic host)
 
 ### 3. Hosting Ireland — owner (nameservers only)
 
@@ -62,10 +75,12 @@ While Azure still answers on the old IP, any phone with **stale DNS** keeps seei
 2. Confirm only:
    - `anderson.ns.cloudflare.com`
    - `erin.ns.cloudflare.com`
-3. Do **not** recreate website A/CNAME records at Hosting Ireland  
-4. Keep mail at Cloudflare (Zoho MX/SPF/DKIM) — never move mail DNS back to Hosting Ireland casually
+3. If you still see `ns1.webhostingireland.ie` (etc.) in the **registrar** UI, change them to Cloudflare — otherwise some networks can keep hitting old Hosting Ireland / Azure paths  
+4. Do **not** recreate website A/CNAME records at Hosting Ireland  
+5. Keep mail at Cloudflare (Zoho MX/SPF/DKIM)
 
-**External check:** `dig NS wellnessneedles.ie` must return Cloudflare NS only.
+**Public check (2026-08-13):** Cloudflare DoH / Google DNS return NS `anderson` + `erin` only.  
+Local ISP caches may still show old Hosting Ireland NS until TTL expires — trust public resolvers + the registrar UI.
 
 ---
 

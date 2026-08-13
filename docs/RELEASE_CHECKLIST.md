@@ -8,7 +8,7 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 - [ ] Staging (`https://wellness-needles.vercel.app`) smoke: `/bookings/`, thank-you, unable-to-process
 - [ ] Staging test booking → Zoho `info@` (patient Resend only on Cloudflare Pages)
 - [ ] Merge `dev` → `main` (CI only — no live deploy)
-- [ ] Zone Redirect Rule: apex → www 301 (also covered by `public/_redirects`; ops workflow can create it)
+- [ ] Zone Redirect Rule: apex → www 301 — create in Cloudflare UI if ops warns (also covered by `public/_redirects`)
 
 ## Publish Release
 
