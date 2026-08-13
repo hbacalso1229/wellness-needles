@@ -269,11 +269,9 @@ export default function Bookings() {
                           </div>
                         ) : (
                           <p className="text-center text-sm text-red-700" role="alert">
-                            Fresha is enabled but the booking URL is missing or invalid. Set it in{' '}
-                            <a href="/admin" className="font-medium underline">
-                              Admin
-                            </a>
-                            .
+                            Fresha is enabled but the booking URL is missing or invalid. Update{' '}
+                            <code className="text-xs">contactConfig.fresha.bookingUrl</code> in{' '}
+                            <code className="text-xs">src/lib/contact-config.ts</code>.
                           </p>
                         )}
                       </div>

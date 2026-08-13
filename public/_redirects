@@ -1,0 +1,3 @@
+# Apex → www (Cloudflare Pages). Preserve path.
+https://wellnessneedles.ie/* https://www.wellnessneedles.ie/:splat 301
+http://wellnessneedles.ie/* https://www.wellnessneedles.ie/:splat 301

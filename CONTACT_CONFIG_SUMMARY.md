@@ -4,7 +4,7 @@
 
 Centralized location for contact details, business information, Calendly defaults, and feature flags — referenced throughout the app for consistency.
 
-Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recipient) live in browser localStorage via `/admin` and `src/lib/booking-features.ts`. Shared-deploy Web3Forms key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see [README](README.md#production-deployment)).
+Runtime booking overrides previously lived on `/admin` (removed). Defaults and URLs now come from `contact-config.ts`. Shared-deploy Web3Forms key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see [README](README.md#production-deployment) and [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md)).
 
 ## Files
 
@@ -30,7 +30,7 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - Emergency appointments note
 
 - **Fresha**:
-  - `fresha.bookingUrl` — public booking page (placeholder until set in Admin)
+  - `fresha.bookingUrl` — public booking page (set in `contact-config.ts`)
   - `features.freshaEnabled` — default `false`; when on, Book Now opens Fresha
 
 - **Calendly**:
@@ -38,9 +38,8 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
   - `calendly.followUpUrl` — Follow-up (45 min, 15-min starts)
   - `calendly.schedulingUrl` — fallback / packages default
   - `calendly.durations` — labels + minute constants
-  - Overridable on `/admin` when Calendly mode is on (Initial + Follow-up URLs)
 
-- **Feature flags** (defaults; booking modes overridable on `/admin`):
+- **Feature flags** (defaults in `contact-config.ts`):
 
 | Flag | Default | Effect |
 |------|---------|--------|
@@ -48,16 +47,16 @@ Runtime booking overrides (Calendly ↔ legacy form, Scheduling URL, email recip
 | `liveChatEnabled` | `false` | Chat not rendered |
 | `mapIntegrationEnabled` | `true` | Dual Google Maps on Contact |
 | `treatmentPackagesEnabled` | `false` | 5/10 session packages hidden |
-| `calendlyEnabled` | `true` | Calendly embed on `/bookings` |
-| `bookingFormEnabled` | `false` | Legacy stepper |
+| `calendlyEnabled` | `false` | Calendly embed on `/bookings` |
+| `bookingFormEnabled` | `true` | Legacy stepper (Phase 1 default) |
 | `freshaEnabled` | `false` | Fresha Book Now + bookings CTA |
 
-Fresha, Calendly, and legacy form are **mutually exclusive** in Admin.
+Fresha, Calendly, and legacy form should stay mutually exclusive in config.
 ### 2. Booking features (`src/lib/booking-features.ts`)
 
-- Reads/writes `wellness-needles-booking-features` in localStorage
 - Defaults from `contactConfig` + `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`
 - Env access key always wins; when set, booking email is forced on
+- Marketing `/admin` removed — modes follow `contact-config` defaults
 - `resolveCalendlyUrlForService()` picks Initial vs Follow-up Calendly URL from the selected service id
 - `getBookingCtaHref()` / Fresha flags for Book Now CTAs
 
@@ -71,7 +70,7 @@ Fresha, Calendly, and legacy form are **mutually exclusive** in Admin.
 
 ### 4. Consumers
 
-- Footer, Contact page, Bookings page, Admin (defaults), Header (nav only)
+- Footer, Contact page, Bookings page, Header (nav only)
 - Contact “Find Us” renders both maps when `mapIntegrationEnabled` is true
 
 ## Usage

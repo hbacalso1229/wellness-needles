@@ -1,7 +1,7 @@
 /**
- * Admin nav + /admin tooling — on for local `next dev` and builds from the `dev` branch;
- * off for `main` / production. Override with NEXT_PUBLIC_ADMIN_UI_ENABLED=true|false.
+ * Marketing /admin was removed for Phase 1 go-live.
+ * Booking modes come from contact-config defaults; Web3Forms key from env.
  */
 export function isAdminUiEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_ADMIN_UI_ENABLED === 'true'
+  return false
 }

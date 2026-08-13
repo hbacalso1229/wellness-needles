@@ -60,8 +60,8 @@ jobs:
 
       - name: Build static export for staging
         env:
-          # Admin nav + /admin tooling only on staging (dev branch)
-          NEXT_PUBLIC_ADMIN_UI_ENABLED: "true"
+          # Marketing /admin removed for Phase 1 — contact-config defaults + env Web3Forms key
+          NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
           # Baked into static client at build time (GitHub secret)
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
           VERCEL_GIT_COMMIT_REF: dev
