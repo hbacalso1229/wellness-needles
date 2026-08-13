@@ -38,6 +38,26 @@ type BookingStepperProps = {
   stepFocusId?: string
 }
 
+const PRIMARY_CTA_CLASS =
+  'inline-grid justify-items-center w-auto whitespace-nowrap bg-primary px-6 py-3 text-center text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97]'
+
+/** Step 1 has no Back link — centered on mobile, right-aligned from sm. */
+const PRIMARY_CTA_STEP1_CLASS = PRIMARY_CTA_CLASS
+
+/** Steps 2–4 sit beside Back — same padding, width follows Request appointment. */
+const PRIMARY_CTA_WITH_BACK_CLASS = `${PRIMARY_CTA_CLASS} ml-auto max-w-[calc(100%-4.75rem)]`
+
+function CtaLabel({ label, widthFrom }: { label: string; widthFrom: string }) {
+  return (
+    <>
+      <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden>
+        {widthFrom}
+      </span>
+      <span className="col-start-1 row-start-1 whitespace-nowrap">{label}</span>
+    </>
+  )
+}
+
 export default function BookingStepper({
   steps,
   currentStep,
@@ -237,18 +257,18 @@ export default function BookingStepper({
         {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
         <div className="sticky bottom-2 z-20 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
           {isFirst ? (
-            <div className="flex justify-center">
+            <div className="flex justify-center sm:justify-end">
               <button
                 type="button"
                 onClick={onNext}
                 disabled={isSubmitting || nextDisabled}
-                className={`min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14 ${
+                className={`${PRIMARY_CTA_STEP1_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                   continueJustEnabled
                     ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                     : ''
                 }`}
               >
-                {nextLabel}
+                <CtaLabel label={nextLabel} widthFrom={submitLabel} />
               </button>
             </div>
           ) : (
@@ -257,7 +277,7 @@ export default function BookingStepper({
                 type="button"
                 onClick={onBack}
                 disabled={isSubmitting}
-                className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-bold text-[var(--text-dark)] underline-offset-2 hover:text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
+                className="inline-flex min-h-11 shrink-0 items-center gap-1 px-1 text-sm font-bold text-[var(--text-dark)] underline-offset-2 hover:text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
               >
                 <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden strokeWidth={2.5} />
                 {backLabel}
@@ -267,22 +287,25 @@ export default function BookingStepper({
                   type="button"
                   onClick={onSubmit}
                   disabled={isSubmitting}
-                  className="min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14"
+                  className={`${PRIMARY_CTA_WITH_BACK_CLASS} disabled:cursor-not-allowed disabled:opacity-60`}
                 >
-                  {isSubmitting ? 'Sending…' : submitLabel}
+                  <CtaLabel
+                    label={isSubmitting ? 'Sending…' : submitLabel}
+                    widthFrom={submitLabel}
+                  />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={onNext}
                   disabled={isSubmitting || nextDisabled}
-                  className={`min-w-[15rem] bg-primary px-8 py-3 text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97] sm:min-w-[16rem] sm:px-14 ${
+                  className={`${PRIMARY_CTA_WITH_BACK_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
                     continueJustEnabled
                       ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                       : ''
                   }`}
                 >
-                  {nextLabel}
+                  <CtaLabel label={nextLabel} widthFrom={submitLabel} />
                 </button>
               )}
             </div>

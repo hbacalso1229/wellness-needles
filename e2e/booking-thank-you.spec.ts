@@ -16,6 +16,7 @@ test.describe('booking thank-you', () => {
     await expect(page).toHaveURL(/\/bookings\/thank-you\/?$/, { timeout: 15_000 })
     await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()
     await expect(page.getByText(/Your booking confirmation/i)).toBeVisible()
+    await expect(page.getByText(/^E2E Tester$/)).toBeVisible()
     await expect(page.getByText(/Initial Consultation/i).first()).toBeVisible()
 
     // Full-screen result: site chrome gone; in-page brand remains
@@ -29,5 +30,22 @@ test.describe('booking thank-you', () => {
 
     await page.getByRole('link', { name: /Back to bookings|Close and return to booking/i }).click()
     await expect(page).toHaveURL(/\/bookings\/?$/)
+  })
+})
+
+test.describe('booking thank-you (mobile)', () => {
+  test.use({ viewport: { width: 375, height: 667 } })
+
+  test('fills Full Name and shows the joined name on thank-you', async ({
+    page,
+  }) => {
+    await fillBookingRequestForm(page)
+
+    await expect(page.locator('#fullName')).toBeVisible()
+    await page.getByRole('button', { name: 'Request appointment' }).click()
+
+    await expect(page).toHaveURL(/\/bookings\/thank-you\/?$/, { timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()
+    await expect(page.getByText(/^E2E Tester$/)).toBeVisible()
   })
 })

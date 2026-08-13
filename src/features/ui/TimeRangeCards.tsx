@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Moon, Sun, type LucideIcon } from 'lucide-react'
+import { Check, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
 
 export type TimeRangeOption = {
   readonly id: string
@@ -16,7 +16,7 @@ export const TIME_RANGES: ReadonlyArray<TimeRangeOption> = [
     label: 'Morning',
     window: '9:00 AM – 12:00 PM',
     hint: 'Most popular',
-    icon: Sun,
+    icon: Sunrise,
   },
   {
     id: 'afternoon',
