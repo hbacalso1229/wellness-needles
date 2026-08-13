@@ -198,7 +198,7 @@ sequenceDiagram
 | `www` | CNAME → Pages (`wellness-needles.pages.dev`) — Active |
 | Apex | Attached to Pages — Active; **301 → www** (Single Redirect, Free plan) |
 
-> **Post-live (2026-08-13):** A leftover Azure `www` target caused site-wide load / `ERR_CERT_COMMON_NAME_INVALID`. See [POST_LIVE_WWW_DNS_SSL.md](./POST_LIVE_WWW_DNS_SSL.md). Ops: `Ops — Fix www DNS` (token needs **Zone → DNS → Edit**).
+> **Post-live (2026-08-13):** Phones typing `https://www.wellnessneedles.ie` still hit Azure via stale DNS → blue 404 / bad cert. Permanent fix: Cloudflare DNS lock + **decommission Azure custom domains** + Hosting Ireland **NS only**. See [POST_LIVE_WWW_DNS_SSL.md](./POST_LIVE_WWW_DNS_SSL.md). Ops: `Ops — Fix www DNS` (token needs **Zone → DNS → Edit**).
 | Resend `send.*` | Keep alongside Zoho — do **not** remove Zoho root MX |
 
 ### Apex → www redirect (Free — no extra cost)

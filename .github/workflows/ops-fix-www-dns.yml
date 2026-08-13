@@ -1,7 +1,11 @@
 name: Ops — Fix www DNS
 
-# Removes stale Azure A record for www and ensures Cloudflare Pages CNAME.
-# Uses existing CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID (needs Zone DNS Edit).
+# Permanent cutover helpers:
+# - Remove Azure leftover DNS for www/apex
+# - Ensure www CNAME → Pages (proxied)
+# - Ensure Pages custom domains
+# - Ensure apex → www 301 Redirect Rule (zone Single Redirect)
+# Needs CLOUDFLARE_API_TOKEN with Zone DNS Edit (+ Rulesets/Redirect if available).
 
 on:
   workflow_dispatch:
@@ -17,7 +21,7 @@ jobs:
       ZONE_NAME: wellnessneedles.ie
       WWW_TARGET: wellness-needles.pages.dev
     steps:
-      - name: Fix DNS records for www
+      - name: Fix DNS, Pages domains, apex→www redirect
         run: |
           set -euo pipefail
 
@@ -38,133 +42,93 @@ jobs:
             exit 1
           fi
           echo "Zone ID: $zone_id"
+          echo "ZONE_ID=$zone_id" >> "$GITHUB_ENV"
 
-          echo "Listing DNS records for www / ${ZONE_NAME}…"
-          records_json=$(curl -sS "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
-          echo "$records_json" | jq .
-          if [ "$(echo "$records_json" | jq -r '.success')" != "true" ]; then
-            echo "::error::DNS list failed. Token needs Zone → DNS → Edit on ${ZONE_NAME}."
-            exit 1
-          fi
-          echo "$records_json" | jq '.result[] | {id,type,name,content,proxied,ttl}'
+          azure_re='13\.70\.37\.114|azurestaticapps|azurewebsites|trafficmanager\.net|windows\.net'
 
-          echo "Scanning zone for Azure leftovers (13.70.37.114 / azurestaticapps / azurewebsites)…"
-          page=1
-          while true; do
-            page_json=$(curl -sS "${auth[@]}" \
-              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?page=${page}&per_page=100")
-            echo "$page_json" | jq -r '.result[] | select(
-              (.content|tostring|test("13\\.70\\.37\\.114|azurestaticapps|azurewebsites|trafficmanager|windows\\.net"; "i"))
-              or (.name|test("^www\\."))
-            ) | "\(.id) \(.type) \(.name) → \(.content) proxied=\(.proxied)"'
-            count=$(echo "$page_json" | jq '.result | length')
-            total_pages=$(echo "$page_json" | jq -r '.result_info.total_pages // 1')
-            if [ "$page" -ge "$total_pages" ] || [ "$count" = "0" ]; then
-              break
-            fi
-            page=$((page + 1))
-          done
-
-          # Delete any www A/AAAA (Azure leftovers). Proxied Pages uses CNAME only.
-          echo "$records_json" | jq -c '.result[]' | while read -r row; do
-            id=$(echo "$row" | jq -r '.id')
-            type=$(echo "$row" | jq -r '.type')
-            content=$(echo "$row" | jq -r '.content')
-            name=$(echo "$row" | jq -r '.name')
-
-            if [ "$type" = "A" ] || [ "$type" = "AAAA" ]; then
-              echo "Deleting stale ${type} ${name} → ${content} (${id})"
-              del=$(curl -sS -X DELETE "${auth[@]}" \
-                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
-              ok=$(echo "$del" | jq -r '.success')
-              if [ "$ok" != "true" ]; then
-                echo "::error::Failed to delete ${id}"
-                echo "$del" | jq .
-                exit 1
-              fi
-            fi
-
-            # Wrong CNAME target
-            if [ "$type" = "CNAME" ] && [ "$content" != "$WWW_TARGET" ] && [ "$content" != "${WWW_TARGET}." ]; then
-              echo "Deleting wrong CNAME ${name} → ${content} (${id})"
-              del=$(curl -sS -X DELETE "${auth[@]}" \
-                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
-              ok=$(echo "$del" | jq -r '.success')
-              if [ "$ok" != "true" ]; then
-                echo "::error::Failed to delete CNAME ${id}"
-                echo "$del" | jq .
-                exit 1
-              fi
-            fi
-          done
-
-          # Re-list after deletes
-          after=$(curl -sS "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
-          has_good_cname=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
-            '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))] | length')
-
-          if [ "$has_good_cname" = "0" ]; then
-            echo "Creating CNAME www → ${WWW_TARGET} (proxied)…"
-            create=$(curl -sS -X POST "${auth[@]}" \
-              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" \
-              --data "{\"type\":\"CNAME\",\"name\":\"www\",\"content\":\"${WWW_TARGET}\",\"ttl\":1,\"proxied\":true}")
-            ok=$(echo "$create" | jq -r '.success')
-            if [ "$ok" != "true" ]; then
-              echo "::error::Failed to create CNAME"
-              echo "$create" | jq .
+          delete_azure_and_bad_www() {
+            local name_filter="$1"
+            local records_json
+            records_json=$(curl -sS "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=${name_filter}")
+            if [ "$(echo "$records_json" | jq -r '.success')" != "true" ]; then
+              echo "::error::DNS list failed for ${name_filter}"
+              echo "$records_json" | jq .
               exit 1
             fi
-            echo "$create" | jq '.result | {id,type,name,content,proxied}'
-          else
-            echo "Good CNAME already present — ensuring proxied…"
-            cid=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
-              '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))][0].id')
-            proxied=$(echo "$after" | jq -r --arg id "$cid" \
-              '.result[] | select(.id==$id) | .proxied')
-            if [ "$proxied" != "true" ]; then
-              patch=$(curl -sS -X PATCH "${auth[@]}" \
-                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${cid}" \
-                --data '{"proxied":true}')
-              echo "$patch" | jq '.success, .result.proxied'
-            fi
-          fi
+            echo "Records for ${name_filter}:"
+            echo "$records_json" | jq '.result[] | {id,type,name,content,proxied,ttl}'
 
-          echo "Ensuring Pages custom domain www.${ZONE_NAME}…"
-          # List existing domains on project
-          domains=$(curl -sS "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains")
-          echo "$domains" | jq '.result[]? | {name,status,verification_data}' || echo "$domains" | jq .
+            echo "$records_json" | jq -c '.result[]' | while read -r row; do
+              [ -z "$row" ] && continue
+              id=$(echo "$row" | jq -r '.id')
+              type=$(echo "$row" | jq -r '.type')
+              content=$(echo "$row" | jq -r '.content')
+              name=$(echo "$row" | jq -r '.name')
 
-          has_www=$(echo "$domains" | jq -r --arg d "www.${ZONE_NAME}" \
-            '[.result[]? | select(.name==$d)] | length')
-          if [ "$has_www" = "0" ]; then
-            add=$(curl -sS -X POST "${auth[@]}" \
-              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains" \
-              --data "{\"name\":\"www.${ZONE_NAME}\"}")
-            echo "$add" | jq .
-          else
-            echo "Pages custom domain www already attached."
-          fi
+              # Never delete apex A/AAAA that Cloudflare Pages uses when proxied
+              # unless content matches Azure leftovers.
+              if echo "$content" | grep -Eiq "$azure_re"; then
+                echo "Deleting Azure leftover ${type} ${name} → ${content} (${id})"
+                del=$(curl -sS -X DELETE "${auth[@]}" \
+                  "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+                ok=$(echo "$del" | jq -r '.success')
+                if [ "$ok" != "true" ]; then
+                  echo "::error::Failed to delete ${id}"
+                  echo "$del" | jq .
+                  exit 1
+                fi
+                continue
+              fi
 
-          echo "Deleting ANY zone records still pointing at Azure…"
+              # www must be CNAME to Pages only — delete stray A/AAAA / wrong CNAME
+              if [ "$name_filter" = "www.${ZONE_NAME}" ]; then
+                if [ "$type" = "A" ] || [ "$type" = "AAAA" ]; then
+                  echo "Deleting non-CNAME www ${type} ${name} → ${content} (${id})"
+                  del=$(curl -sS -X DELETE "${auth[@]}" \
+                    "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+                  ok=$(echo "$del" | jq -r '.success')
+                  if [ "$ok" != "true" ]; then
+                    echo "::error::Failed to delete ${id}"
+                    echo "$del" | jq .
+                    exit 1
+                  fi
+                fi
+                if [ "$type" = "CNAME" ] && [ "$content" != "$WWW_TARGET" ] && [ "$content" != "${WWW_TARGET}." ]; then
+                  echo "Deleting wrong www CNAME ${name} → ${content} (${id})"
+                  del=$(curl -sS -X DELETE "${auth[@]}" \
+                    "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+                  ok=$(echo "$del" | jq -r '.success')
+                  if [ "$ok" != "true" ]; then
+                    echo "::error::Failed to delete CNAME ${id}"
+                    echo "$del" | jq .
+                    exit 1
+                  fi
+                fi
+              fi
+            done
+          }
+
+          delete_azure_and_bad_www "www.${ZONE_NAME}"
+          delete_azure_and_bad_www "${ZONE_NAME}"
+
+          echo "Zone-wide Azure leftover scan/delete…"
           page=1
           while true; do
             page_json=$(curl -sS "${auth[@]}" \
               "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?page=${page}&per_page=100")
-            echo "$page_json" | jq -c '.result[] | select(
-              (.content|tostring|test("13\\.70\\.37\\.114|azurestaticapps|azurewebsites|trafficmanager\\.net|windows\\.net"; "i"))
-            )' | while read -r row; do
+            echo "$page_json" | jq -c --arg re "$azure_re" '
+              .result[] | select(.content|tostring|test($re; "i"))
+            ' | while read -r row; do
               [ -z "$row" ] && continue
               id=$(echo "$row" | jq -r '.id')
               type=$(echo "$row" | jq -r '.type')
               name=$(echo "$row" | jq -r '.name')
               content=$(echo "$row" | jq -r '.content')
               echo "Deleting Azure leftover ${type} ${name} → ${content} (${id})"
-              del=$(curl -sS -X DELETE "${auth[@]}" \
-                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
-              echo "$del" | jq -r '.success'
+              curl -sS -X DELETE "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}" \
+                | jq -r '.success'
             done
             count=$(echo "$page_json" | jq '.result | length')
             total_pages=$(echo "$page_json" | jq -r '.result_info.total_pages // 1')
@@ -174,38 +138,155 @@ jobs:
             page=$((page + 1))
           done
 
-          echo "SSL mode (prefer full_strict for Pages)…"
-          ssl_get=$(curl -sS "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/ssl")
-          echo "$ssl_get" | jq '.result.value // .errors'
-          curl -sS -X PATCH "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/ssl" \
-            --data '{"value":"full"}' | jq '.success, .result.value // .errors'
+          echo "Ensuring www CNAME → ${WWW_TARGET} (proxied)…"
+          after=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
+          has_good_cname=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
+            '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))] | length')
 
-          echo "Always Use HTTPS…"
-          curl -sS -X PATCH "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/always_use_https" \
-            --data '{"value":"on"}' | jq '.success, .result.value // .errors'
+          if [ "$has_good_cname" = "0" ]; then
+            create=$(curl -sS -X POST "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" \
+              --data "{\"type\":\"CNAME\",\"name\":\"www\",\"content\":\"${WWW_TARGET}\",\"ttl\":1,\"proxied\":true}")
+            ok=$(echo "$create" | jq -r '.success')
+            if [ "$ok" != "true" ]; then
+              echo "::error::Failed to create www CNAME"
+              echo "$create" | jq .
+              exit 1
+            fi
+            echo "$create" | jq '.result | {id,type,name,content,proxied}'
+          else
+            cid=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
+              '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))][0].id')
+            proxied=$(echo "$after" | jq -r --arg id "$cid" '.result[] | select(.id==$id) | .proxied')
+            if [ "$proxied" != "true" ]; then
+              curl -sS -X PATCH "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${cid}" \
+                --data '{"proxied":true}' | jq '.success, .result.proxied'
+            else
+              echo "Good proxied www CNAME already present."
+            fi
+          fi
 
-          echo "Purge Cloudflare cache for www…"
-          curl -sS -X POST "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" \
-            --data '{"hosts":["www.wellnessneedles.ie","wellnessneedles.ie"]}' \
-            | jq '.success // .errors'
+          echo "Ensuring Pages custom domains (www + apex)…"
+          domains=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains")
+          echo "$domains" | jq '.result[]? | {name,status}' || echo "$domains" | jq .
+
+          for d in "www.${ZONE_NAME}" "${ZONE_NAME}"; do
+            has=$(echo "$domains" | jq -r --arg d "$d" '[.result[]? | select(.name==$d)] | length')
+            if [ "$has" = "0" ]; then
+              echo "Adding Pages domain ${d}…"
+              curl -sS -X POST "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains" \
+                --data "{\"name\":\"${d}\"}" | jq .
+            else
+              echo "Pages domain ${d} already attached."
+            fi
+          done
+
+          echo "Ensuring apex → www 301 Redirect Rule…"
+          # Dynamic Redirect phase entrypoint (Single Redirects)
+          entry=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/rulesets/phases/http_request_dynamic_redirect/entrypoint")
+          echo "$entry" | jq '{success, errors, result_id: .result.id, rule_count: (.result.rules|length)}'
+
+          if [ "$(echo "$entry" | jq -r '.success')" = "true" ]; then
+            ruleset_id=$(echo "$entry" | jq -r '.result.id')
+            has_rule=$(echo "$entry" | jq -r '
+              [.result.rules[]?
+                | select(.action=="redirect")
+                | select(.expression|test("wellnessneedles\\.ie"))
+                | select(.action_parameters.from_value.target_url.expression
+                    // .action_parameters.from_value.target_url.value // ""
+                    | test("www\\.wellnessneedles\\.ie"))]
+              | length')
+
+            if [ "$has_rule" = "0" ]; then
+              # Merge existing rules + new apex→www rule
+              new_rules=$(echo "$entry" | jq -c --arg zone "$ZONE_NAME" '
+                (.result.rules // []) + [{
+                  "ref": "apex_to_www_permanent",
+                  "description": "Apex to www 301 (permanent cutover)",
+                  "expression": "(http.host eq \"\($zone)\")",
+                  "action": "redirect",
+                  "action_parameters": {
+                    "from_value": {
+                      "status_code": 301,
+                      "target_url": {
+                        "expression": "concat(\"https://www.\($zone)\", http.request.uri.path)"
+                      },
+                      "preserve_query_string": true
+                    }
+                  }
+                }]')
+              put=$(curl -sS -X PUT "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/rulesets/${ruleset_id}" \
+                --data "$(jq -n --argjson rules "$new_rules" '{rules: $rules}')")
+              echo "$put" | jq '{success, errors, rule_count: (.result.rules|length)}'
+              if [ "$(echo "$put" | jq -r '.success')" != "true" ]; then
+                echo "::warning::Could not create Redirect Rule via API (token may lack Zone Rulesets / Redirect). Add manually in Cloudflare → Rules → Redirect Rules."
+              fi
+            else
+              echo "Apex → www redirect rule already present."
+            fi
+          else
+            # Entrypoint may not exist yet — create ruleset
+            create_rs=$(curl -sS -X PUT "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/rulesets/phases/http_request_dynamic_redirect/entrypoint" \
+              --data "$(jq -n --arg zone "$ZONE_NAME" '{
+                rules: [{
+                  "ref": "apex_to_www_permanent",
+                  "description": "Apex to www 301 (permanent cutover)",
+                  "expression": "(http.host eq \"\($zone)\")",
+                  "action": "redirect",
+                  "action_parameters": {
+                    "from_value": {
+                      "status_code": 301,
+                      "target_url": {
+                        "expression": "concat(\"https://www.\($zone)\", http.request.uri.path)"
+                      },
+                      "preserve_query_string": true
+                    }
+                  }
+                }]
+              }')")
+            echo "$create_rs" | jq '{success, errors, rule_count: (.result.rules|length)}'
+            if [ "$(echo "$create_rs" | jq -r '.success')" != "true" ]; then
+              echo "::warning::Could not create Redirect Rule via API. Add manually: Match https://wellnessneedles.ie/* → 301 https://www.wellnessneedles.ie/\${1}"
+            fi
+          fi
 
           echo "Final www records:"
           curl -sS "${auth[@]}" \
             "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}" \
             | jq '.result[] | {type,name,content,proxied}'
 
-      - name: Public DNS check (best-effort)
+          echo "Final apex records:"
+          curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=${ZONE_NAME}" \
+            | jq '.result[] | select(.type=="A" or .type=="AAAA" or .type=="CNAME") | {type,name,content,proxied}'
+
+      - name: Public DNS + HTTPS checks
         run: |
           set +e
-          echo "dig www (may lag while TTL expires):"
+          echo "NS (must be Cloudflare):"
+          dig +short NS wellnessneedles.ie || true
+          echo "www A:"
           dig +short www.wellnessneedles.ie A || true
-          dig +short www.wellnessneedles.ie CNAME || true
-          echo "HTTP probes (TLS verified):"
-          curl -4 -sS -o /dev/null -w "www ipv4 %{http_code} %{remote_ip}\n" "https://www.wellnessneedles.ie/" || true
-          curl -sS -o /dev/null -w "pages %{http_code}\n" "https://wellness-needles.pages.dev/" || true
+          echo "apex A:"
+          dig +short wellnessneedles.ie A || true
+          echo "HTTP:"
+          curl -4 -sS -o /dev/null -w "www %{http_code} %{remote_ip}\n" "https://www.wellnessneedles.ie/" || true
+          curl -4 -sS -o /dev/null -w "apex %{http_code} redirect=%{redirect_url} %{remote_ip}\n" "https://wellnessneedles.ie/" || true
           echo | openssl s_client -connect www.wellnessneedles.ie:443 -servername www.wellnessneedles.ie 2>/dev/null \
-            | openssl x509 -noout -subject -issuer || true
+            | openssl x509 -noout -subject || true
+          # Fail job if www still looks like Azure from public DNS
+          if dig +short www.wellnessneedles.ie A | grep -q '13.70.37.114'; then
+            echo "::error::www still resolves to Azure 13.70.37.114"
+            exit 1
+          fi
+          if dig +short wellnessneedles.ie A | grep -q '13.70.37.114'; then
+            echo "::error::apex still resolves to Azure 13.70.37.114"
+            exit 1
+          fi

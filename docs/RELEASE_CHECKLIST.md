@@ -8,7 +8,7 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 - [ ] Staging (`https://wellness-needles.vercel.app`) smoke: `/bookings/`, thank-you, unable-to-process
 - [ ] Staging test booking → Zoho `info@` (patient Resend only on Cloudflare Pages)
 - [ ] Merge `dev` → `main` (CI only — no live deploy)
-- [ ] Optional zone Redirect Rule: apex → www 301 (also covered by `public/_redirects`)
+- [ ] Zone Redirect Rule: apex → www 301 (also covered by `public/_redirects`; ops workflow can create it)
 
 ## Publish Release
 
@@ -21,6 +21,8 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 
 - [ ] `https://www.wellnessneedles.ie/` returns 200
 - [ ] `https://wellnessneedles.ie/` → 301 → www
+- [ ] `dig A www.wellnessneedles.ie` / apex → **Cloudflare IPs only** (never `13.70.37.114`)
+- [ ] `dig NS wellnessneedles.ie` → `anderson` / `erin` (Cloudflare) only
 - [ ] Booking success → clinic email in Zoho + patient email From `info@` (Resend) + thank-you page
 - [ ] Forced/failed Web3Forms → `/bookings/unable-to-process/`
 - [ ] `/admin/` not present (404)
@@ -28,6 +30,16 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 
 Canonical: `https://www.wellnessneedles.ie`
 
+## Permanent cutover (post Azure → Cloudflare)
+
+Do once after go-live; re-check if phones still see Azure 404:
+
+- [ ] Cloudflare: no Azure leftovers for `www` / apex; www CNAME → `wellness-needles.pages.dev` proxied  
+      (or run **Ops — Fix www DNS**)
+- [ ] Azure Portal: remove custom domains `www.wellnessneedles.ie` + `wellnessneedles.ie` (or delete old app)
+- [ ] Hosting Ireland: nameservers stay Cloudflare only — **do not** edit website DNS records there
+- [ ] Phone check: Incognito / airplane toggle → `https://www.wellnessneedles.ie` loads live site
+
 ## Post-live incidents
 
-- [POST_LIVE_WWW_DNS_SSL.md](./POST_LIVE_WWW_DNS_SSL.md) — www still pointed at Azure → cert / load failures (2026-08-13)
+- [POST_LIVE_WWW_DNS_SSL.md](./POST_LIVE_WWW_DNS_SSL.md) — www/phone still hit Azure via stale DNS → 404 / cert errors (2026-08-13)
