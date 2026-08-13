@@ -260,7 +260,7 @@ Sections (in order):
 4. When **Fresha** is on: pricing + **Book on Fresha** button; site-wide Book Now CTAs open the Fresha URL.
 5. When all scheduling modes are off: call / contact CTA only.
 6. Mode + URLs + email settings: `/admin` (browser localStorage). Defaults from `contact-config.ts`.
-7. Legacy form email: Web3Forms when email is configured — preferred via `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` on shared deploys. See `BOOKING_EMAIL_INTEGRATION.md` and README deployment section.
+7. Legacy form email: staging Web3Forms + hCaptcha; production Turnstile + `/api/booking-request`. See `BOOKING_EMAIL_INTEGRATION.md`.
 
 ### `/admin`
 1. Active mode banner (Fresha | Calendly | Legacy form | all off)
@@ -301,7 +301,7 @@ Step 4: Your details
   └── Personal info + health info (Irish phone + email validation)
 
 Submit → toast (+ console.log)
-  └── If email configured → POST Web3Forms (send-booking-email.ts)
+  └── If email configured → captcha then clinic send (hCaptcha/Web3Forms on staging; Turnstile Function on production)
   └── Form resets after successful submit
 ```
 

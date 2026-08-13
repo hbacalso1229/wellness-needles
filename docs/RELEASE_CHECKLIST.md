@@ -5,8 +5,9 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 ## Pre-flight
 
 - [ ] Changes committed and pushed on `dev`
-- [ ] Staging (`https://wellness-needles.vercel.app`) smoke: `/bookings/`, thank-you, unable-to-process
+- [ ] Staging (`https://wellness-needles.vercel.app`) smoke: `/bookings/` still shows hCaptcha checkbox; thank-you; unable-to-process
 - [ ] Staging test booking → Zoho `info@` (patient Resend only on Cloudflare Pages)
+- [ ] Pages Production secrets: `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `WEB3FORMS_ACCESS_KEY`
 - [ ] Merge `dev` → `main` (CI only — no live deploy)
 - [ ] Zone Redirect Rule: apex → www 301 — create in Cloudflare UI if ops warns (also covered by `public/_redirects`)
 
@@ -23,7 +24,9 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 - [ ] `https://wellnessneedles.ie/` → 301 → www
 - [ ] `dig A www.wellnessneedles.ie` / apex → **Cloudflare IPs only** (never `13.70.37.114`)
 - [ ] `dig NS wellnessneedles.ie` → `anderson` / `erin` (Cloudflare) only
-- [ ] Booking success → clinic email in Zoho + patient email From `info@` (Resend) + thank-you page
+- [ ] Booking success on **www** → Turnstile badge (no checkbox) → clinic email in Zoho + patient email From `info@` (Resend) + thank-you page
+- [ ] Staging still requires the hCaptcha checkbox
+- [ ] Production Web3Forms form: hCaptcha **OFF**, Autoresponder **OFF**
 - [ ] Forced/failed Web3Forms → `/bookings/unable-to-process/`
 - [ ] `/admin/` not present (404)
 - [ ] Normal mail to `info@` still works (Zoho MX)

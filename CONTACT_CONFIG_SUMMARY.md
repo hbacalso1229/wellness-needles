@@ -4,7 +4,7 @@
 
 Centralized location for contact details, business information, Calendly defaults, and feature flags — referenced throughout the app for consistency.
 
-Runtime booking overrides previously lived on `/admin` (removed). Defaults and URLs now come from `contact-config.ts`. Shared-deploy Web3Forms key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see [README](README.md#production-deployment) and [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md)).
+Runtime booking overrides previously lived on `/admin` (removed). Defaults and URLs now come from `contact-config.ts`. Captcha is env (`NEXT_PUBLIC_CAPTCHA_PROVIDER`), not contact-config. Shared-deploy staging Web3Forms key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see [README](README.md#production-deployment) and [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md)).
 
 ## Files
 

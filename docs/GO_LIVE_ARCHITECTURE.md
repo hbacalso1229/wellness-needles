@@ -33,6 +33,9 @@ flowchart TB
   subgraph cloudflare [Cloudflare]
     DNS[DNS_Zone]
     Pages[Cloudflare_Pages]
+    TS[Turnstile]
+    FnBook[api_booking_request]
+    FnThanks[api_booking_thank_you]
   end
 
   subgraph mail [Mail]
@@ -41,23 +44,36 @@ flowchart TB
   end
 
   subgraph forms [Forms]
-    W3[Web3Forms_prod]
+    W3prod[Web3Forms_prod]
+    W3stage[Web3Forms_staging]
   end
 
   subgraph ci [CI]
     GH[GitHub_Release]
+    Dev[Push_dev]
+  end
+
+  subgraph stagingHost [Staging]
+    Vercel[Vercel_preview]
   end
 
   HI -->|nameservers| DNS
-  GH -->|deploy_out| Pages
+  GH -->|deploy_out_plus_functions| Pages
   DNS --> Pages
   DNS -->|MX_SPF_DKIM| Zoho
   DNS -->|send_subdomain| Resend
   Pages -->|hosts| Site[www.wellnessneedles.ie]
-  Site -->|booking_POST| W3
-  W3 -->|To_info| Zoho
-  Site -->|thank_you_HTML| Resend
+  Site --> TS
+  Site -->|POST_token_plus_payload| FnBook
+  FnBook -->|siteverify| TS
+  FnBook -->|clinic_email_server_key| W3prod
+  W3prod -->|To_info| Zoho
+  Site -->|POST_after_clinic_ok| FnThanks
+  FnThanks --> Resend
   Resend -->|From_info| Patient[Patient_inbox]
+  Dev --> Vercel
+  Vercel -->|POST_hCaptcha_checkbox| W3stage
+  W3stage -->|To_info| Zoho
 ```
 
 ### Who owns what
@@ -67,8 +83,12 @@ flowchart TB
 | Hosting Ireland | Domain registrar only |
 | Cloudflare DNS | Apex, www, Zoho mail records, Resend send records |
 | Cloudflare Pages | Static Next.js `out/` host — project `wellness-needles` |
+| Cloudflare Turnstile | Production bot check (Non-interactive widget `booking-form`) |
+| Pages Function `/api/booking-request` | Production: siteverify + clinic Web3Forms |
+| Pages Function `/api/booking-thank-you` | Production: Resend patient thank-you |
 | Zoho Mail | Inbound `info@wellnessneedles.ie` |
-| Web3Forms | Clinic booking notification only (Autoresponder **OFF**) |
+| Web3Forms (production) | Clinic booking notification; **hCaptcha OFF** after Turnstile cutover; Autoresponder **OFF** |
+| Web3Forms (staging) | Clinic booking from Vercel; **hCaptcha ON**; Autoresponder **OFF** |
 | Resend | Patient thank-you From `info@` |
 | GitHub Actions | Staging → Vercel on `dev`; Prod → CF Pages on **Release** |
 
@@ -102,15 +122,9 @@ flowchart LR
 | Merge `main` | CI only — **no** live deploy |
 | **Publish GitHub Release** | Production deploy to Cloudflare Pages |
 
-**Current repo (must change for prod):** [`.github/workflows/deploy-production.yml`](C:/src/Test/wellness-needles/.github/workflows/deploy-production.yml) still uses `workflow_run` on `main` → **Vercel**. Target:
+Production Release already uses `on: release: types: [published]` and `wrangler pages deploy`. Do **not** connect Cloudflare “GitHub auto-deploy” (fights the release-only gate).
 
-```yaml
-on:
-  release:
-    types: [published]
-```
-
-Prefer **Direct Upload / GHA** (`wrangler pages deploy`) — do **not** connect Cloudflare “GitHub auto-deploy” (fights release-only gate).
+Staging build: `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release: `turnstile` + public Turnstile sitekey.
 
 ### Dev-first engineering rule (LOCKED)
 
@@ -123,23 +137,51 @@ Prefer **Direct Upload / GHA** (`wrangler pages deploy`) — do **not** connect 
 
 ## 4. Booking UX & email design
 
-### Happy path
+### Happy path (production)
 
 ```mermaid
 sequenceDiagram
   participant P as Patient
   participant S as Bookings_page
-  participant W as Web3Forms
+  participant TS as Turnstile
+  participant Fn as bookingRequestFn
+  participant W as Web3Forms_prod
   participant Z as Zoho_info
   participant R as Resend
-  P->>S: Submit + hCaptcha
-  S->>W: Booking payload
+  P->>S: Submit no checkbox
+  S->>TS: NonInteractive badge
+  TS-->>S: Token
+  S->>Fn: POST /api/booking-request
+  Fn->>TS: siteverify secret
+  TS-->>Fn: success
+  Fn->>W: Clinic payload
   W->>Z: To info@
-  W-->>S: ok
-  S->>R: HTML thank-you From info@
-  R->>P: Email ≈ thank-you page
+  W-->>Fn: ok
+  Fn-->>S: ok
+  S->>R: POST /api/booking-thank-you
+  R->>P: Email
   S->>P: Navigate /bookings/thank-you/
 ```
+
+### Happy path (staging)
+
+```mermaid
+sequenceDiagram
+  participant P as Patient
+  participant S as Staging_bookings
+  participant H as hCaptcha
+  participant W as Web3Forms_staging
+  participant Z as Zoho_info
+  P->>S: Submit plus checkbox
+  S->>H: Tap
+  H-->>S: Token
+  S->>W: Payload plus h-captcha-response
+  W->>Z: To info@
+  W-->>S: ok
+  S->>P: Navigate /bookings/thank-you/
+```
+
+Staging skips Resend (no Pages Function on Vercel).
 
 ### Failure path (LOCKED — apology page)
 
@@ -147,19 +189,19 @@ sequenceDiagram
 sequenceDiagram
   participant P as Patient
   participant S as Bookings_page
-  participant W as Web3Forms
-  P->>S: Submit + hCaptcha
-  S->>W: Booking payload
-  W-->>S: error_or_missing_key_or_captcha_block
+  participant Fn as ClinicSend
+  P->>S: Submit
+  S->>Fn: Clinic booking send
+  Fn-->>S: error_or_missing_key_or_captcha_block
   S->>P: Navigate /bookings/unable-to-process/
 ```
 
 | Outcome | Site page | Clinic email | Patient email |
 |---------|-----------|--------------|---------------|
-| Web3Forms **success** | `/bookings/thank-you/` | Yes → `info@` | Resend ≈ thank-you page |
-| Web3Forms **failure** / not configured / send error | **`/bookings/unable-to-process/`** | No | No |
-| Captcha incomplete | Stay on form (inline error) | No | No |
-| Resend fails **after** Web3Forms OK | Still `/bookings/thank-you/` (clinic has request) | Yes | Retry/log; do not show apology |
+| Clinic send **success** | `/bookings/thank-you/` | Yes → `info@` | Resend ≈ thank-you page (production only) |
+| Clinic send **failure** / not configured | **`/bookings/unable-to-process/`** | No | No |
+| Captcha incomplete (Turnstile token / hCaptcha tick) | Stay on form (inline error) | No | No |
+| Resend fails **after** clinic OK | Still `/bookings/thank-you/` (clinic has request) | Yes | Retry/log; do not show apology |
 
 **Apology page:** `src/app/bookings/unable-to-process/page.tsx`  
 **Submit helper:** `goToUnableToProcess()` in `src/components/BookingForm.tsx`
@@ -174,7 +216,7 @@ sequenceDiagram
 | Redirect | `https://www.wellnessneedles.ie/bookings/thank-you/` |
 | Recipient | `info@wellnessneedles.ie` |
 | Subject | `New booking request — Wellness Needles` |
-| hCaptcha | On |
+| hCaptcha | **Off** (Turnstile verified in `/api/booking-request`) |
 | Autoresponder | **OFF** |
 
 ### Patient email (Resend)
@@ -216,12 +258,14 @@ sequenceDiagram
 
 | Secret | Purpose | Status |
 |--------|---------|--------|
-| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Prod Web3Forms | **Done** |
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Prod Web3Forms UUID (hCaptcha rollback) | **Done** |
 | `CLOUDFLARE_ACCOUNT_ID` | CF deploy | **Done** |
 | `CLOUDFLARE_API_TOKEN` | CF deploy | **Done** |
-| `RESEND_API_KEY` | Patient thank-you | **Done** |
+| `RESEND_API_KEY` | Pages: patient thank-you | **Done** |
+| `TURNSTILE_SECRET_KEY` | Pages: Turnstile siteverify | **Done** |
+| `WEB3FORMS_ACCESS_KEY` | Pages: clinic send from Function | Add before Release |
 
-Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`
+Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`. Staging build sets `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release sets `turnstile` + public Turnstile sitekey.
 
 ---
 
@@ -233,7 +277,7 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`
 - [x] Zoho `info@` + MX/SPF/DKIM
 - [x] Pages project `wellness-needles`
 - [x] Custom domains: **www** Active + **apex** Active
-- [x] Prod Web3Forms (To `info@`, hCaptcha on, Autoresponder off)
+- [x] Prod Web3Forms (To `info@`, Autoresponder off; **hCaptcha off after Turnstile Function**)
 - [x] GitHub secrets: Web3Forms prod, Cloudflare ID/token, Resend API key
 - [x] Resend account + domain verified
 
@@ -253,6 +297,8 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`
 - [x] Remove `/admin` + Admin nav; update docs/e2e as needed
 - [x] Resend thank-you ≈ page From `info@` (Pages Function; key not in browser)
 - [x] Keep / verify apology path on Web3Forms failure
+- [ ] Pages Production secret `WEB3FORMS_ACCESS_KEY` (same value as prod Web3Forms UUID)
+- [ ] After Release: production Web3Forms hCaptcha **OFF** (staging form stays ON)
 - [ ] Verify on Vercel staging from `dev` (**after push** — local e2e passed)
 - [ ] Merge → publish first Release → QA on `https://www.wellnessneedles.ie`
 
@@ -270,10 +316,11 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`
 2. Merge to `main` does **not** change live site  
 3. Publishing `vX.Y.Z` updates `https://www.wellnessneedles.ie`  
 4. Apex redirects to www  
-5. Successful booking → clinic email at `info@` + patient email From `info@` ≈ thank-you page + site thank-you page  
-6. Failed Web3Forms send → **apology** `/bookings/unable-to-process/`  
-7. No `/admin` on production  
-8. `info@` still receives normal mail (Zoho intact)  
+5. Successful **www** booking → Turnstile badge (no tap) → clinic email at `info@` + patient email From `info@` + site thank-you page  
+6. Successful **staging** booking → hCaptcha checkbox still required → clinic email; no Resend  
+7. Failed clinic send → **apology** `/bookings/unable-to-process/`  
+8. No `/admin` on production  
+9. `info@` still receives normal mail (Zoho intact)  
 
 ---
 
@@ -282,6 +329,8 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`
 | Item | Notes |
 |------|--------|
 | Cloudflare Pages + DNS | Free tier for this site |
+| Cloudflare Turnstile | Free (Non-interactive widget) |
+| Pages Functions | Free Workers quota (booking-request + thank-you) |
 | Single Redirect (apex→www) | Free (10 rules/zone; need 1) |
 | Vercel staging | Existing staging on `dev` |
 | Resend | Free tier sufficient for thank-yous |

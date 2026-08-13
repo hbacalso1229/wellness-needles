@@ -57,6 +57,8 @@ jobs:
       - name: Build static export for production
         env:
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
+          NEXT_PUBLIC_CAPTCHA_PROVIDER: turnstile
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAEPCqhDUf9aLTuLx"
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION }}
         run: npx next build
 
@@ -68,9 +70,10 @@ jobs:
           test -f out/_redirects
           test ! -d out/admin
           test -f functions/api/booking-thank-you.ts
+          test -f functions/api/booking-request.ts
 
-      # RESEND_API_KEY must already exist on the Pages project (Production):
-      # Workers & Pages → wellness-needles → Settings → Variables and Secrets → Encrypt RESEND_API_KEY
+      # Pages Production secrets (Settings → Variables and secrets):
+      #   RESEND_API_KEY, TURNSTILE_SECRET_KEY, WEB3FORMS_ACCESS_KEY
       # (Avoids wrangler pages secret put, which needs extra User Memberships permissions.)
 
       - name: Prefight Cloudflare auth (Pages)
