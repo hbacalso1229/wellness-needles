@@ -42,9 +42,31 @@ jobs:
           echo "Listing DNS records for www / ${ZONE_NAME}…"
           records_json=$(curl -sS "${auth[@]}" \
             "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
+          echo "$records_json" | jq .
+          if [ "$(echo "$records_json" | jq -r '.success')" != "true" ]; then
+            echo "::error::DNS list failed. Token needs Zone → DNS → Edit on ${ZONE_NAME}."
+            exit 1
+          fi
           echo "$records_json" | jq '.result[] | {id,type,name,content,proxied,ttl}'
 
-          # Delete any www A/AAAA that are NOT Cloudflare Pages (esp. Azure 13.70.37.114)
+          echo "Scanning zone for Azure leftovers (13.70.37.114 / azurestaticapps / azurewebsites)…"
+          page=1
+          while true; do
+            page_json=$(curl -sS "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?page=${page}&per_page=100")
+            echo "$page_json" | jq -r '.result[] | select(
+              (.content|tostring|test("13\\.70\\.37\\.114|azurestaticapps|azurewebsites|trafficmanager|windows\\.net"; "i"))
+              or (.name|test("^www\\."))
+            ) | "\(.id) \(.type) \(.name) → \(.content) proxied=\(.proxied)"'
+            count=$(echo "$page_json" | jq '.result | length')
+            total_pages=$(echo "$page_json" | jq -r '.result_info.total_pages // 1')
+            if [ "$page" -ge "$total_pages" ] || [ "$count" = "0" ]; then
+              break
+            fi
+            page=$((page + 1))
+          done
+
+          # Delete any www A/AAAA (Azure leftovers). Proxied Pages uses CNAME only.
           echo "$records_json" | jq -c '.result[]' | while read -r row; do
             id=$(echo "$row" | jq -r '.id')
             type=$(echo "$row" | jq -r '.type')
@@ -126,6 +148,51 @@ jobs:
             echo "Pages custom domain www already attached."
           fi
 
+          echo "Deleting ANY zone records still pointing at Azure…"
+          page=1
+          while true; do
+            page_json=$(curl -sS "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?page=${page}&per_page=100")
+            echo "$page_json" | jq -c '.result[] | select(
+              (.content|tostring|test("13\\.70\\.37\\.114|azurestaticapps|azurewebsites|trafficmanager\\.net|windows\\.net"; "i"))
+            )' | while read -r row; do
+              [ -z "$row" ] && continue
+              id=$(echo "$row" | jq -r '.id')
+              type=$(echo "$row" | jq -r '.type')
+              name=$(echo "$row" | jq -r '.name')
+              content=$(echo "$row" | jq -r '.content')
+              echo "Deleting Azure leftover ${type} ${name} → ${content} (${id})"
+              del=$(curl -sS -X DELETE "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+              echo "$del" | jq -r '.success'
+            done
+            count=$(echo "$page_json" | jq '.result | length')
+            total_pages=$(echo "$page_json" | jq -r '.result_info.total_pages // 1')
+            if [ "$page" -ge "$total_pages" ] || [ "$count" = "0" ]; then
+              break
+            fi
+            page=$((page + 1))
+          done
+
+          echo "SSL mode (prefer full_strict for Pages)…"
+          ssl_get=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/ssl")
+          echo "$ssl_get" | jq '.result.value // .errors'
+          curl -sS -X PATCH "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/ssl" \
+            --data '{"value":"full"}' | jq '.success, .result.value // .errors'
+
+          echo "Always Use HTTPS…"
+          curl -sS -X PATCH "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/settings/always_use_https" \
+            --data '{"value":"on"}' | jq '.success, .result.value // .errors'
+
+          echo "Purge Cloudflare cache for www…"
+          curl -sS -X POST "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" \
+            --data '{"hosts":["www.wellnessneedles.ie","wellnessneedles.ie"]}' \
+            | jq '.success // .errors'
+
           echo "Final www records:"
           curl -sS "${auth[@]}" \
             "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}" \
@@ -137,6 +204,8 @@ jobs:
           echo "dig www (may lag while TTL expires):"
           dig +short www.wellnessneedles.ie A || true
           dig +short www.wellnessneedles.ie CNAME || true
-          echo "HTTP probes:"
+          echo "HTTP probes (TLS verified):"
           curl -4 -sS -o /dev/null -w "www ipv4 %{http_code} %{remote_ip}\n" "https://www.wellnessneedles.ie/" || true
           curl -sS -o /dev/null -w "pages %{http_code}\n" "https://wellness-needles.pages.dev/" || true
+          echo | openssl s_client -connect www.wellnessneedles.ie:443 -servername www.wellnessneedles.ie 2>/dev/null \
+            | openssl x509 -noout -subject -issuer || true
