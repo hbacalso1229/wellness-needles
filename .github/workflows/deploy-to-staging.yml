@@ -1,7 +1,8 @@
 name: Deploy — Staging
 
 # Runs after CI succeeds on dev.
-# Deploys a Vercel Preview deployment (acts as staging).
+# Deploys a Vercel Preview deployment, then aliases it to the stable staging
+# hostname: https://wellness-needles.vercel.app
 # Also supports manual runs via workflow_dispatch.
 
 on:
@@ -84,20 +85,43 @@ jobs:
       # Copy `.vercel` so we deploy into the existing project (not a new "out" project).
       # --archive=tgz is required: repo .gitignore has /out/, so a normal deploy
       # uploads almost nothing (~5KB) and Vercel serves 404 NOT_FOUND.
+      #
+      # Stable staging hostname: wellness-needles.vercel.app (not ephemeral preview URLs).
+      # Production domains are wellnessneedles.ie (+ www) only — do not use --prod here.
       - name: Deploy static export to Vercel (preview / staging)
         id: deploy
+        env:
+          STAGING_HOST: wellness-needles.vercel.app
         run: |
+          set -euo pipefail
           cp -R .vercel out/.vercel
           cp vercel.json out/vercel.json
-          url=$(vercel deploy --cwd out --archive=tgz --yes --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$url" >> $GITHUB_OUTPUT
+          deployment=$(vercel deploy --cwd out --archive=tgz --yes --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deployment=$deployment" >> "$GITHUB_OUTPUT"
+          vercel alias set "$deployment" "$STAGING_HOST" --token=${{ secrets.VERCEL_TOKEN }}
+          echo "url=https://${STAGING_HOST}" >> "$GITHUB_OUTPUT"
 
       - name: Verify staging site responds
         run: |
-          set -e
-          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.url }}/")
-          echo "HTTP $code → ${{ steps.deploy.outputs.url }}/"
+          set -euo pipefail
+          # Deployment URL first (authoritative).
+          dep_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.deployment }}/")
+          echo "HTTP $dep_code → ${{ steps.deploy.outputs.deployment }}/"
+          test "$dep_code" = "200"
+
+          # Alias can briefly 404 while CDN updates — retry.
+          code="000"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.url }}/" || true)
+            echo "Attempt $i: HTTP $code → ${{ steps.deploy.outputs.url }}/"
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 5
+          done
           test "$code" = "200"
 
       - name: Print staging URL
-        run: echo "Staging URL → ${{ steps.deploy.outputs.url }}"
+        run: |
+          echo "Staging deployment → ${{ steps.deploy.outputs.deployment }}"
+          echo "Staging URL → ${{ steps.deploy.outputs.url }}"

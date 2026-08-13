@@ -112,9 +112,9 @@ docs/GO_LIVE_ARCHITECTURE.md
 
 | Event | Effect |
 |-------|--------|
-| Push `dev` | Staging → Vercel |
+| Push `dev` | Staging → Vercel (`https://wellness-needles.vercel.app`) |
 | Merge `main` | CI only — no live deploy |
-| **Publish GitHub Release** | Production → Cloudflare Pages (`www.wellnessneedles.ie`) |
+| **Publish GitHub Release** | Production → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
 
 Architecture: [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md).
 
