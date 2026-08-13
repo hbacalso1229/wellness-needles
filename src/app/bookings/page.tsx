@@ -199,7 +199,7 @@ export default function Bookings() {
       {/* Booking Form or Pricing Display */}
       <section className="py-4 sm:py-8 md:py-10 lg:py-12 bg-white">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(14rem,16rem)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:gap-8">
+          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-8">
             <div className="min-w-0 order-1">
               {bookingFormEnabled ? (
                 <div>
@@ -474,9 +474,9 @@ export default function Bookings() {
               )}
             </div>
 
-            {/* Quick call/email — below form on mobile; sticky side column on tablet+ */}
+            {/* Quick call/email — below form until desktop; sticky side column from lg */}
             <aside
-              className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
+              className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 lg:sticky lg:top-24 lg:mx-0 lg:mt-0 lg:max-w-none lg:self-start lg:p-5"
             >
               <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">
                 Need help?

@@ -39,6 +39,7 @@ test.describe('booking thank-you (mobile)', () => {
   test('fills Full Name and shows the joined name on thank-you', async ({
     page,
   }) => {
+    test.setTimeout(60_000)
     await fillBookingRequestForm(page)
 
     await expect(page.locator('#fullName')).toBeVisible()

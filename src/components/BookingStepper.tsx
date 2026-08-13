@@ -267,6 +267,7 @@ export default function BookingStepper({
                     ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                     : ''
                 }`}
+                aria-label={nextLabel}
               >
                 <CtaLabel label={nextLabel} widthFrom={submitLabel} />
               </button>
@@ -288,6 +289,7 @@ export default function BookingStepper({
                   onClick={onSubmit}
                   disabled={isSubmitting}
                   className={`${PRIMARY_CTA_WITH_BACK_CLASS} disabled:cursor-not-allowed disabled:opacity-60`}
+                  aria-label={isSubmitting ? 'Sending…' : submitLabel}
                 >
                   <CtaLabel
                     label={isSubmitting ? 'Sending…' : submitLabel}
@@ -304,6 +306,7 @@ export default function BookingStepper({
                       ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                       : ''
                   }`}
+                  aria-label={nextLabel}
                 >
                   <CtaLabel label={nextLabel} widthFrom={submitLabel} />
                 </button>

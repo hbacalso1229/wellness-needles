@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
+import {
+  DEFAULT_PHONE_COUNTRY_ID,
+  PHONE_COUNTRIES,
+  getPhoneCountry,
+  type PhoneCountry,
+} from '@/lib/phone-countries'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
@@ -79,7 +85,7 @@ function BookingStepIntro({
         <Icon className="h-5 w-5 text-primary sm:h-7 sm:w-7" aria-hidden strokeWidth={1.75} />
       </span>
       {titleNode ? (
-        <p className="whitespace-nowrap font-serif text-base font-bold text-[var(--text-dark)] sm:text-2xl">
+        <p className="whitespace-nowrap font-sans text-sm font-semibold text-[var(--text-dark)] sm:text-lg">
           {titleNode}
         </p>
       ) : null}
@@ -319,38 +325,6 @@ function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim())
 }
 
-type PhoneCountry = {
-  id: string
-  name: string
-  dial: string
-  localDigits: number
-  placeholder: string
-  stripLeadingZero: boolean
-}
-
-const PHONE_COUNTRIES: readonly PhoneCountry[] = [
-  { id: 'IE', name: 'Ireland', dial: '+353', localDigits: 9, placeholder: '86 054 3085', stripLeadingZero: true },
-  { id: 'GB', name: 'United Kingdom', dial: '+44', localDigits: 10, placeholder: '7700 900123', stripLeadingZero: true },
-  { id: 'US', name: 'United States', dial: '+1', localDigits: 10, placeholder: '202 555 0100', stripLeadingZero: false },
-  { id: 'AU', name: 'Australia', dial: '+61', localDigits: 9, placeholder: '412 345 678', stripLeadingZero: true },
-  { id: 'CA', name: 'Canada', dial: '+1', localDigits: 10, placeholder: '416 555 0123', stripLeadingZero: false },
-  { id: 'FR', name: 'France', dial: '+33', localDigits: 9, placeholder: '6 12 34 56 78', stripLeadingZero: true },
-  { id: 'DE', name: 'Germany', dial: '+49', localDigits: 11, placeholder: '151 23456789', stripLeadingZero: true },
-  { id: 'IN', name: 'India', dial: '+91', localDigits: 10, placeholder: '98765 43210', stripLeadingZero: true },
-  { id: 'IT', name: 'Italy', dial: '+39', localDigits: 10, placeholder: '312 345 6789', stripLeadingZero: true },
-  { id: 'NL', name: 'Netherlands', dial: '+31', localDigits: 9, placeholder: '6 12345678', stripLeadingZero: true },
-  { id: 'PL', name: 'Poland', dial: '+48', localDigits: 9, placeholder: '512 345 678', stripLeadingZero: true },
-  { id: 'PT', name: 'Portugal', dial: '+351', localDigits: 9, placeholder: '912 345 678', stripLeadingZero: true },
-  { id: 'ES', name: 'Spain', dial: '+34', localDigits: 9, placeholder: '612 34 56 78', stripLeadingZero: true },
-  { id: 'AE', name: 'United Arab Emirates', dial: '+971', localDigits: 9, placeholder: '50 123 4567', stripLeadingZero: true },
-]
-
-const DEFAULT_PHONE_COUNTRY_ID = 'IE'
-
-function getPhoneCountry(id: string): PhoneCountry {
-  return PHONE_COUNTRIES.find((country) => country.id === id) ?? PHONE_COUNTRIES[0]
-}
-
 function dialDigits(country: PhoneCountry): string {
   return country.dial.replace(/\D/g, '')
 }
@@ -412,137 +386,17 @@ function toE164(raw: string, country: PhoneCountry): string {
 }
 
 function PhoneFlagIcon({ countryId, className }: { countryId: string; className?: string }) {
-  const flagClass = className ?? 'h-4 w-6'
-  switch (countryId) {
-    case 'IE':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="3" height="6" fill="#169B62" />
-          <rect x="3" width="3" height="6" fill="#FFFFFF" />
-          <rect x="6" width="3" height="6" fill="#FF883E" />
-        </svg>
-      )
-    case 'GB':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="6" fill="#012169" />
-          <path d="M0 0 L9 6 M9 0 L0 6" stroke="#FFF" strokeWidth="1.2" />
-          <path d="M0 0 L9 6 M9 0 L0 6" stroke="#C8102E" strokeWidth="0.5" />
-          <path d="M4.5 0 V6 M0 3 H9" stroke="#FFF" strokeWidth="2" />
-          <path d="M4.5 0 V6 M0 3 H9" stroke="#C8102E" strokeWidth="1" />
-        </svg>
-      )
-    case 'US':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="6" fill="#BF0A30" />
-          <rect y="0.46" width="9" height="0.46" fill="#FFF" />
-          <rect y="1.38" width="9" height="0.46" fill="#FFF" />
-          <rect y="2.31" width="9" height="0.46" fill="#FFF" />
-          <rect y="3.23" width="9" height="0.46" fill="#FFF" />
-          <rect y="4.15" width="9" height="0.46" fill="#FFF" />
-          <rect y="5.08" width="9" height="0.46" fill="#FFF" />
-          <rect width="3.6" height="3.23" fill="#002868" />
-        </svg>
-      )
-    case 'CA':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="6" fill="#FFF" />
-          <rect width="2.25" height="6" fill="#FF0000" />
-          <rect x="6.75" width="2.25" height="6" fill="#FF0000" />
-          <path d="M4.5 1.2 L5.1 2.7 H6.6 L5.4 3.6 L5.9 5.1 L4.5 4.2 L3.1 5.1 L3.6 3.6 L2.4 2.7 H3.9 Z" fill="#FF0000" />
-        </svg>
-      )
-    case 'FR':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="3" height="6" fill="#002395" />
-          <rect x="3" width="3" height="6" fill="#FFFFFF" />
-          <rect x="6" width="3" height="6" fill="#ED2939" />
-        </svg>
-      )
-    case 'DE':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="2" fill="#000" />
-          <rect y="2" width="9" height="2" fill="#D00" />
-          <rect y="4" width="9" height="2" fill="#FFCE00" />
-        </svg>
-      )
-    case 'IN':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="2" fill="#FF9933" />
-          <rect y="2" width="9" height="2" fill="#FFF" />
-          <rect y="4" width="9" height="2" fill="#138808" />
-          <circle cx="4.5" cy="3" r="0.7" fill="none" stroke="#000088" strokeWidth="0.25" />
-        </svg>
-      )
-    case 'IT':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="3" height="6" fill="#009246" />
-          <rect x="3" width="3" height="6" fill="#FFF" />
-          <rect x="6" width="3" height="6" fill="#CE2B37" />
-        </svg>
-      )
-    case 'NL':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="2" fill="#AE1C28" />
-          <rect y="2" width="9" height="2" fill="#FFF" />
-          <rect y="4" width="9" height="2" fill="#21468B" />
-        </svg>
-      )
-    case 'PL':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="3" fill="#FFF" />
-          <rect y="3" width="9" height="3" fill="#DC143C" />
-        </svg>
-      )
-    case 'PT':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="3.6" height="6" fill="#006600" />
-          <rect x="3.6" width="5.4" height="6" fill="#FF0000" />
-        </svg>
-      )
-    case 'ES':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="1.5" fill="#AA151B" />
-          <rect y="1.5" width="9" height="3" fill="#F1BF00" />
-          <rect y="4.5" width="9" height="1.5" fill="#AA151B" />
-        </svg>
-      )
-    case 'AU':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="6" fill="#012169" />
-          <rect width="4.5" height="3" fill="#012169" />
-          <path d="M0 0 L4.5 3 M4.5 0 L0 3" stroke="#FFF" strokeWidth="0.6" />
-          <path d="M2.25 0 V3 M0 1.5 H4.5" stroke="#FFF" strokeWidth="1" />
-          <path d="M2.25 0 V3 M0 1.5 H4.5" stroke="#C8102E" strokeWidth="0.45" />
-        </svg>
-      )
-    case 'AE':
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="2" fill="#00732F" />
-          <rect y="2" width="9" height="2" fill="#FFF" />
-          <rect y="4" width="9" height="2" fill="#000" />
-          <rect width="2.25" height="6" fill="#FF0000" />
-        </svg>
-      )
-    default:
-      return (
-        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
-          <rect width="9" height="6" fill="#7fb069" />
-        </svg>
-      )
-  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- ISO flags from flagcdn; emoji flags do not render on Windows
+    <img
+      src={`https://flagcdn.com/w40/${countryId.toLowerCase()}.png`}
+      alt=""
+      width={24}
+      height={16}
+      className={`h-4 w-6 rounded-[1px] object-cover ${className ?? ''}`}
+      aria-hidden
+    />
+  )
 }
 
 export default function BookingForm() {
