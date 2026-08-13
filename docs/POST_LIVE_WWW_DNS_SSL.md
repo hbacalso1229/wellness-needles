@@ -1,4 +1,4 @@
-# Post-live notes — www DNS / SSL incident (2026-08-13)
+# Post-live notes — www DNS / SSL / Azure 404 (2026-08-13)
 
 **Environment:** Production — Cloudflare Pages `wellness-needles`  
 **Canonical URL:** `https://www.wellnessneedles.ie`  
@@ -9,171 +9,158 @@
 
 ## Summary
 
-After the first successful production releases (`v1.0.x`), many clients saw the **entire site** fail to load or show **“Your connection isn’t private”** (`NET::ERR_CERT_COMMON_NAME_INVALID`) on desktop and mobile.
+After the first successful production releases (`v1.0.x`), clients (especially **phones**) saw:
 
-**Root cause:** `www.wellnessneedles.ie` was still resolving (or intermittently resolving via cache) to a **legacy Azure Static Web Apps IP** (`13.70.37.114`). That host presents an **Azure** certificate (`*.azurewebsites.net` / ASE hostname), which does **not** match `www.wellnessneedles.ie`.
+- Site “won’t load” / Microsoft Azure blue **404 Web Site not found**
+- Or **“Your connection isn’t private”** (`NET::ERR_CERT_COMMON_NAME_INVALID`)
 
-Apex (`wellnessneedles.ie`) and `wellness-needles.pages.dev` were already on Cloudflare and healthy. The break was **www DNS / stale Azure**, not the Next.js app build.
+even when typing **`https://www.wellnessneedles.ie`**.
 
-Performance tweaks (image compression, fonts, loaders) were investigated and **reverted** — they were not the production root cause.
+**Root cause:** `www` (and sometimes apex) still resolved via **stale DNS** to a **legacy Azure** IP (`13.70.37.114`). That host serves Azure’s default page / Azure TLS cert — not Cloudflare Pages.
 
----
+Authoritative DNS is **Cloudflare** (`anderson` / `erin`). Hosting Ireland is **registrar only**. Editing Hosting Ireland website DNS does nothing while NS point at Cloudflare.
 
-## Symptoms
-
-| What users saw | What was actually happening |
-|----------------|------------------------------|
-| Site “won’t load” / blank / Azure-style 404 | Client hit Azure `13.70.37.114` |
-| `NET::ERR_CERT_COMMON_NAME_INVALID` | Browser got Azure TLS cert for `www` SNI |
-| “Works on one network / device, not another” | Split DNS cache (Cloudflare vs stale Azure A) |
-| `pages.dev` OK, `www` broken | Custom hostname DNS wrong / cached |
-
-**Cert proof (same hostname, different IPs):**
-
-| Destination IP | Certificate CN | Result |
-|----------------|----------------|--------|
-| Cloudflare `104.21.x` / `172.67.x` | `www.wellnessneedles.ie` | Valid HTTPS |
-| Azure `13.70.37.114` | `*.msha-slice-…azurewebsites.net` | Browser blocks / mismatch |
+Performance tweaks (images/fonts/loaders) were investigated and **reverted** — not the root cause.
 
 ---
 
-## Timeline (local, 2026-08-13)
+## Permanent fix (do all three)
 
-1. Production deploy via GitHub Release → Cloudflare Pages (`--branch=main`) brought the site live on Pages.
-2. Reports of poor / failed loading on phone and desktop.
-3. Investigation found `www` **A** still pointing at **Azure** while apex used Cloudflare.
-4. Image/CSS “loading” fixes started, then **reverted** once DNS was confirmed as the whole-site failure.
-5. Ops workflow `Ops — Fix www DNS` added; first run **failed** — deploy token lacked **Zone → DNS → Edit**.
-6. Token updated with **DNS Edit**; workflow re-run **succeeded**.
-7. Cloudflare zone left with: `www` **CNAME** → `wellness-needles.pages.dev` (**proxied**).
-8. Some browsers still showed cert errors until **local DNS cache** was flushed (stale Azure A).
+### 1. Cloudflare (source of truth) — engineering / ops
 
----
-
-## Root cause (detail)
-
-1. Domain historically pointed at **Azure / Hosting Ireland** hosting.
-2. Nameservers moved to Cloudflare (`anderson` / `erin`), and Pages custom domains were attached.
-3. A leftover **`www` → Azure** path remained in the wild (zone A record and/or long-lived resolver cache).
-4. Clients that still resolved `www` to `13.70.37.114` received Azure’s certificate → `ERR_CERT_COMMON_NAME_INVALID`.
-5. Clients that resolved to Cloudflare anycast received the correct Universal SSL cert for `www.wellnessneedles.ie`.
-
-This is a classic **cutover leftover + TTL/cache** failure mode after moving off Azure.
-
----
-
-## Fix applied
-
-### Cloudflare DNS (authoritative)
-
-Desired end state (confirmed by ops workflow):
+Desired DNS:
 
 ```text
-www.wellnessneedles.ie  CNAME  wellness-needles.pages.dev  (proxied: true)
+www.wellnessneedles.ie     CNAME  wellness-needles.pages.dev   (proxied)
+wellnessneedles.ie         Pages custom domain (proxied A/AAAA via CF)
 ```
 
-- Delete any `www` **A/AAAA** (especially `13.70.37.114`).
-- Delete wrong CNAMEs (Azure Static Apps / traffic manager targets).
-- Keep Pages custom domain **`www.wellnessneedles.ie`** attached and Active.
-- Apex remains on Pages; prefer **301 apex → www** (zone Redirect Rule + `public/_redirects`).
+- **No** records whose content is Azure (`13.70.37.114`, `azurestaticapps`, `azurewebsites`, …)
+- Pages custom domains: **`www`** + **apex** Active
+- **Redirect Rule** (zone, Free): apex → www 301  
+  Match `https://wellnessneedles.ie/*` → `https://www.wellnessneedles.ie/${1}`  
+  Also shipped in deploy via [`public/_redirects`](../public/_redirects)
 
-### Automation
+**Run:** GitHub → Actions → **Ops — Fix www DNS** → Run workflow (`main`).
 
-Workflow: **Actions → Ops — Fix www DNS** (workflow_dispatch on `main`).
+Token needs **Zone → DNS → Edit** on `wellnessneedles.ie`. Redirect Rule creation may also need Zone Rulesets / Redirect permission; if API warns, add the rule once in Cloudflare UI.
 
-It:
+### 2. Azure (kill old host) — owner (required for permanent phone fix)
 
-1. Resolves zone `wellnessneedles.ie`
-2. Lists / repairs `www` records
-3. Scans the zone for Azure leftovers (`13.70.37.114`, `azurestaticapps`, `azurewebsites`, …)
-4. Ensures Pages custom domain for `www`
-5. Probes public DNS + HTTPS (expects cert `CN=www.wellnessneedles.ie`)
+While Azure still answers on the old IP, any phone with **stale DNS** keeps seeing the blue Azure 404 (Azure’s own page says this: “Client cache is still pointing the domain to old IP”).
 
-### Token permissions required
+**Owner steps (Azure Portal):**
 
-`CLOUDFLARE_API_TOKEN` (GitHub Environment **production** and/or repo secrets) must include at least:
+1. Open the old **Static Web App** or **App Service** that used to host this site  
+2. **Custom domains** → remove `www.wellnessneedles.ie` and `wellnessneedles.ie`  
+3. If unused: **delete** or stop the app entirely  
+4. Do **not** re-add these hostnames to Azure
+
+### 3. Hosting Ireland — owner (nameservers only)
+
+1. Domain control panel for `wellnessneedles.ie` → **Nameservers** (not “Manage DNS” records)  
+2. Confirm only:
+   - `anderson.ns.cloudflare.com`
+   - `erin.ns.cloudflare.com`
+3. Do **not** recreate website A/CNAME records at Hosting Ireland  
+4. Keep mail at Cloudflare (Zoho MX/SPF/DKIM) — never move mail DNS back to Hosting Ireland casually
+
+**External check:** `dig NS wellnessneedles.ie` must return Cloudflare NS only.
+
+---
+
+## Why the phone still shows Azure after Cloudflare is fixed
+
+1. User types **`https://www.wellnessneedles.ie`**
+2. Mobile carrier / phone OS still has cached **A → 13.70.37.114**
+3. Browser hits Azure → blue 404 or bad cert  
+4. Address bar may **hide `www.`** — looks like apex, but the lookup was still for `www`
+
+PC `ipconfig /flushdns` does **not** clear the phone.
+
+**Phone recovery:**
+
+1. Incognito / Private tab  
+2. Clear site data for wellnessneedles.ie  
+3. Airplane mode 10s, or switch Wi‑Fi ↔ mobile data  
+4. Wait for TTL if still stuck  
+
+---
+
+## Symptoms → cause
+
+| What users saw | What was happening |
+|----------------|--------------------|
+| Azure blue 404 on phone (typed www) | Stale `www` → Azure IP |
+| `NET::ERR_CERT_COMMON_NAME_INVALID` | Azure TLS cert for `www` SNI |
+| Works on PC / one network, not phone | Split DNS cache |
+| `pages.dev` OK, custom domain broken | Custom hostname path wrong / cached |
+
+| Destination IP | Certificate / page | Result |
+|----------------|-------------------|--------|
+| Cloudflare `104.21.x` / `172.67.x` | `CN=www.wellnessneedles.ie` | Live site |
+| Azure `13.70.37.114` | Azure default / `*.azurewebsites.net` | 404 or cert error |
+
+---
+
+## Automation (`Ops — Fix www DNS`)
+
+1. Zone lookup `wellnessneedles.ie`  
+2. Repair **www** + scan **apex** for Azure leftovers  
+3. Zone-wide delete of Azure-pointing records  
+4. Ensure www CNAME → `wellness-needles.pages.dev` (proxied)  
+5. Ensure Pages domains www + apex  
+6. Ensure apex → www **301** Redirect Rule (API; warn if token lacks Rulesets)  
+7. Public dig + HTTPS checks; **fail** if A records still include `13.70.37.114`
+
+### Token permissions
 
 | Scope | Permission | Why |
 |-------|------------|-----|
 | Account | Cloudflare Pages — Edit | Deploy + custom domains |
-| Account | Account Settings — Read | Wrangler / account binding |
-| User | Memberships — Read | Wrangler auth |
-| **Zone** | **DNS — Edit** | **Repair www records** |
-| Zone | Zone — Read (via zone resources) | Resolve zone id |
+| Account | Account Settings — Read | Wrangler |
+| User | Memberships — Read | Wrangler |
+| **Zone** | **DNS — Edit** | Repair records |
+| Zone | Rulesets / Redirect (recommended) | Apex → www rule via API |
 
-Optional (workflow may log auth errors without them): Cache Purge, SSL settings write.
-
-Zone resources must include **`wellnessneedles.ie`**.
+Zone resource: **`wellnessneedles.ie`**.
 
 ---
 
 ## Verification checklist
 
-Run after any DNS change or cert complaint:
-
-- [ ] `dig` / DoH: `www.wellnessneedles.ie` **A** → Cloudflare IPs only (not `13.70.37.114`)
-- [ ] Cloudflare DNS UI: `www` is **CNAME** → `wellness-needles.pages.dev`, orange-cloud proxied
-- [ ] No Azure A/CNAME leftovers for `www` in the zone
-- [ ] `curl -4 -I https://www.wellnessneedles.ie/` → **200** (TLS verify **on**)
-- [ ] Certificate subject / SAN includes `www.wellnessneedles.ie`
-- [ ] Forced Azure IP still wrong (expected):  
-      `curl --resolve www.wellnessneedles.ie:443:13.70.37.114 https://www.wellnessneedles.ie/` → cert mismatch / 404
-- [ ] Client with old cache: `ipconfig /flushdns` (Windows) or reboot; retry in Incognito
-
-**Healthy probe (from ops run):**
-
-```text
-www ipv4 200 172.67.179.190
-subject=CN = www.wellnessneedles.ie
-issuer=… Google Trust Services (Cloudflare Universal SSL)
-```
-
----
-
-## Client recovery (when cert warning persists)
-
-If Cloudflare DNS is already correct but a device still shows `ERR_CERT_COMMON_NAME_INVALID`:
-
-1. Close all tabs for the site  
-2. Windows: `ipconfig /flushdns`  
-3. Open **Incognito/Private** → `https://www.wellnessneedles.ie`  
-4. If stuck: reboot, or set DNS to `1.1.1.1` / `8.8.8.8` temporarily  
-
-Do **not** treat this as an app bug until the client resolves to Cloudflare IPs.
-
----
-
-## Follow-ups (still recommended)
-
-| Item | Owner | Notes |
-|------|--------|------|
-| Remove `www` / apex custom domains from **Azure Static Web Apps** | Owner | Stops Azure answering if someone still hits the old IP |
-| Confirm apex → www **301** Redirect Rule | Owner / eng | Defense in depth with `public/_redirects` |
-| Add **Cache Purge** to CF token (optional) | Owner | Ops workflow purge step currently may auth-fail |
-| Document DNS Edit on token in go-live secrets list | Eng | Avoid repeat of first failed ops run |
-| Performance pass (logo size, fonts, loader) | Eng | Deferred; not the cause of this outage |
+- [ ] `dig NS wellnessneedles.ie` → Cloudflare only (`anderson` / `erin`)
+- [ ] `dig A www.wellnessneedles.ie` → Cloudflare IPs only (not `13.70.37.114`)
+- [ ] `dig A wellnessneedles.ie` → Cloudflare IPs only
+- [ ] Cloudflare DNS UI: www CNAME → `wellness-needles.pages.dev` proxied; no Azure leftovers
+- [ ] Redirect Rule or `_redirects`: apex → www **301**
+- [ ] `curl -4 -I https://www.wellnessneedles.ie/` → **200**, cert for www
+- [ ] Azure Portal: custom domains for this hostname **removed**
+- [ ] Hosting Ireland: NS still Cloudflare; no website A records there
+- [ ] Phone: Incognito / airplane toggle after cutover
 
 ---
 
 ## Lessons learned
 
-1. **Cutover is not done until `www` and apex both resolve only to Cloudflare** — check A/AAAA/CNAME, not just “Pages domain Active”.
-2. **`ERR_CERT_COMMON_NAME_INVALID` after a host move usually means wrong origin IP**, not a broken Pages deploy.
-3. Deploy tokens with **Pages Edit only** cannot fix DNS — add **Zone DNS Edit** before relying on ops workflows.
-4. **Stale resolver cache** will keep serving Azure for hours/days on some networks; flush instructions belong in the runbook.
-5. Don’t chase frontend “loading” fixes for a DNS/TLS mismatch that breaks the **entire** site.
+1. Cutover is not done until **www and apex** resolve only to Cloudflare **and** Azure no longer hosts the hostname.  
+2. Phone Azure 404 after typing **www** is almost always **stale mobile DNS**, not a Next.js bug.  
+3. Hosting Ireland DNS zone is inactive once NS → Cloudflare — fix records in **Cloudflare**.  
+4. Deploy tokens need **Zone DNS Edit** for ops repair workflows.  
+5. Don’t chase frontend “loading” fixes for DNS/TLS cutover failures.
 
 ---
 
 ## Quick runbook
 
 ```text
-Symptom: www cert error or Azure 404
-  → Resolve www A/AAAA (must be Cloudflare, not 13.70.37.114)
-  → If Azure IP: Cloudflare DNS → delete A; ensure CNAME www → wellness-needles.pages.dev (proxied)
-  → Or: Actions → Ops — Fix www DNS
-  → Flush client DNS / Incognito
-  → Optional: remove custom domain in Azure portal
+Phone: typed www → Azure 404 / bad cert
+  → dig www (must NOT be 13.70.37.114)
+  → Actions → Ops — Fix www DNS
+  → Owner: remove custom domains in Azure (permanent)
+  → Owner: confirm HI nameservers = Cloudflare only
+  → Phone: Incognito / Airplane / clear site data
 ```
 
-**Status as of ops success (2026-08-13):** Cloudflare DNS for `www` correct; HTTPS verifies with `CN=www.wellnessneedles.ie`. Remaining risk is **client/ISP cache** and **Azure still accepting the hostname** until removed in Azure.
+**Engineering status:** Cloudflare DNS + ops workflow lock www/apex off Azure; `_redirects` ships apex→www.  
+**Owner remaining for true permanence:** decommission Azure hostnames; confirm Hosting Ireland NS only.
