@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
+import { Check, Moon, Sun, type LucideIcon } from 'lucide-react'
 
 export type TimeRangeOption = {
   readonly id: string
@@ -16,7 +16,7 @@ export const TIME_RANGES: ReadonlyArray<TimeRangeOption> = [
     label: 'Morning',
     window: '9:00 AM – 12:00 PM',
     hint: 'Most popular',
-    icon: Sunrise,
+    icon: Sun,
   },
   {
     id: 'afternoon',
@@ -136,7 +136,7 @@ export function TimeRangeCards({
   hasError = false,
 }: TimeRangeCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
       {TIME_RANGES.map((range) => {
         const selected = selectedId === range.id
         const past = isPastTimeRange(dateStr, range.id)
@@ -145,14 +145,14 @@ export function TimeRangeCards({
         return (
           <label
             key={range.id}
-            className={`booking-select-card relative block box-border rounded-xl border p-4 min-h-[7.5rem] ${
+            className={`booking-select-card relative block min-w-0 box-border rounded-xl border p-2.5 sm:p-4 ${
               past
-                ? 'cursor-not-allowed border-2 border-accent/20 bg-accent/[0.04]'
+                ? 'cursor-not-allowed border-accent/20 bg-accent/[0.04]'
                 : selected
-                  ? 'z-[1] cursor-pointer border-[3px] border-primary bg-primary/15 shadow-lg shadow-primary/20 motion-safe:scale-[1.02]'
+                  ? 'z-[1] cursor-pointer border-primary bg-accent/20'
                   : hasError
-                    ? 'cursor-pointer border-2 border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                    : 'cursor-pointer border-2 border-accent/40 bg-white shadow-sm [@media(hover:hover)]:hover:border-primary/50 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
+                    ? 'cursor-pointer border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
+                    : 'cursor-pointer border-[var(--text-dark)]/12 bg-white [@media(hover:hover)]:hover:border-primary/40'
             }`}
           >
             <input
@@ -168,52 +168,56 @@ export function TimeRangeCards({
               aria-label={`${range.label}, ${range.window}${past ? ' (unavailable)' : `, ${range.hint}`}`}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-8 w-8 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-2 right-2 z-0 flex h-5 w-5 items-center justify-center rounded-full sm:top-2.5 sm:right-2.5 sm:h-6 sm:w-6 ${
                 selected && !past
-                  ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
-                  : 'bg-transparent opacity-0'
+                  ? 'bg-primary text-cream'
+                  : 'border border-[var(--text-dark)]/20 bg-white'
               }`}
               aria-hidden
             >
-              <Check className="h-5 w-5" strokeWidth={3.5} />
+              {selected && !past ? (
+                <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={3.5} />
+              ) : null}
             </span>
             <div
-              className={`pointer-events-none relative z-0 flex flex-col items-start gap-3 pr-8 ${
+              className={`pointer-events-none relative z-0 flex flex-col items-start gap-2 pr-6 sm:gap-3 sm:pr-7 ${
                 past ? 'opacity-60' : ''
               }`}
             >
               <span
-                className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                className={`booking-select-card__icon flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-11 sm:w-11 ${
                   selected && !past
                     ? 'bg-primary text-cream'
                     : past
                       ? 'bg-accent/15 text-secondary'
-                      : 'bg-primary/10 text-primary'
+                      : 'bg-accent/15 text-primary'
                 }`}
               >
-                <Icon className="h-5 w-5" aria-hidden />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
               </span>
-              <div className="min-w-0">
+              <div className="min-w-0 w-full">
                 <h4
-                  className={`font-semibold leading-snug ${
+                  className={`text-sm font-semibold leading-snug sm:text-base ${
                     past ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]'
                   }`}
                 >
                   {range.label}
                 </h4>
                 <p
-                  className={`text-sm leading-relaxed mt-0.5 ${
-                    past ? 'text-secondary/80' : 'text-secondary'
+                  className={`mt-0.5 text-[11px] leading-snug sm:text-sm sm:leading-relaxed ${
+                    past ? 'text-secondary/80' : 'text-[var(--text-dark)]'
                   }`}
                 >
                   {range.window}
                 </p>
                 {past ? (
-                  <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-secondary">
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-secondary sm:mt-1.5 sm:text-xs">
                     Unavailable
                   </p>
                 ) : (
-                  <p className="mt-1.5 text-xs font-semibold text-primary/80">{range.hint}</p>
+                  <p className="mt-1 text-[10px] font-semibold leading-snug text-primary sm:mt-1.5 sm:text-xs">
+                    {range.hint}
+                  </p>
                 )}
               </div>
             </div>
