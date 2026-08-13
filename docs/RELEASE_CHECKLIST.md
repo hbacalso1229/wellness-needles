@@ -27,3 +27,7 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 - [ ] Normal mail to `info@` still works (Zoho MX)
 
 Canonical: `https://www.wellnessneedles.ie`
+
+## Post-live incidents
+
+- [POST_LIVE_WWW_DNS_SSL.md](./POST_LIVE_WWW_DNS_SSL.md) — www still pointed at Azure → cert / load failures (2026-08-13)

@@ -182,18 +182,11 @@ export default function Header() {
               }`}
             >
               <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-2 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                {navItems.map((item, index) => (
+                {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${mobileNavLinkClass(item.href)}${
-                      isMenuSlidingIn ? ' mobile-nav-link-enter' : ''
-                    }`}
-                    style={
-                      isMenuSlidingIn
-                        ? { animationDelay: `${220 + index * 90}ms` }
-                        : undefined
-                    }
+                    className={mobileNavLinkClass(item.href)}
                     aria-current={isNavActive(item.href) ? 'page' : undefined}
                     onClick={closeMenu}
                   >

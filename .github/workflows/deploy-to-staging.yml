@@ -15,7 +15,12 @@ on:
 jobs:
   deploy_staging:
     name: Build & Deploy to Staging (Vercel Preview)
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Only deploy when Quality succeeded on `dev` (or manual dispatch).
+    # Do not promote `main` merges to the staging alias.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'dev')
     runs-on: ubuntu-latest
     environment:
       name: staging
@@ -105,16 +110,25 @@ jobs:
       - name: Verify staging site responds
         run: |
           set -euo pipefail
-          # Deployment URL first (authoritative).
-          dep_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.deployment }}/")
-          echo "HTTP $dep_code → ${{ steps.deploy.outputs.deployment }}/"
+          dep="${{ steps.deploy.outputs.deployment }}"
+          base="${{ steps.deploy.outputs.url }}"
+
+          # Deployment URL first (authoritative — do not wait on alias CDN).
+          dep_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${dep}/")
+          echo "HTTP $dep_code → ${dep}/"
           test "$dep_code" = "200"
 
-          # Alias can briefly 404 while CDN updates — retry.
+          for path in bookings/ bookings/thank-you/ bookings/unable-to-process/; do
+            pcode=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${dep}/${path}")
+            echo "HTTP $pcode → ${dep}/${path}"
+            test "$pcode" = "200"
+          done
+
+          # Alias can briefly 404 on nested routes while CDN updates — retry.
           code="000"
-          for i in 1 2 3 4 5 6; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${{ steps.deploy.outputs.url }}/" || true)
-            echo "Attempt $i: HTTP $code → ${{ steps.deploy.outputs.url }}/"
+          for i in 1 2 3 4 5 6 7 8; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${base}/" || true)
+            echo "Attempt $i: HTTP $code → ${base}/"
             if [ "$code" = "200" ]; then
               break
             fi
@@ -122,15 +136,28 @@ jobs:
           done
           test "$code" = "200"
 
-          base="${{ steps.deploy.outputs.url }}"
           for path in bookings/ bookings/thank-you/ bookings/unable-to-process/; do
-            pcode=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${base}/${path}")
-            echo "HTTP $pcode → ${base}/${path}"
+            pcode="000"
+            for i in 1 2 3 4 5 6; do
+              pcode=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${base}/${path}" || true)
+              echo "Attempt $i: HTTP $pcode → ${base}/${path}"
+              if [ "$pcode" = "200" ]; then
+                break
+              fi
+              sleep 5
+            done
             test "$pcode" = "200"
           done
 
-          admin_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${base}/admin/" || true)
-          echo "HTTP $admin_code → ${base}/admin/ (expect 404)"
+          admin_code="000"
+          for i in 1 2 3 4; do
+            admin_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${base}/admin/" || true)
+            echo "Attempt $i: HTTP $admin_code → ${base}/admin/ (expect 404)"
+            if [ "$admin_code" = "404" ]; then
+              break
+            fi
+            sleep 3
+          done
           test "$admin_code" = "404"
 
       - name: Print staging URL
