@@ -110,14 +110,19 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          # Capture deployment URL so we can verify even if custom-domain SSL is still settling.
+          # Releases check out a tag (detached HEAD). Without an explicit branch,
+          # wrangler may create a preview alias (e.g. head.*.pages.dev) that custom
+          # domains do NOT serve. Force the project production branch.
           deploy_log=$(mktemp)
           npx wrangler@4 pages deploy out \
             --project-name=wellness-needles \
+            --branch=main \
             --commit-dirty=true | tee "$deploy_log"
-          deployment=$(grep -oE 'https://[a-zA-Z0-9.-]+\.pages\.dev' "$deploy_log" | tail -n 1 || true)
-          if [ -z "$deployment" ]; then
-            deployment="https://wellness-needles.pages.dev"
+          # Prefer production project URL; fall back to any pages.dev URL from the log.
+          deployment="https://wellness-needles.pages.dev"
+          logged=$(grep -oE 'https://[a-zA-Z0-9.-]+\.pages\.dev' "$deploy_log" | tail -n 1 || true)
+          if [ -n "$logged" ]; then
+            echo "Wrangler reported: $logged"
           fi
           echo "deployment=$deployment" >> "$GITHUB_OUTPUT"
           echo "url=https://www.wellnessneedles.ie" >> "$GITHUB_OUTPUT"
