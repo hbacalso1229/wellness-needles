@@ -1,0 +1,142 @@
+name: Ops — Fix www DNS
+
+# Removes stale Azure A record for www and ensures Cloudflare Pages CNAME.
+# Uses existing CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID (needs Zone DNS Edit).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix_www_dns:
+    name: Fix www → Pages CNAME
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ZONE_NAME: wellnessneedles.ie
+      WWW_TARGET: wellness-needles.pages.dev
+    steps:
+      - name: Fix DNS records for www
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "::error::Missing CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID"
+            exit 1
+          fi
+
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+
+          echo "Looking up zone ${ZONE_NAME}…"
+          zone_json=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones?name=${ZONE_NAME}&status=active")
+          zone_id=$(echo "$zone_json" | jq -r '.result[0].id // empty')
+          if [ -z "$zone_id" ] || [ "$zone_id" = "null" ]; then
+            echo "::error::Zone not found or token lacks Zone Read. Response:"
+            echo "$zone_json" | jq .
+            exit 1
+          fi
+          echo "Zone ID: $zone_id"
+
+          echo "Listing DNS records for www / ${ZONE_NAME}…"
+          records_json=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
+          echo "$records_json" | jq '.result[] | {id,type,name,content,proxied,ttl}'
+
+          # Delete any www A/AAAA that are NOT Cloudflare Pages (esp. Azure 13.70.37.114)
+          echo "$records_json" | jq -c '.result[]' | while read -r row; do
+            id=$(echo "$row" | jq -r '.id')
+            type=$(echo "$row" | jq -r '.type')
+            content=$(echo "$row" | jq -r '.content')
+            name=$(echo "$row" | jq -r '.name')
+
+            if [ "$type" = "A" ] || [ "$type" = "AAAA" ]; then
+              echo "Deleting stale ${type} ${name} → ${content} (${id})"
+              del=$(curl -sS -X DELETE "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+              ok=$(echo "$del" | jq -r '.success')
+              if [ "$ok" != "true" ]; then
+                echo "::error::Failed to delete ${id}"
+                echo "$del" | jq .
+                exit 1
+              fi
+            fi
+
+            # Wrong CNAME target
+            if [ "$type" = "CNAME" ] && [ "$content" != "$WWW_TARGET" ] && [ "$content" != "${WWW_TARGET}." ]; then
+              echo "Deleting wrong CNAME ${name} → ${content} (${id})"
+              del=$(curl -sS -X DELETE "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${id}")
+              ok=$(echo "$del" | jq -r '.success')
+              if [ "$ok" != "true" ]; then
+                echo "::error::Failed to delete CNAME ${id}"
+                echo "$del" | jq .
+                exit 1
+              fi
+            fi
+          done
+
+          # Re-list after deletes
+          after=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}")
+          has_good_cname=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
+            '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))] | length')
+
+          if [ "$has_good_cname" = "0" ]; then
+            echo "Creating CNAME www → ${WWW_TARGET} (proxied)…"
+            create=$(curl -sS -X POST "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" \
+              --data "{\"type\":\"CNAME\",\"name\":\"www\",\"content\":\"${WWW_TARGET}\",\"ttl\":1,\"proxied\":true}")
+            ok=$(echo "$create" | jq -r '.success')
+            if [ "$ok" != "true" ]; then
+              echo "::error::Failed to create CNAME"
+              echo "$create" | jq .
+              exit 1
+            fi
+            echo "$create" | jq '.result | {id,type,name,content,proxied}'
+          else
+            echo "Good CNAME already present — ensuring proxied…"
+            cid=$(echo "$after" | jq -r --arg t "$WWW_TARGET" \
+              '[.result[] | select(.type=="CNAME" and (.content==$t or .content==($t+".")))][0].id')
+            proxied=$(echo "$after" | jq -r --arg id "$cid" \
+              '.result[] | select(.id==$id) | .proxied')
+            if [ "$proxied" != "true" ]; then
+              patch=$(curl -sS -X PATCH "${auth[@]}" \
+                "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${cid}" \
+                --data '{"proxied":true}')
+              echo "$patch" | jq '.success, .result.proxied'
+            fi
+          fi
+
+          echo "Ensuring Pages custom domain www.${ZONE_NAME}…"
+          # List existing domains on project
+          domains=$(curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains")
+          echo "$domains" | jq '.result[]? | {name,status,verification_data}' || echo "$domains" | jq .
+
+          has_www=$(echo "$domains" | jq -r --arg d "www.${ZONE_NAME}" \
+            '[.result[]? | select(.name==$d)] | length')
+          if [ "$has_www" = "0" ]; then
+            add=$(curl -sS -X POST "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/wellness-needles/domains" \
+              --data "{\"name\":\"www.${ZONE_NAME}\"}")
+            echo "$add" | jq .
+          else
+            echo "Pages custom domain www already attached."
+          fi
+
+          echo "Final www records:"
+          curl -sS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?name=www.${ZONE_NAME}" \
+            | jq '.result[] | {type,name,content,proxied}'
+
+      - name: Public DNS check (best-effort)
+        run: |
+          set +e
+          echo "dig www (may lag while TTL expires):"
+          dig +short www.wellnessneedles.ie A || true
+          dig +short www.wellnessneedles.ie CNAME || true
+          echo "HTTP probes:"
+          curl -4 -sS -o /dev/null -w "www ipv4 %{http_code} %{remote_ip}\n" "https://www.wellnessneedles.ie/" || true
+          curl -sS -o /dev/null -w "pages %{http_code}\n" "https://wellness-needles.pages.dev/" || true
