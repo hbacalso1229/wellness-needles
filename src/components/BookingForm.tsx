@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import { Building2, Calendar, CheckCircle, Home, Info, MapPin, User } from 'lucide-react'
+import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
 import { contactConfig } from '@/lib/contact-config'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
@@ -51,6 +51,44 @@ const STEPS: BookingStepperStep[] = [
   { id: 'schedule', title: 'Date & Time' },
   { id: 'details', title: 'Your details' },
 ]
+
+function BookingStepIntro({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: LucideIcon
+  title?: string
+  subtitle: string
+}) {
+  const ampIndex = title?.indexOf('&') ?? -1
+  const titleNode =
+    !title || ampIndex === -1 ? (
+      title
+    ) : (
+      <>
+        {title.slice(0, ampIndex)}
+        <span className="font-sans font-bold">&</span>
+        {title.slice(ampIndex + 1)}
+      </>
+    )
+
+  return (
+    <div className="text-center">
+      <span className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 sm:mb-3 sm:h-14 sm:w-14">
+        <Icon className="h-5 w-5 text-primary sm:h-7 sm:w-7" aria-hidden strokeWidth={1.75} />
+      </span>
+      {titleNode ? (
+        <p className="whitespace-nowrap font-serif text-base font-bold text-[var(--text-dark)] sm:text-2xl">
+          {titleNode}
+        </p>
+      ) : null}
+      <p className={`text-sm font-medium text-[var(--text-dark)] ${titleNode ? 'mt-1' : ''}`}>
+        {subtitle}
+      </p>
+    </div>
+  )
+}
 
 function todayDateInputValue(): string {
   const today = new Date()
@@ -204,6 +242,7 @@ type FieldErrorKey =
   | 'location'
   | 'date'
   | 'time'
+  | 'fullName'
   | 'firstName'
   | 'lastName'
   | 'email'
@@ -215,11 +254,39 @@ const FIELD_FOCUS_IDS: Partial<Record<FieldErrorKey, string>> = {
   location: 'booking-location',
   date: 'booking-date',
   time: 'booking-time',
+  fullName: 'fullName',
   firstName: 'firstName',
   lastName: 'lastName',
   email: 'email',
   phone: 'phone',
   dateOfBirth: 'dateOfBirth',
+}
+
+/** Tailwind `md` breakpoint — desktop First/Last Name fields. */
+const MD_MIN_WIDTH_QUERY = '(min-width: 768px)'
+
+function isMdViewport(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia(MD_MIN_WIDTH_QUERY).matches
+}
+
+function isFullNameFieldShowing(): boolean {
+  return typeof window !== 'undefined' && !isMdViewport()
+}
+
+function splitFullName(raw: string): { firstName: string; lastName: string } {
+  const trimmedStart = raw.replace(/^\s+/, '')
+  const spaceIdx = trimmedStart.search(/\s/)
+  if (spaceIdx === -1) {
+    return { firstName: trimmedStart, lastName: '' }
+  }
+  return {
+    firstName: trimmedStart.slice(0, spaceIdx),
+    lastName: trimmedStart.slice(spaceIdx + 1).replace(/^\s+/, ''),
+  }
+}
+
+function joinFullName(firstName: string, lastName: string): string {
+  return [firstName, lastName].filter((part) => part.length > 0).join(' ')
 }
 
 /** First control to focus when entering each booking step. */
@@ -231,7 +298,11 @@ const STEP_ENTRY_FOCUS_IDS = [
 ] as const
 
 function focusFirstInvalidField(fields: FieldErrorKey[]) {
-  const id = FIELD_FOCUS_IDS[fields[0]]
+  const first = fields[0]
+  const remapNameToFullName =
+    (first === 'firstName' || first === 'lastName' || first === 'fullName') &&
+    isFullNameFieldShowing()
+  const id = remapNameToFullName ? 'fullName' : FIELD_FOCUS_IDS[first]
   if (!id) return
   requestAnimationFrame(() => {
     const el = document.getElementById(id)
@@ -248,6 +319,42 @@ function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim())
 }
 
+type PhoneCountry = {
+  id: string
+  name: string
+  dial: string
+  localDigits: number
+  placeholder: string
+  stripLeadingZero: boolean
+}
+
+const PHONE_COUNTRIES: readonly PhoneCountry[] = [
+  { id: 'IE', name: 'Ireland', dial: '+353', localDigits: 9, placeholder: '86 054 3085', stripLeadingZero: true },
+  { id: 'GB', name: 'United Kingdom', dial: '+44', localDigits: 10, placeholder: '7700 900123', stripLeadingZero: true },
+  { id: 'US', name: 'United States', dial: '+1', localDigits: 10, placeholder: '202 555 0100', stripLeadingZero: false },
+  { id: 'AU', name: 'Australia', dial: '+61', localDigits: 9, placeholder: '412 345 678', stripLeadingZero: true },
+  { id: 'CA', name: 'Canada', dial: '+1', localDigits: 10, placeholder: '416 555 0123', stripLeadingZero: false },
+  { id: 'FR', name: 'France', dial: '+33', localDigits: 9, placeholder: '6 12 34 56 78', stripLeadingZero: true },
+  { id: 'DE', name: 'Germany', dial: '+49', localDigits: 11, placeholder: '151 23456789', stripLeadingZero: true },
+  { id: 'IN', name: 'India', dial: '+91', localDigits: 10, placeholder: '98765 43210', stripLeadingZero: true },
+  { id: 'IT', name: 'Italy', dial: '+39', localDigits: 10, placeholder: '312 345 6789', stripLeadingZero: true },
+  { id: 'NL', name: 'Netherlands', dial: '+31', localDigits: 9, placeholder: '6 12345678', stripLeadingZero: true },
+  { id: 'PL', name: 'Poland', dial: '+48', localDigits: 9, placeholder: '512 345 678', stripLeadingZero: true },
+  { id: 'PT', name: 'Portugal', dial: '+351', localDigits: 9, placeholder: '912 345 678', stripLeadingZero: true },
+  { id: 'ES', name: 'Spain', dial: '+34', localDigits: 9, placeholder: '612 34 56 78', stripLeadingZero: true },
+  { id: 'AE', name: 'United Arab Emirates', dial: '+971', localDigits: 9, placeholder: '50 123 4567', stripLeadingZero: true },
+]
+
+const DEFAULT_PHONE_COUNTRY_ID = 'IE'
+
+function getPhoneCountry(id: string): PhoneCountry {
+  return PHONE_COUNTRIES.find((country) => country.id === id) ?? PHONE_COUNTRIES[0]
+}
+
+function dialDigits(country: PhoneCountry): string {
+  return country.dial.replace(/\D/g, '')
+}
+
 /** Accepts IE national (0…) or international (+353 / 00353), with optional spaces/dashes. */
 function isValidIrishPhone(value: string): boolean {
   const cleaned = value.replace(/[\s\-().]/g, '')
@@ -260,52 +367,182 @@ function isValidIrishPhone(value: string): boolean {
   return false
 }
 
-/** Strip to Irish subscriber digits (9 digits, no trunk 0 / country code). */
-function irishSubscriberDigits(raw: string): string {
+function isValidMobilePhone(value: string, country: PhoneCountry): boolean {
+  if (country.id === 'IE') return isValidIrishPhone(value)
+  const local = subscriberDigits(value, country)
+  return local.length >= 7 && local.length <= country.localDigits
+}
+
+/**
+ * Strip to subscriber digits (no trunk 0 / country code).
+ * Always strip country code when the value is international (`+…` / `00…`)
+ * or a long pasted code — otherwise short stored values like `+353 86`
+ * round-trip as `35386` and corrupt the local input on backspace.
+ */
+function subscriberDigits(raw: string, country: PhoneCountry): string {
+  const code = dialDigits(country)
+  const hasPlus = raw.trimStart().startsWith('+')
   let digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('00353')) digits = digits.slice(5)
-  else if (digits.startsWith('353') && digits.length > 9) digits = digits.slice(3)
-  if (digits.startsWith('0')) digits = digits.slice(1)
-  return digits.slice(0, 9)
+
+  if (digits.startsWith(`00${code}`)) {
+    digits = digits.slice(2 + code.length)
+  } else if (digits.startsWith(code) && (hasPlus || digits.length > country.localDigits)) {
+    digits = digits.slice(code.length)
+  }
+
+  if (country.stripLeadingZero && digits.startsWith('0')) digits = digits.slice(1)
+  return digits.slice(0, country.localDigits)
 }
 
-/** Live format for the local input beside +353: `86 054 3085`. */
-function formatIrishLocalPhoneInput(raw: string): string {
-  const local = irishSubscriberDigits(raw)
-  const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
-    (g) => g.length > 0
-  )
-  return groups.join(' ')
+function formatLocalPhoneInput(raw: string, country: PhoneCountry): string {
+  const local = subscriberDigits(raw, country)
+  if (country.id === 'IE') {
+    const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
+      (g) => g.length > 0
+    )
+    return groups.join(' ')
+  }
+  return local.replace(/(\d{3})(?=\d)/g, '$1 ').trim()
 }
 
-/** Compose stored/submit value: `+353 86 054 3085` (empty if no digits). */
-function toIrishE164(raw: string): string {
-  const local = irishSubscriberDigits(raw)
+function toE164(raw: string, country: PhoneCountry): string {
+  const local = subscriberDigits(raw, country)
   if (!local) return ''
-  const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
-    (g) => g.length > 0
-  )
-  return `+353 ${groups.join(' ')}`
+  return `${country.dial} ${formatLocalPhoneInput(local, country)}`
 }
 
-/** Local digits for the visible input from stored `+353…` / national value. */
-function irishLocalFromStored(stored: string): string {
-  return formatIrishLocalPhoneInput(stored)
-}
-
-function IrishFlagIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 9 6"
-      className={className}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect width="3" height="6" fill="#169B62" />
-      <rect x="3" width="3" height="6" fill="#FFFFFF" />
-      <rect x="6" width="3" height="6" fill="#FF883E" />
-    </svg>
-  )
+function PhoneFlagIcon({ countryId, className }: { countryId: string; className?: string }) {
+  const flagClass = className ?? 'h-4 w-6'
+  switch (countryId) {
+    case 'IE':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="3" height="6" fill="#169B62" />
+          <rect x="3" width="3" height="6" fill="#FFFFFF" />
+          <rect x="6" width="3" height="6" fill="#FF883E" />
+        </svg>
+      )
+    case 'GB':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="6" fill="#012169" />
+          <path d="M0 0 L9 6 M9 0 L0 6" stroke="#FFF" strokeWidth="1.2" />
+          <path d="M0 0 L9 6 M9 0 L0 6" stroke="#C8102E" strokeWidth="0.5" />
+          <path d="M4.5 0 V6 M0 3 H9" stroke="#FFF" strokeWidth="2" />
+          <path d="M4.5 0 V6 M0 3 H9" stroke="#C8102E" strokeWidth="1" />
+        </svg>
+      )
+    case 'US':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="6" fill="#BF0A30" />
+          <rect y="0.46" width="9" height="0.46" fill="#FFF" />
+          <rect y="1.38" width="9" height="0.46" fill="#FFF" />
+          <rect y="2.31" width="9" height="0.46" fill="#FFF" />
+          <rect y="3.23" width="9" height="0.46" fill="#FFF" />
+          <rect y="4.15" width="9" height="0.46" fill="#FFF" />
+          <rect y="5.08" width="9" height="0.46" fill="#FFF" />
+          <rect width="3.6" height="3.23" fill="#002868" />
+        </svg>
+      )
+    case 'CA':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="6" fill="#FFF" />
+          <rect width="2.25" height="6" fill="#FF0000" />
+          <rect x="6.75" width="2.25" height="6" fill="#FF0000" />
+          <path d="M4.5 1.2 L5.1 2.7 H6.6 L5.4 3.6 L5.9 5.1 L4.5 4.2 L3.1 5.1 L3.6 3.6 L2.4 2.7 H3.9 Z" fill="#FF0000" />
+        </svg>
+      )
+    case 'FR':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="3" height="6" fill="#002395" />
+          <rect x="3" width="3" height="6" fill="#FFFFFF" />
+          <rect x="6" width="3" height="6" fill="#ED2939" />
+        </svg>
+      )
+    case 'DE':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="2" fill="#000" />
+          <rect y="2" width="9" height="2" fill="#D00" />
+          <rect y="4" width="9" height="2" fill="#FFCE00" />
+        </svg>
+      )
+    case 'IN':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="2" fill="#FF9933" />
+          <rect y="2" width="9" height="2" fill="#FFF" />
+          <rect y="4" width="9" height="2" fill="#138808" />
+          <circle cx="4.5" cy="3" r="0.7" fill="none" stroke="#000088" strokeWidth="0.25" />
+        </svg>
+      )
+    case 'IT':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="3" height="6" fill="#009246" />
+          <rect x="3" width="3" height="6" fill="#FFF" />
+          <rect x="6" width="3" height="6" fill="#CE2B37" />
+        </svg>
+      )
+    case 'NL':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="2" fill="#AE1C28" />
+          <rect y="2" width="9" height="2" fill="#FFF" />
+          <rect y="4" width="9" height="2" fill="#21468B" />
+        </svg>
+      )
+    case 'PL':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="3" fill="#FFF" />
+          <rect y="3" width="9" height="3" fill="#DC143C" />
+        </svg>
+      )
+    case 'PT':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="3.6" height="6" fill="#006600" />
+          <rect x="3.6" width="5.4" height="6" fill="#FF0000" />
+        </svg>
+      )
+    case 'ES':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="1.5" fill="#AA151B" />
+          <rect y="1.5" width="9" height="3" fill="#F1BF00" />
+          <rect y="4.5" width="9" height="1.5" fill="#AA151B" />
+        </svg>
+      )
+    case 'AU':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="6" fill="#012169" />
+          <rect width="4.5" height="3" fill="#012169" />
+          <path d="M0 0 L4.5 3 M4.5 0 L0 3" stroke="#FFF" strokeWidth="0.6" />
+          <path d="M2.25 0 V3 M0 1.5 H4.5" stroke="#FFF" strokeWidth="1" />
+          <path d="M2.25 0 V3 M0 1.5 H4.5" stroke="#C8102E" strokeWidth="0.45" />
+        </svg>
+      )
+    case 'AE':
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="2" fill="#00732F" />
+          <rect y="2" width="9" height="2" fill="#FFF" />
+          <rect y="4" width="9" height="2" fill="#000" />
+          <rect width="2.25" height="6" fill="#FF0000" />
+        </svg>
+      )
+    default:
+      return (
+        <svg viewBox="0 0 9 6" className={flagClass} aria-hidden focusable="false">
+          <rect width="9" height="6" fill="#7fb069" />
+        </svg>
+      )
+  }
 }
 
 export default function BookingForm() {
@@ -336,6 +573,8 @@ export default function BookingForm() {
     dateOfBirth: '',
     message: '',
   })
+  const [fullNameInput, setFullNameInput] = useState('')
+  const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
   const [hCaptchaToken, setHCaptchaToken] = useState('')
   const [hCaptchaReady, setHCaptchaReady] = useState(false)
   const [hCaptchaError, setHCaptchaError] = useState('')
@@ -362,6 +601,7 @@ export default function BookingForm() {
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
+  const phoneCountry = getPhoneCountry(phoneCountryId)
 
   const resetHCaptcha = () => {
     setHCaptchaToken('')
@@ -426,20 +666,39 @@ export default function BookingForm() {
   ) => {
     const name = e.target.name
     const value =
-      name === 'phone' ? toIrishE164(e.target.value) : e.target.value
+      name === 'phone' ? toE164(e.target.value, phoneCountry) : e.target.value
 
     setFormData({
       ...formData,
       [name]: value,
     })
-    if (
-      name === 'firstName' ||
-      name === 'lastName' ||
-      name === 'email' ||
-      name === 'phone'
-    ) {
+    if (name === 'firstName' || name === 'lastName') {
+      setFullNameInput(
+        joinFullName(
+          name === 'firstName' ? value : formData.firstName,
+          name === 'lastName' ? value : formData.lastName
+        )
+      )
+      clearFieldError('firstName')
+      clearFieldError('lastName')
+      clearFieldError('fullName')
+    } else if (name === 'email' || name === 'phone') {
       clearFieldError(name)
     }
+  }
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value
+    setFullNameInput(next)
+    const { firstName, lastName } = splitFullName(next)
+    setFormData({
+      ...formData,
+      firstName,
+      lastName,
+    })
+    clearFieldError('fullName')
+    clearFieldError('firstName')
+    clearFieldError('lastName')
   }
 
   const handleAddOnToggle = (addOnId: string) => {
@@ -488,13 +747,20 @@ export default function BookingForm() {
       const fields: FieldErrorKey[] = []
       const messages: string[] = []
 
-      if (!formData.firstName.trim()) {
-        fields.push('firstName')
-        messages.push('Please enter your first name.')
-      }
-      if (!formData.lastName.trim()) {
-        fields.push('lastName')
-        messages.push('Please enter your last name.')
+      if (isFullNameFieldShowing()) {
+        if (!formData.firstName.trim() || !formData.lastName.trim()) {
+          fields.push('fullName')
+          messages.push('Please enter your first and last name.')
+        }
+      } else {
+        if (!formData.firstName.trim()) {
+          fields.push('firstName')
+          messages.push('Please enter your first name.')
+        }
+        if (!formData.lastName.trim()) {
+          fields.push('lastName')
+          messages.push('Please enter your last name.')
+        }
       }
       if (!formData.email.trim()) {
         fields.push('email')
@@ -505,11 +771,13 @@ export default function BookingForm() {
       }
       if (!formData.phone.trim()) {
         fields.push('phone')
-        messages.push('Please enter your mobile number.')
-      } else if (!isValidIrishPhone(formData.phone)) {
+        messages.push('Please enter your phone number.')
+      } else if (!isValidMobilePhone(formData.phone, phoneCountry)) {
         fields.push('phone')
         messages.push(
-          'Please enter a valid Irish mobile number (e.g. 86 054 3085).'
+          phoneCountry.id === 'IE'
+            ? 'Please enter a valid Irish phone number (e.g. 86 054 3085).'
+            : `Please enter a valid ${phoneCountry.name} phone number.`
         )
       }
       if (!formData.dateOfBirth.trim()) {
@@ -570,6 +838,8 @@ export default function BookingForm() {
       dateOfBirth: '',
       message: '',
     })
+    setFullNameInput('')
+    setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     resetHCaptcha()
   }
 
@@ -691,6 +961,7 @@ export default function BookingForm() {
 
     saveBookingThankYouSummary({
       firstName: payload.firstName,
+      lastName: payload.lastName,
       email: confirmationEmailQueued ? payload.email : undefined,
       serviceLabel: payload.serviceLabel,
       locationLabel: payload.locationLabel,
@@ -734,14 +1005,20 @@ export default function BookingForm() {
               !selectedTime ||
               isPastTimeRange(selectedDate, selectedTime)))
         }
-        stepFocusId={STEP_ENTRY_FOCUS_IDS[currentStep]}
+        stepFocusId={
+          currentStep === 3
+            ? isMdViewport()
+              ? 'firstName'
+              : 'fullName'
+            : STEP_ENTRY_FOCUS_IDS[currentStep]
+        }
       >
         {currentStep === 0 && (
           <div className="space-y-6">
-            <p className="flex items-center text-base text-secondary">
-              <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
-              Choose how you&apos;d like to be treated
-            </p>
+            <BookingStepIntro
+              icon={MapPin}
+              subtitle="Step 1 of 4 – takes ~2 minutes"
+            />
 
             <div className="relative flex border-b border-accent/20">
               <span
@@ -807,10 +1084,10 @@ export default function BookingForm() {
 
         {currentStep === 1 && (
           <div className="space-y-6">
-            <p className="flex items-center text-base text-secondary">
-              <CheckCircle className="mr-2 h-5 w-5 shrink-0 text-primary" />
-              Choose the treatment that fits you best
-            </p>
+            <BookingStepIntro
+              icon={Leaf}
+              subtitle="Step 2 of 4 – takes ~2 minutes"
+            />
 
             <div
               id="booking-service"
@@ -842,10 +1119,10 @@ export default function BookingForm() {
 
         {currentStep === 2 && (
           <div className="space-y-6">
-            <p className="flex items-start text-base text-secondary">
-              <Calendar className="mt-0.5 mr-2 h-5 w-5 shrink-0 text-primary" />
-              Pick your preferred date and a time range.
-            </p>
+            <BookingStepIntro
+              icon={Calendar}
+              subtitle="Step 3 of 4 – takes ~1 minute"
+            />
 
             <div className="min-w-0 w-full max-w-full">
               <label htmlFor="booking-date" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
@@ -893,11 +1170,11 @@ export default function BookingForm() {
             <div className="min-w-0 w-full">
               <p
                 id="booking-time-label"
-                className="block text-sm font-medium text-[var(--text-dark)] mb-1"
+                className="mb-1 block text-sm font-medium text-[var(--text-dark)]"
               >
                 Preferred Time Range <RequiredMark />
               </p>
-              <p className="text-sm text-secondary mb-3">
+              <p className="mb-3 text-sm text-[var(--text-dark)]/70">
                 Pick a time that works best for you.
               </p>
               <div
@@ -933,53 +1210,86 @@ export default function BookingForm() {
 
         {currentStep === 3 && (
           <div className="space-y-8">
+            <BookingStepIntro
+              icon={ClipboardList}
+              title="Almost there — confirm your details"
+              subtitle="Step 4 of 4"
+            />
+
             <div>
-              <h3 className="mb-4 flex items-center text-xl font-bold text-[var(--text-dark)]">
-                <User className="w-5 h-5 mr-2" />
+              <h3 className="mb-4 flex items-center font-serif text-xl font-bold text-[var(--text-dark)]">
+                <User className="mr-2 h-5 w-5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
                 Contact details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
-                <div className="min-w-0">
-                  <label htmlFor="firstName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
-                    First Name <RequiredMark />
+                <div className="min-w-0 md:hidden">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
+                    Full Name <RequiredMark />
                   </label>
                   <input
                     type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    aria-invalid={hasFieldError('firstName')}
+                    id="fullName"
+                    name="fullName"
+                    value={fullNameInput}
+                    onChange={handleFullNameChange}
+                    placeholder="Enter your full name"
+                    autoComplete="name"
+                    aria-invalid={hasFieldError('fullName')}
                     aria-describedby={
-                      fieldErrorMessage('firstName') ? 'firstName-error' : undefined
+                      fieldErrorMessage('fullName') ? 'fullName-error' : undefined
                     }
-                    className={hasFieldError('firstName') ? fieldErrorClassName : inputClassName}
+                    className={hasFieldError('fullName') ? fieldErrorClassName : inputClassName}
                   />
                   <FieldInlineError
-                    id="firstName-error"
-                    message={fieldErrorMessage('firstName')}
+                    id="fullName-error"
+                    message={fieldErrorMessage('fullName')}
                   />
                 </div>
-                <div className="min-w-0">
-                  <label htmlFor="lastName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
-                    Last Name <RequiredMark />
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    aria-invalid={hasFieldError('lastName')}
-                    aria-describedby={
-                      fieldErrorMessage('lastName') ? 'lastName-error' : undefined
-                    }
-                    className={hasFieldError('lastName') ? fieldErrorClassName : inputClassName}
-                  />
-                  <FieldInlineError
-                    id="lastName-error"
-                    message={fieldErrorMessage('lastName')}
-                  />
+                <div className="hidden md:contents">
+                  <div className="min-w-0">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
+                      First Name <RequiredMark />
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="Enter your first name"
+                      aria-invalid={hasFieldError('firstName')}
+                      aria-describedby={
+                        fieldErrorMessage('firstName') ? 'firstName-error' : undefined
+                      }
+                      className={hasFieldError('firstName') ? fieldErrorClassName : inputClassName}
+                    />
+                    <FieldInlineError
+                      id="firstName-error"
+                      message={fieldErrorMessage('firstName')}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
+                      Last Name <RequiredMark />
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Enter your last name"
+                      aria-invalid={hasFieldError('lastName')}
+                      aria-describedby={
+                        fieldErrorMessage('lastName') ? 'lastName-error' : undefined
+                      }
+                      className={hasFieldError('lastName') ? fieldErrorClassName : inputClassName}
+                    />
+                    <FieldInlineError
+                      id="lastName-error"
+                      message={fieldErrorMessage('lastName')}
+                    />
+                  </div>
                 </div>
                 <div className="min-w-0">
                   <label htmlFor="email" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
@@ -991,6 +1301,7 @@ export default function BookingForm() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    placeholder="Enter your email address"
                     aria-invalid={hasFieldError('email')}
                     aria-describedby={
                       fieldErrorMessage('email') ? 'email-error' : undefined
@@ -1001,7 +1312,7 @@ export default function BookingForm() {
                 </div>
                 <div className="min-w-0">
                   <label htmlFor="phone" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
-                    Mobile Number <RequiredMark />
+                    Phone Number <RequiredMark />
                   </label>
                   <div
                     className={
@@ -1010,22 +1321,52 @@ export default function BookingForm() {
                         : 'flex w-full min-w-0 max-w-full box-border items-stretch overflow-hidden rounded-lg border border-accent/30 bg-white focus-within:border-transparent focus-within:ring-2 focus-within:ring-accent'
                     }
                   >
-                    <div
-                      className="flex shrink-0 items-center gap-2 border-r border-accent/30 px-3 py-3"
-                      aria-hidden="true"
-                    >
-                      <IrishFlagIcon className="h-4 w-6 shrink-0 rounded-[1px] shadow-sm ring-1 ring-black/10" />
-                      <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
-                        +353
-                      </span>
+                    <div className="relative flex shrink-0 items-center border-r border-accent/30 bg-white">
+                      <div className="pointer-events-none flex items-center gap-2 py-3 pl-3 pr-7">
+                        <PhoneFlagIcon
+                          countryId={phoneCountry.id}
+                          className="h-4 w-6 shrink-0 rounded-[1px] shadow-sm ring-1 ring-black/10"
+                        />
+                        <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
+                          {phoneCountry.dial}
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[var(--text-dark)]/50"
+                        aria-hidden
+                        strokeWidth={2.25}
+                      />
+                      <select
+                        id="phone-country"
+                        name="phoneCountry"
+                        value={phoneCountry.id}
+                        aria-label="Country code"
+                        onChange={(e) => {
+                          const nextCountry = getPhoneCountry(e.target.value)
+                          const local = subscriberDigits(formData.phone, phoneCountry)
+                          setPhoneCountryId(nextCountry.id)
+                          setFormData((prev) => ({
+                            ...prev,
+                            phone: toE164(local, nextCountry),
+                          }))
+                          clearFieldError('phone')
+                        }}
+                        className="absolute inset-0 cursor-pointer opacity-0"
+                      >
+                        {PHONE_COUNTRIES.map((country) => (
+                          <option key={country.id} value={country.id}>
+                            {country.name} ({country.dial})
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
-                      value={irishLocalFromStored(formData.phone)}
+                      value={formatLocalPhoneInput(formData.phone, phoneCountry)}
                       onChange={handleChange}
-                      placeholder="86 054 3085"
+                      placeholder={phoneCountry.placeholder}
                       inputMode="tel"
                       autoComplete="tel"
                       aria-invalid={hasFieldError('phone')}
@@ -1041,7 +1382,8 @@ export default function BookingForm() {
             </div>
 
             <div>
-              <h3 className="mb-4 text-xl font-bold text-[var(--text-dark)]">
+              <h3 className="mb-4 flex items-center font-serif text-xl font-bold text-[var(--text-dark)]">
+                <Calendar className="mr-2 h-5 w-5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
                 Additional info
               </h3>
               <div className="grid grid-cols-1 gap-6 min-w-0">
@@ -1087,7 +1429,8 @@ export default function BookingForm() {
                 </div>
                 <div className="min-w-0 w-full max-w-full">
                   <label htmlFor="message" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
-                    Message
+                    Message{' '}
+                    <span className="font-normal text-[var(--text-dark)]/55">(optional)</span>
                   </label>
                   <textarea
                     id="message"
@@ -1095,19 +1438,19 @@ export default function BookingForm() {
                     rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Anything we should know before your visit? (optional)"
+                    placeholder="Anything we should know before your visit?"
                     className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
+                  <p className="mt-4 flex items-center gap-3 text-sm text-[var(--text-dark)]/70">
+                    <span className="h-px min-w-0 flex-1 bg-[var(--text-dark)]/15" aria-hidden />
+                    <span className="inline-flex shrink-0 items-center gap-1.5">
+                      <Lock className="h-3.5 w-3.5 text-primary" aria-hidden strokeWidth={1.75} />
+                      Your information is secure and private.
+                    </span>
+                    <span className="h-px min-w-0 flex-1 bg-[var(--text-dark)]/15" aria-hidden />
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-start gap-2 rounded-xl border border-primary/15 bg-accent/10 px-4 py-3 text-sm font-semibold text-secondary">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-              <p>
-                Submitting sends an appointment request. We will contact you within 24 hours
-                to confirm.
-              </p>
             </div>
 
             {showLocalSecurityNotice && currentStep === 3 && (

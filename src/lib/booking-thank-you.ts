@@ -4,6 +4,8 @@ const BOOKING_THANK_YOU_DISPLAY_KEY = 'bookingThankYouDisplay'
 
 export type BookingThankYouSummary = {
   firstName: string
+  /** Optional so older sessionStorage payloads still parse. */
+  lastName?: string
   email?: string
   serviceLabel?: string
   locationLabel?: string
@@ -23,6 +25,10 @@ function parseSummary(raw: string | null): BookingThankYouSummary | null {
     if (typeof parsed.serviceType !== 'string') return null
     return {
       firstName: parsed.firstName.trim(),
+      lastName:
+        typeof parsed.lastName === 'string' && parsed.lastName.trim()
+          ? parsed.lastName.trim()
+          : undefined,
       email: typeof parsed.email === 'string' ? parsed.email.trim() : undefined,
       serviceLabel:
         typeof parsed.serviceLabel === 'string' ? parsed.serviceLabel : undefined,

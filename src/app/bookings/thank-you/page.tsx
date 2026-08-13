@@ -8,6 +8,7 @@ import {
   Clock,
   HeartHandshake,
   MessageSquare,
+  User,
 } from 'lucide-react'
 import { SectionHeading, glassGreenPanelClassName } from '@/features'
 import { BookingResultBrand } from '@/components/BookingResultBrand'
@@ -139,6 +140,13 @@ export default function BookingThankYouPage() {
               </div>
 
               <ul className="space-y-2 sm:space-y-2.5">
+                <SummaryRow
+                  icon={User}
+                  label="Name"
+                  value={[summary.firstName, summary.lastName]
+                    .filter(Boolean)
+                    .join(' ')}
+                />
                 {summary.serviceLabel ? (
                   <SummaryRow
                     icon={CheckCircle2}

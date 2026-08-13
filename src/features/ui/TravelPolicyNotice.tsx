@@ -43,7 +43,13 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
             </li>
             <li className="flex items-start gap-2">
               <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
-              <span>Beyond 10 km: +€0.50/km or flat €15 travel fee</span>
+              <span>
+                Beyond 10 km:{' '}
+                <span className="font-semibold text-primary">+€0.50</span>
+                /km or flat{' '}
+                <span className="font-semibold text-primary">€15</span>
+                {' '}travel fee
+              </span>
             </li>
           </ul>
         </div>

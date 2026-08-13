@@ -1,6 +1,6 @@
 'use client'
 
-import { Building2, Phone, Mail, Calendar, Home } from 'lucide-react'
+import { Building2, Calendar, Home, Mail, Phone } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import {
@@ -206,8 +206,14 @@ export default function Bookings() {
                   <SectionHeading
                     title="Request an Appointment"
                     credit="Treated by Arkinth Garcia, Naturopath & Acupuncturist."
-                    subtitle="Choose your service and time. We’ll confirm within 24 hours."
+                    subtitle={
+                      <>
+                        <span className="block">Choose your service and time.</span>
+                        <span className="block">We’ll confirm within 24 hours.</span>
+                      </>
+                    }
                     titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 sm:mb-2 md:mb-3"
+                    creditClassName="mb-2 whitespace-nowrap text-[10.5px] tracking-tight text-[var(--text-dark)]/70 sm:text-sm md:mb-3 md:text-base"
                     className="text-center mb-4 sm:mb-8 md:mb-10"
                   />
                   <BookingForm />

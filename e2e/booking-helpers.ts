@@ -29,10 +29,15 @@ export async function fillBookingRequestForm(page: Page) {
   await expect(page.getByRole('heading', { name: /Your details/i })).toBeVisible({
     timeout: 10_000,
   })
-  await page.getByLabel(/First Name/i).fill('E2E')
-  await page.getByLabel(/Last Name/i).fill('Tester')
+  const fullName = page.locator('#fullName')
+  if (await fullName.isVisible()) {
+    await fullName.fill('E2E Tester')
+  } else {
+    await page.getByLabel(/First Name/i).fill('E2E')
+    await page.getByLabel(/Last Name/i).fill('Tester')
+  }
   await page.getByLabel(/Email Address/i).fill('e2e.tester@example.com')
-  await page.getByLabel(/Mobile Number/i).fill('860543085')
+  await page.getByLabel(/Phone Number/i).fill('860543085')
 
   await page.locator('#dateOfBirth').click()
   const dobDialog = page.getByRole('dialog', { name: /Choose date of birth/i })

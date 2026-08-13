@@ -12,6 +12,8 @@ interface SectionHeadingProps {
   creditClassName?: string
   leafClassName?: string
   className?: string
+  /** Extra classes for the gold leaf divider row (e.g. hide on mobile). */
+  dividerClassName?: string
   /** Heading element for the title (default h2). Use h1 on standalone result pages. */
   titleAs?: 'h1' | 'h2'
   titleRef?: Ref<HTMLHeadingElement>
@@ -27,6 +29,7 @@ export function SectionHeading({
   creditClassName = 'mb-2 text-base text-[var(--text-dark)]/70 md:mb-3',
   leafClassName = 'h-3.5 w-3.5 shrink-0 text-primary md:h-4 md:w-4',
   className = 'text-center mb-6 md:mb-8 lg:mb-10',
+  dividerClassName = '',
   titleAs = 'h2',
   titleRef,
   titleTabIndex,
@@ -43,7 +46,10 @@ export function SectionHeading({
         {title}
       </TitleTag>
       {credit ? <p className={creditClassName}>{credit}</p> : null}
-      <div className="mb-3 flex items-center justify-center gap-2 md:mb-4" aria-hidden="true">
+      <div
+        className={`mb-3 flex items-center justify-center gap-2 md:mb-4 ${dividerClassName}`}
+        aria-hidden="true"
+      >
         <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
         <Leaf className={leafClassName} strokeWidth={1.75} />
         <div className="h-0.5 w-8 rounded-full bg-gold md:w-14" />
