@@ -136,7 +136,7 @@ export default function BookingStepper({
             className="pointer-events-none absolute left-[calc(12.5%+0.5rem)] right-[calc(12.5%+0.5rem)] top-6 h-2 -translate-y-1/2"
             aria-hidden
           >
-            <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-accent/50 blur-[2px]" />
+            <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[rgba(127,176,105,0.28)]" />
             <div
               className="booking-step-connector absolute top-1/2 left-0 h-2 -translate-y-1/2 rounded-full bg-primary transition-[width] duration-500 ease-out"
               style={{ width: `${progressFillPercent}%` }}
@@ -197,7 +197,7 @@ export default function BookingStepper({
               className="pointer-events-none absolute left-4 right-4 top-4 h-2 -translate-y-1/2"
               aria-hidden
             >
-              <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-accent/50 blur-[2px]" />
+              <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[rgba(127,176,105,0.28)]" />
               <div
                 className="booking-step-connector absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-primary transition-[width] duration-500 ease-out"
                 style={{ width: `${progressFillPercent}%` }}

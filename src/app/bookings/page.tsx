@@ -213,7 +213,7 @@ export default function Bookings() {
                       </>
                     }
                     titleClassName="font-serif text-xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-1.5 sm:mb-2 md:mb-3"
-                    creditClassName="mb-2 whitespace-nowrap text-[10.5px] tracking-tight text-[var(--text-dark)]/70 sm:text-sm md:mb-3 md:text-base"
+                    creditClassName="mb-2 whitespace-nowrap text-xs tracking-tight text-[var(--text-dark)]/70 sm:text-sm md:mb-3 md:text-base"
                     className="text-center mb-4 sm:mb-8 md:mb-10"
                   />
                   <BookingForm />
