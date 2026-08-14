@@ -163,7 +163,7 @@ export default function Header() {
               />
               <label
                 htmlFor="mobile-nav-toggle"
-                className="relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center text-dark hover:text-dark/70 sm:size-10"
+                className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center text-dark hover:text-dark/70 sm:size-10"
               >
                 <span className="sr-only">Open navigation menu</span>
                 <Menu className="mobile-nav-icon-open h-6 w-6 text-dark" strokeWidth={2} />

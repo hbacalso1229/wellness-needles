@@ -93,29 +93,22 @@ body:has(#mobile-nav-toggle:checked) .mobile-nav-backdrop {
 }
 
 .mobile-nav-icon-open,
-.mobile-nav-icon-close {
-  transition: opacity 280ms ease !important;
-}
-
+.mobile-nav-icon-close,
 .mobile-nav-icon-open *,
 .mobile-nav-icon-close * {
   transition: none !important;
 }
 
 .mobile-nav-icon-close {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 body:has(#mobile-nav-toggle:checked) .mobile-nav-icon-open {
-  opacity: 0;
+  display: none;
 }
 
 body:has(#mobile-nav-toggle:checked) .mobile-nav-icon-close {
-  opacity: 1;
+  display: block;
 }
 
 .mobile-nav-drawer {
