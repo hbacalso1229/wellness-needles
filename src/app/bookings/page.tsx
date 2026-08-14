@@ -22,15 +22,12 @@ import {
   isFreshaBookingConfigured,
   resolveCalendlyUrlForService,
 } from '@/lib/booking-features'
-
-type BookingService = {
-  id: string
-  name: string
-  duration: string
-  price: string
-  description: string
-  savings?: string
-}
+import {
+  homeVisitAddOns,
+  homeVisitServices,
+  inClinicAddOns,
+  inClinicServices,
+} from '@/lib/booking-catalog'
 
 const panelClass =
   'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15'
@@ -41,7 +38,6 @@ export default function Bookings() {
   const calendlyEnabled = features.calendlyEnabled
   const freshaEnabled = features.freshaEnabled
   const freshaReady = isFreshaBookingConfigured(features)
-  const { initialLabel, followUpLabel } = contactConfig.calendly.durations
 
   const [activeTab, setActiveTab] = useState('in-clinic')
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
@@ -49,102 +45,6 @@ export default function Bookings() {
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
-
-  const inClinicServices: BookingService[] = [
-    {
-      id: 'initial-consultation',
-      name: 'Initial Consultation & First Treatment',
-      duration: initialLabel,
-      price: '€75',
-      description: 'Comprehensive health assessment with personalized treatment plan and first acupuncture session'
-    },
-    {
-      id: 'follow-up',
-      name: 'Follow-up Sessions',
-      duration: followUpLabel,
-      price: '€60',
-      description: 'Tailored acupuncture treatment based on your progress and ongoing needs'
-    },
-    {
-      id: 'package-5',
-      name: 'Treatment Package (5 sessions)',
-      duration: 'Multiple visits',
-      price: '€270',
-      description: 'Save €30 with our 5-session package (Valid for 6 months – non-transferable)',
-      savings: 'Save €30'
-    },
-    {
-      id: 'package-10',
-      name: 'Treatment Package (10 sessions)',
-      duration: 'Multiple visits',
-      price: '€520',
-      description: 'Save €80 with our 10-session package (Valid for 6 months – non-transferable)',
-      savings: 'Save €80'
-    }
-  ]
-
-  const homeVisitServices: BookingService[] = [
-    {
-      id: 'home-initial-consultation',
-      name: 'Initial Consultation & First Treatment',
-      duration: initialLabel,
-      price: '€90',
-      description: 'Comprehensive health assessment with personalized treatment plan and first acupuncture session at your home'
-    },
-    {
-      id: 'home-follow-up',
-      name: 'Follow-up Sessions',
-      duration: followUpLabel,
-      price: '€75',
-      description: 'Tailored acupuncture treatment in the comfort of your home'
-    },
-    {
-      id: 'home-package-5',
-      name: 'Treatment Package (5 sessions)',
-      duration: 'Multiple visits',
-      price: '€350',
-      description: 'Save €25 with our 5-session home visit package (Valid for 6 months)',
-      savings: 'Save €25'
-    },
-    {
-      id: 'home-package-10',
-      name: 'Treatment Package (10 sessions)',
-      duration: 'Multiple visits',
-      price: '€690',
-      description: 'Save €60 with our 10-session home visit package (Valid for 6 months)',
-      savings: 'Save €60'
-    }
-  ]
-
-  const inClinicAddOns = [
-    {
-      id: 'cupping',
-      name: 'Cupping Therapy',
-      price: '€20',
-      description: 'Therapeutic cupping treatment as an add-on to your acupuncture session'
-    },
-    {
-      id: 'moxibustion',
-      name: 'Moxibustion',
-      price: 'Free (if required)',
-      description: 'Traditional warming therapy using dried mugwort to stimulate acupuncture points'
-    }
-  ]
-
-  const homeVisitAddOns = [
-    {
-      id: 'home-cupping',
-      name: 'Cupping Therapy',
-      price: '€25',
-      description: 'Therapeutic cupping treatment as an add-on to your home acupuncture session'
-    },
-    {
-      id: 'moxibustion',
-      name: 'Moxibustion',
-      price: 'Free (if required)',
-      description: 'Traditional warming therapy using dried mugwort to stimulate acupuncture points'
-    }
-  ]
 
   const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
     (service) =>
@@ -492,9 +392,9 @@ export default function Bookings() {
                     fullWidth
                   >
                     <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                    Call Now
+                    Call us
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-base text-[var(--text-dark)]/70 md:mt-2">
+                  <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)] md:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>

@@ -11,7 +11,7 @@ test.describe('booking unable-to-process', () => {
     await expect(page.getByText(/sorry for the inconvenience/i)).toBeVisible()
 
     await expect(page.getByRole('heading', { name: /Need help/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /Call Now/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Call us/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /Send a message/i })).toBeVisible()
     await expect(page.getByText(/\+?353|086/i).first()).toBeVisible()
 

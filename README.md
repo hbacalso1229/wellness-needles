@@ -8,7 +8,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); Calendly / Fresha URLs configurable in code
-- Clinic booking emails via **Web3Forms** (browser + hCaptcha on staging and production)
+- Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Pages Function after Turnstile)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
 - SEO-ready meta tags and semantic HTML
@@ -94,6 +94,7 @@ src/
 ├── hooks/
 └── lib/
     ├── contact-config.ts
+    ├── booking-catalog.ts         # In-clinic vs home-visit prices
     ├── booking-features.ts
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
@@ -104,7 +105,21 @@ functions/api/booking-thank-you.ts # Resend patient thank-you
 
 - Colors: `src/app/globals.css`
 - Clinic details / booking defaults: `src/lib/contact-config.ts`
+- Booking prices (in clinic vs home visit): `src/lib/booking-catalog.ts`
 - Images: `public/`
+
+## Booking prices
+
+In-clinic and home visit **must stay on different prices**. Change them only in [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts) — the stepper and the bookings page both read from there.
+
+| Service | In clinic | Home visit |
+|---------|-----------|------------|
+| Initial Consultation & First Treatment | €90 | €120 |
+| Follow-up Sessions | €75 | €90 |
+| Treatment Package (5 sessions) | €270 | €350 |
+| Treatment Package (10 sessions) | €520 | €690 |
+| Cupping add-on | €20 | €25 |
+| Moxibustion | Free (if required) | Free (if required) |
 
 ## Production deployment
 
@@ -121,17 +136,20 @@ functions/api/booking-thank-you.ts # Resend patient thank-you
 | Secret | Used by |
 |--------|---------|
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Staging |
-| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Production Release (browser Web3Forms) |
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Production Release (hCaptcha rollback) |
 | `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | Production Release |
 | `RESEND_API_KEY` | Pages Production secret (patient thank-you) |
+| `TURNSTILE_SECRET_KEY` | Pages Production secret (Turnstile siteverify) |
+| `WEB3FORMS_ACCESS_KEY` | Pages Production secret (clinic send via Function) |
 | `VERCEL_TOKEN` (+ related) | Staging |
 
 ### Booking email checklist
 
 1. **Staging** Web3Forms form: hCaptcha **on**, Autoresponder **OFF**
-2. **Production** Web3Forms form: hCaptcha **on**, Autoresponder **OFF**
-3. Pages secret: `RESEND_API_KEY` (patient thank-you)
-4. Push `dev` for staging; **Release** for production (both use the hCaptcha checkbox)
+2. **Production** Web3Forms form: Captcha **None** after Turnstile Function is live, Autoresponder **OFF**
+3. Pages secrets: `TURNSTILE_SECRET_KEY`, `WEB3FORMS_ACCESS_KEY`, `RESEND_API_KEY`
+4. Pages text variable: `BOOKING_CAPTCHA_PROVIDER=turnstile` (set to `hcaptcha` to roll back — [docs/CAPTCHA_ROLLBACK.md](docs/CAPTCHA_ROLLBACK.md))
+5. Push `dev` for staging (checkbox); **Release** for production (Turnstile badge)
 
 ### Build locally
 

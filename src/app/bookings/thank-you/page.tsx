@@ -20,6 +20,7 @@ import {
   type BookingThankYouSummary,
 } from '@/lib/booking-thank-you'
 import { joinPersonName } from '@/lib/person-name'
+import { visitTypeDisplay } from '@/lib/format-location-display'
 
 function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
@@ -58,7 +59,7 @@ function SummaryRow({
           {value}
         </span>
         {detail ? (
-          <span className="mt-0.5 block break-words text-xs leading-snug text-[var(--text-dark)]/65 sm:text-sm">
+          <span className="mt-0.5 block whitespace-pre-line break-words text-xs leading-snug text-[var(--text-dark)]/65 sm:text-sm">
             {detail}
           </span>
         ) : null}
@@ -91,15 +92,18 @@ export default function BookingThankYouPage() {
   }
 
   const title =
-    ready && summary ? `Thank you, ${summary.firstName}` : 'Thank you'
+    ready && summary ? `Thank you, ${summary.firstName}!` : 'Thank you!'
+
+  const visit = summary
+    ? visitTypeDisplay(summary.serviceType, summary.locationLabel)
+    : null
 
   const subtitle =
     ready && summary ? (
       <>
-        We appreciate you trusting{' '}
-        <span className="font-bold text-primary">Wellness Needles</span> with your
-        care. Your appointment request is with us — we look forward to supporting
-        you.
+        Thank you for choosing{' '}
+        <span className="font-bold text-primary">Wellness Needles</span>.
+        We&apos;ll be in touch soon to confirm your appointment.
       </>
     ) : (
       'We appreciate you reaching out. If you just submitted a request, we have it and will be in touch soon.'
@@ -123,7 +127,13 @@ export default function BookingThankYouPage() {
             titleRef={headingRef}
             titleTabIndex={-1}
             title={title}
-            credit="Request received — we will confirm by email or phone."
+            credit={
+              <>
+                Your appointment request has been received.
+                <br />
+                We&apos;ll confirm by email or phone within 24 hours.
+              </>
+            }
             subtitle={subtitle}
             titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1B3B2B] mb-2 md:mb-3"
             creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
@@ -132,12 +142,17 @@ export default function BookingThankYouPage() {
           />
 
           {ready && summary ? (
-            <div className={`${glassGreenPanelClassName} p-3.5 sm:p-6`}>
-              <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                <HeartHandshake className="h-5 w-5 shrink-0 text-[var(--text-dark)]" aria-hidden />
-                <h2 className="text-base font-semibold text-[var(--text-dark)] sm:text-lg">
-                  Your booking confirmation
-                </h2>
+            <div className="rounded-xl border border-accent/40 bg-accent/[0.07] p-3.5 shadow-[0_8px_28px_rgba(27,59,43,0.10)] sm:p-6">
+              <div className="mb-3 flex items-start gap-2 sm:mb-4">
+                <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-[var(--text-dark)]" aria-hidden />
+                <div>
+                  <h2 className="text-base font-semibold text-[var(--text-dark)] sm:text-lg">
+                    Your appointment request
+                  </h2>
+                  <p className="mt-0.5 text-sm text-[var(--text-dark)]/70">
+                    Your request details
+                  </p>
+                </div>
               </div>
 
               <ul className="space-y-2 sm:space-y-2.5">
@@ -159,8 +174,8 @@ export default function BookingThankYouPage() {
                 <SummaryRow
                   icon={MapPin}
                   label="Visit type"
-                  value={summary.serviceType}
-                  detail={summary.locationLabel}
+                  value={visit?.value ?? summary.serviceType}
+                  detail={visit?.address}
                 />
                 <SummaryRow
                   icon={Calendar}
@@ -181,19 +196,9 @@ export default function BookingThankYouPage() {
                 ) : null}
               </ul>
 
-              <div className="mt-4 space-y-1.5 border-t border-accent/20 pt-3 text-center sm:mt-5 sm:pt-4">
-                {summary.email ? (
-                  <p className="break-words text-sm leading-relaxed text-[var(--text-dark)]/70">
-                    A confirmation email is on its way to{' '}
-                    <span className="font-bold text-[var(--text-dark)]">
-                      {summary.email}
-                    </span>
-                    .
-                  </p>
-                ) : null}
-                <p className="text-sm leading-relaxed text-[var(--text-dark)]/60">
-                  We&apos;ll contact you within 24 hours to confirm. Your preferred time
-                  is not locked until then.
+              <div className="mt-4 border-t border-accent/20 pt-3 text-center sm:mt-5 sm:pt-4">
+                <p className="text-sm font-semibold leading-relaxed text-[var(--text-dark)]">
+                  We&apos;ll contact you within 24 hours to confirm your appointment.
                 </p>
               </div>
             </div>
@@ -212,7 +217,11 @@ export default function BookingThankYouPage() {
           )}
 
           {ready ? (
-            <BookingResultHelpCard intro="Questions about your request? Call or email and we can help." />
+            <BookingResultHelpCard
+              intro="Have questions about your request? We're happy to help."
+              callLabel="Call us"
+              className="max-w-xs"
+            />
           ) : null}
         </div>
       </section>

@@ -14,7 +14,7 @@ import {
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled } from '@/lib/booking-features'
+import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled, fetchRuntimeCaptchaProvider } from '@/lib/booking-features'
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
@@ -39,6 +39,12 @@ import {
   defaultPreferredDate,
   defaultPreferredTime,
 } from '@/features'
+import {
+  homeVisitAddOns,
+  homeVisitServices,
+  inClinicAddOns,
+  inClinicServices,
+} from '@/lib/booking-catalog'
 
 /** Web3Forms free-plan hCaptcha sitekey (enable hCaptcha in the Web3Forms dashboard). */
 const WEB3FORMS_HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
@@ -55,15 +61,6 @@ function isProductionSiteHost(): boolean {
   if (typeof window === 'undefined') return false
   const host = window.location.hostname.toLowerCase()
   return host === 'www.wellnessneedles.ie' || host === 'wellnessneedles.ie'
-}
-
-type BookingService = {
-  id: string
-  name: string
-  duration: string
-  price: string
-  description: string
-  savings?: string
 }
 
 const STEPS: BookingStepperStep[] = [
@@ -123,106 +120,6 @@ function todayDateInputValue(): string {
 function isFutureDateInputValue(dateStr: string): boolean {
   return Boolean(dateStr) && dateStr > todayDateInputValue()
 }
-
-const inClinicServices: BookingService[] = [
-  {
-    id: 'initial-consultation',
-    name: 'Initial Consultation & First Treatment',
-    duration: contactConfig.calendly.durations.initialLabel,
-    price: '€75',
-    description:
-      'Comprehensive health assessment with personalized treatment plan and first acupuncture session',
-  },
-  {
-    id: 'follow-up',
-    name: 'Follow-up Sessions',
-    duration: contactConfig.calendly.durations.followUpLabel,
-    price: '€60',
-    description: 'Tailored acupuncture treatment based on your progress and ongoing needs',
-  },
-  {
-    id: 'package-5',
-    name: 'Treatment Package (5 sessions)',
-    duration: 'Multiple visits',
-    price: '€270',
-    description: 'Save €30 with our 5-session package (Valid for 6 months – non-transferable)',
-    savings: 'Save €30',
-  },
-  {
-    id: 'package-10',
-    name: 'Treatment Package (10 sessions)',
-    duration: 'Multiple visits',
-    price: '€520',
-    description: 'Save €80 with our 10-session package (Valid for 6 months – non-transferable)',
-    savings: 'Save €80',
-  },
-]
-
-const homeVisitServices: BookingService[] = [
-  {
-    id: 'home-initial-consultation',
-    name: 'Initial Consultation & First Treatment',
-    duration: contactConfig.calendly.durations.initialLabel,
-    price: '€90',
-    description:
-      'Comprehensive health assessment with personalized treatment plan and first acupuncture session at your home',
-  },
-  {
-    id: 'home-follow-up',
-    name: 'Follow-up Sessions',
-    duration: contactConfig.calendly.durations.followUpLabel,
-    price: '€75',
-    description: 'Tailored acupuncture treatment in the comfort of your home',
-  },
-  {
-    id: 'home-package-5',
-    name: 'Treatment Package (5 sessions)',
-    duration: 'Multiple visits',
-    price: '€350',
-    description: 'Save €25 with our 5-session home visit package (Valid for 6 months)',
-    savings: 'Save €25',
-  },
-  {
-    id: 'home-package-10',
-    name: 'Treatment Package (10 sessions)',
-    duration: 'Multiple visits',
-    price: '€690',
-    description: 'Save €60 with our 10-session home visit package (Valid for 6 months)',
-    savings: 'Save €60',
-  },
-]
-
-const inClinicAddOns = [
-  {
-    id: 'cupping',
-    name: 'Cupping Therapy',
-    price: '€20',
-    description: 'Therapeutic cupping treatment as an add-on to your acupuncture session',
-  },
-  {
-    id: 'moxibustion',
-    name: 'Moxibustion',
-    price: 'Free (if required)',
-    description:
-      'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
-  },
-]
-
-const homeVisitAddOns = [
-  {
-    id: 'home-cupping',
-    name: 'Cupping Therapy',
-    price: '€25',
-    description: 'Therapeutic cupping treatment as an add-on to your home acupuncture session',
-  },
-  {
-    id: 'moxibustion',
-    name: 'Moxibustion',
-    price: 'Free (if required)',
-    description:
-      'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
-  },
-]
 
 const inputClassName =
   'w-full min-w-0 max-w-full box-border px-4 py-3 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-white'
@@ -440,7 +337,9 @@ export default function BookingForm() {
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const turnstileSiteKey = getTurnstileSiteKey()
-  const useTurnstile = isTurnstileCaptchaEnabled()
+  const buildTimeTurnstile = isTurnstileCaptchaEnabled()
+  const [useTurnstile, setUseTurnstile] = useState(false)
+  const [captchaModeReady, setCaptchaModeReady] = useState(!buildTimeTurnstile)
 
   useEffect(() => {
     setIsLocalHost(isLocalDevHost())
@@ -449,6 +348,27 @@ export default function BookingForm() {
       setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     }
   }, [])
+
+  useEffect(() => {
+    if (!buildTimeTurnstile) return
+    let cancelled = false
+    fetchRuntimeCaptchaProvider().then((provider) => {
+      if (cancelled) return
+      const next = provider !== 'hcaptcha' && Boolean(getTurnstileSiteKey())
+      setUseTurnstile(next)
+      setCaptchaModeReady(true)
+      if (next) {
+        setHCaptchaToken('')
+        setHCaptchaError('')
+      } else {
+        setTurnstileToken('')
+        setTurnstileError('')
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [buildTimeTurnstile])
 
   useEffect(() => {
     const mq = window.matchMedia(MD_MIN_WIDTH_QUERY)
@@ -823,14 +743,22 @@ export default function BookingForm() {
         return
       }
 
-      // Captcha / live email: skip on localhost.
-      // Staging and production both use hCaptcha + browser Web3Forms.
-      // (Turnstile + /api/booking-request was rolled back: Function wait showed apology after clinic mail.)
+      // Captcha / live email: skip on localhost. Staging uses hCaptcha + Web3Forms.
+      // Production default is Turnstile + Pages Function. Pages BOOKING_CAPTCHA_PROVIDER=hcaptcha
+      // rolls back to the checkbox without a new Release (see docs/CAPTCHA_ROLLBACK.md).
       if (isLocalDevHost()) {
         console.warn(
           '[booking submit] Skipping live booking email on localhost. Thank-you still opens for UI testing.'
         )
       } else {
+        if (!captchaModeReady) {
+          setTurnstileError('Please wait for the security check to finish, then send your request.')
+          document.getElementById('booking-security-check')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
+          return
+        }
         const useTurnstileWidget = useTurnstile
         if (useTurnstileWidget && !turnstileToken.trim()) {
           setTurnstileError('Please wait for the security check to finish, then send your request.')
@@ -1441,7 +1369,12 @@ export default function BookingForm() {
 
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
-                {useTurnstile ? (
+                {!captchaModeReady ? (
+                  <div
+                    className="mx-auto h-[65px] w-full max-w-[300px] rounded-md bg-accent/10 animate-pulse"
+                    aria-hidden="true"
+                  />
+                ) : useTurnstile ? (
                   <>
                     <div
                       className={`flex justify-center rounded-lg p-1 transition-colors ${

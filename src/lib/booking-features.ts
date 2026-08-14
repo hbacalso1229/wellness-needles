@@ -50,7 +50,7 @@ export function getEnvWeb3FormsAccessKey(): string {
 
 export type CaptchaProvider = 'hcaptcha' | 'turnstile'
 
-/** Staging and production use hCaptcha. Turnstile is unused unless a build sets it. */
+/** Staging/local default is hCaptcha. Production Release sets `turnstile`. */
 export function getCaptchaProvider(): CaptchaProvider {
   if (typeof process === 'undefined') return 'hcaptcha'
   if (process.env.NEXT_PUBLIC_E2E === 'true') return 'hcaptcha'
@@ -66,6 +66,37 @@ export function getTurnstileSiteKey(): string {
 
 export function isTurnstileCaptchaEnabled(): boolean {
   return getCaptchaProvider() === 'turnstile' && Boolean(getTurnstileSiteKey())
+}
+
+/**
+ * Production-only runtime override from Pages `BOOKING_CAPTCHA_PROVIDER`.
+ * Returns null when the Function is missing (staging) or the request fails —
+ * caller keeps the build-time default.
+ */
+export async function fetchRuntimeCaptchaProvider(): Promise<CaptchaProvider | null> {
+  if (typeof window === 'undefined') return null
+  if (process.env.NEXT_PUBLIC_E2E === 'true') return null
+  if (!getTurnstileSiteKey()) return null
+
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), 4000)
+  try {
+    const response = await fetch('/api/booking-captcha', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+    if (!response.ok) return null
+    const data = (await response.json()) as { provider?: string }
+    if (data.provider === 'hcaptcha') return 'hcaptcha'
+    if (data.provider === 'turnstile') return 'turnstile'
+    return null
+  } catch {
+    return null
+  } finally {
+    window.clearTimeout(timer)
+  }
 }
 
 function pickWeb3FormsAccessKey(

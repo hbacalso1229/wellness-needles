@@ -16,7 +16,7 @@ const goldSizeClassName = {
     'min-h-11 px-5 py-3 text-base gap-2 !shadow-none ring-1 ring-black/10 md:shadow-[0_10px_28px_rgba(196,154,42,0.35)] md:ring-0 md:px-6 md:py-3.5 md:text-lg',
 } as const
 
-/** Shared gold booking CTA only — Book / Start journey / Call Now. Do not use for browse/explore links. */
+/** Shared gold booking CTA only — Book / Start journey / Call us. Do not use for browse/explore links. */
 export const primaryGoldCtaClassName =
   `w-auto inline-flex items-center justify-center ${goldBookingFillClassName} ${goldSizeClassName.large}`
 
