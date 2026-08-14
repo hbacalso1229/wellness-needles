@@ -29,6 +29,10 @@ export async function fillBookingRequestForm(page: Page) {
   await expect(page.getByRole('heading', { name: /Your details/i })).toBeVisible({
     timeout: 10_000,
   })
+  // Name fields mount after layout detection (full name XOR first/last).
+  await expect(page.locator('#fullName, #firstName').first()).toBeVisible({
+    timeout: 10_000,
+  })
   const fullName = page.locator('#fullName')
   if (await fullName.isVisible()) {
     await fullName.fill('E2E Tester')

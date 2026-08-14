@@ -5,6 +5,7 @@ import {
   type BookingFeatureFlags,
 } from '@/lib/booking-features'
 import { contactConfig } from '@/lib/contact-config'
+import { joinPersonName } from '@/lib/person-name'
 
 export type BookingEmailPayload = {
   serviceType: string
@@ -96,7 +97,7 @@ export async function sendBookingRequestEmail(
     }
   }
 
-  const fullName = `${payload.firstName} ${payload.lastName}`.trim()
+  const fullName = joinPersonName(payload.firstName, payload.lastName)
   const preferredDateDisplay = formatDisplayDate(payload.date)
   const patientMessage = payload.message?.trim() ?? ''
 
