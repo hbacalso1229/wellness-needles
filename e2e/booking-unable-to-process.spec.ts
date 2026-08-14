@@ -43,4 +43,18 @@ test.describe('booking unable-to-process', () => {
     ).toBeVisible()
     await expect(page.getByText(/Web3Forms|UUID|access key/i)).toHaveCount(0)
   })
+
+  test('unknown outcome tells the patient not to submit again', async ({ page }) => {
+    await page.addInitScript(() => {
+      sessionStorage.setItem('bookingSubmitOutcome', 'unknown')
+    })
+    await page.goto('/bookings/unable-to-process/')
+    await expect(
+      page.getByRole('heading', {
+        name: /could not confirm your appointment request/i,
+      })
+    ).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/may already have your request/i)).toBeVisible()
+    await expect(page.getByText(/do not submit again/i)).toBeVisible()
+  })
 })

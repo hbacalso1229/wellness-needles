@@ -18,6 +18,7 @@ import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKe
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
+import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
 import {
   joinPersonName,
   normalizeNameParts,
@@ -793,8 +794,12 @@ export default function BookingForm() {
       return
     }
 
-    const goToUnableToProcess = (technicalDetail: string) => {
+    const goToUnableToProcess = (
+      technicalDetail: string,
+      outcome: 'failed' | 'unknown' = 'failed'
+    ) => {
       console.error('[booking submit]', technicalDetail)
+      saveBookingSubmitOutcome(outcome)
       setToast(null)
       const unableUrl = new URL(
         '/bookings/unable-to-process/',
@@ -864,7 +869,8 @@ export default function BookingForm() {
             turnstileRef.current?.reset()
             goToUnableToProcess(
               result.message ||
-                'Could not send the booking email. Please try again or call the clinic.'
+                'Could not send the booking email. Please try again or call the clinic.',
+              result.reason === 'outcome-unknown' ? 'unknown' : 'failed'
             )
             return
           }
