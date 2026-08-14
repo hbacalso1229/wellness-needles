@@ -44,6 +44,13 @@ function isLocalDevHost(): boolean {
   return host === 'localhost' || host === '127.0.0.1' || host === '::1'
 }
 
+/** Live site only — staging (`*.vercel.app`) and local keep the country picker. */
+function isProductionSiteHost(): boolean {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname.toLowerCase()
+  return host === 'www.wellnessneedles.ie' || host === 'wellnessneedles.ie'
+}
+
 type BookingService = {
   id: string
   name: string
@@ -437,6 +444,7 @@ export default function BookingForm() {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [turnstileError, setTurnstileError] = useState('')
   const [isLocalHost, setIsLocalHost] = useState(false)
+  const [lockIrelandPhone, setLockIrelandPhone] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const turnstileSiteKey = getTurnstileSiteKey()
@@ -444,6 +452,10 @@ export default function BookingForm() {
 
   useEffect(() => {
     setIsLocalHost(isLocalDevHost())
+    if (isProductionSiteHost()) {
+      setLockIrelandPhone(true)
+      setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
+    }
   }, [])
 
   useEffect(() => {
@@ -1237,7 +1249,11 @@ export default function BookingForm() {
                     }
                   >
                     <div className="relative flex shrink-0 items-center border-r border-accent/30 bg-white">
-                      <div className="pointer-events-none flex items-center gap-2 py-3 pl-3 pr-7">
+                      <div
+                        className={`pointer-events-none flex items-center gap-2 py-3 pl-3 ${
+                          lockIrelandPhone ? 'pr-3' : 'pr-7'
+                        }`}
+                      >
                         <PhoneFlagIcon
                           countryId={phoneCountry.id}
                           className="h-4 w-6 shrink-0 rounded-[1px] shadow-sm ring-1 ring-black/10"
@@ -1246,34 +1262,40 @@ export default function BookingForm() {
                           {phoneCountry.dial}
                         </span>
                       </div>
-                      <ChevronDown
-                        className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[var(--text-dark)]/50"
-                        aria-hidden
-                        strokeWidth={2.25}
-                      />
-                      <select
-                        id="phone-country"
-                        name="phoneCountry"
-                        value={phoneCountry.id}
-                        aria-label="Country code"
-                        onChange={(e) => {
-                          const nextCountry = getPhoneCountry(e.target.value)
-                          const local = subscriberDigits(formData.phone, phoneCountry)
-                          setPhoneCountryId(nextCountry.id)
-                          setFormData((prev) => ({
-                            ...prev,
-                            phone: toE164(local, nextCountry),
-                          }))
-                          clearFieldError('phone')
-                        }}
-                        className="absolute inset-0 cursor-pointer opacity-0"
-                      >
-                        {PHONE_COUNTRIES.map((country) => (
-                          <option key={country.id} value={country.id}>
-                            {country.name} ({country.dial})
-                          </option>
-                        ))}
-                      </select>
+                      {lockIrelandPhone ? (
+                        <span className="sr-only">Ireland country code +353</span>
+                      ) : (
+                        <>
+                          <ChevronDown
+                            className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[var(--text-dark)]/50"
+                            aria-hidden
+                            strokeWidth={2.25}
+                          />
+                          <select
+                            id="phone-country"
+                            name="phoneCountry"
+                            value={phoneCountry.id}
+                            aria-label="Country code"
+                            onChange={(e) => {
+                              const nextCountry = getPhoneCountry(e.target.value)
+                              const local = subscriberDigits(formData.phone, phoneCountry)
+                              setPhoneCountryId(nextCountry.id)
+                              setFormData((prev) => ({
+                                ...prev,
+                                phone: toE164(local, nextCountry),
+                              }))
+                              clearFieldError('phone')
+                            }}
+                            className="absolute inset-0 cursor-pointer opacity-0"
+                          >
+                            {PHONE_COUNTRIES.map((country) => (
+                              <option key={country.id} value={country.id}>
+                                {country.name} ({country.dial})
+                              </option>
+                            ))}
+                          </select>
+                        </>
+                      )}
                     </div>
                     <input
                       type="tel"
