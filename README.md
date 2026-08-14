@@ -94,6 +94,7 @@ src/
 ├── hooks/
 └── lib/
     ├── contact-config.ts
+    ├── booking-catalog.ts         # In-clinic vs home-visit prices
     ├── booking-features.ts
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
@@ -104,7 +105,21 @@ functions/api/booking-thank-you.ts # Resend patient thank-you
 
 - Colors: `src/app/globals.css`
 - Clinic details / booking defaults: `src/lib/contact-config.ts`
+- Booking prices (in clinic vs home visit): `src/lib/booking-catalog.ts`
 - Images: `public/`
+
+## Booking prices
+
+In-clinic and home visit **must stay on different prices**. Change them only in [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts) — the stepper and the bookings page both read from there.
+
+| Service | In clinic | Home visit |
+|---------|-----------|------------|
+| Initial Consultation & First Treatment | €90 | €120 |
+| Follow-up Sessions | €75 | €90 |
+| Treatment Package (5 sessions) | €270 | €350 |
+| Treatment Package (10 sessions) | €520 | €690 |
+| Cupping add-on | €20 | €25 |
+| Moxibustion | Free (if required) | Free (if required) |
 
 ## Production deployment
 
