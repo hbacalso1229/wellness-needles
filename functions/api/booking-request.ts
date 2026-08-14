@@ -62,20 +62,7 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-function clinicRow(label: string, value: string): string {
-  return `<tr>
-  <td style="padding:8px 12px 8px 0;border-bottom:1px solid #e8e8e8;color:#6b6b6b;font-size:13px;line-height:1.4;vertical-align:top;width:42%;">${escapeHtml(label)}</td>
-  <td style="padding:8px 0;border-bottom:1px solid #e8e8e8;color:#222222;font-size:13px;line-height:1.4;font-weight:600;vertical-align:top;">${escapeHtml(value)}</td>
-</tr>`
-}
+const CLINIC_MESSAGE = 'New appointment request from the website booking form.'
 
 function practitionerDisplayName(value: string): string {
   const trimmed = value.trim()
@@ -83,49 +70,17 @@ function practitionerDisplayName(value: string): string {
   return trimmed
 }
 
-function formatClinicDate(isoDate: string, withWeekday: boolean): string {
+function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
   if (!match) return isoDate
   const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
   if (Number.isNaN(date.getTime())) return isoDate
-  return date.toLocaleDateString('en-IE', withWeekday
-    ? { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
-    : { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-function buildClinicAppointmentRequestHtml(fields: {
-  name: string
-  email: string
-  phone: string
-  visitType: string
-  location: string
-  service: string
-  addOns: string
-  preferredDate: string
-  preferredTime: string
-  practitioner: string
-  dateOfBirth: string
-  patientNote?: string
-}): string {
-  const rows = [
-    clinicRow('Patient name', fields.name),
-    clinicRow('Email', fields.email),
-    clinicRow('Phone', fields.phone),
-    clinicRow('Visit type', fields.visitType),
-    clinicRow('Location', fields.location),
-    clinicRow('Service', fields.service),
-    clinicRow('Add-ons', fields.addOns),
-    clinicRow('Preferred date', fields.preferredDate),
-    clinicRow('Preferred time', fields.preferredTime),
-    clinicRow('Practitioner', fields.practitioner),
-    clinicRow('Date of birth', fields.dateOfBirth),
-  ]
-  const note = fields.patientNote?.trim()
-  if (note) rows.push(clinicRow('Patient note', note))
-
-  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
-${rows.join('\n')}
-</table>`
+  return date.toLocaleDateString('en-IE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 function asString(value: unknown): string {
@@ -231,20 +186,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const addOnLabels = Array.isArray(body.addOnLabels)
     ? body.addOnLabels.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
     : []
-  const clinicMessage = buildClinicAppointmentRequestHtml({
-    name: fullName,
-    email,
-    phone,
-    visitType: serviceType,
-    location: asString(body.locationLabel) || 'Not specified',
-    service: asString(body.serviceLabel) || 'Not specified',
-    addOns: addOnLabels.length ? addOnLabels.join(', ') : 'None',
-    preferredDate: formatClinicDate(date, true),
-    preferredTime: time,
-    practitioner: practitionerDisplayName(asString(body.practitioner)),
-    dateOfBirth: formatClinicDate(dateOfBirth, false),
-    patientNote: patientMessage,
-  })
 
   const web3Response = await fetch('https://api.web3forms.com/submit', {
     method: 'POST',
@@ -260,7 +201,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       email,
       replyto: email,
       to: CLINIC_INBOX,
-      message: clinicMessage,
+      message: CLINIC_MESSAGE,
+      visit_type: serviceType,
+      location: asString(body.locationLabel) || 'Not specified',
+      service: asString(body.serviceLabel) || 'Not specified',
+      add_ons: addOnLabels.length ? addOnLabels.join(', ') : 'None',
+      preferred_date: formatDisplayDate(date),
+      preferred_time: time,
+      practitioner: practitionerDisplayName(asString(body.practitioner)),
+      phone,
+      date_of_birth: dateOfBirth,
+      ...(patientMessage ? { patient_message: patientMessage } : {}),
     }),
   })
 
