@@ -124,7 +124,7 @@ export default function BookingStepper({
     <div ref={sectionRef} className="scroll-mt-24 space-y-3 sm:space-y-5">
       <nav
         aria-label="Booking progress"
-        className="rounded-2xl border border-accent/15 bg-white px-4 py-5 shadow-[0_8px_30px_rgba(45,80,22,0.08)] sm:px-6 sm:py-6"
+        className="relative z-[1] rounded-2xl border border-accent/15 bg-white px-4 py-5 shadow-[0_10px_28px_-6px_rgba(45,80,22,0.18),0_4px_10px_-4px_rgba(45,80,22,0.10)] sm:px-6 sm:py-6"
       >
         <p className="sr-only" aria-live="polite">
           {progressStatus}
@@ -241,7 +241,7 @@ export default function BookingStepper({
         </div>
       </nav>
 
-      <div className="rounded-2xl bg-accent/5 p-4 sm:p-8">
+      <div className="relative rounded-2xl bg-accent/5 p-4 shadow-[0_10px_28px_-6px_rgba(45,80,22,0.18),0_4px_10px_-4px_rgba(45,80,22,0.10)] sm:p-8">
         <h2
           ref={headingRef}
           tabIndex={-1}
