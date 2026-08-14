@@ -6,7 +6,7 @@ test.describe('booking unable-to-process', () => {
     await page.goto('/bookings/unable-to-process/')
 
     await expect(
-      page.getByRole('heading', { name: /unable to process your booking/i })
+      page.getByRole('heading', { name: /unable to process your appointment request/i })
     ).toBeVisible()
     await expect(page.getByText(/sorry for the inconvenience/i)).toBeVisible()
 
@@ -39,7 +39,7 @@ test.describe('booking unable-to-process', () => {
       timeout: 15_000,
     })
     await expect(
-      page.getByRole('heading', { name: /unable to process your booking/i })
+      page.getByRole('heading', { name: /unable to process your appointment request/i })
     ).toBeVisible()
     await expect(page.getByText(/Web3Forms|UUID|access key/i)).toHaveCount(0)
   })

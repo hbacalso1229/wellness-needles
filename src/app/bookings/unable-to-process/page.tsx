@@ -44,8 +44,8 @@ export default function BookingUnableToProcessPage() {
             titleAs="h1"
             titleRef={headingRef}
             titleTabIndex={-1}
-            title="We're unable to process your booking"
-            credit="Booking request — please call or email so we can help."
+            title="We're unable to process your appointment request"
+            credit="Appointment request — please call or email so we can help."
             subtitle="We're sorry for the inconvenience. Something went wrong while sending your appointment request. Please call or email us and we'll help you book a time."
             titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
             creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
