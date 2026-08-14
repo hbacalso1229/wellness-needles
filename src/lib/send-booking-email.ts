@@ -50,7 +50,13 @@ export type SendBookingEmailResult =
   | { ok: true }
   | {
       ok: false
-      reason: 'disabled' | 'not-configured' | 'captcha-required' | 'request-failed'
+      reason:
+        | 'disabled'
+        | 'not-configured'
+        | 'captcha-required'
+        | 'request-failed'
+        /** Network/abort after the Function may already have sent clinic mail. Do not retry. */
+        | 'outcome-unknown'
       message?: string
     }
 
@@ -153,11 +159,13 @@ export async function sendBookingRequestEmail(
   }
 }
 
-const TURNSTILE_BOOKING_TIMEOUT_MS = 15_000
-
 /**
  * Production clinic send: Pages Function verifies Turnstile then posts to Web3Forms.
  * Staging/local must not call this (no Function / hCaptcha path instead).
+ *
+ * Do not abort this fetch. A short client timeout is what showed the apology
+ * page after Web3Forms had already emailed the clinic. Wait for the Function
+ * HTTP response (Pages kills a hung Worker). Never retry — that duplicates mail.
  */
 export async function sendTurnstileBookingRequest(
   payload: BookingEmailPayload,
@@ -172,9 +180,6 @@ export async function sendTurnstileBookingRequest(
     }
   }
 
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TURNSTILE_BOOKING_TIMEOUT_MS)
-
   try {
     const response = await fetch('/api/booking-request', {
       method: 'POST',
@@ -182,47 +187,54 @@ export async function sendTurnstileBookingRequest(
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      signal: controller.signal,
+      keepalive: true,
       body: JSON.stringify({
         turnstileToken: token,
         ...payload,
       }),
     })
 
-    const contentType = response.headers.get('content-type') || ''
-    const data = contentType.includes('application/json')
-      ? ((await response.json().catch(() => null)) as {
-          ok?: boolean
-          reason?: string
-          error?: string
-          message?: string
-        } | null)
-      : null
-
-    if (!response.ok || !data?.ok) {
-      const reason =
-        data?.reason === 'captcha-required' ||
-        data?.reason === 'not-configured' ||
-        data?.reason === 'disabled'
-          ? data.reason
-          : 'request-failed'
-      return {
-        ok: false,
-        reason,
-        message:
-          data?.message ||
-          data?.error ||
-          'Could not send the booking email. Please try again or call the clinic.',
+    const raw = await response.text()
+    let data: {
+      ok?: boolean
+      reason?: string
+      error?: string
+      message?: string
+    } | null = null
+    try {
+      data = JSON.parse(raw) as {
+        ok?: boolean
+        reason?: string
+        error?: string
+        message?: string
       }
+    } catch {
+      data = null
     }
-    return { ok: true }
+
+    if (response.ok && data?.ok === true) {
+      return { ok: true }
+    }
+
+    const reason =
+      data?.reason === 'captcha-required' ||
+      data?.reason === 'not-configured' ||
+      data?.reason === 'disabled'
+        ? data.reason
+        : 'request-failed'
+    return {
+      ok: false,
+      reason,
+      message:
+        data?.message ||
+        data?.error ||
+        'Could not send the booking email. Please try again or call the clinic.',
+    }
   } catch (error) {
     return {
       ok: false,
-      reason: 'request-failed',
+      reason: 'outcome-unknown',
       message: error instanceof Error ? error.message : 'Network error while sending email.',
     }
-  } finally {
-    clearTimeout(timer)
   }
 }
