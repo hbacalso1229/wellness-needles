@@ -15,7 +15,7 @@ test.describe('booking thank-you', () => {
 
     await expect(page).toHaveURL(/\/bookings\/thank-you\/?$/, { timeout: 15_000 })
     await expect(page.getByRole('heading', { name: /Thank you, E2E/i })).toBeVisible()
-    await expect(page.getByText(/Your booking confirmation/i)).toBeVisible()
+    await expect(page.getByText(/Appointment request/i).first()).toBeVisible()
     await expect(page.getByText(/^E2E Tester$/)).toBeVisible()
     await expect(page.getByText(/Initial Consultation/i).first()).toBeVisible()
 
@@ -26,7 +26,7 @@ test.describe('booking thank-you', () => {
       page.getByRole('link', { name: /Wellness Needles/i }).first()
     ).toBeVisible()
     await expect(page.getByRole('heading', { name: /Need help/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /Call Now/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Call us/i })).toBeVisible()
 
     await page.getByRole('link', { name: /Back to bookings|Close and return to booking/i }).click()
     await expect(page).toHaveURL(/\/bookings\/?$/)

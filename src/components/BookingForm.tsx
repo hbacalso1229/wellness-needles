@@ -14,7 +14,7 @@ import {
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled } from '@/lib/booking-features'
+import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled, fetchRuntimeCaptchaProvider } from '@/lib/booking-features'
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
@@ -440,7 +440,9 @@ export default function BookingForm() {
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const turnstileSiteKey = getTurnstileSiteKey()
-  const useTurnstile = isTurnstileCaptchaEnabled()
+  const buildTimeTurnstile = isTurnstileCaptchaEnabled()
+  const [useTurnstile, setUseTurnstile] = useState(false)
+  const [captchaModeReady, setCaptchaModeReady] = useState(!buildTimeTurnstile)
 
   useEffect(() => {
     setIsLocalHost(isLocalDevHost())
@@ -449,6 +451,27 @@ export default function BookingForm() {
       setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     }
   }, [])
+
+  useEffect(() => {
+    if (!buildTimeTurnstile) return
+    let cancelled = false
+    fetchRuntimeCaptchaProvider().then((provider) => {
+      if (cancelled) return
+      const next = provider !== 'hcaptcha' && Boolean(getTurnstileSiteKey())
+      setUseTurnstile(next)
+      setCaptchaModeReady(true)
+      if (next) {
+        setHCaptchaToken('')
+        setHCaptchaError('')
+      } else {
+        setTurnstileToken('')
+        setTurnstileError('')
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [buildTimeTurnstile])
 
   useEffect(() => {
     const mq = window.matchMedia(MD_MIN_WIDTH_QUERY)
@@ -823,14 +846,22 @@ export default function BookingForm() {
         return
       }
 
-      // Captcha / live email: skip on localhost.
-      // Staging and production both use hCaptcha + browser Web3Forms.
-      // (Turnstile + /api/booking-request was rolled back: Function wait showed apology after clinic mail.)
+      // Captcha / live email: skip on localhost. Staging uses hCaptcha + Web3Forms.
+      // Production default is Turnstile + Pages Function. Pages BOOKING_CAPTCHA_PROVIDER=hcaptcha
+      // rolls back to the checkbox without a new Release (see docs/CAPTCHA_ROLLBACK.md).
       if (isLocalDevHost()) {
         console.warn(
           '[booking submit] Skipping live booking email on localhost. Thank-you still opens for UI testing.'
         )
       } else {
+        if (!captchaModeReady) {
+          setTurnstileError('Please wait for the security check to finish, then send your request.')
+          document.getElementById('booking-security-check')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
+          return
+        }
         const useTurnstileWidget = useTurnstile
         if (useTurnstileWidget && !turnstileToken.trim()) {
           setTurnstileError('Please wait for the security check to finish, then send your request.')
@@ -1441,7 +1472,12 @@ export default function BookingForm() {
 
             {showSecurityCheck && currentStep === 3 && (
               <div id="booking-security-check" className="w-full min-w-0 space-y-2">
-                {useTurnstile ? (
+                {!captchaModeReady ? (
+                  <div
+                    className="mx-auto h-[65px] w-full max-w-[300px] rounded-md bg-accent/10 animate-pulse"
+                    aria-hidden="true"
+                  />
+                ) : useTurnstile ? (
                   <>
                     <div
                       className={`flex justify-center rounded-lg p-1 transition-colors ${

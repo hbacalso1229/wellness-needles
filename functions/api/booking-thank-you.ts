@@ -95,53 +95,196 @@ const SECONDARY = '#4a7c2a'
 const GOLD = '#d4af37'
 const HEADING = '#1B3B2B'
 const TEXT = '#2a2a28'
+/** text-dark at 70% / 65% / 50% on white — email clients ignore CSS opacity. */
+const TEXT_MUTED = '#6a6a69'
+const TEXT_DETAIL = '#757573'
+const TEXT_LABEL = '#959594'
+const ROW_BORDER = '#d4e4cc'
+const BADGE_BG = '#f2f7f0'
+const BADGE_BORDER = '#c5dcb8'
 const SANS = "Arial,Helvetica,sans-serif"
 const SERIF = "Georgia,'Times New Roman',serif"
 
-function row(label: string, value: string, detail?: string): string {
-  const detailHtml = detail
-    ? `<div style="margin-top:4px;font-family:${SANS};font-size:13px;line-height:1.35;color:${TEXT};opacity:0.65;">${escapeHtml(detail)}</div>`
-    : ''
+function iconUrl(name: string): string {
+  return `${SITE}/email/${name}.png`
+}
+
+function iconImg(name: string, size: number): string {
+  return `<img src="${iconUrl(name)}" alt="" width="${size}" height="${size}" style="display:block;width:${size}px;height:${size}px;border:0;margin:0 auto;" />`
+}
+
+/** Stop mail apps painting auto-detected email/phone/address in default blue. */
+function brandedLink(href: string, label: string, color: string, extra = ''): string {
+  const html = escapeHtml(label).replace(/\n/g, '<br />')
+  return `<a href="${href}" style="color:${color} !important;text-decoration:none !important;${extra}">${html}</a>`
+}
+
+function displayCounty(county: string): string {
+  return county.replace(/^Co\.(?=\S)/, 'Co. ')
+}
+
+/** Keep in sync with src/lib/format-location-display.ts */
+function parseLocationDisplay(locationLabel: string): { town: string; address: string } | null {
+  const trimmed = locationLabel.trim()
+  if (!trimmed) return null
+  const known: Array<{
+    label: string
+    street: string
+    city: string
+    county: string
+    postcode: string
+  }> = [
+    {
+      label: 'Celbridge',
+      street: '56 The Orchard Oldtown Mill',
+      city: 'Celbridge',
+      county: 'Co.Kildare',
+      postcode: 'W23 K603',
+    },
+    {
+      label: 'Carlow',
+      street: '16 Kennedy St',
+      city: 'Graigue',
+      county: 'Carlow',
+      postcode: 'R93 H2X8',
+    },
+  ]
+  const loc = known.find(
+    (item) => trimmed === item.label || trimmed.startsWith(`${item.label} —`)
+  )
+  if (loc) {
+    return {
+      town: loc.label,
+      address: [
+        loc.street,
+        `${loc.city}, ${displayCounty(loc.county)}`,
+        loc.postcode,
+      ].join('\n'),
+    }
+  }
+  const dash = trimmed.indexOf(' — ')
+  if (dash !== -1) {
+    return {
+      town: trimmed.slice(0, dash),
+      address: trimmed.slice(dash + 3),
+    }
+  }
+  return { town: '', address: trimmed }
+}
+
+function visitTypeDisplay(
+  serviceType: string,
+  locationLabel?: string
+): { value: string; address?: string } {
+  const parsed = locationLabel ? parseLocationDisplay(locationLabel) : null
+  if (!parsed) return { value: serviceType }
+  if (parsed.town) {
+    return { value: `${serviceType} — ${parsed.town}`, address: parsed.address }
+  }
+  return { value: serviceType, address: parsed.address }
+}
+
+function mapsHref(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
+
+function goldBar(): string {
+  return `
+    <table role="presentation" width="32" cellspacing="0" cellpadding="0" style="width:32px;border-collapse:collapse;">
+      <tr>
+        <td height="2" style="height:2px;line-height:2px;font-size:0;background-color:${GOLD};border-radius:999px;">&nbsp;</td>
+      </tr>
+    </table>`
+}
+
+function leafDivider(): string {
+  return `
+    <table role="presentation" cellspacing="0" cellpadding="0">
+      <tr>
+        <td valign="middle" width="32" style="width:32px;padding:0 8px 0 0;">${goldBar()}</td>
+        <td valign="middle" style="padding:0;">${iconImg('leaf', 14)}</td>
+        <td valign="middle" width="32" style="width:32px;padding:0 0 0 8px;">${goldBar()}</td>
+      </tr>
+    </table>`
+}
+
+function row(
+  icon: string,
+  label: string,
+  value: string,
+  detail?: { text: string; href?: string }
+): string {
+  let detailHtml = ''
+  if (detail?.text) {
+    const inner = detail.href
+      ? brandedLink(detail.href, detail.text, TEXT_DETAIL)
+      : escapeHtml(detail.text)
+    detailHtml = `<div style="margin-top:4px;font-family:${SANS};font-size:13px;line-height:1.35;color:${TEXT_DETAIL};">${inner}</div>`
+  }
   return `
     <tr>
-      <td style="padding:10px 14px;border:1px solid #d4e4cc;border-radius:12px;background:#ffffff;">
-        <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT};opacity:0.5;font-weight:500;">${escapeHtml(label)}</div>
-        <div style="margin-top:4px;font-family:${SANS};font-size:15px;font-weight:600;color:${TEXT};line-height:1.35;">${escapeHtml(value)}</div>
-        ${detailHtml}
+      <td style="padding:10px 12px;border:1px solid ${ROW_BORDER};border-radius:12px;background:#ffffff;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td valign="top" width="32" style="width:32px;padding-top:2px;padding-right:12px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td width="32" height="32" align="center" valign="middle" bgcolor="${BADGE_BG}" style="width:32px;height:32px;border:1px solid ${BADGE_BORDER};border-radius:999px;background-color:${BADGE_BG};">
+                    ${iconImg(icon, 16)}
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td valign="top" style="text-align:left;">
+              <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT_LABEL};font-weight:500;">${escapeHtml(label)}</div>
+              <div style="margin-top:2px;font-family:${SANS};font-size:15px;font-weight:600;color:${TEXT};line-height:1.35;">${escapeHtml(value)}</div>
+              ${detailHtml}
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
     <tr><td style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>`
 }
 
 /** Full-width pill — table cell is the button so Gmail cannot shrink to the label. */
-function fullWidthPill(href: string, label: string, variant: 'gold' | 'outline'): string {
+function fullWidthPill(
+  href: string,
+  label: string,
+  variant: 'gold' | 'outline',
+  icon: 'phone' | 'mail'
+): string {
   const gold = variant === 'gold'
   const tdStyle = gold
     ? `width:100%;background-color:${GOLD};border-radius:999px;padding:10px 16px;`
     : `width:100%;background-color:#ffffff;border:2px solid ${PRIMARY};border-radius:999px;padding:8px 16px;`
-  const aStyle = [
-    'display:block',
-    'width:100%',
+  const labelStyle = [
     `font-family:${SANS}`,
     'font-size:14px',
     gold ? 'font-weight:700' : 'font-weight:500',
     `color:${PRIMARY}`,
     'text-decoration:none',
-    'text-align:center',
     'line-height:1.25',
   ].join(';')
   return `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:separate;">
       <tr>
         <td width="100%" align="center" bgcolor="${gold ? GOLD : '#ffffff'}" style="${tdStyle}">
-          <a href="${href}" style="${aStyle}">${label}</a>
+          <a href="${href}" style="display:block;width:100%;text-decoration:none;color:${PRIMARY};">
+            <table role="presentation" cellspacing="0" cellpadding="0" align="center">
+              <tr>
+                <td valign="middle" style="padding-right:6px;">${iconImg(icon, 16)}</td>
+                <td valign="middle" style="${labelStyle}">${label}</td>
+              </tr>
+            </table>
+          </a>
         </td>
       </tr>
     </table>`
 }
 
 function orDivider(): string {
-  const line = `background-color:#d4e4cc;height:1px;font-size:0;line-height:0;`
+  const line = `background-color:${ROW_BORDER};height:1px;font-size:0;line-height:0;`
   return `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin:10px 0;">
       <tr>
@@ -155,100 +298,111 @@ function orDivider(): string {
 function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> & ThankYouBody): string {
   const fullName = joinPersonName(body.firstName, body.lastName || '')
   const logoUrl = `${SITE}/logo_wellness_transparent.png`
+  const visit = visitTypeDisplay(body.serviceType, body.locationLabel)
   const rows = [
-    row('Name', fullName),
-    body.serviceLabel ? row('Service', body.serviceLabel) : '',
-    row('Visit type', body.serviceType, body.locationLabel),
-    row('Preferred date', formatDisplayDate(body.date)),
-    row('Preferred time', body.time),
-    body.message ? row('Message', body.message) : '',
+    row('user', 'Name', fullName),
+    body.serviceLabel ? row('check', 'Service', body.serviceLabel) : '',
+    row(
+      'map-pin',
+      'Visit type',
+      visit.value,
+      visit.address
+        ? {
+            text: visit.address,
+            href: mapsHref(body.locationLabel || visit.address),
+          }
+        : undefined
+    ),
+    row('calendar', 'Preferred date', formatDisplayDate(body.date)),
+    row('clock', 'Preferred time', body.time),
+    body.message ? row('message', 'Message', body.message) : '',
   ].join('')
 
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="format-detection" content="telephone=no,address=no,email=no" />
+  <meta name="x-apple-data-detectors" content="false" />
+</head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:${SANS};color:${TEXT};">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;">
     <tr>
       <td align="center" style="padding:28px 16px;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:448px;width:100%;">
           <tr>
-            <td align="center" style="padding-bottom:24px;">
-              <table role="presentation" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td valign="middle" style="padding-right:10px;">
-                    <img src="${logoUrl}" alt="Wellness Needles" width="40" height="40" style="display:block;width:40px;height:40px;border:0;" />
-                  </td>
-                  <td valign="middle" style="font-family:${SERIF};font-size:18px;font-weight:800;letter-spacing:0.04em;color:${PRIMARY};">
-                    Wellness Needles
-                  </td>
-                </tr>
-              </table>
+            <td align="center" style="padding-bottom:20px;">
+              <a href="${SITE}/" style="text-decoration:none;">
+                <img src="${logoUrl}" alt="Wellness Needles" width="56" height="56" style="display:block;width:56px;height:56px;border:0;margin:0 auto;" />
+              </a>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${HEADING};">Thank you, ${escapeHtml(body.firstName)}</h1>
+              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${HEADING};text-align:center;">Thank you, ${escapeHtml(body.firstName)}!</h1>
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding-bottom:10px;font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;">
-              Request received — we will confirm by email or phone.
+            <td align="center" style="padding-bottom:10px;font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT_MUTED};">
+              Your appointment request has been received.
+              <br />We'll confirm by email or phone within 24 hours.
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-bottom:16px;">
-              <table role="presentation" cellspacing="0" cellpadding="0">
+              ${leafDivider()}
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-bottom:20px;font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT_MUTED};">
+              Thank you for choosing <strong style="color:${PRIMARY};">Wellness Needles</strong>.
+              We'll be in touch soon to confirm your appointment.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:14px 16px 16px;border:1px solid #b7d0a8;border-radius:12px;background:#f4f8f2;box-shadow:0 8px 24px rgba(27,59,43,0.10);">
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom:12px;">
                 <tr>
-                  <td valign="middle" style="width:32px;border-top:2px solid ${GOLD};font-size:0;line-height:0;">&nbsp;</td>
-                  <td valign="middle" style="padding:0 8px;font-size:11px;line-height:11px;color:${PRIMARY};">&#9670;</td>
-                  <td valign="middle" style="width:32px;border-top:2px solid ${GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                  <td valign="top" style="padding-right:8px;padding-top:2px;">${iconImg('heart-handshake', 20)}</td>
+                  <td valign="top">
+                    <div style="font-family:${SANS};font-size:16px;font-weight:600;color:${TEXT};line-height:1.3;">Your appointment request</div>
+                    <div style="font-family:${SANS};font-size:13px;line-height:1.35;color:${TEXT_MUTED};margin-top:2px;">Your request details</div>
+                  </td>
                 </tr>
               </table>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding-bottom:20px;font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT};opacity:0.7;">
-              We appreciate you trusting <strong style="color:${PRIMARY};">Wellness Needles</strong> with your care.
-              Your appointment request is with us — we look forward to supporting you.
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:14px 16px 16px;border:1px solid #d4e4cc;border-radius:12px;background:#f4f8f2;">
-              <div style="font-family:${SANS};font-size:16px;font-weight:600;color:${TEXT};margin-bottom:12px;">
-                Your booking confirmation
-              </div>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 ${rows}
               </table>
-              <div style="border-top:1px solid #d4e4cc;margin-top:4px;padding-top:12px;text-align:center;font-family:${SANS};font-size:14px;line-height:1.5;color:${TEXT};opacity:0.7;">
-                A confirmation email is on its way to <strong style="opacity:1;color:${TEXT};">${escapeHtml(body.email)}</strong>.
-                <br />We'll contact you within 24 hours to confirm. Your preferred time is not locked until then.
+              <div style="border-top:1px solid ${ROW_BORDER};margin-top:4px;padding-top:12px;text-align:center;font-family:${SANS};font-size:14px;line-height:1.5;font-weight:700;color:${TEXT};">
+                We'll contact you within 24 hours to confirm your appointment.
               </div>
             </td>
           </tr>
           <tr>
             <td align="center" style="padding-top:20px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:320px;border:1px solid #d4e4cc;border-radius:12px;background:#eef5ea;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:320px;border:1px solid ${ROW_BORDER};border-radius:12px;background:#eef5ea;">
                 <tr>
-                  <td style="padding:16px;text-align:center;">
+                  <td style="padding:16px;text-align:left;">
                     <div style="font-family:${SANS};font-size:18px;font-weight:700;line-height:1.3;color:${HEADING};margin-bottom:4px;">Need help?</div>
-                    <div style="font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT};opacity:0.7;margin-bottom:16px;">
-                      Questions about your request? Call or email and we can help.
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT_MUTED};margin-bottom:16px;">
+                      Have questions about your request? We're happy to help.
                     </div>
-                    ${fullWidthPill(PHONE_HREF, 'Call Now', 'gold')}
-                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;margin:6px 0 0;">${PHONE_DISPLAY}</div>
+                    ${fullWidthPill(PHONE_HREF, 'Call us', 'gold', 'phone')}
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;font-weight:600;color:${TEXT};margin:6px 0 0;text-align:center;">${brandedLink(PHONE_HREF, PHONE_DISPLAY, TEXT, 'font-weight:600;')}</div>
                     ${orDivider()}
-                    ${fullWidthPill(EMAIL_HREF, 'Send a message', 'outline')}
-                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT};opacity:0.7;margin-top:6px;">We reply within 24 hours</div>
+                    ${fullWidthPill(EMAIL_HREF, 'Send a message', 'outline', 'mail')}
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT_MUTED};margin-top:6px;text-align:center;">We reply within 24 hours</div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding-top:22px;font-family:${SANS};font-size:12px;color:${TEXT};opacity:0.5;">
-              <a href="${SITE}/" style="color:${SECONDARY};text-decoration:none;">www.wellnessneedles.ie</a>
+            <td align="center" style="padding-top:22px;font-family:${SANS};font-size:12px;line-height:1.5;color:${TEXT_LABEL};">
+              Wellness Needles
+              <br />
+              <a href="${SITE}/" style="color:${SECONDARY};text-decoration:none;">wellnessneedles.ie</a>
             </td>
           </tr>
         </table>
