@@ -49,7 +49,6 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - **Fonts**: Inter & Playfair Display
 - **Staging**: Vercel Preview from `dev` → `https://wellness-needles.vercel.app`
 - **Production**: Cloudflare Pages on **GitHub Release published** → `https://www.wellnessneedles.ie`
-- **Go-live architecture**: [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md)
 
 ## Getting started
 
@@ -61,7 +60,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-For legacy booking emails locally, add your Web3Forms key to `.env.local` and restart the dev server. See [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md).
+For legacy booking emails locally, add your Web3Forms key to `.env.local` and restart the dev server.
 
 ## End-to-end tests (Playwright)
 
@@ -99,7 +98,6 @@ src/
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
 functions/api/booking-thank-you.ts # Resend patient thank-you
-docs/GO_LIVE_ARCHITECTURE.md
 ```
 
 ## Customization
@@ -115,8 +113,6 @@ docs/GO_LIVE_ARCHITECTURE.md
 | Push `dev` | Staging → Vercel (`https://wellness-needles.vercel.app`) |
 | Merge `main` | CI only — no live deploy |
 | **Publish GitHub Release** | Production → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
-
-Architecture: [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md).
 
 **Live booking rule:** enable only one of Fresha / Calendly / legacy form in `contact-config.ts`.
 
@@ -136,8 +132,6 @@ Architecture: [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md).
 2. **Production** Web3Forms form: hCaptcha **on**, Autoresponder **OFF**
 3. Pages secret: `RESEND_API_KEY` (patient thank-you)
 4. Push `dev` for staging; **Release** for production (both use the hCaptcha checkbox)
-
-Details: [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md).
 
 ### Build locally
 
