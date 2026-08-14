@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Calendar, Menu, X } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { headerGoldCtaClassName, headerGoldCtaMobileClassName } from '@/features/ui/CTAButton'
 
@@ -56,15 +56,6 @@ export default function Header() {
   const bookNowClassName = headerGoldCtaClassName
   const bookNowHeaderMobileClassName = headerGoldCtaMobileClassName
 
-  // Lock body scroll while the drawer is open.
-  useEffect(() => {
-    if (!isMenuOpen) return
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prevOverflow
-    }
-  }, [isMenuOpen])
 
   const isNavActive = (href: string) => {
     const normalizedHref = normalizePathname(href)
@@ -137,10 +128,10 @@ export default function Header() {
   )
 
   const setMenuOpen = (open: boolean) => {
-    setIsMenuOpen(open)
     if (menuToggleRef.current) {
       menuToggleRef.current.checked = open
     }
+    requestAnimationFrame(() => setIsMenuOpen(open))
   }
 
   const closeMenu = () => setMenuOpen(false)
@@ -157,7 +148,10 @@ export default function Header() {
                 id="mobile-nav-toggle"
                 type="checkbox"
                 className="sr-only"
-                onChange={(event) => setIsMenuOpen(event.target.checked)}
+                onChange={(event) => {
+                  const open = event.target.checked
+                  requestAnimationFrame(() => setIsMenuOpen(open))
+                }}
                 aria-label="Open navigation menu"
                 aria-controls="mobile-navigation"
               />
@@ -166,8 +160,11 @@ export default function Header() {
                 className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center text-dark hover:text-dark/70 sm:size-10"
               >
                 <span className="sr-only">Open navigation menu</span>
-                <Menu className="mobile-nav-icon-open h-6 w-6 text-dark" strokeWidth={2} />
-                <X className="mobile-nav-icon-close h-6 w-6 text-dark" strokeWidth={2} />
+                <span className="mobile-nav-hamburger" aria-hidden>
+                  <span />
+                  <span />
+                  <span />
+                </span>
               </label>
             </div>
 
@@ -234,7 +231,7 @@ export default function Header() {
       <div className="mobile-nav-layer">
         <button
           type="button"
-          className="mobile-nav-backdrop fixed inset-x-0 bottom-0 top-12 z-[130] bg-black/35 sm:top-14"
+          className="mobile-nav-backdrop fixed inset-x-0 bottom-0 top-12 z-[130] sm:top-14"
           aria-label="Close navigation menu"
           onClick={closeMenu}
         />
