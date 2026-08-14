@@ -284,13 +284,19 @@ function fullWidthPill(
 }
 
 function orDivider(): string {
-  const line = `background-color:${ROW_BORDER};height:1px;font-size:0;line-height:0;`
+  // Nested 1px border — same-row background-color cells stretch to the "Or" label height in Gmail.
+  const hairline = `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td height="1" style="height:1px;line-height:1px;font-size:1px;mso-line-height-rule:exactly;border-top:1px solid ${ROW_BORDER};">&nbsp;</td>
+      </tr>
+    </table>`
   return `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin:10px 0;">
       <tr>
-        <td width="42%" valign="middle" style="${line}">&nbsp;</td>
+        <td width="42%" valign="middle" style="padding:0;font-size:0;line-height:0;">${hairline}</td>
         <td width="16%" align="center" valign="middle" style="font-family:${SANS};font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${SECONDARY};white-space:nowrap;padding:0 8px;">Or</td>
-        <td width="42%" valign="middle" style="${line}">&nbsp;</td>
+        <td width="42%" valign="middle" style="padding:0;font-size:0;line-height:0;">${hairline}</td>
       </tr>
     </table>`
 }
