@@ -22,7 +22,7 @@ export function BookingSection({
   eyebrow,
   title = 'Ready when you are',
   description = 'Take a quiet next step. Book a session and begin restoring balance at a pace that feels right for you.',
-  ctaLabel = 'Book your session',
+  ctaLabel = 'Book Your Session',
   children,
   leading,
 }: BookingSectionProps) {

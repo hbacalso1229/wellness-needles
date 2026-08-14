@@ -100,7 +100,7 @@ export function HeroSection() {
                 rel={rel}
               >
                 <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                Book your session
+                Book Your Session
               </CTAButton>
             </div>
             <a

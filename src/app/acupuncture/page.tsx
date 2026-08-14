@@ -516,7 +516,7 @@ export default function Acupuncture() {
       <BookingSection
         title="Not sure where to start?"
         description="Let the practitioner support you on your journey to better health and balance."
-        ctaLabel="Book your first session"
+        ctaLabel="Book Your First Session"
       />
 
       {/* Scientific Evidence — open proof on glass */}
