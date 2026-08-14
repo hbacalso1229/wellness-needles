@@ -4,6 +4,11 @@ import {
   readBookingFeatures,
   type BookingFeatureFlags,
 } from '@/lib/booking-features'
+import {
+  buildClinicAppointmentRequestHtml,
+  formatClinicDate,
+  practitionerDisplayName,
+} from '@/lib/clinic-appointment-email-html'
 import { contactConfig } from '@/lib/contact-config'
 
 export type BookingEmailPayload = {
@@ -23,22 +28,6 @@ export type BookingEmailPayload = {
   message?: string
 }
 
-/** Short clinic message — booking details live in structured fields only. */
-const CLINIC_MESSAGE = 'New appointment request from the website booking form.'
-
-function formatDisplayDate(isoDate: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
-  if (!match) return isoDate
-  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-  if (Number.isNaN(date.getTime())) return isoDate
-  return date.toLocaleDateString('en-IE', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
 export type SendBookingEmailResult =
   | { ok: true }
   | {
@@ -53,8 +42,8 @@ export const BOOKING_REQUEST_INBOX = contactConfig.email.address
 /**
  * Sends the booking request to the clinic inbox via Web3Forms.
  *
- * Details are sent once as structured fields (not duplicated in `message`).
- * Patient thank-you email: Resend via Cloudflare Pages Function `/api/booking-thank-you`
+ * Details are sent once as an HTML label/value table in `message` (Free plan;
+ * no Web3Forms Pro template). Patient thank-you: Resend via `/api/booking-thank-you`
  * (Autoresponder must stay OFF on Web3Forms).
  */
 export async function sendBookingRequestEmail(
@@ -91,8 +80,21 @@ export async function sendBookingRequestEmail(
   }
 
   const fullName = `${payload.firstName} ${payload.lastName}`.trim()
-  const preferredDateDisplay = formatDisplayDate(payload.date)
   const patientMessage = payload.message?.trim() ?? ''
+  const clinicMessage = buildClinicAppointmentRequestHtml({
+    name: fullName,
+    email: payload.email,
+    phone: payload.phone,
+    visitType: payload.serviceType,
+    location: payload.locationLabel || 'Not specified',
+    service: payload.serviceLabel || 'Not specified',
+    addOns: payload.addOnLabels?.length ? payload.addOnLabels.join(', ') : 'None',
+    preferredDate: formatClinicDate(payload.date, true),
+    preferredTime: payload.time,
+    practitioner: practitionerDisplayName(payload.practitioner),
+    dateOfBirth: formatClinicDate(payload.dateOfBirth, false),
+    patientNote: patientMessage,
+  })
 
   try {
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -109,19 +111,8 @@ export async function sendBookingRequestEmail(
         email: payload.email,
         replyto: payload.email,
         to: emailTo,
-        message: CLINIC_MESSAGE,
+        message: clinicMessage,
         'h-captcha-response': token,
-        // Single detail list for clinic email + Autoresponder submission copy
-        visit_type: payload.serviceType,
-        location: payload.locationLabel || 'Not specified',
-        service: payload.serviceLabel || 'Not specified',
-        add_ons: payload.addOnLabels?.length ? payload.addOnLabels.join(', ') : 'None',
-        preferred_date: preferredDateDisplay,
-        preferred_time: payload.time,
-        practitioner: payload.practitioner,
-        phone: payload.phone,
-        date_of_birth: payload.dateOfBirth,
-        ...(patientMessage ? { patient_message: patientMessage } : {}),
       }),
     })
 
