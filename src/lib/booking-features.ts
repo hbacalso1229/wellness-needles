@@ -50,7 +50,7 @@ export function getEnvWeb3FormsAccessKey(): string {
 
 export type CaptchaProvider = 'hcaptcha' | 'turnstile'
 
-/** Staging/local default is hCaptcha. Production Release sets `turnstile`. */
+/** Staging and production use hCaptcha. Turnstile is unused unless a build sets it. */
 export function getCaptchaProvider(): CaptchaProvider {
   if (typeof process === 'undefined') return 'hcaptcha'
   if (process.env.NEXT_PUBLIC_E2E === 'true') return 'hcaptcha'
