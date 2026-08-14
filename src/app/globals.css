@@ -56,41 +56,117 @@ html {
   transition: all 0.3s ease;
 }
 
-/* Mobile nav drawer — override global * { transition: all 0.3s } */
-.mobile-nav-backdrop {
-  transition:
-    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    backdrop-filter 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    -webkit-backdrop-filter 600ms cubic-bezier(0.22, 1, 0.36, 1) !important;
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+/* Mobile nav — stay mounted so the drawer can slide; closed = off-screen + no hits. */
+.mobile-nav-layer {
+  display: block;
 }
 
-.mobile-nav-backdrop.is-open {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+@media (min-width: 1280px) {
+  .mobile-nav-layer {
+    display: none !important;
+  }
+}
+
+/*
+ * Global `* { transition: all 0.3s }` would tween layout when overflow locks
+ * and would fight the drawer transform. Isolate this layer to compositor props.
+ */
+.mobile-nav-layer,
+.mobile-nav-layer * {
+  transition: none;
+}
+
+body:has(#mobile-nav-toggle:checked) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body:has(#mobile-nav-toggle:checked) main,
+body:has(#mobile-nav-toggle:checked) main *,
+body:has(#mobile-nav-toggle:checked) footer,
+body:has(#mobile-nav-toggle:checked) footer * {
+  transition: none !important;
+}
+
+.mobile-nav-backdrop {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.35);
+  transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 800ms !important;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-backdrop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s !important;
+}
+
+/* One 3-bar control morphs to X — never two icons stacked. */
+.mobile-nav-hamburger {
+  position: relative;
+  display: block;
+  width: 1.375rem;
+  height: 1rem;
+  pointer-events: none;
+}
+
+.mobile-nav-hamburger > span {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background-color: currentColor;
+  transform-origin: center;
+  transition:
+    transform 800ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms linear !important;
+}
+
+.mobile-nav-hamburger > span:nth-child(1) {
+  top: 0;
+}
+
+.mobile-nav-hamburger > span:nth-child(2) {
+  top: 7px;
+}
+
+.mobile-nav-hamburger > span:nth-child(3) {
+  top: 14px;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-hamburger > span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-hamburger > span:nth-child(2) {
+  opacity: 0;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-hamburger > span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .mobile-nav-drawer {
-  will-change: transform;
-  transition: transform 480ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 8px 40px -12px rgba(45, 80, 22, 0.28);
+  transform: translate3d(-100%, 0, 0);
+  pointer-events: none;
+  box-shadow: 8px 0 24px rgba(45, 80, 22, 0.14);
+  transition: transform 800ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.mobile-nav-drawer.is-open {
-  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+body:has(#mobile-nav-toggle:checked) .mobile-nav-drawer {
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-nav-backdrop,
   .mobile-nav-drawer,
-  .mobile-nav-drawer.is-open {
+  .mobile-nav-hamburger > span {
     transition: none !important;
-  }
-
-  .mobile-nav-backdrop {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 }
 

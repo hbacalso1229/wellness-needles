@@ -1378,17 +1378,24 @@ export default function BookingForm() {
                     placeholder="Anything we should know before your visit?"
                     className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
-                  <p className="mt-4 flex items-center gap-3 text-sm text-[var(--text-dark)]/70">
-                    <span className="h-px min-w-0 flex-1 bg-[var(--text-dark)]/15" aria-hidden />
-                    <span className="inline-flex shrink-0 items-center gap-1.5">
-                      <Lock className="h-3.5 w-3.5 text-primary" aria-hidden strokeWidth={1.75} />
-                      Your information is secure and private.
-                    </span>
-                    <span className="h-px min-w-0 flex-1 bg-[var(--text-dark)]/15" aria-hidden />
-                  </p>
                 </div>
               </div>
             </div>
+
+            <p className="flex w-full items-center justify-center gap-3 text-center text-sm text-[var(--text-dark)]/70">
+              <span
+                className="hidden h-[1px] min-w-[2.5rem] flex-1 bg-[#8a8a8a] md:block"
+                aria-hidden
+              />
+              <span className="inline-flex items-center justify-center gap-1.5 md:max-w-[70%] md:shrink-0">
+                <Lock className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
+                Your information is secure and private.
+              </span>
+              <span
+                className="hidden h-[1px] min-w-[2.5rem] flex-1 bg-[#8a8a8a] md:block"
+                aria-hidden
+              />
+            </p>
 
             {showLocalSecurityNotice && currentStep === 3 && (
               <p
