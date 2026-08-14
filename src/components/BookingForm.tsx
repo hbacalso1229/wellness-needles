@@ -19,6 +19,11 @@ import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import {
+  joinPersonName,
+  normalizeNameParts,
+  splitFullName,
+} from '@/lib/person-name'
+import {
   OptionalAddOns,
   ClinicLocationCards,
   ServiceSelectionCards,
@@ -288,22 +293,6 @@ function isFullNameFieldShowing(): boolean {
   return typeof window !== 'undefined' && !isMdViewport()
 }
 
-function splitFullName(raw: string): { firstName: string; lastName: string } {
-  const trimmedStart = raw.replace(/^\s+/, '')
-  const spaceIdx = trimmedStart.search(/\s/)
-  if (spaceIdx === -1) {
-    return { firstName: trimmedStart, lastName: '' }
-  }
-  return {
-    firstName: trimmedStart.slice(0, spaceIdx),
-    lastName: trimmedStart.slice(spaceIdx + 1).replace(/^\s+/, ''),
-  }
-}
-
-function joinFullName(firstName: string, lastName: string): string {
-  return [firstName, lastName].filter((part) => part.length > 0).join(' ')
-}
-
 /** First control to focus when entering each booking step. */
 const STEP_ENTRY_FOCUS_IDS = [
   'booking-location',
@@ -444,6 +433,8 @@ export default function BookingForm() {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [turnstileError, setTurnstileError] = useState('')
   const [isLocalHost, setIsLocalHost] = useState(false)
+  /** null until mount so we only put one name field set in the DOM (avoids autofill doubling). */
+  const [splitNameFields, setSplitNameFields] = useState<boolean | null>(null)
   const [lockIrelandPhone, setLockIrelandPhone] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
@@ -460,12 +451,16 @@ export default function BookingForm() {
 
   useEffect(() => {
     const mq = window.matchMedia(MD_MIN_WIDTH_QUERY)
-    const syncFullNameFromSplit = () => {
-      if (mq.matches) return
-      setFullNameInput(joinFullName(formData.firstName, formData.lastName))
+    const syncNameLayout = () => {
+      const isMd = mq.matches
+      setSplitNameFields(isMd)
+      if (!isMd) {
+        setFullNameInput(joinPersonName(formData.firstName, formData.lastName))
+      }
     }
-    mq.addEventListener('change', syncFullNameFromSplit)
-    return () => mq.removeEventListener('change', syncFullNameFromSplit)
+    syncNameLayout()
+    mq.addEventListener('change', syncNameLayout)
+    return () => mq.removeEventListener('change', syncNameLayout)
   }, [formData.firstName, formData.lastName])
 
   // Never keep a Saturday in state (clinic closed) — snap to the next open day.
@@ -563,7 +558,7 @@ export default function BookingForm() {
     })
     if (name === 'firstName' || name === 'lastName') {
       setFullNameInput(
-        joinFullName(
+        joinPersonName(
           name === 'firstName' ? value : formData.firstName,
           name === 'lastName' ? value : formData.lastName
         )
@@ -588,6 +583,16 @@ export default function BookingForm() {
     clearFieldError('fullName')
     clearFieldError('firstName')
     clearFieldError('lastName')
+  }
+
+  const commitNormalizedName = (firstName: string, lastName: string) => {
+    const parts = normalizeNameParts(firstName, lastName)
+    setFormData((prev) => ({
+      ...prev,
+      firstName: parts.firstName,
+      lastName: parts.lastName,
+    }))
+    setFullNameInput(joinPersonName(parts.firstName, parts.lastName))
   }
 
   const handleAddOnToggle = (addOnId: string) => {
@@ -636,7 +641,7 @@ export default function BookingForm() {
       const fields: FieldErrorKey[] = []
       const messages: string[] = []
 
-      if (isFullNameFieldShowing()) {
+      if (splitNameFields === false) {
         if (!formData.firstName.trim() || !formData.lastName.trim()) {
           fields.push('fullName')
           messages.push('Please enter your first and last name.')
@@ -744,6 +749,10 @@ export default function BookingForm() {
     const selectedAddOnLabels = selectedAddOns
       .map((id) => addOns.find((a) => a.id === id)?.name)
       .filter((name): name is string => Boolean(name))
+    const { firstName, lastName } = normalizeNameParts(
+      formData.firstName,
+      formData.lastName
+    )
 
     const payload = {
       serviceType: activeTab === 'call-out' ? 'Home Visit' : 'In Clinic',
@@ -762,6 +771,8 @@ export default function BookingForm() {
         return range ? formatTimeRangeLabel(range) : selectedTime
       })(),
       ...formData,
+      firstName,
+      lastName,
     }
 
     clearAllFieldErrors()
@@ -1147,7 +1158,8 @@ export default function BookingForm() {
                 Contact details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-w-0">
-                <div className="min-w-0 md:hidden">
+                {splitNameFields === false ? (
+                <div className="min-w-0">
                   <label htmlFor="fullName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Full Name <RequiredMark />
                   </label>
@@ -1157,6 +1169,10 @@ export default function BookingForm() {
                     name="fullName"
                     value={fullNameInput}
                     onChange={handleFullNameChange}
+                    onBlur={(e) => {
+                      const parts = splitFullName(e.currentTarget.value)
+                      commitNormalizedName(parts.firstName, parts.lastName)
+                    }}
                     placeholder="Enter your full name"
                     autoComplete="name"
                     aria-invalid={hasFieldError('fullName')}
@@ -1170,7 +1186,9 @@ export default function BookingForm() {
                     message={fieldErrorMessage('fullName')}
                   />
                 </div>
-                <div className="hidden md:contents">
+                ) : null}
+                {splitNameFields === true ? (
+                <>
                   <div className="min-w-0">
                     <label htmlFor="firstName" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                       First Name <RequiredMark />
@@ -1181,6 +1199,9 @@ export default function BookingForm() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
+                      onBlur={(e) =>
+                        commitNormalizedName(e.currentTarget.value, formData.lastName)
+                      }
                       autoComplete="given-name"
                       placeholder="Enter your first name"
                       aria-invalid={hasFieldError('firstName')}
@@ -1204,6 +1225,9 @@ export default function BookingForm() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
+                      onBlur={(e) =>
+                        commitNormalizedName(formData.firstName, e.currentTarget.value)
+                      }
                       autoComplete="family-name"
                       placeholder="Enter your last name"
                       aria-invalid={hasFieldError('lastName')}
@@ -1217,7 +1241,8 @@ export default function BookingForm() {
                       message={fieldErrorMessage('lastName')}
                     />
                   </div>
-                </div>
+                </>
+                ) : null}
                 <div className="min-w-0">
                   <label htmlFor="email" className="block text-sm font-medium text-[var(--text-dark)] mb-2">
                     Email Address <RequiredMark />

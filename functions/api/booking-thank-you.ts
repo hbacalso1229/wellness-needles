@@ -57,6 +57,38 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;')
 }
 
+function collapseSpaces(value: string): string {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+/** Keep in sync with src/lib/person-name.ts */
+function collapseRepeatedFullName(value: string): string {
+  let current = collapseSpaces(value)
+  for (let i = 0; i < 3; i += 1) {
+    const parts = current.split(' ').filter(Boolean)
+    if (parts.length < 4 || parts.length % 2 !== 0) break
+    const mid = parts.length / 2
+    const left = parts.slice(0, mid).join(' ')
+    const right = parts.slice(mid).join(' ')
+    if (left.toLowerCase() !== right.toLowerCase()) break
+    current = left
+  }
+  return current
+}
+
+function joinPersonName(firstName: string, lastName: string): string {
+  const first = collapseRepeatedFullName(firstName)
+  const last = collapseRepeatedFullName(lastName)
+  if (!first) return last
+  if (!last) return first
+  const firstLower = first.toLowerCase()
+  const lastLower = last.toLowerCase()
+  if (firstLower === lastLower) return first
+  if (firstLower.endsWith(` ${lastLower}`)) return first
+  if (lastLower.startsWith(`${firstLower} `)) return last
+  return collapseRepeatedFullName(`${first} ${last}`)
+}
+
 /** Site tokens — keep the email visually aligned with /bookings/thank-you. */
 const PRIMARY = '#2d5016'
 const SECONDARY = '#4a7c2a'
@@ -121,7 +153,7 @@ function orDivider(): string {
 }
 
 function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> & ThankYouBody): string {
-  const fullName = [body.firstName, body.lastName].filter(Boolean).join(' ')
+  const fullName = joinPersonName(body.firstName, body.lastName || '')
   const logoUrl = `${SITE}/logo_wellness_transparent.png`
   const rows = [
     row('Name', fullName),
