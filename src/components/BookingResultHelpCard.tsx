@@ -10,7 +10,7 @@ const messageCtaClass =
 /** Bookings-style help card for full-screen result pages. */
 export function BookingResultHelpCard({
   intro = 'Prefer to call or email — we can help you book.',
-  callLabel = 'Call Now',
+  callLabel = 'Call us',
   className = '',
 }: {
   intro?: string
@@ -35,7 +35,7 @@ export function BookingResultHelpCard({
             <Phone className="h-4 w-4 shrink-0" aria-hidden />
             {callLabel}
           </CTAButton>
-          <p className="mt-1.5 text-center text-base font-semibold text-[var(--text-dark)] md:mt-2">
+          <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)] md:mt-2">
             {contactConfig.phone.displayText}
           </p>
         </div>

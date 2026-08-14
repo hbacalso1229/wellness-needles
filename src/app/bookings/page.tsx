@@ -392,9 +392,9 @@ export default function Bookings() {
                     fullWidth
                   >
                     <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                    Call Now
+                    Call us
                   </CTAButton>
-                  <p className="mt-1.5 text-center text-base text-[var(--text-dark)]/70 md:mt-2">
+                  <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)] md:mt-2">
                     {contactConfig.phone.displayText}
                   </p>
                 </div>
