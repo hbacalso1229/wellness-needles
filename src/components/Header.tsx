@@ -163,7 +163,7 @@ export default function Header() {
               />
               <label
                 htmlFor="mobile-nav-toggle"
-                className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center text-dark hover:text-dark/70 sm:size-10"
+                className="relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center text-dark hover:text-dark/70 sm:size-10"
               >
                 <span className="sr-only">Open navigation menu</span>
                 <Menu className="mobile-nav-icon-open h-6 w-6 text-dark" strokeWidth={2} />
@@ -232,10 +232,11 @@ export default function Header() {
       </header>
       {/* Outside <header> so backdrop-blur does not trap position:fixed. */}
       <div className="mobile-nav-layer">
-        <label
-          htmlFor="mobile-nav-toggle"
+        <button
+          type="button"
           className="mobile-nav-backdrop fixed inset-x-0 bottom-0 top-12 z-[130] bg-black/35 sm:top-14"
           aria-label="Close navigation menu"
+          onClick={closeMenu}
         />
         <div
           id="mobile-navigation"
