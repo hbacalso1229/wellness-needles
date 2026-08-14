@@ -351,9 +351,6 @@ export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean
   if (!features.bookingEmailEnabled || !isValidEmailAddress(features.bookingEmailTo)) {
     return false
   }
-  if (isTurnstileCaptchaEnabled()) {
-    return true
-  }
   return isValidWeb3FormsAccessKey(features.bookingEmailAccessKey)
 }
 

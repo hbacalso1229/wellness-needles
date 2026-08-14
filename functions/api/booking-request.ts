@@ -1,7 +1,8 @@
 /**
- * Cloudflare Pages Function — verify Turnstile then send clinic booking mail via Web3Forms.
- * Secrets (Pages Production): TURNSTILE_SECRET_KEY, WEB3FORMS_ACCESS_KEY.
- * Patient thank-you stays on /api/booking-thank-you (Resend).
+ * Cloudflare Pages Function — verify Turnstile only.
+ * Clinic mail is sent from the browser to Web3Forms after this returns ok
+ * (Web3Forms Free spam filter rejects posts from Cloudflare IPs).
+ * Secret (Pages Production): TURNSTILE_SECRET_KEY.
  */
 
 type PagesFunction<Env = unknown> = (context: {
@@ -11,24 +12,10 @@ type PagesFunction<Env = unknown> = (context: {
 
 type BookingBody = {
   turnstileToken?: string
-  serviceType?: string
-  locationLabel?: string
-  serviceLabel?: string
-  addOnLabels?: string[]
-  practitioner?: string
-  date?: string
-  time?: string
-  firstName?: string
-  lastName?: string
-  email?: string
-  phone?: string
-  dateOfBirth?: string
-  message?: string
 }
 
 type Env = {
   TURNSTILE_SECRET_KEY: string
-  WEB3FORMS_ACCESS_KEY: string
 }
 
 type TurnstileVerifyJson = {
@@ -36,8 +23,6 @@ type TurnstileVerifyJson = {
   hostname?: string
   'error-codes'?: string[]
 }
-
-const CLINIC_INBOX = 'info@wellnessneedles.ie'
 
 function isAllowedTurnstileHostname(hostname: string): boolean {
   return (
@@ -58,63 +43,6 @@ function jsonResponse(status: number, payload: Record<string, unknown>): Respons
   })
 }
 
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-}
-
-const CLINIC_MESSAGE = 'New appointment request from the website booking form.'
-
-function practitionerDisplayName(value: string): string {
-  const trimmed = value.trim()
-  if (!trimmed || trimmed === 'arkinth-garcia') return 'Arkinth Garcia'
-  return trimmed
-}
-
-function formatDisplayDate(isoDate: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
-  if (!match) return isoDate
-  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-  if (Number.isNaN(date.getTime())) return isoDate
-  return date.toLocaleDateString('en-IE', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-function collapseSpaces(value: string): string {
-  return value.trim().replace(/\s+/g, ' ')
-}
-
-/** Keep in sync with src/lib/person-name.ts */
-function collapseRepeatedFullName(value: string): string {
-  let current = collapseSpaces(value)
-  for (let i = 0; i < 3; i += 1) {
-    const parts = current.split(' ').filter(Boolean)
-    if (parts.length < 4 || parts.length % 2 !== 0) break
-    const mid = parts.length / 2
-    const left = parts.slice(0, mid).join(' ')
-    const right = parts.slice(mid).join(' ')
-    if (left.toLowerCase() !== right.toLowerCase()) break
-    current = left
-  }
-  return current
-}
-
-function joinPersonName(firstName: string, lastName: string): string {
-  const first = collapseRepeatedFullName(firstName)
-  const last = collapseRepeatedFullName(lastName)
-  if (!first) return last
-  if (!last) return first
-  const firstLower = first.toLowerCase()
-  const lastLower = last.toLowerCase()
-  if (firstLower === lastLower) return first
-  if (firstLower.endsWith(` ${lastLower}`)) return first
-  if (lastLower.startsWith(`${firstLower} `)) return last
-  return collapseRepeatedFullName(`${first} ${last}`)
-}
-
 function asString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
@@ -123,7 +51,7 @@ async function verifyTurnstile(
   secret: string,
   token: string,
   remoteip: string | null
-): Promise<{ ok: true; hostname: string } | { ok: false }> {
+): Promise<boolean> {
   const body = new URLSearchParams()
   body.set('secret', secret)
   body.set('response', token)
@@ -145,19 +73,18 @@ async function verifyTurnstile(
       data['error-codes'] || [],
       hostname
     )
-    return { ok: false }
+    return false
   }
-  return { ok: true, hostname }
+  return true
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const turnstileSecret = context.env.TURNSTILE_SECRET_KEY?.trim()
-  const accessKey = context.env.WEB3FORMS_ACCESS_KEY?.trim()
-  if (!turnstileSecret || !accessKey) {
+  if (!turnstileSecret) {
     return jsonResponse(503, {
       ok: false,
       reason: 'not-configured',
-      error: 'TURNSTILE_SECRET_KEY or WEB3FORMS_ACCESS_KEY not configured',
+      error: 'TURNSTILE_SECRET_KEY not configured',
     })
   }
 
@@ -169,15 +96,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const turnstileToken = asString(body.turnstileToken)
-  const firstName = asString(body.firstName)
-  const lastName = asString(body.lastName)
-  const email = asString(body.email)
-  const date = asString(body.date)
-  const time = asString(body.time)
-  const serviceType = asString(body.serviceType)
-  const phone = asString(body.phone)
-  const dateOfBirth = asString(body.dateOfBirth)
-
   if (!turnstileToken) {
     return jsonResponse(400, {
       ok: false,
@@ -186,79 +104,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  if (
-    !firstName ||
-    !email ||
-    !isValidEmail(email) ||
-    !date ||
-    !time ||
-    !serviceType ||
-    !phone ||
-    !dateOfBirth
-  ) {
-    return jsonResponse(400, {
-      ok: false,
-      reason: 'request-failed',
-      error: 'Missing required booking fields',
-    })
-  }
-
   const remoteip = context.request.headers.get('CF-Connecting-IP')
   const verified = await verifyTurnstile(turnstileSecret, turnstileToken, remoteip)
-  if (!verified.ok) {
+  if (!verified) {
     return jsonResponse(400, {
       ok: false,
       reason: 'captcha-required',
       error: 'Security check failed. Please try again.',
-    })
-  }
-
-  const fullName = joinPersonName(firstName, lastName)
-  const patientMessage = asString(body.message)
-  const addOnLabels = Array.isArray(body.addOnLabels)
-    ? body.addOnLabels.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-    : []
-
-  const web3Response = await fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      access_key: accessKey,
-      subject: `New appointment request — ${fullName}`,
-      from_name: fullName,
-      name: fullName,
-      email,
-      replyto: email,
-      to: CLINIC_INBOX,
-      message: CLINIC_MESSAGE,
-      visit_type: serviceType,
-      location: asString(body.locationLabel) || 'Not specified',
-      service: asString(body.serviceLabel) || 'Not specified',
-      add_ons: addOnLabels.length ? addOnLabels.join(', ') : 'None',
-      preferred_date: formatDisplayDate(date),
-      preferred_time: time,
-      practitioner: practitionerDisplayName(asString(body.practitioner)),
-      phone,
-      date_of_birth: dateOfBirth,
-      ...(patientMessage ? { patient_message: patientMessage } : {}),
-    }),
-  })
-
-  const web3Data = (await web3Response.json().catch(() => null)) as
-    | { success?: boolean; message?: string }
-    | null
-  if (!web3Response.ok || !web3Data?.success) {
-    const rawMessage = web3Data?.message || 'Email service rejected the request.'
-    console.error('[booking-request] Web3Forms error', web3Response.status, rawMessage)
-    return jsonResponse(502, {
-      ok: false,
-      reason: 'request-failed',
-      error: /access_key|form_id|uuid/i.test(rawMessage)
-        ? 'Web3Forms rejected the access key.'
-        : rawMessage,
     })
   }
 
