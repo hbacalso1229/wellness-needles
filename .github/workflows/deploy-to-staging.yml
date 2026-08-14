@@ -12,15 +12,23 @@ on:
     branches: [dev]
   workflow_dispatch:
 
+# workflow_run.branches / head_branch use the PR head, so a Quality run for a
+# `dev` → `main` PR looks like a `dev` run. Only follow Quality from a push.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
 jobs:
   deploy_staging:
     name: Build & Deploy to Staging (Vercel Preview)
-    # Only deploy when Quality succeeded on `dev` (or manual dispatch).
-    # Do not promote `main` merges to the staging alias.
+    # Only deploy when Quality succeeded on a push to `dev` (or manual dispatch).
+    # Do not promote `main` merges, or PRs from `dev` (including `dev` → `main`),
+    # to the staging alias. workflow_run.head_branch is the PR head, not the base.
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'dev')
+       github.event.workflow_run.head_branch == 'dev' &&
+       github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     environment:
       name: staging
