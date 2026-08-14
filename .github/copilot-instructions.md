@@ -24,10 +24,10 @@ Static Next.js 15 site for an acupuncture / TCM practice (Celbridge & Carlow, Ir
 ### Booking (Phase 1)
 - Defaults in `src/lib/contact-config.ts` (`bookingFormEnabled: true`; Calendly/Fresha off)
 - Marketing `/admin` **removed** — change modes in `contact-config.ts`
-- Clinic email: Web3Forms — staging browser + hCaptcha; production Pages Function `/api/booking-request` after Turnstile
+- Clinic email: Web3Forms — browser + hCaptcha (staging and production)
 - Patient thank-you: `send-patient-thank-you.ts` → `/api/booking-thank-you` (Resend From `info@`)
 - Staging key: `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` + `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`
-- Prod Release: `NEXT_PUBLIC_CAPTCHA_PROVIDER=turnstile` + Turnstile sitekey; Pages secrets `TURNSTILE_SECRET_KEY` + `WEB3FORMS_ACCESS_KEY`
+- Prod Release: `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha` + `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION`
 - Failure → `/bookings/unable-to-process/`; success → `/bookings/thank-you/`
 - Production deploy: GitHub **Release published** → Cloudflare Pages only
 
@@ -40,7 +40,7 @@ src/components/    # Shared UI (Header, Footer, BookingForm, CalendlyEmbed, …)
 src/features/      # Home sections + reusable UI primitives
 src/hooks/         # e.g. useBookingFeatures
 src/lib/           # contact-config, booking-features, send-booking-email, send-patient-thank-you
-functions/api/     # Cloudflare Pages Functions (Turnstile + Resend)
+functions/api/     # Cloudflare Pages Functions (Resend patient thank-you)
 public/            # Static assets (+ _redirects apex→www)
 docs/              # Go-live architecture + release checklist
 ```
@@ -84,7 +84,6 @@ npm run lint      # ESLint
 - `src/lib/contact-config.ts` — contact + default flags
 - `src/lib/booking-features.ts` — flags + Web3Forms env
 - `src/lib/send-patient-thank-you.ts` — client → Pages Function
-- `functions/api/booking-request.ts` — Turnstile siteverify + clinic Web3Forms
 - `functions/api/booking-thank-you.ts` — Resend HTML ≈ thank-you page
 - `src/components/Header.tsx` — navigation
 - `BOOKING_EMAIL_INTEGRATION.md` / `README.md` / `docs/GO_LIVE_ARCHITECTURE.md`
@@ -102,7 +101,7 @@ npm run lint      # ESLint
 ### Env / deploy
 1. Copy `.env.example` → `.env.local` for local Web3Forms key
 2. Staging: push `dev` (Vercel) with `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` and hCaptcha
-3. Production: publish a GitHub Release (Cloudflare Pages + Turnstile + Pages secrets)
+3. Production: publish a GitHub Release (Cloudflare Pages; hCaptcha + Web3Forms)
 
 ### Booking mode
 1. Edit `contact-config.ts` features (legacy / Calendly / Fresha — one only)

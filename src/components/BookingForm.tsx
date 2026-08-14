@@ -823,8 +823,9 @@ export default function BookingForm() {
         return
       }
 
-      // Captcha / live email: skip on localhost. Staging uses hCaptcha + Web3Forms.
-      // Production uses Turnstile + Pages Function.
+      // Captcha / live email: skip on localhost.
+      // Staging and production both use hCaptcha + browser Web3Forms.
+      // (Turnstile + /api/booking-request was rolled back: Function wait showed apology after clinic mail.)
       if (isLocalDevHost()) {
         console.warn(
           '[booking submit] Skipping live booking email on localhost. Thank-you still opens for UI testing.'

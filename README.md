@@ -8,7 +8,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); Calendly / Fresha URLs configurable in code
-- Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Pages Function after Turnstile)
+- Clinic booking emails via **Web3Forms** (browser + hCaptcha on staging and production)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
 - SEO-ready meta tags and semantic HTML
@@ -98,7 +98,6 @@ src/
     ├── booking-features.ts
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
-functions/api/booking-request.ts   # Turnstile verify + clinic Web3Forms
 functions/api/booking-thank-you.ts # Resend patient thank-you
 docs/GO_LIVE_ARCHITECTURE.md
 ```
@@ -126,19 +125,17 @@ Architecture: [docs/GO_LIVE_ARCHITECTURE.md](docs/GO_LIVE_ARCHITECTURE.md).
 | Secret | Used by |
 |--------|---------|
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Staging |
-| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Production Release (hCaptcha rollback) |
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Production Release (browser Web3Forms) |
 | `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | Production Release |
-| `RESEND_API_KEY` | Pages Production secret |
-| `TURNSTILE_SECRET_KEY` | Pages Production secret (Turnstile) |
-| `WEB3FORMS_ACCESS_KEY` | Pages Production secret (clinic send via Function) |
+| `RESEND_API_KEY` | Pages Production secret (patient thank-you) |
 | `VERCEL_TOKEN` (+ related) | Staging |
 
 ### Booking email checklist
 
 1. **Staging** Web3Forms form: hCaptcha **on**, Autoresponder **OFF**
-2. **Production** Web3Forms form: hCaptcha **off** after Turnstile Function is live, Autoresponder **OFF**
-3. Pages secrets: `TURNSTILE_SECRET_KEY`, `WEB3FORMS_ACCESS_KEY`, `RESEND_API_KEY`
-4. Push `dev` for staging (checkbox); **Release** for production (Turnstile badge)
+2. **Production** Web3Forms form: hCaptcha **on**, Autoresponder **OFF**
+3. Pages secret: `RESEND_API_KEY` (patient thank-you)
+4. Push `dev` for staging; **Release** for production (both use the hCaptcha checkbox)
 
 Details: [BOOKING_EMAIL_INTEGRATION.md](BOOKING_EMAIL_INTEGRATION.md).
 

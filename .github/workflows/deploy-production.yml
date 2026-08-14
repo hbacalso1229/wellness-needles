@@ -57,8 +57,9 @@ jobs:
       - name: Build static export for production
         env:
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
-          NEXT_PUBLIC_CAPTCHA_PROVIDER: turnstile
-          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAEPCqhDUf9aLTuLx"
+          # Restore the pre-Turnstile path: browser → Web3Forms (same as staging).
+          # Turnstile + /api/booking-request caused email+apology (Function slower than the 15s abort).
+          NEXT_PUBLIC_CAPTCHA_PROVIDER: hcaptcha
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION }}
         run: npx next build
 
@@ -72,8 +73,31 @@ jobs:
           test -f functions/api/booking-thank-you.ts
           test -f functions/api/booking-request.ts
 
+      - name: Guard clinic send is hCaptcha, not Turnstile
+        env:
+          PROD_WEB3FORMS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION }}
+        run: |
+          set -euo pipefail
+          if grep -E 'NEXT_PUBLIC_CAPTCHA_PROVIDER:[[:space:]]*turnstile' .github/workflows/deploy-production.yml; then
+            echo "::error::deploy-production.yml must not bake Turnstile. That path showed apology after clinic mail."
+            exit 1
+          fi
+          if ! grep -E 'NEXT_PUBLIC_CAPTCHA_PROVIDER:[[:space:]]*hcaptcha' .github/workflows/deploy-production.yml; then
+            echo "::error::deploy-production.yml must bake NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha."
+            exit 1
+          fi
+          if [ -z "${PROD_WEB3FORMS_KEY}" ]; then
+            echo "::error::NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION is empty. www would fail isBookingEmailConfigured and show the apology page."
+            exit 1
+          fi
+          if grep -R -F -q '0x4AAAAAAEPCqhDUf9aLTuLx' out/_next; then
+            echo "::error::Turnstile sitekey is baked into the production export. Clinic send would use /api/booking-request again."
+            exit 1
+          fi
+          echo "Production export: hCaptcha path, Web3Forms key present, no Turnstile sitekey."
+
       # Pages Production secrets (Settings → Variables and secrets):
-      #   RESEND_API_KEY, TURNSTILE_SECRET_KEY, WEB3FORMS_ACCESS_KEY
+      #   RESEND_API_KEY (patient thank-you). TURNSTILE_* unused for clinic send.
       # (Avoids wrangler pages secret put, which needs extra User Memberships permissions.)
 
       - name: Prefight Cloudflare auth (Pages)

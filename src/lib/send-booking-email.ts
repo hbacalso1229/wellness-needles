@@ -160,12 +160,8 @@ export async function sendBookingRequestEmail(
 }
 
 /**
- * Production clinic send: Pages Function verifies Turnstile then posts to Web3Forms.
- * Staging/local must not call this (no Function / hCaptcha path instead).
- *
- * Do not abort this fetch. A short client timeout is what showed the apology
- * page after Web3Forms had already emailed the clinic. Wait for the Function
- * HTTP response (Pages kills a hung Worker). Never retry — that duplicates mail.
+ * Clinic send via Pages Function + Turnstile. Unused on current staging and
+ * production builds (hCaptcha + browser Web3Forms). Kept for a future Turnstile cutover.
  */
 export async function sendTurnstileBookingRequest(
   payload: BookingEmailPayload,

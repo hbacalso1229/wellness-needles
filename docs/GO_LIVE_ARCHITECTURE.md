@@ -83,12 +83,11 @@ flowchart TB
 | Hosting Ireland | Domain registrar only |
 | Cloudflare DNS | Apex, www, Zoho mail records, Resend send records |
 | Cloudflare Pages | Static Next.js `out/` host — project `wellness-needles` |
-| Cloudflare Turnstile | Production bot check (Non-interactive widget `booking-form`) |
-| Pages Function `/api/booking-request` | Production: siteverify + clinic Web3Forms |
-| Pages Function `/api/booking-thank-you` | Production: Resend patient thank-you |
+| Pages Function `/api/booking-thank-you` | Production patient thank-you (Resend) |
+| Pages Function `/api/booking-request` | Unused (Turnstile hop rolled back) |
+| Web3Forms (staging) | Clinic booking from Vercel; hCaptcha **ON**; Autoresponder **OFF** |
+| Web3Forms (production) | Clinic booking from www; hCaptcha **ON**; Autoresponder **OFF** |
 | Zoho Mail | Inbound `info@wellnessneedles.ie` |
-| Web3Forms (production) | Clinic booking notification; **hCaptcha OFF** after Turnstile cutover; Autoresponder **OFF** |
-| Web3Forms (staging) | Clinic booking from Vercel; **hCaptcha ON**; Autoresponder **OFF** |
 | Resend | Patient thank-you From `info@` |
 | GitHub Actions | Staging → Vercel on `dev`; Prod → CF Pages on **Release** |
 
@@ -124,7 +123,7 @@ flowchart LR
 
 Production Release already uses `on: release: types: [published]` and `wrangler pages deploy`. Do **not** connect Cloudflare “GitHub auto-deploy” (fights the release-only gate).
 
-Staging build: `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release: `turnstile` + public Turnstile sitekey.
+Staging build: `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release: `hcaptcha` + `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION`.
 
 ### Dev-first engineering rule (LOCKED)
 
@@ -143,21 +142,16 @@ Staging build: `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release: `tur
 sequenceDiagram
   participant P as Patient
   participant S as Bookings_page
-  participant TS as Turnstile
-  participant Fn as bookingRequestFn
+  participant H as hCaptcha
   participant W as Web3Forms_prod
   participant Z as Zoho_info
   participant R as Resend
-  P->>S: Submit no checkbox
-  S->>TS: NonInteractive badge
-  TS-->>S: Token
-  S->>Fn: POST /api/booking-request
-  Fn->>TS: siteverify secret
-  TS-->>Fn: success
-  Fn->>W: Clinic payload
+  P->>S: Submit plus checkbox
+  S->>H: Tap
+  H-->>S: Token
+  S->>W: Payload plus h-captcha-response
   W->>Z: To info@
-  W-->>Fn: ok
-  Fn-->>S: ok
+  W-->>S: ok
   S->>R: POST /api/booking-thank-you
   R->>P: Email
   S->>P: Navigate /bookings/thank-you/
@@ -216,7 +210,7 @@ sequenceDiagram
 | Redirect | `https://www.wellnessneedles.ie/bookings/thank-you/` |
 | Recipient | `info@wellnessneedles.ie` |
 | Subject | `New booking request — Wellness Needles` |
-| hCaptcha | **Off** (Turnstile verified in `/api/booking-request`) |
+| hCaptcha | **On** (browser → Web3Forms, same as staging) |
 | Autoresponder | **OFF** |
 
 ### Patient email (Resend)
@@ -265,7 +259,7 @@ sequenceDiagram
 | `TURNSTILE_SECRET_KEY` | Pages: Turnstile siteverify | **Done** |
 | `WEB3FORMS_ACCESS_KEY` | Pages: clinic send from Function | Add before Release |
 
-Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`. Staging build sets `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`. Production Release sets `turnstile` + public Turnstile sitekey.
+Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`. Staging and production Release both set `NEXT_PUBLIC_CAPTCHA_PROVIDER=hcaptcha`.
 
 ---
 
@@ -277,7 +271,7 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`. Stagin
 - [x] Zoho `info@` + MX/SPF/DKIM
 - [x] Pages project `wellness-needles`
 - [x] Custom domains: **www** Active + **apex** Active
-- [x] Prod Web3Forms (To `info@`, Autoresponder off; **hCaptcha off after Turnstile Function**)
+- [x] Prod Web3Forms (To `info@`, Autoresponder off; **turn hCaptcha ON before the next Release**)
 - [x] GitHub secrets: Web3Forms prod, Cloudflare ID/token, Resend API key
 - [x] Resend account + domain verified
 
@@ -316,7 +310,7 @@ Staging-only (unchanged): `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`, `VERCEL_*`. Stagin
 2. Merge to `main` does **not** change live site  
 3. Publishing `vX.Y.Z` updates `https://www.wellnessneedles.ie`  
 4. Apex redirects to www  
-5. Successful **www** booking → Turnstile badge (no tap) → clinic email at `info@` + patient email From `info@` + site thank-you page  
+5. Successful **www** booking → hCaptcha checkbox → clinic email at `info@` + patient email From `info@` + site thank-you page  
 6. Successful **staging** booking → hCaptcha checkbox still required → clinic email; no Resend  
 7. Failed clinic send → **apology** `/bookings/unable-to-process/`  
 8. No `/admin` on production  

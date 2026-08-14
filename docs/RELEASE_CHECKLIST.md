@@ -24,9 +24,9 @@ Do this **after** you commit + push `dev`, verify staging, merge to `main`, then
 - [ ] `https://wellnessneedles.ie/` → 301 → www
 - [ ] `dig A www.wellnessneedles.ie` / apex → **Cloudflare IPs only** (never `13.70.37.114`)
 - [ ] `dig NS wellnessneedles.ie` → `anderson` / `erin` (Cloudflare) only
-- [ ] Booking success on **www** → Turnstile badge (no checkbox) → clinic email in Zoho + patient email From `info@` (Resend) + thank-you page
+- [ ] Booking success on **www** → hCaptcha checkbox → clinic email in Zoho + patient email From `info@` (Resend) + thank-you page
 - [ ] Staging still requires the hCaptcha checkbox
-- [ ] Production Web3Forms form: hCaptcha **OFF**, Autoresponder **OFF**
+- [ ] Production Web3Forms form: hCaptcha **ON**, Autoresponder **OFF**
 - [ ] Forced/failed Web3Forms → `/bookings/unable-to-process/`
 - [ ] `/admin/` not present (404)
 - [ ] Normal mail to `info@` still works (Zoho MX)
