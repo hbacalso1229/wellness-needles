@@ -744,8 +744,8 @@ export default function BookingForm() {
       }
 
       // Captcha / live email: skip on localhost. Staging uses hCaptcha + Web3Forms.
-      // Production default is Turnstile + Pages Function. Pages BOOKING_CAPTCHA_PROVIDER=hcaptcha
-      // rolls back to the checkbox without a new Release (see docs/CAPTCHA_ROLLBACK.md).
+      // Production Turnstile: Function siteverify, then browser posts to Web3Forms
+      // (same clinic send as hCaptcha; avoids Web3Forms blocking Cloudflare IPs).
       if (isLocalDevHost()) {
         console.warn(
           '[booking submit] Skipping live booking email on localhost. Thank-you still opens for UI testing.'
@@ -782,13 +782,21 @@ export default function BookingForm() {
 
         setIsSubmitting(true)
         try {
-          const result = useTurnstileWidget
-            ? await sendTurnstileBookingRequest(payload, turnstileToken)
-            : await sendBookingRequestEmail(
-                payload,
-                latestFeatures,
-                hCaptchaToken
-              )
+          let result
+          if (useTurnstileWidget) {
+            const verified = await sendTurnstileBookingRequest(turnstileToken)
+            result = verified.ok
+              ? await sendBookingRequestEmail(payload, latestFeatures, undefined, {
+                  skipHCaptcha: true,
+                })
+              : verified
+          } else {
+            result = await sendBookingRequestEmail(
+              payload,
+              latestFeatures,
+              hCaptchaToken
+            )
+          }
           if (!result.ok) {
             setHCaptchaToken('')
             setTurnstileToken('')

@@ -8,7 +8,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); Calendly / Fresha URLs configurable in code
-- Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Pages Function after Turnstile)
+- Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
 - SEO-ready meta tags and semantic HTML

@@ -73,7 +73,8 @@ export const BOOKING_REQUEST_INBOX = contactConfig.email.address
 export async function sendBookingRequestEmail(
   payload: BookingEmailPayload,
   features: BookingFeatureFlags = readBookingFeatures(),
-  hCaptchaToken?: string
+  hCaptchaToken?: string,
+  options?: { skipHCaptcha?: boolean }
 ): Promise<SendBookingEmailResult> {
   if (!features.bookingEmailEnabled) {
     return { ok: false, reason: 'disabled' }
@@ -94,8 +95,9 @@ export async function sendBookingRequestEmail(
     }
   }
 
+  const skipHCaptcha = Boolean(options?.skipHCaptcha)
   const token = hCaptchaToken?.trim() ?? ''
-  if (!token) {
+  if (!skipHCaptcha && !token) {
     return {
       ok: false,
       reason: 'captcha-required',
@@ -123,7 +125,7 @@ export async function sendBookingRequestEmail(
         replyto: payload.email,
         to: emailTo,
         message: CLINIC_MESSAGE,
-        'h-captcha-response': token,
+        ...(skipHCaptcha ? {} : { 'h-captcha-response': token }),
         visit_type: payload.serviceType,
         location: payload.locationLabel || 'Not specified',
         service: payload.serviceLabel || 'Not specified',
@@ -160,15 +162,11 @@ export async function sendBookingRequestEmail(
 }
 
 /**
- * Production clinic send: Pages Function verifies Turnstile then posts to Web3Forms.
- * Staging/local must not call this (no Function / hCaptcha path instead).
- *
- * Do not abort this fetch. A short client timeout showed the apology page after
- * Web3Forms had already emailed the clinic. Wait for the Function HTTP response.
- * Never retry — that duplicates mail.
+ * Production: Pages Function verifies the Turnstile token only.
+ * Clinic mail is sent afterwards from the browser (Web3Forms Free rejects
+ * Function/server IPs via Advanced Spam Filter).
  */
 export async function sendTurnstileBookingRequest(
-  payload: BookingEmailPayload,
   turnstileToken: string
 ): Promise<SendBookingEmailResult> {
   const token = turnstileToken.trim()
@@ -188,10 +186,7 @@ export async function sendTurnstileBookingRequest(
         Accept: 'application/json',
       },
       keepalive: true,
-      body: JSON.stringify({
-        turnstileToken: token,
-        ...payload,
-      }),
+      body: JSON.stringify({ turnstileToken: token }),
     })
 
     const raw = await response.text()
