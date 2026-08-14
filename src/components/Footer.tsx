@@ -36,8 +36,10 @@ export default function Footer() {
                   aria-label="Visit our Facebook page"
                 >
                   <svg
-                    className="w-4 h-4 md:w-5 md:h-5 shrink-0 fill-current"
+                    className="block h-4 w-4 shrink-0 fill-current md:h-5 md:w-5"
                     viewBox="0 0 24 24"
+                    width={20}
+                    height={20}
                     xmlns="http://www.w3.org/2000/svg"
                     aria-hidden="true"
                   >
@@ -53,8 +55,10 @@ export default function Footer() {
                   aria-label="Visit our Instagram profile"
                 >
                   <svg
-                    className="w-4 h-4 md:w-5 md:h-5 shrink-0 fill-current"
+                    className="block h-4 w-4 shrink-0 fill-current md:h-5 md:w-5"
                     viewBox="0 0 24 24"
+                    width={20}
+                    height={20}
                     xmlns="http://www.w3.org/2000/svg"
                     aria-hidden="true"
                   >
@@ -71,22 +75,22 @@ export default function Footer() {
             <h3 className="font-bold text-base md:text-lg text-cream mb-2 md:mb-4">Quick Links</h3>
             <ul className="space-y-0.5 md:space-y-1">
               <li>
-                <Link href="/about" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
+                <Link href="/about/" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/acupuncture" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
+                <Link href="/acupuncture/" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
                   Why Acupuncture
                 </Link>
               </li>
               <li>
-                <Link href="/chinese-medicine" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
+                <Link href="/chinese-medicine/" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
                   Chinese Medicine
                 </Link>
               </li>
               <li>
-                <Link href="/testimonials" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
+                <Link href="/testimonials/" className="inline-block py-1.5 md:py-2 text-base text-cream/65 hover:text-cream transition-colors">
                   Testimonials
                 </Link>
               </li>

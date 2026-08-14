@@ -255,7 +255,7 @@ export default function BookingStepper({
         </div>
 
         {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
-        <div className="sticky bottom-2 z-20 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
+        <div className="sticky bottom-2 z-[160] -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none sm:z-auto">
           {isFirst ? (
             <div className="flex justify-center sm:justify-end">
               <button

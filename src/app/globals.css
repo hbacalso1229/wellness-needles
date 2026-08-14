@@ -56,8 +56,25 @@ html {
   transition: all 0.3s ease;
 }
 
-/* Mobile nav drawer — override global * { transition: all 0.3s } */
+/* Mobile nav — hidden from hit-testing unless the hamburger is checked.
+ * A full-screen closed overlay (even opacity 0) steals Continue taps on iOS. */
+.mobile-nav-layer {
+  display: none;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-layer {
+  display: block;
+}
+
+@media (min-width: 1280px) {
+  .mobile-nav-layer {
+    display: none !important;
+  }
+}
+
 .mobile-nav-backdrop {
+  opacity: 0;
+  pointer-events: none;
   transition:
     opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
     backdrop-filter 600ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -66,19 +83,44 @@ html {
   -webkit-backdrop-filter: blur(0px);
 }
 
-.mobile-nav-backdrop.is-open {
+.mobile-nav-backdrop.is-open,
+body:has(#mobile-nav-toggle:checked) .mobile-nav-backdrop {
+  opacity: 1;
+  pointer-events: auto;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
+.mobile-nav-icon-close {
+  display: none;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-icon-open {
+  display: none;
+}
+
+body:has(#mobile-nav-toggle:checked) .mobile-nav-icon-close {
+  display: block;
+}
+
 .mobile-nav-drawer {
+  transform: translate3d(-100%, 0, 0) !important;
+  visibility: hidden;
   will-change: transform;
-  transition: transform 480ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition:
+    transform 480ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 480ms !important;
   box-shadow: 0 8px 40px -12px rgba(45, 80, 22, 0.28);
 }
 
-.mobile-nav-drawer.is-open {
-  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+.mobile-nav-drawer.is-open,
+body:has(#mobile-nav-toggle:checked) .mobile-nav-drawer {
+  transform: translate3d(0, 0, 0) !important;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 650ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
