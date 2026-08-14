@@ -188,7 +188,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     },
     body: JSON.stringify({
       access_key: accessKey,
-      subject: `New booking request — ${fullName}`,
+      subject: `New appointment request — ${fullName}`,
       from_name: fullName,
       name: fullName,
       email,
