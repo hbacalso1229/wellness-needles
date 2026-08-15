@@ -231,8 +231,8 @@ export default function Bookings() {
                       <div className="mb-2 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <p className="text-base text-secondary mb-4">
                         {activeTab === 'call-out'
-                          ? 'Choose which clinic area this home visit is noted under. Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
-                          : 'Choose your preferred clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
+                          ? 'Where would you like your home visit? Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
+                          : 'Choose your clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
                       </p>
                       <ClinicLocationCards
                         locations={clinicLocations}

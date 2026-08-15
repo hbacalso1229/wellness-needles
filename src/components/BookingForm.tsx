@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
@@ -336,6 +336,8 @@ export default function BookingForm() {
   const [lockIrelandPhone, setLockIrelandPhone] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
+  const inClinicTabRef = useRef<HTMLButtonElement>(null)
+  const homeVisitTabRef = useRef<HTMLButtonElement>(null)
   const turnstileSiteKey = getTurnstileSiteKey()
   const buildTimeTurnstile = isTurnstileCaptchaEnabled()
   const [useTurnstile, setUseTurnstile] = useState(false)
@@ -464,6 +466,16 @@ export default function BookingForm() {
     )
     setSelectedAddOns([])
     clearFieldError('service')
+  }
+
+  const handleVisitTypeKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!isMdViewport()) return
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+    event.preventDefault()
+    const nextTab = activeTab === 'in-clinic' ? 'call-out' : 'in-clinic'
+    handleTabChange(nextTab)
+    const nextButton = nextTab === 'in-clinic' ? inClinicTabRef.current : homeVisitTabRef.current
+    nextButton?.focus()
   }
 
   const handleChange = (
@@ -900,41 +912,60 @@ export default function BookingForm() {
               subtitle="Step 1 of 4 – takes ~2 minutes"
             />
 
-            <div className="relative flex border-b border-accent/20">
-              <span
-                aria-hidden
-                className={`booking-service-tab__indicator ${
-                  activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => handleTabChange('in-clinic')}
-                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
-                  activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
-                }`}
+            <div className="space-y-3">
+              <p className="text-center text-base font-semibold text-[var(--text-dark)]">
+                Where would you like your appointment?
+              </p>
+
+              <div
+                className="relative flex border-b border-accent/20"
+                role="tablist"
+                aria-label="Visit type"
+                onKeyDown={handleVisitTypeKeyDown}
               >
-                <Building2 className="h-5 w-5 shrink-0" aria-hidden />
-                In Clinic
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTabChange('call-out')}
-                className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
-                  activeTab === 'call-out' ? 'booking-service-tab--active' : ''
-                }`}
-              >
-                <Home className="h-5 w-5 shrink-0" aria-hidden />
-                Home Visits
-              </button>
+                <span
+                  aria-hidden
+                  className={`booking-service-tab__indicator ${
+                    activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
+                  }`}
+                />
+                <button
+                  ref={inClinicTabRef}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'in-clinic'}
+                  tabIndex={activeTab === 'in-clinic' ? 0 : -1}
+                  onClick={() => handleTabChange('in-clinic')}
+                  className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                    activeTab === 'in-clinic' ? 'booking-service-tab--active' : ''
+                  }`}
+                >
+                  <Building2 className="h-5 w-5 shrink-0" aria-hidden />
+                  In Clinic
+                </button>
+                <button
+                  ref={homeVisitTabRef}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'call-out'}
+                  tabIndex={activeTab === 'call-out' ? 0 : -1}
+                  onClick={() => handleTabChange('call-out')}
+                  className={`booking-service-tab inline-flex flex-1 items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base ${
+                    activeTab === 'call-out' ? 'booking-service-tab--active' : ''
+                  }`}
+                >
+                  <Home className="h-5 w-5 shrink-0" aria-hidden />
+                  Home Visit
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
               <p className="flex items-start text-base text-secondary">
                 <MapPin className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 {activeTab === 'call-out'
-                  ? 'Choose which clinic area this home visit is booked under.'
-                  : 'Choose your preferred clinic'}
+                  ? 'Where would you like your home visit?'
+                  : 'Choose your clinic'}
               </p>
               <div
                 id="booking-location"

@@ -20,8 +20,8 @@ const { initialLabel, followUpLabel } = contactConfig.calendly.durations
 
 /** In-clinic. Must stay below home-visit prices for the same service. */
 export const IN_CLINIC_PRICES = {
-  initial: '€90',
-  followUp: '€75',
+  initial: '€75',
+  followUp: '€60',
   package5: '€270',
   package10: '€520',
   cupping: '€20',

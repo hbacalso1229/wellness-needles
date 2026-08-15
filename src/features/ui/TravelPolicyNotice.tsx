@@ -9,55 +9,83 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
   return (
     <aside
       className={`rounded-xl border border-accent/15 bg-white shadow-sm ${className}`}
-      aria-label="Home visit travel policy"
+      aria-label="Home visit travel fees"
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
+        aria-controls="travel-fees-panel"
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
-        <span className="flex items-center gap-2 min-w-0">
-          <MapPin className="w-4 h-4 text-primary shrink-0" aria-hidden />
-          <span className="font-semibold text-sm text-primary">
-            Home visit travel policy
+        <span className="flex items-start gap-2 min-w-0">
+          <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
+          <span className="min-w-0">
+            <span className="block font-semibold text-sm text-primary">
+              Home visit travel fees
+            </span>
+            <span
+              className={`diagnosis-accordion-panel grid ${
+                open ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'
+              }`}
+            >
+              <span className="overflow-hidden">
+                <span
+                  className={`mt-0.5 block text-xs text-secondary diagnosis-accordion-body ${
+                    open ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  Travel fees may apply beyond 10 km
+                </span>
+              </span>
+            </span>
           </span>
         </span>
         <ChevronDown
-          className={`w-4 h-4 shrink-0 text-primary transition-transform duration-200 ${
+          className={`diagnosis-accordion-chevron w-4 h-4 shrink-0 text-primary ${
             open ? 'rotate-180' : ''
           }`}
           aria-hidden
         />
       </button>
 
-      {open ? (
-        <div className="border-t border-accent/15 px-4 pb-4 pt-3">
-          <p className="text-base leading-relaxed text-secondary mb-3">
-            Travel fees may apply outside the included radius.
-          </p>
-          <ul className="text-base leading-relaxed text-secondary space-y-2">
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
-              <span>Within 10 km included</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
-              <span>
-                Beyond 10 km:{' '}
-                <span className="font-semibold text-primary">+€0.50</span>
-                /km or flat{' '}
-                <span className="font-semibold text-primary">€15</span>
-                {' '}travel fee
-              </span>
-            </li>
-          </ul>
+      <div
+        id="travel-fees-panel"
+        role="region"
+        aria-hidden={!open}
+        className={`diagnosis-accordion-panel grid ${
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div
+            className={`border-t border-accent/15 px-4 pb-4 pt-3 diagnosis-accordion-body ${
+              open ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <p className="text-base leading-relaxed text-secondary mb-3">
+              Home visits beyond 10 km may incur an additional travel fee.
+            </p>
+            <p className="text-sm font-semibold text-primary mb-2">How is this calculated?</p>
+            <ul className="text-base leading-relaxed text-secondary space-y-2">
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
+                <span>Within 10 km included</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
+                <span>
+                  Beyond 10 km:{' '}
+                  <span className="font-semibold text-primary">+€0.50</span>
+                  /km or flat{' '}
+                  <span className="font-semibold text-primary">€15</span>
+                  {' '}travel fee
+                </span>
+              </li>
+            </ul>
+          </div>
         </div>
-      ) : (
-        <p className="px-4 pb-3 text-xs text-secondary">
-          Tap for travel fees beyond 10 km
-        </p>
-      )}
+      </div>
     </aside>
   )
 }
