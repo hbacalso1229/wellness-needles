@@ -114,8 +114,8 @@ In-clinic and home visit **must stay on different prices**. Change them only in 
 
 | Service | In clinic | Home visit |
 |---------|-----------|------------|
-| Initial Consultation & First Treatment | €90 | €120 |
-| Follow-up Sessions | €75 | €90 |
+| Initial Consultation & First Treatment | €75 | €120 |
+| Follow-up Sessions | €60 | €90 |
 | Treatment Package (5 sessions) | €270 | €350 |
 | Treatment Package (10 sessions) | €520 | €690 |
 | Cupping add-on | €20 | €25 |
