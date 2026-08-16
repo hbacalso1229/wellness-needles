@@ -7,6 +7,7 @@ import {
   Check,
   Flower2,
   Leaf,
+  Sprout,
   ShieldCheck,
   BadgeCheck,
   BookOpen,
@@ -408,8 +409,8 @@ export default function Acupuncture() {
   return (
     <div className="min-h-screen">
       <HeroSection
-        title="Relieve pain. Restore balance."
-        subtitle="Gentle care for pain, stress, sleep, and balance — rooted in tradition, supported by modern practice."
+        title="Why Acupuncture"
+        subtitle="Discover What Acupuncture Can Do for You"
         backgroundImage="/acupuncture_facial_treatment.jpeg"
         backgroundImageClassName="object-cover object-[55%_52%]"
         backgroundOverlayClassName="bg-gradient-to-b from-black/60 via-primary/40 to-black/60"
@@ -434,16 +435,15 @@ export default function Acupuncture() {
       {/* Mobile page intro — hero is xl-only; header Book is the fold CTA */}
       <section className="bg-white px-4 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4 xl:hidden">
         <div className="mx-auto max-w-xl text-center">
-          <span className="mb-3 inline-flex rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-primary sm:text-xs">
+            <Sprout className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden strokeWidth={2.25} />
             Holistic Healing
           </span>
           <h1 className="font-serif text-2xl font-bold leading-tight text-[var(--text-dark)] sm:text-4xl">
-            Relieve Pain.
-            <br />
-            Restore Balance.
+            Why Acupuncture
           </h1>
           <p className="mx-auto mt-2 max-w-md text-base leading-relaxed text-[var(--text-dark)]/70 sm:mt-2.5 sm:text-lg">
-            Gentle care rooted in traditional Chinese medicine and supported by modern practice.
+            Discover What Acupuncture Can Do for You
           </p>
           <ul className="mt-3 flex list-none flex-wrap items-center justify-center gap-2">
             <li className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)]">
@@ -514,9 +514,9 @@ export default function Acupuncture() {
       </section>
 
       <BookingSection
-        title="Not sure where to start?"
-        description="Let the practitioner support you on your journey to better health and balance."
-        ctaLabel="Book Your First Session"
+        title="Find Your Balance"
+        description="Discover how acupuncture can become part of a more thoughtful approach to your health and wellbeing."
+        ctaLabel="Discover Acupuncture"
       />
 
       {/* Scientific Evidence — open proof on glass */}

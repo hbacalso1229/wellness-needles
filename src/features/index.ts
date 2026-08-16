@@ -10,6 +10,7 @@ export { ServiceCard } from './ui/ServiceCard'
 export { HeroSection  } from './ui/HeroSection'
 export { OptionalAddOns } from './ui/OptionalAddOns'
 export { ClinicLocationCards } from './ui/ClinicLocationCards'
+export { ClinicVisitCard } from './ui/ClinicVisitCard'
 export { ServiceSelectionCards } from './ui/ServiceSelectionCards'
 export { BookingDatePicker } from './ui/BookingDatePicker'
 export {

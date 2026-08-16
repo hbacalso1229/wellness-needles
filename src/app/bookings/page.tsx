@@ -97,7 +97,7 @@ export default function Bookings() {
       />
 
       {/* Booking Form or Pricing Display */}
-      <section className="py-4 sm:py-8 md:py-10 lg:py-12 bg-white">
+      <section className="relative z-10 py-4 sm:py-8 md:py-10 lg:py-12 bg-white">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] lg:items-start lg:gap-8">
             <div className="min-w-0 order-1">

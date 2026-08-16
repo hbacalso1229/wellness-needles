@@ -286,10 +286,9 @@ export default function ChineseMedicine() {
       </section>
 
       <BookingSection
-        eyebrow="When you're ready, we're here to support you."
-        title="Begin Your Journey to Balance"
-        description="A calm, personalised approach to restoring balance and supporting your wellbeing."
-        ctaLabel="Book a Consultation"
+        title="Treat the Whole You"
+        description="Traditional Chinese medicine looks beyond the symptom to understand you as a whole — your body, your wellbeing, and what may be affecting your balance."
+        ctaLabel="Explore Chinese Medicine"
       />
 
       {/* Integrative Approach — glass green full section */}

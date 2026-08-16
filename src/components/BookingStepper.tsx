@@ -39,7 +39,7 @@ type BookingStepperProps = {
 }
 
 const PRIMARY_CTA_CLASS =
-  'inline-grid justify-items-center w-auto whitespace-nowrap bg-primary px-6 py-3 text-center text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 hover:bg-secondary transition-all duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.97]'
+  'inline-grid justify-items-center w-auto whitespace-nowrap bg-primary px-6 py-3 text-center text-base rounded-full font-semibold text-white shadow-lg shadow-primary/30 transition-transform duration-200 motion-safe:active:scale-[0.97] [@media(hover:hover)]:hover:bg-secondary [@media(hover:hover)]:motion-safe:hover:-translate-y-0.5'
 
 /** Step 1 has no Back link — centered on mobile, right-aligned from sm. */
 const PRIMARY_CTA_STEP1_CLASS = PRIMARY_CTA_CLASS
@@ -50,7 +50,7 @@ const PRIMARY_CTA_WITH_BACK_CLASS = `${PRIMARY_CTA_CLASS} ml-auto max-w-[calc(10
 function CtaLabel({ label, widthFrom }: { label: string; widthFrom: string }) {
   return (
     <>
-      <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden>
+      <span className="invisible pointer-events-none col-start-1 row-start-1 whitespace-nowrap" aria-hidden>
         {widthFrom}
       </span>
       <span className="col-start-1 row-start-1 whitespace-nowrap">{label}</span>
@@ -255,14 +255,14 @@ export default function BookingStepper({
         </div>
 
         {/* Sticky Continue bar on mobile; in-flow on sm+ — primary thumb-zone CTA */}
-        <div className="sticky bottom-2 z-[160] -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none sm:z-auto">
+        <div className="relative z-[160] sticky bottom-2 -mx-4 mt-4 border-t border-accent/15 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm shadow-[0_-8px_24px_-14px_rgba(45,80,22,0.35)] sm:static sm:bottom-auto sm:mx-0 sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:shadow-none sm:backdrop-blur-none">
           {isFirst ? (
             <div className="flex justify-center sm:justify-end">
               <button
                 type="button"
                 onClick={onNext}
                 disabled={isSubmitting || nextDisabled}
-                className={`${PRIMARY_CTA_STEP1_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
+                className={`relative z-10 ${PRIMARY_CTA_STEP1_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:translate-y-0 ${
                   continueJustEnabled
                     ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                     : ''
@@ -301,7 +301,7 @@ export default function BookingStepper({
                   type="button"
                   onClick={onNext}
                   disabled={isSubmitting || nextDisabled}
-                  className={`${PRIMARY_CTA_WITH_BACK_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 ${
+                  className={`${PRIMARY_CTA_WITH_BACK_CLASS} disabled:cursor-not-allowed disabled:opacity-45 disabled:translate-y-0 ${
                     continueJustEnabled
                       ? 'motion-safe:animate-[booking-continue-pop_0.55s_cubic-bezier(0.22,1,0.36,1)]'
                       : ''

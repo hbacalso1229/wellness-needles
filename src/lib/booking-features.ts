@@ -21,6 +21,12 @@ export type BookingFeatureFlags = {
   bookingEmailAccessKey: string
   /** Inbox that should receive booking requests */
   bookingEmailTo: string
+  /**
+   * Country lock: hide the phone country picker and keep +353.
+   * Staging + production bake this on via NEXT_PUBLIC_STRICT_IRISH_PHONE.
+   * 08x mobile validation is separate — it runs whenever Ireland is selected.
+   */
+  strictIrishPhoneEnabled: boolean
 }
 
 export const BOOKING_FEATURES_STORAGE_KEY = 'wellness-needles-booking-features'
@@ -66,6 +72,15 @@ export function getTurnstileSiteKey(): string {
 
 export function isTurnstileCaptchaEnabled(): boolean {
   return getCaptchaProvider() === 'turnstile' && Boolean(getTurnstileSiteKey())
+}
+
+/** Env override for the Ireland country lock. null = use contact-config default. */
+export function getEnvStrictIrishPhone(): boolean | null {
+  if (typeof process === 'undefined') return null
+  const raw = (process.env.NEXT_PUBLIC_STRICT_IRISH_PHONE || '').trim().toLowerCase()
+  if (raw === 'false' || raw === '0') return false
+  if (raw === 'true' || raw === '1') return true
+  return null
 }
 
 /**
@@ -128,6 +143,8 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     bookingEmailEnabled: Boolean(envAccessKey) || isTurnstileCaptchaEnabled(),
     bookingEmailAccessKey: envAccessKey,
     bookingEmailTo: contactConfig.email.address,
+    strictIrishPhoneEnabled:
+      getEnvStrictIrishPhone() ?? contactConfig.features.strictIrishPhoneEnabled,
   }
 }
 
@@ -311,6 +328,14 @@ export function readBookingFeatures(): BookingFeatureFlags {
         ? parsed.treatmentPackagesEnabled
         : defaults.treatmentPackagesEnabled
 
+    const envStrictIrishPhone = getEnvStrictIrishPhone()
+    const strictIrishPhoneEnabled =
+      envStrictIrishPhone !== null
+        ? envStrictIrishPhone
+        : isAdminUiEnabled() && typeof parsed.strictIrishPhoneEnabled === 'boolean'
+          ? parsed.strictIrishPhoneEnabled
+          : defaults.strictIrishPhoneEnabled
+
     return {
       calendlyEnabled,
       bookingFormEnabled,
@@ -323,6 +348,7 @@ export function readBookingFeatures(): BookingFeatureFlags {
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKeyForClient,
       bookingEmailTo: emailTo,
+      strictIrishPhoneEnabled,
     }
   } catch {
     return defaults

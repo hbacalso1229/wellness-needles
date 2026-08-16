@@ -14,6 +14,8 @@ const env = {
   NEXT_PUBLIC_CAPTCHA_PROVIDER: '',
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: '',
   NEXT_PUBLIC_E2E: 'true',
+  // Match staging/production country lock (picker hidden; E2E phone is already 086).
+  NEXT_PUBLIC_STRICT_IRISH_PHONE: 'true',
 }
 
 const result = spawnSync('npx', ['next', 'build'], {

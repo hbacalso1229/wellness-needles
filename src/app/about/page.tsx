@@ -355,9 +355,9 @@ export default function About() {
       </section>
 
       <BookingSection
-        title="Ready to Feel the Difference?"
-        description="Experience personalized care designed to restore balance, ease discomfort, and support your wellbeing."
-        ctaLabel="Begin Your Treatment"
+        title="Care That Listens"
+        description="Meet a practitioner who listens first, understands the whole person, and takes the time to find the right path forward with you."
+        ctaLabel="Book a Consultation"
         leading={
           <blockquote
             aria-label="Patient review"
