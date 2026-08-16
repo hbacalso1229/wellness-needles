@@ -21,7 +21,7 @@ type BookingSectionProps = {
 export function BookingSection({
   eyebrow,
   title = 'Ready when you are',
-  description = 'Take a quiet next step. Book a session and begin restoring balance at a pace that feels right for you.',
+  description = 'Take a quiet next step. Book a session and begin restoring balance at your own pace.',
   ctaLabel = 'Book Your Session',
   children,
   leading,

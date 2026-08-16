@@ -142,6 +142,13 @@ export function useBookingFeatures() {
     [patchFeatures]
   )
 
+  const setStrictIrishPhoneEnabled = useCallback(
+    (enabled: boolean) => {
+      patchFeatures({ strictIrishPhoneEnabled: enabled })
+    },
+    [patchFeatures]
+  )
+
   const resetToDefaults = useCallback(() => {
     setFeatures(getDefaultBookingFeatures())
   }, [setFeatures])
@@ -161,6 +168,7 @@ export function useBookingFeatures() {
     setBookingEmailEnabled,
     setBookingEmailAccessKey,
     setBookingEmailTo,
+    setStrictIrishPhoneEnabled,
     resetToDefaults,
   }
 }

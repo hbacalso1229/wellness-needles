@@ -107,6 +107,8 @@ export const contactConfig = {
     calendlyEnabled: false,
     bookingFormEnabled: true,
     freshaEnabled: false,
+    /** Country lock (picker hidden, +353). Staging + production bake this on. */
+    strictIrishPhoneEnabled: false,
   }
 } as const
 

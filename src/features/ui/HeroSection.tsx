@@ -89,7 +89,7 @@ export function HeroSection({
   }
 
   const sectionClassName = [
-    'page-hero relative items-center overflow-x-hidden',
+    'page-hero relative items-center',
     hideOnMobile ? 'max-xl:hidden xl:flex' : 'flex',
     justifyClasses[alignment],
     backgroundImage ? '' : backgroundClass,
@@ -106,7 +106,7 @@ export function HeroSection({
     >
       {/* Photo heroes: full-bleed image + optional readability wash */}
       {backgroundImage && (
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
           {backgroundBlurFill ? (
             <Image
               src={backgroundImage}
@@ -114,16 +114,16 @@ export function HeroSection({
               fill
               sizes="100vw"
               aria-hidden
-              className="object-cover object-center scale-110 blur-2xl opacity-90"
+              className="pointer-events-none object-cover object-center scale-110 blur-2xl opacity-90"
               priority
             />
           ) : null}
           <Image
             src={backgroundImage}
-            alt="Hero background"
+            alt=""
             fill
             sizes="100vw"
-            className={backgroundImageClassName}
+            className={`pointer-events-none ${backgroundImageClassName}`}
             priority
           />
           <div className={`absolute inset-0 ${backgroundOverlayClassName}`} />

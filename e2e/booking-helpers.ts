@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test'
 import { expect } from './fixtures'
 
-/** Walk the legacy stepper to the details step and fill required fields. */
-export async function fillBookingRequestForm(page: Page) {
+/** Walk the legacy stepper to the Your details step. */
+export async function openBookingDetailsStep(page: Page) {
   await page.goto('/bookings/')
 
   await expect(
@@ -29,10 +29,15 @@ export async function fillBookingRequestForm(page: Page) {
   await expect(page.getByRole('heading', { name: /Your details/i })).toBeVisible({
     timeout: 10_000,
   })
-  // Name fields mount after layout detection (full name XOR first/last).
   await expect(page.locator('#fullName, #firstName').first()).toBeVisible({
     timeout: 10_000,
   })
+}
+
+/** Walk the legacy stepper to the details step and fill required fields. */
+export async function fillBookingRequestForm(page: Page) {
+  await openBookingDetailsStep(page)
+
   const fullName = page.locator('#fullName')
   if (await fullName.isVisible()) {
     await fullName.fill('E2E Tester')

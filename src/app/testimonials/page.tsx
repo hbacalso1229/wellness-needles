@@ -396,9 +396,9 @@ export default function Testimonials() {
       </section>
 
       <BookingSection
-        title="Ready to Feel This Difference for Yourself?"
-        description=""
-        ctaLabel="Begin Your Care Journey"
+        title="Real Care. Real Stories."
+        description="Hear from people who chose a different approach to their health and experienced care that was personal, thoughtful, and genuinely theirs."
+        ctaLabel="Begin Your Own Journey"
       >
         <a
           href="/contact/"

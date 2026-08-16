@@ -9,9 +9,16 @@ import {
   DEFAULT_PHONE_COUNTRY_ID,
   PHONE_COUNTRIES,
   getPhoneCountry,
-  type PhoneCountry,
 } from '@/lib/phone-countries'
+import {
+  formatLocalPhoneInput,
+  isValidBookingPhone,
+  shouldShowIrishMobileInvalidModal,
+  subscriberDigits,
+  toE164,
+} from '@/lib/irish-phone'
 import BookingStepper, { type BookingStepperStep } from '@/components/BookingStepper'
+import { BookingPhoneInvalidModal } from '@/components/BookingPhoneInvalidModal'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled, fetchRuntimeCaptchaProvider } from '@/lib/booking-features'
@@ -221,66 +228,6 @@ function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim())
 }
 
-function dialDigits(country: PhoneCountry): string {
-  return country.dial.replace(/\D/g, '')
-}
-
-/** Accepts IE national (0…) or international (+353 / 00353), with optional spaces/dashes. */
-function isValidIrishPhone(value: string): boolean {
-  const cleaned = value.replace(/[\s\-().]/g, '')
-
-  // +353XXXXXXXXX or 00353XXXXXXXXX (9 digits after country code)
-  if (/^(?:\+353|00353)\d{9}$/.test(cleaned)) return true
-  // National: 0 + 9 digits (mobiles 08x… and landlines)
-  if (/^0\d{9}$/.test(cleaned)) return true
-
-  return false
-}
-
-function isValidMobilePhone(value: string, country: PhoneCountry): boolean {
-  if (country.id === 'IE') return isValidIrishPhone(value)
-  const local = subscriberDigits(value, country)
-  return local.length >= 7 && local.length <= country.localDigits
-}
-
-/**
- * Strip to subscriber digits (no trunk 0 / country code).
- * Always strip country code when the value is international (`+…` / `00…`)
- * or a long pasted code — otherwise short stored values like `+353 86`
- * round-trip as `35386` and corrupt the local input on backspace.
- */
-function subscriberDigits(raw: string, country: PhoneCountry): string {
-  const code = dialDigits(country)
-  const hasPlus = raw.trimStart().startsWith('+')
-  let digits = raw.replace(/\D/g, '')
-
-  if (digits.startsWith(`00${code}`)) {
-    digits = digits.slice(2 + code.length)
-  } else if (digits.startsWith(code) && (hasPlus || digits.length > country.localDigits)) {
-    digits = digits.slice(code.length)
-  }
-
-  if (country.stripLeadingZero && digits.startsWith('0')) digits = digits.slice(1)
-  return digits.slice(0, country.localDigits)
-}
-
-function formatLocalPhoneInput(raw: string, country: PhoneCountry): string {
-  const local = subscriberDigits(raw, country)
-  if (country.id === 'IE') {
-    const groups = [local.slice(0, 2), local.slice(2, 5), local.slice(5, 9)].filter(
-      (g) => g.length > 0
-    )
-    return groups.join(' ')
-  }
-  return local.replace(/(\d{3})(?=\d)/g, '$1 ').trim()
-}
-
-function toE164(raw: string, country: PhoneCountry): string {
-  const local = subscriberDigits(raw, country)
-  if (!local) return ''
-  return `${country.dial} ${formatLocalPhoneInput(local, country)}`
-}
-
 function PhoneFlagIcon({ countryId, className }: { countryId: string; className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- ISO flags from flagcdn; emoji flags do not render on Windows
@@ -333,7 +280,8 @@ export default function BookingForm() {
   const [isLocalHost, setIsLocalHost] = useState(false)
   /** null until mount so we only put one name field set in the DOM (avoids autofill doubling). */
   const [splitNameFields, setSplitNameFields] = useState<boolean | null>(null)
-  const [lockIrelandPhone, setLockIrelandPhone] = useState(false)
+  const [productionHostLocked, setProductionHostLocked] = useState(false)
+  const [irishPhoneModalOpen, setIrishPhoneModalOpen] = useState(false)
   const hCaptchaRef = useRef<HCaptcha>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const inClinicTabRef = useRef<HTMLButtonElement>(null)
@@ -346,10 +294,19 @@ export default function BookingForm() {
   useEffect(() => {
     setIsLocalHost(isLocalDevHost())
     if (isProductionSiteHost()) {
-      setLockIrelandPhone(true)
+      setProductionHostLocked(true)
       setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     }
   }, [])
+
+  /** Country lock only — 08x checks use `enforceIrishMobile` below. */
+  const lockIrelandPhone =
+    productionHostLocked || features.strictIrishPhoneEnabled
+
+  useEffect(() => {
+    if (!lockIrelandPhone) return
+    setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
+  }, [lockIrelandPhone])
 
   useEffect(() => {
     if (!buildTimeTurnstile) return
@@ -403,6 +360,8 @@ export default function BookingForm() {
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
   const phoneCountry = getPhoneCountry(phoneCountryId)
+  /** 08x mobile rule when Ireland is selected — independent of the country-lock flag. */
+  const enforceIrishMobile = phoneCountry.id === 'IE'
 
   const resetHCaptcha = () => {
     setHCaptchaToken('')
@@ -457,6 +416,15 @@ export default function BookingForm() {
     })
     setFieldErrorMessages(byField)
     focusFirstInvalidField(error.fields)
+    if (
+      error.fields.includes('phone') &&
+      shouldShowIrishMobileInvalidModal(formData.phone, phoneCountry, {
+        strictIrishMobile: enforceIrishMobile,
+        requireComplete: true,
+      })
+    ) {
+      setIrishPhoneModalOpen(true)
+    }
   }
 
   const handleTabChange = (tab: string) => {
@@ -599,11 +567,15 @@ export default function BookingForm() {
       if (!formData.phone.trim()) {
         fields.push('phone')
         messages.push('Please enter your phone number.')
-      } else if (!isValidMobilePhone(formData.phone, phoneCountry)) {
+      } else if (
+        !isValidBookingPhone(formData.phone, phoneCountry, {
+          strictIrishMobile: enforceIrishMobile,
+        })
+      ) {
         fields.push('phone')
         messages.push(
           phoneCountry.id === 'IE'
-            ? 'Please enter a valid Irish phone number (e.g. 86 054 3085).'
+            ? 'Please enter a valid Irish mobile number (e.g. 86 054 3085).'
             : `Please enter a valid ${phoneCountry.name} phone number.`
         )
       }
@@ -879,7 +851,23 @@ export default function BookingForm() {
         durationMs={Array.isArray(toast?.message) && toast.message.length > 1 ? 8000 : 5000}
         onClose={() => setToast(null)}
       />
+      <BookingPhoneInvalidModal
+        open={irishPhoneModalOpen}
+        enteredNumber={
+          formData.phone.trim()
+            ? `${phoneCountry.dial} ${formatLocalPhoneInput(formData.phone, phoneCountry)}`.trim()
+            : undefined
+        }
+        onClose={() => setIrishPhoneModalOpen(false)}
+        onTryAnother={() => {
+          setIrishPhoneModalOpen(false)
+          requestAnimationFrame(() => {
+            document.getElementById('phone')?.focus({ preventScroll: true })
+          })
+        }}
+      />
 
+      <div inert={irishPhoneModalOpen ? true : undefined}>
       <BookingStepper
         steps={STEPS}
         currentStep={currentStep}
@@ -1260,9 +1248,18 @@ export default function BookingForm() {
                         <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
                           {phoneCountry.dial}
                         </span>
+                        {lockIrelandPhone ? (
+                          <Lock
+                            className="h-3.5 w-3.5 shrink-0 text-primary"
+                            aria-hidden
+                            strokeWidth={2}
+                          />
+                        ) : null}
                       </div>
                       {lockIrelandPhone ? (
-                        <span className="sr-only">Ireland country code +353</span>
+                        <span className="sr-only">
+                          Ireland country code +353, locked
+                        </span>
                       ) : (
                         <>
                           <ChevronDown
@@ -1275,6 +1272,7 @@ export default function BookingForm() {
                             name="phoneCountry"
                             value={phoneCountry.id}
                             aria-label="Country code"
+                            disabled={irishPhoneModalOpen}
                             onChange={(e) => {
                               const nextCountry = getPhoneCountry(e.target.value)
                               const local = subscriberDigits(formData.phone, phoneCountry)
@@ -1303,8 +1301,8 @@ export default function BookingForm() {
                       value={formatLocalPhoneInput(formData.phone, phoneCountry)}
                       onChange={handleChange}
                       placeholder={phoneCountry.placeholder}
-                      inputMode="tel"
-                      autoComplete="tel"
+                      inputMode={enforceIrishMobile ? 'numeric' : 'tel'}
+                      autoComplete={enforceIrishMobile ? 'tel-national' : 'tel'}
                       aria-invalid={hasFieldError('phone')}
                       aria-describedby={
                         fieldErrorMessage('phone') ? 'phone-error' : undefined
@@ -1312,6 +1310,11 @@ export default function BookingForm() {
                       className="min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--text-dark)] outline-none focus:ring-0"
                     />
                   </div>
+                  {lockIrelandPhone && !fieldErrorMessage('phone') ? (
+                    <p className="mt-1.5 text-xs text-[var(--text-dark)]/55">
+                      Country locked to Ireland (+353)
+                    </p>
+                  ) : null}
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
               </div>
@@ -1502,6 +1505,7 @@ export default function BookingForm() {
           </div>
         )}
       </BookingStepper>
+      </div>
     </>
   )
 }

@@ -275,18 +275,18 @@ body:has(#mobile-nav-toggle:checked) .mobile-nav-drawer {
   transition: background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
+/* Opacity-only: translateX left a GPU layer over Continue and blocked clicks. */
 .booking-step-panel {
   animation: booking-step-in 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: none;
 }
 
 @keyframes booking-step-in {
   from {
     opacity: 0;
-    transform: translateX(20px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -453,8 +453,15 @@ body:has(#mobile-nav-toggle:checked) .mobile-nav-drawer {
   max-height: none;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden !important;
+  isolation: isolate;
+  contain: paint;
+}
+
+/* fill images default to pointer-events: auto even inside a none parent */
+.page-hero [aria-hidden],
+.page-hero [aria-hidden] * {
+  pointer-events: none !important;
 }
 
 /*

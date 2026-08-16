@@ -2,9 +2,9 @@
 
 import { Calendar, Send, MessageCircle, ChevronDown, Info, Lock, Check, User, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
+import { ClinicVisitCard, HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
+import { BookingSection } from '../../features/home/BookingSection'
 import { contactConfig } from '../../lib/contact-config'
-import LocationMap from '../../components/LocationMap'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 
 const interactiveCardClass =
@@ -27,7 +27,7 @@ const faqs = [
 ] as const
 
 const locationBlurbs: Record<string, string> = {
-  celbridge: 'A calm, welcoming space designed for your care.',
+  celbridge: 'A calm, welcoming space for your care.',
   carlow: 'Conveniently located with easy access and parking.',
 }
 
@@ -98,7 +98,7 @@ export default function Contact() {
       {/* Contact Information — bookings-style sticky layout */}
       <section className="bg-white py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)] md:items-start md:gap-6 lg:gap-8">
+          <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(18rem,20rem)] md:items-start md:gap-6 lg:gap-8">
             <div className="order-1 min-w-0 space-y-5 md:space-y-8">
               <div>
                 <SectionHeading
@@ -372,7 +372,7 @@ export default function Contact() {
             <aside
               className="order-2 mx-auto mt-6 h-fit w-full max-w-xs rounded-xl border border-accent/15 bg-accent/10 p-4 md:sticky md:top-24 md:mx-0 md:mt-0 md:max-w-none md:self-start md:p-5"
             >
-              <h3 className="mb-1 text-lg font-bold leading-snug text-[#1B3B2B]">
+              <h3 className="mb-1 whitespace-nowrap text-lg font-bold leading-snug tracking-tight text-[#1B3B2B]">
                 Start Your Wellness Journey
               </h3>
               <p className="mb-4 text-base leading-relaxed text-[var(--text-dark)]/70">
@@ -522,48 +522,25 @@ export default function Contact() {
               subtitle="Two convenient locations to support your care."
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-6">
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-6">
               {contactConfig.address.locations.map((location) => (
-                <div
-                  key={location.full}
+                <ClinicVisitCard
+                  key={location.id}
+                  location={location}
+                  description={locationBlurbs[location.id] ?? ''}
                   className={interactiveCardClass}
-                >
-                  <h3 className="mb-1.5 font-semibold text-base text-[var(--text-dark)] md:text-lg">
-                    {location.label}
-                  </h3>
-                  {locationBlurbs[location.id] ? (
-                    <p className="mb-3 text-sm leading-relaxed text-[var(--text-dark)]/70">
-                      {locationBlurbs[location.id]}
-                    </p>
-                  ) : null}
-                  <div className="text-[var(--text-dark)]/80 text-base leading-relaxed mb-4">
-                    <div>{location.formatted.street}</div>
-                    <div>
-                      {location.formatted.city}, {location.formatted.county}{' '}
-                      {location.formatted.postcode}
-                    </div>
-                  </div>
-                  <LocationMap
-                    query={location.mapQuery}
-                    title={`Map of ${location.full}`}
-                    directionsUrl={location.directionsUrl}
-                  />
-                </div>
+                />
               ))}
-            </div>
-
-            <div className="mt-8 flex flex-col items-center gap-3 text-center md:mt-10">
-              <p className="text-base font-[450] leading-relaxed text-[#2C3E35]/80">
-                Prefer to plan your visit first?
-              </p>
-              <BookingCtaButton variant="gold" showArrow={false}>
-                <Calendar className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                Book Your Consultation
-              </BookingCtaButton>
             </div>
           </div>
         </section>
       )}
+
+      <BookingSection
+        title="We're Here for You"
+        description="Whether you have a question or you're ready to take the next step, we'd be happy to hear from you."
+        ctaLabel="Request an Appointment"
+      />
     </div>
   )
 }
