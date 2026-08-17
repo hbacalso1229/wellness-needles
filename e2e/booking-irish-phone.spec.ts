@@ -36,7 +36,7 @@ test.describe('booking Irish mobile lock', () => {
     ).toBeVisible()
     await expect(dialog.getByRole('button', { name: /Try another number/i })).toBeVisible()
     await expect(dialog.getByRole('link', { name: /^Call us$/i })).toBeVisible()
-    await expect(dialog.getByRole('link', { name: /Email us/i })).toBeVisible()
+    await expect(dialog.getByRole('link', { name: /Send a message/i })).toBeVisible()
 
     await dialog.getByRole('button', { name: /Try another number/i }).click()
     await expect(dialog).toHaveCount(0)

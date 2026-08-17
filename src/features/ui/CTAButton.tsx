@@ -82,7 +82,7 @@ export function CTAButton({
   }
 
   const layoutClass = fullWidth
-    ? 'flex w-full items-center justify-center'
+    ? 'flex !w-full min-w-0 box-border items-center justify-center'
     : 'inline-flex items-center justify-center'
 
   const classes =
