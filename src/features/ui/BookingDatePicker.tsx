@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import { isClosedBookingDate } from './TimeRangeCards'
+import { calendarFooter, weekdayFromDateInput, type WeekHours } from '../../../shared/site-snapshot'
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as const
 
@@ -66,12 +67,13 @@ function isDateDisabled(
   date: Date,
   minDateStr: string,
   maxDateStr: string,
-  disableClosedDays: boolean
+  disableClosedDays: boolean,
+  hours?: WeekHours | null
 ): boolean {
   const value = toDateInputValue(date)
   if (minDateStr && value < minDateStr) return true
   if (maxDateStr && value > maxDateStr) return true
-  if (disableClosedDays && isClosedBookingDate(value)) return true
+  if (disableClosedDays && isClosedBookingDate(value, hours)) return true
   return false
 }
 
@@ -144,8 +146,9 @@ type BookingDatePickerProps = {
   value: string
   min?: string
   max?: string
-  /** When true (booking preferred date), Saturdays are disabled. */
+  /** When true (booking preferred date), closed clinic days are disabled. */
   disableClosedDays?: boolean
+  hours?: WeekHours | null
   /** Where to open when no value is selected. */
   initialView?: InitialView
   placeholder?: string
@@ -163,6 +166,7 @@ export function BookingDatePicker({
   min = '',
   max = '',
   disableClosedDays = true,
+  hours = null,
   initialView = 'min',
   placeholder = 'Select a date',
   dialogLabel = 'Choose preferred date',
@@ -186,7 +190,11 @@ export function BookingDatePicker({
 
   const resolvedFooter =
     footerNote ??
-    (disableClosedDays ? 'Closed Saturdays · Sunday–Friday' : undefined)
+    (disableClosedDays
+      ? hours
+        ? calendarFooter(hours)
+        : 'Closed Saturdays · Sunday–Friday'
+      : undefined)
 
   const closePicker = () => {
     setPanel('none')
@@ -469,18 +477,37 @@ export function BookingDatePicker({
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1" aria-hidden>
-            {WEEKDAYS.map((day) => (
-              <div
-                key={day}
-                className={`text-center text-xs font-semibold py-1 ${
-                  disableClosedDays && day === 'Sa'
-                    ? 'text-[var(--text-dark)]/40'
-                    : 'text-[var(--text-dark)]'
-                }`}
-              >
-                {day}
-              </div>
-            ))}
+            {WEEKDAYS.map((day, index) => {
+              const closedHeader = disableClosedDays
+                ? hours
+                  ? hours[
+                      (
+                        [
+                          'sunday',
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                        ] as const
+                      )[index]
+                    ].closed
+                  : day === 'Sa'
+                : false
+              return (
+                <div
+                  key={day}
+                  className={`text-center text-xs font-semibold py-1 ${
+                    closedHeader
+                      ? 'text-[var(--text-dark)]/40'
+                      : 'text-[var(--text-dark)]'
+                  }`}
+                >
+                  {day}
+                </div>
+              )
+            })}
           </div>
 
           <div className="grid grid-cols-7 gap-1">
@@ -491,11 +518,14 @@ export function BookingDatePicker({
                 date,
                 min,
                 max,
-                disableClosedDays
+                disableClosedDays,
+                hours
               )
               const selectedDay = selected ? isSameDay(date, selected) : false
-              const isSaturday = date.getDay() === 6
+              const closedDay =
+                disableClosedDays && isClosedBookingDate(valueStr, hours)
               const isFuture = Boolean(max && valueStr > max)
+              const weekdayName = weekdayFromDateInput(valueStr)
 
               return (
                 <button
@@ -511,8 +541,10 @@ export function BookingDatePicker({
                   aria-disabled={disabled}
                   aria-pressed={selectedDay}
                   title={
-                    disableClosedDays && isSaturday && inMonth
-                      ? 'Closed on Saturdays'
+                    closedDay && inMonth
+                      ? weekdayName
+                        ? `Closed ${weekdayName.charAt(0).toUpperCase()}${weekdayName.slice(1)}`
+                        : 'Closed'
                       : isFuture
                         ? 'Future dates are not available'
                         : disabled
@@ -542,12 +574,7 @@ export function BookingDatePicker({
                         : disabled
                           ? 'text-[var(--text-dark)]/40 line-through decoration-[var(--text-dark)]/25'
                           : 'text-[var(--text-dark)]'),
-                    disableClosedDays &&
-                    isSaturday &&
-                    inMonth &&
-                    !selectedDay
-                      ? 'opacity-50'
-                      : '',
+                    closedDay && inMonth && !selectedDay ? 'opacity-50' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}

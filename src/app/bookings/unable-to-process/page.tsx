@@ -7,10 +7,12 @@ import { BookingResultBrand } from '@/components/BookingResultBrand'
 import { BookingResultNav } from '@/components/BookingResultCloseButton'
 import { BookingResultHelpCard } from '@/components/BookingResultHelpCard'
 import { readBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 export default function BookingUnableToProcessPage() {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [outcomeUnknown, setOutcomeUnknown] = useState(false)
+  const { overlayEnabled, site } = useSiteOverlay()
 
   useEffect(() => {
     setOutcomeUnknown(readBookingSubmitOutcome() === 'unknown')
@@ -70,7 +72,9 @@ export default function BookingUnableToProcessPage() {
               hours.
             </p>
             <p className="mt-2 text-sm text-[var(--text-dark)]/55 sm:mt-3">
-              Sunday–Friday · 9:00 AM – 8:00 PM · Saturday closed
+              {overlayEnabled
+                ? site.hoursDisplay.join(' · ')
+                : 'Sunday–Friday · 9:00 AM – 8:00 PM · Saturday closed'}
             </p>
           </div>
 

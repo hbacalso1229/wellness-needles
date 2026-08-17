@@ -3,6 +3,7 @@
 import { Mail, Phone } from 'lucide-react'
 import { CTAButton } from '@/features'
 import { contactConfig } from '@/lib/contact-config'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 const messageCtaClass =
   '!rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.97]'
@@ -17,6 +18,10 @@ export function BookingResultHelpCard({
   callLabel?: string
   className?: string
 }) {
+  const { overlayEnabled, site } = useSiteOverlay()
+  const phoneHref = overlayEnabled ? site.phone.href : contactConfig.phone.href
+  const phoneText = overlayEnabled ? site.phone.displayText : contactConfig.phone.displayText
+  const emailHref = overlayEnabled ? site.email.href : contactConfig.email.href
   return (
     <aside
       className={`mx-auto mt-4 h-fit w-full rounded-xl border border-accent/15 bg-accent/10 p-4 sm:mt-5 sm:p-5 lg:mt-8 ${className || 'max-w-xs'}`}
@@ -26,7 +31,7 @@ export function BookingResultHelpCard({
       <div className="flex w-full flex-col gap-2.5">
         <div className="w-full">
           <CTAButton
-            href={contactConfig.phone.href}
+            href={phoneHref}
             variant="gold"
             size="medium"
             showArrow={false}
@@ -36,7 +41,7 @@ export function BookingResultHelpCard({
             {callLabel}
           </CTAButton>
           <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)] md:mt-2">
-            {contactConfig.phone.displayText}
+            {phoneText}
           </p>
         </div>
 
@@ -50,7 +55,7 @@ export function BookingResultHelpCard({
 
         <div className="w-full">
           <CTAButton
-            href={contactConfig.email.href}
+            href={emailHref}
             variant="outline"
             size="medium"
             showArrow={false}

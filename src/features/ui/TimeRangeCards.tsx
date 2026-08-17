@@ -1,6 +1,11 @@
 'use client'
 
 import { Check, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
+import {
+  isClosedBookingDate as isClosedForHours,
+  weekdayFromDateInput,
+  type WeekHours,
+} from '../../../shared/site-snapshot'
 
 export type TimeRangeOption = {
   readonly id: string
@@ -49,15 +54,6 @@ export function findTimeRange(id: string): TimeRangeOption | undefined {
   return TIME_RANGES.find((r) => r.id === id)
 }
 
-export function isPastTimeRange(dateStr: string, rangeId: string): boolean {
-  if (!dateStr || dateStr !== todayDateInputValue()) return false
-  const end = RANGE_END_MINUTES[rangeId]
-  if (end == null) return false
-  const now = new Date()
-  const nowMinutes = now.getHours() * 60 + now.getMinutes()
-  return nowMinutes >= end
-}
-
 function todayDateInputValue(): string {
   const today = new Date()
   const y = today.getFullYear()
@@ -76,29 +72,30 @@ function addDaysToDateInputValue(dateStr: string, days: number): string {
   return `${yy}-${mm}-${dd}`
 }
 
-/** Clinic is closed Saturdays (see contact-config business hours). */
-export function isClosedBookingDate(dateStr: string): boolean {
-  if (!dateStr) return false
-  const [y, m, d] = dateStr.split('-').map(Number)
-  if (!y || !m || !d) return false
-  return new Date(y, m - 1, d).getDay() === 6
+/** Clinic closed days. Overlay off: Saturday only. */
+export function isClosedBookingDate(
+  dateStr: string,
+  hours?: WeekHours | null
+): boolean {
+  return isClosedForHours(dateStr, hours)
 }
 
-/** First range still open for the given date, or undefined if none. */
 export function firstAvailableTimeRange(
-  dateStr: string
+  dateStr: string,
+  hours?: WeekHours | null
 ): TimeRangeOption | undefined {
-  return TIME_RANGES.find((r) => !isPastTimeRange(dateStr, r.id))
+  return visibleTimeRanges(dateStr, hours).find(
+    (r) => !r.unavailable && !isPastTimeRange(dateStr, r.id, hours)
+  )
 }
 
-/**
- * Next bookable day from `fromDateStr` (inclusive): not Saturday,
- * and at least one time range still available.
- */
-export function nextOpenBookingDate(fromDateStr?: string): string {
+export function nextOpenBookingDate(
+  fromDateStr?: string,
+  hours?: WeekHours | null
+): string {
   let date = fromDateStr || todayDateInputValue()
   for (let i = 0; i < 14; i++) {
-    if (!isClosedBookingDate(date) && firstAvailableTimeRange(date)) {
+    if (!isClosedBookingDate(date, hours) && firstAvailableTimeRange(date, hours)) {
       return date
     }
     date = addDaysToDateInputValue(date, 1)
@@ -106,18 +103,84 @@ export function nextOpenBookingDate(fromDateStr?: string): string {
   return date
 }
 
-/**
- * Preferred date for a new booking: today if open and a range remains,
- * otherwise the next open day (skips Saturdays).
- */
-export function defaultPreferredDate(): string {
-  return nextOpenBookingDate(todayDateInputValue())
+export function defaultPreferredDate(hours?: WeekHours | null): string {
+  return nextOpenBookingDate(todayDateInputValue(), hours)
 }
 
-/** Prefer Morning; fall back to the first still-open range for the date. */
-export function defaultPreferredTime(dateStr: string): string {
-  if (!isPastTimeRange(dateStr, 'morning')) return 'morning'
-  return firstAvailableTimeRange(dateStr)?.id ?? 'morning'
+export function defaultPreferredTime(
+  dateStr: string,
+  hours?: WeekHours | null
+): string {
+  if (!isPastTimeRange(dateStr, 'morning', hours)) return 'morning'
+  return firstAvailableTimeRange(dateStr, hours)?.id ?? 'morning'
+}
+
+function minutesFromHhmm(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+export function visibleTimeRanges(
+  dateStr: string,
+  hours?: WeekHours | null
+): Array<TimeRangeOption & { unavailable?: boolean; window: string }> {
+  if (!hours) {
+    return TIME_RANGES.map((r) => ({ ...r }))
+  }
+  const weekday = weekdayFromDateInput(dateStr)
+  if (!weekday || hours[weekday].closed) {
+    return TIME_RANGES.map((r) => ({ ...r, unavailable: true }))
+  }
+  const open = minutesFromHhmm(hours[weekday].open)
+  const close = minutesFromHhmm(hours[weekday].close)
+  const buckets: Record<string, { start: number; end: number }> = {
+    morning: { start: 9 * 60, end: 12 * 60 },
+    afternoon: { start: 12 * 60, end: 16 * 60 },
+    evening: { start: 16 * 60, end: Math.max(16 * 60 + 1, close) },
+  }
+  return TIME_RANGES.map((range) => {
+    const bucket = buckets[range.id]
+    const start = Math.max(bucket.start, open)
+    const end = Math.min(bucket.end, close)
+    if (end <= start) {
+      return { ...range, unavailable: true, window: 'Unavailable' }
+    }
+    const label = formatMinutes(start) + ' – ' + formatMinutes(end)
+    return { ...range, window: label }
+  })
+}
+
+function formatMinutes(total: number): string {
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  const suffix = h >= 12 ? 'PM' : 'AM'
+  const hour12 = h % 12 || 12
+  return m === 0 ? `${hour12}:00 ${suffix}` : `${hour12}:${String(m).padStart(2, '0')} ${suffix}`
+}
+
+export function isPastTimeRange(
+  dateStr: string,
+  rangeId: string,
+  hours?: WeekHours | null
+): boolean {
+  if (!dateStr || dateStr !== todayDateInputValue()) return false
+  const ranges = visibleTimeRanges(dateStr, hours)
+  const range = ranges.find((r) => r.id === rangeId)
+  if (!range || range.unavailable) return true
+  const endMatch = /(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(range.window.split('–')[1] || '')
+  let end = RANGE_END_MINUTES[rangeId]
+  if (endMatch) {
+    let h = Number(endMatch[1])
+    const min = Number(endMatch[2])
+    const ap = endMatch[3].toUpperCase()
+    if (ap === 'PM' && h !== 12) h += 12
+    if (ap === 'AM' && h === 12) h = 0
+    end = h * 60 + min
+  }
+  if (end == null) return false
+  const now = new Date()
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  return nowMinutes >= end
 }
 
 type TimeRangeCardsProps = {
@@ -126,6 +189,7 @@ type TimeRangeCardsProps = {
   dateStr: string
   name?: string
   hasError?: boolean
+  hours?: WeekHours | null
 }
 
 export function TimeRangeCards({
@@ -134,12 +198,14 @@ export function TimeRangeCards({
   dateStr,
   name = 'preferred-time-range',
   hasError = false,
+  hours = null,
 }: TimeRangeCardsProps) {
+  const ranges = visibleTimeRanges(dateStr, hours)
   return (
     <div className="grid grid-cols-3 gap-2 sm:gap-4">
-      {TIME_RANGES.map((range) => {
+      {ranges.map((range) => {
         const selected = selectedId === range.id
-        const past = isPastTimeRange(dateStr, range.id)
+        const past = Boolean(range.unavailable) || isPastTimeRange(dateStr, range.id, hours)
         const Icon = range.icon
 
         return (

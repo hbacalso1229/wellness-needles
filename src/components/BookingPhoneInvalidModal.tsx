@@ -2,12 +2,20 @@
 
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, Mail, Phone, X } from 'lucide-react'
+import { Info, Mail, Phone, Smartphone, X } from 'lucide-react'
 import { CTAButton } from '@/features'
 import { contactConfig } from '@/lib/contact-config'
 
-const emailCtaClass =
-  '!rounded-full !px-4 !py-2.5 !text-sm !font-medium gap-1.5 bg-white/80 !shadow-none'
+/** Same box for all three actions — Need help? inner width (max-w-xs minus card padding). */
+const modalActionWidthClass = 'w-[18rem] max-w-full mx-auto'
+
+const modalActionClass =
+  `box-border flex h-11 ${modalActionWidthClass} items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-5 text-sm font-semibold`
+
+const modalCtaSizeClass =
+  '!box-border !flex !h-11 !min-h-11 !w-full !items-center !justify-center !gap-1.5 !whitespace-nowrap !rounded-full !px-5 !py-0 !text-sm !font-semibold'
+
+const emailCtaClass = `${modalCtaSizeClass} bg-white/80 !shadow-none`
 
 type BookingPhoneInvalidModalProps = {
   open: boolean
@@ -107,8 +115,9 @@ export function BookingPhoneInvalidModal({
           ref={closeRef}
           type="button"
           onClick={onTryAnother}
-          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-cream shadow-md transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 [@media(hover:hover)]:hover:bg-secondary"
+          className={`mt-4 ${modalActionClass} bg-primary text-cream shadow-md transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 [@media(hover:hover)]:hover:bg-secondary`}
         >
+          <Smartphone className="h-4 w-4 shrink-0" aria-hidden />
           Try another number
         </button>
 
@@ -120,13 +129,14 @@ export function BookingPhoneInvalidModal({
         </p>
 
         <div className="mt-3 flex w-full flex-col gap-2.5">
-          <div className="w-full">
+          <div className={modalActionWidthClass}>
             <CTAButton
               href={contactConfig.phone.href}
               variant="gold"
               size="medium"
               showArrow={false}
               fullWidth
+              className={modalCtaSizeClass}
             >
               <Phone className="h-4 w-4 shrink-0" aria-hidden />
               Call us
@@ -136,7 +146,7 @@ export function BookingPhoneInvalidModal({
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5" aria-hidden="true">
+          <div className={`flex items-center gap-2.5 ${modalActionWidthClass}`} aria-hidden="true">
             <div className="h-px flex-1 bg-accent/25" />
             <span className="text-[10px] font-medium uppercase tracking-wide text-secondary">
               Or
@@ -144,17 +154,22 @@ export function BookingPhoneInvalidModal({
             <div className="h-px flex-1 bg-accent/25" />
           </div>
 
-          <CTAButton
-            href={contactConfig.email.href}
-            variant="outline"
-            size="medium"
-            showArrow={false}
-            fullWidth
-            className={emailCtaClass}
-          >
-            <Mail className="h-4 w-4 shrink-0" aria-hidden />
-            Email us
-          </CTAButton>
+          <div className={modalActionWidthClass}>
+            <CTAButton
+              href={contactConfig.email.href}
+              variant="outline"
+              size="medium"
+              showArrow={false}
+              fullWidth
+              className={emailCtaClass}
+            >
+              <Mail className="h-4 w-4 shrink-0" aria-hidden />
+              Send a message
+            </CTAButton>
+            <p className="mt-1.5 text-center text-base text-[var(--text-dark)]/70">
+              We reply within 24 hours
+            </p>
+          </div>
         </div>
       </div>
     </div>,

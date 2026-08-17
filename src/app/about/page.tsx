@@ -29,6 +29,7 @@ import {
 } from '../../features'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 /** Known logo files only — avoid requesting missing .svg/.png (404 spam). */
 const insurers = [
@@ -142,6 +143,12 @@ function InsurerLogo({
 
 export default function About() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+  const { overlayEnabled, site } = useSiteOverlay()
+  const featured = overlayEnabled ? site.reviews[0] : null
+  const shownInsurers = overlayEnabled
+    ? site.insurers.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder)
+    : insurers
+  const insuranceCopy = overlayEnabled ? site.insuranceParagraphs : null
 
   return (
     <div className="min-h-screen">
@@ -366,7 +373,7 @@ export default function About() {
             <div className="mb-4">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <cite className="not-italic text-sm font-semibold text-[var(--text-dark)] md:text-base">
-                  Pavlo Nikulin
+                  {featured?.name ?? 'Pavlo Nikulin'}
                 </cite>
                 <span
                   className="inline-flex items-center gap-0.5 text-gold"
@@ -378,21 +385,30 @@ export default function About() {
                 </span>
               </div>
               <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
-                Lower back pain
+                {featured?.condition ?? 'Lower back pain'}
               </span>
               <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-secondary md:text-xs">
-                <time dateTime="2026-07-22">22 July 2026</time>
+                <time dateTime={featured?.reviewedAt ?? '2026-07-22'}>
+                  {featured
+                    ? new Date(`${featured.reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : '22 July 2026'}
+                </time>
                 <span aria-hidden>·</span>
                 <span className="inline-flex items-center gap-1">
                   <CheckCircle className="h-3 w-3 shrink-0 text-accent md:h-3.5 md:w-3.5" aria-hidden />
-                  Verified Google review
+                  {featured?.source ?? 'Verified Google review'}
                 </span>
               </p>
             </div>
 
             <p className="font-serif text-base font-medium italic leading-relaxed text-[var(--text-dark)]">
-              “I&apos;d been struggling with lower back pain for so long, and after just two sessions,
-              I finally felt relief again.”
+              {featured
+                ? `“${featured.excerpt || featured.emphasis}”`
+                : '“I\'d been struggling with lower back pain for so long, and after just two sessions, I finally felt relief again.”'}
             </p>
 
             <p className="mt-auto pt-4">
@@ -417,21 +433,19 @@ export default function About() {
             className="mb-3 text-center md:mb-4"
           />
           <div className="mx-auto max-w-3xl space-y-2 text-center text-base leading-[1.7] text-[var(--text-dark)]/70 md:space-y-3">
-            <p>We are a registered professional acupuncture clinic</p>
-            <p>
-              You may be able to claim acupuncture treatment through your health insurance,
-              depending on your provider and level of cover.
-            </p>
-            <p>
-              Please check with your insurer before your appointment. We will provide a receipt for
-              your claim after treatment.
-            </p>
+            {(insuranceCopy ?? [
+              'We are a registered professional acupuncture clinic',
+              'You may be able to claim acupuncture treatment through your health insurance, depending on your provider and level of cover.',
+              'Please check with your insurer before your appointment. We will provide a receipt for your claim after treatment.',
+            ]).map((para) => (
+              <p key={para}>{para}</p>
+            ))}
           </div>
 
           <div className="mx-auto mt-8 max-w-3xl border-t border-accent/20 pt-8 md:mt-10 md:pt-10">
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:gap-x-8 sm:gap-y-5 md:gap-x-12 md:gap-y-6">
-              {insurers.map((insurer) => (
-                <li key={insurer.slug}>
+              {shownInsurers.map((insurer) => (
+                <li key={'slug' in insurer ? insurer.slug : insurer.id}>
                   <a
                     href={insurer.href}
                     target="_blank"

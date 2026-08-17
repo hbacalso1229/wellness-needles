@@ -26,6 +26,10 @@
 # next.js
 /.next/
 /out/
+/portal/node_modules
+/portal/.next/
+/portal/out/
+/workers/**/node_modules
 
 # production
 /build

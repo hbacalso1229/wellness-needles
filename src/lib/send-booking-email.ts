@@ -22,6 +22,7 @@ export type BookingEmailPayload = {
   dateOfBirth: string
   /** Optional patient note from Personal Information (not the Web3Forms reserved `message`). */
   message?: string
+  smsOptIn?: boolean
 }
 
 /** Short clinic message — booking details live in structured fields only. */
@@ -136,6 +137,9 @@ export async function sendBookingRequestEmail(
         phone: payload.phone,
         date_of_birth: payload.dateOfBirth,
         ...(patientMessage ? { patient_message: patientMessage } : {}),
+        ...(typeof payload.smsOptIn === 'boolean'
+          ? { sms_opt_in: payload.smsOptIn ? 'yes' : 'no' }
+          : {}),
       }),
     })
 
