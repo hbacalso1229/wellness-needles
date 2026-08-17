@@ -5,6 +5,7 @@ export type BookingCatalogService = {
   name: string
   duration: string
   price: string
+  originalPrice?: string
   description: string
   savings?: string
 }
@@ -36,12 +37,23 @@ export const HOME_VISIT_PRICES = {
   cupping: '€25',
 } as const
 
+export const IN_CLINIC_ORIGINAL_PRICES = {
+  initial: '€150',
+  followUp: '€120',
+} as const
+
+export const HOME_VISIT_ORIGINAL_PRICES = {
+  initial: '€250',
+  followUp: '€180',
+} as const
+
 export const inClinicServices: BookingCatalogService[] = [
   {
     id: 'initial-consultation',
     name: 'Initial Consultation & First Treatment',
     duration: initialLabel,
     price: IN_CLINIC_PRICES.initial,
+    originalPrice: IN_CLINIC_ORIGINAL_PRICES.initial,
     description:
       'Comprehensive health assessment with personalized treatment plan and first acupuncture session',
   },
@@ -50,6 +62,7 @@ export const inClinicServices: BookingCatalogService[] = [
     name: 'Follow-up Sessions',
     duration: followUpLabel,
     price: IN_CLINIC_PRICES.followUp,
+    originalPrice: IN_CLINIC_ORIGINAL_PRICES.followUp,
     description: 'Tailored acupuncture treatment based on your progress and ongoing needs',
   },
   {
@@ -76,6 +89,7 @@ export const homeVisitServices: BookingCatalogService[] = [
     name: 'Initial Consultation & First Treatment',
     duration: initialLabel,
     price: HOME_VISIT_PRICES.initial,
+    originalPrice: HOME_VISIT_ORIGINAL_PRICES.initial,
     description:
       'Comprehensive health assessment with personalized treatment plan and first acupuncture session at your home',
   },
@@ -84,6 +98,7 @@ export const homeVisitServices: BookingCatalogService[] = [
     name: 'Follow-up Sessions',
     duration: followUpLabel,
     price: HOME_VISIT_PRICES.followUp,
+    originalPrice: HOME_VISIT_ORIGINAL_PRICES.followUp,
     description: 'Tailored acupuncture treatment in the comfort of your home',
   },
   {

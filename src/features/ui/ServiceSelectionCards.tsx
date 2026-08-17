@@ -15,6 +15,7 @@ export type BookingServiceOption = {
   readonly name: string
   readonly duration: string
   readonly price: string
+  readonly originalPrice?: string
   readonly description: string
   readonly savings?: string
 }
@@ -96,12 +97,24 @@ export function ServiceSelectionCards({
                     </h3>
                   </div>
                   <div className="shrink-0 self-start text-right leading-none min-w-[3.5rem]">
-                    <span
-                      className={`block font-serif font-extrabold text-primary tracking-tight tabular-nums ${
-                        largePrice ? 'text-3xl' : 'text-2xl'
-                      }`}
-                    >
-                      {service.price}
+                    {service.originalPrice ? (
+                      <span className="sr-only">
+                        {`Was ${service.originalPrice}, now ${service.price}`}
+                      </span>
+                    ) : null}
+                    <span aria-hidden={Boolean(service.originalPrice)}>
+                      {service.originalPrice ? (
+                        <span className="mb-0.5 block text-sm font-semibold tabular-nums text-secondary/70 line-through">
+                          {service.originalPrice}
+                        </span>
+                      ) : null}
+                      <span
+                        className={`block font-serif font-extrabold text-primary tracking-tight tabular-nums ${
+                          largePrice ? 'text-3xl' : 'text-2xl'
+                        }`}
+                      >
+                        {service.price}
+                      </span>
                     </span>
                     {service.savings ? (
                       <div className="mt-1 text-sm font-semibold text-primary/70">
