@@ -1248,13 +1248,6 @@ export default function BookingForm() {
                         <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
                           {phoneCountry.dial}
                         </span>
-                        {lockIrelandPhone ? (
-                          <Lock
-                            className="h-3.5 w-3.5 shrink-0 text-primary"
-                            aria-hidden
-                            strokeWidth={2}
-                          />
-                        ) : null}
                       </div>
                       {lockIrelandPhone ? (
                         <span className="sr-only">
