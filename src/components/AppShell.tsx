@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { SiteOverlayProvider } from '@/lib/site-overlay'
 
 function normalizePathname(path: string | null) {
   if (!path || path === '/') return '/'
@@ -22,14 +23,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const fullScreen = isBookingResultPage(pathname)
 
   if (fullScreen) {
-    return <main className="min-h-dvh">{children}</main>
+    return (
+      <SiteOverlayProvider>
+        <main className="min-h-dvh">{children}</main>
+      </SiteOverlayProvider>
+    )
   }
 
   return (
-    <>
+    <SiteOverlayProvider>
       <Header />
       <main className="pt-12 sm:pt-14">{children}</main>
       <Footer />
-    </>
+    </SiteOverlayProvider>
   )
 }

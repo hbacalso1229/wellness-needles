@@ -1,9 +1,24 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { contactConfig } from '../lib/contact-config'
 import ContactInfo from './ContactInfo'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 export default function Footer() {
+  const { overlayEnabled, site } = useSiteOverlay()
+  const clinicName = overlayEnabled ? site.clinicName : contactConfig.businessInfo.name
+  const tagline = overlayEnabled ? site.tagline : contactConfig.businessInfo.tagline
+  const description = overlayEnabled
+    ? site.description
+    : contactConfig.businessInfo.description
+  const facebookUrl = overlayEnabled
+    ? site.social.facebookUrl
+    : contactConfig.socialMedia.facebook.url
+  const instagramUrl = overlayEnabled
+    ? site.social.instagramUrl
+    : contactConfig.socialMedia.instagram.url
   return (
     <footer className="bg-primary text-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
@@ -19,17 +34,17 @@ export default function Footer() {
                 className="h-6 w-auto md:h-8 object-contain"
               />
               <span className="font-serif text-lg md:text-xl font-semibold text-cream">
-                {contactConfig.businessInfo.name}
+                {clinicName}
               </span>
             </div>
             <p className="mb-3 max-w-md text-base leading-relaxed text-cream/65 md:mb-6">
-              {contactConfig.businessInfo.tagline} {contactConfig.businessInfo.description}
+              {tagline} {description}
             </p>
             <div>
               <h3 className="font-bold text-base md:text-lg text-cream mb-2 md:mb-4">Follow us</h3>
               <div className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2">
                 <a
-                  href={contactConfig.socialMedia.facebook.url}
+                  href={facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-cream/65 hover:text-cream transition-colors inline-flex items-center gap-2"
@@ -48,7 +63,7 @@ export default function Footer() {
                   <span className="text-base">{contactConfig.socialMedia.facebook.displayName}</span>
                 </a>
                 <a
-                  href={contactConfig.socialMedia.instagram.url}
+                  href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-cream/65 hover:text-cream transition-colors inline-flex items-center gap-2"

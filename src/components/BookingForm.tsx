@@ -25,7 +25,9 @@ import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKe
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
+import { persistBookingRequest } from '@/lib/booking-persist'
 import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
+import { useSiteOverlay } from '@/lib/site-overlay'
 import {
   joinPersonName,
   normalizeNameParts,
@@ -244,6 +246,8 @@ function PhoneFlagIcon({ countryId, className }: { countryId: string; className?
 
 export default function BookingForm() {
   const { features } = useBookingFeatures()
+  const { overlayEnabled, hours } = useSiteOverlay()
+  const [smsOptIn, setSmsOptIn] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toast, setToast] = useState<{
@@ -343,17 +347,19 @@ export default function BookingForm() {
     return () => mq.removeEventListener('change', syncNameLayout)
   }, [formData.firstName, formData.lastName])
 
-  // Never keep a Saturday in state (clinic closed) — snap to the next open day.
+  // Snap closed weekdays to the next open day.
   useEffect(() => {
-    if (!isClosedBookingDate(selectedDate)) return
-    const openDate = nextOpenBookingDate(selectedDate)
+    if (!isClosedBookingDate(selectedDate, hours)) return
+    const openDate = nextOpenBookingDate(selectedDate, hours)
     setSelectedDate(openDate)
-    setSelectedTime(defaultPreferredTime(openDate))
+    setSelectedTime(defaultPreferredTime(openDate, hours))
     setToast({
-      message: 'We are closed on Saturdays. Please choose Sunday–Friday.',
+      message: hours
+        ? 'That day is closed. Please choose an open day.'
+        : 'We are closed on Saturdays. Please choose Sunday–Friday.',
       variant: 'error',
     })
-  }, [selectedDate])
+  }, [selectedDate, hours])
 
   const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
@@ -523,14 +529,14 @@ export default function BookingForm() {
       if (!selectedDate) {
         fields.push('date')
         messages.push('Please choose a preferred date.')
-      } else if (isClosedBookingDate(selectedDate)) {
+      } else if (isClosedBookingDate(selectedDate, hours)) {
         fields.push('date')
         messages.push('We are closed on Saturdays. Please choose Sunday–Friday.')
       }
       if (!selectedTime) {
         fields.push('time')
         messages.push('Please choose a preferred time range.')
-      } else if (selectedDate && isPastTimeRange(selectedDate, selectedTime)) {
+      } else if (selectedDate && isPastTimeRange(selectedDate, selectedTime, hours)) {
         fields.push('time')
         messages.push('That time range has already passed. Please choose a later range.')
       }
@@ -596,13 +602,17 @@ export default function BookingForm() {
 
   const handleNext = () => {
     // Belt-and-braces: never advance with a closed day still selected.
-    if (currentStep === 2 && isClosedBookingDate(selectedDate)) {
-      const openDate = nextOpenBookingDate(selectedDate)
+    if (currentStep === 2 && isClosedBookingDate(selectedDate, hours)) {
+      const openDate = nextOpenBookingDate(selectedDate, hours)
       setSelectedDate(openDate)
-      setSelectedTime(defaultPreferredTime(openDate))
+      setSelectedTime(defaultPreferredTime(openDate, hours))
       reportValidationErrors({
         fields: ['date'],
-        messages: ['We are closed on Saturdays. Please choose Sunday–Friday.'],
+        messages: [
+          hours
+            ? 'That day is closed. Please choose an open day.'
+            : 'We are closed on Saturdays. Please choose Sunday–Friday.',
+        ],
       })
       return
     }
@@ -627,8 +637,8 @@ export default function BookingForm() {
     setSelectedLocation('celbridge')
     setSelectedService('initial-consultation')
     setSelectedAddOns([])
-    setSelectedDate(defaultPreferredDate())
-    setSelectedTime(defaultPreferredTime(defaultPreferredDate()))
+    setSelectedDate(defaultPreferredDate(hours))
+    setSelectedTime(defaultPreferredTime(defaultPreferredDate(hours), hours))
     setFormData({
       firstName: '',
       lastName: '',
@@ -678,10 +688,8 @@ export default function BookingForm() {
       ...formData,
       firstName,
       lastName,
+      smsOptIn: overlayEnabled ? smsOptIn : undefined,
     }
-
-    clearAllFieldErrors()
-    console.log('Booking submitted:', payload)
 
     // E2E-only: force apologetic page without live Web3Forms / captcha.
     if (
@@ -797,6 +805,21 @@ export default function BookingForm() {
           }
           // Clinic email sent (Web3Forms). Patient thank-you via Resend when available
           // (Cloudflare production). Staging/local skip Resend without blocking thank-you.
+          // Overlay off: do not call /api/bff — production booking path stays Turnstile + Web3Forms.
+          if (overlayEnabled) {
+            void persistBookingRequest({
+              firstName: payload.firstName,
+              lastName: payload.lastName,
+              email: payload.email,
+              phone: payload.phone,
+              serviceType: payload.serviceType,
+              locationLabel: payload.locationLabel,
+              serviceLabel: payload.serviceLabel,
+              date: payload.date,
+              time: payload.time,
+              smsOptIn: smsOptIn,
+            })
+          }
           const patientEmail = payload.email.trim()
           if (patientEmail) {
             try {
@@ -881,9 +904,9 @@ export default function BookingForm() {
           (currentStep === 1 && !selectedService) ||
           (currentStep === 2 &&
             (!selectedDate ||
-              isClosedBookingDate(selectedDate) ||
+              isClosedBookingDate(selectedDate, hours) ||
               !selectedTime ||
-              isPastTimeRange(selectedDate, selectedTime)))
+              isPastTimeRange(selectedDate, selectedTime, hours)))
         }
         stepFocusId={
           currentStep === 3
@@ -1030,7 +1053,8 @@ export default function BookingForm() {
                 <BookingDatePicker
                   id="booking-date"
                   value={selectedDate}
-                  min={defaultPreferredDate()}
+                  min={defaultPreferredDate(hours)}
+                  hours={hours}
                   hasError={hasFieldError('date')}
                   aria-invalid={hasFieldError('date')}
                   aria-describedby={
@@ -1044,8 +1068,8 @@ export default function BookingForm() {
                   onChange={(nextDate) => {
                     setSelectedDate(nextDate)
                     clearFieldError('date')
-                    if (selectedTime && isPastTimeRange(nextDate, selectedTime)) {
-                      setSelectedTime(defaultPreferredTime(nextDate))
+                    if (selectedTime && isPastTimeRange(nextDate, selectedTime, hours)) {
+                      setSelectedTime(defaultPreferredTime(nextDate, hours))
                       clearFieldError('time')
                     }
                   }}
@@ -1053,7 +1077,7 @@ export default function BookingForm() {
               </div>
               <p id="booking-date-hint" className="mt-1.5 text-xs text-secondary">
                 Next available starts from{' '}
-                {new Date(`${defaultPreferredDate()}T12:00:00`).toLocaleDateString('en-IE', {
+                {new Date(`${defaultPreferredDate(hours)}T12:00:00`).toLocaleDateString('en-IE', {
                   weekday: 'short',
                   day: 'numeric',
                   month: 'short',
@@ -1091,6 +1115,7 @@ export default function BookingForm() {
                 <TimeRangeCards
                   selectedId={selectedTime}
                   dateStr={selectedDate}
+                  hours={hours}
                   hasError={hasFieldError('time')}
                   onSelect={(id) => {
                     setSelectedTime(id)
@@ -1374,6 +1399,20 @@ export default function BookingForm() {
                     className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
                 </div>
+                {overlayEnabled ? (
+                  <label className="flex items-start gap-2 text-sm text-[var(--text-dark)]">
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      checked={smsOptIn}
+                      onChange={(e) => setSmsOptIn(e.target.checked)}
+                    />
+                    <span>
+                      Text me confirmation, a reminder 24 hours before, and if the clinic
+                      cancels.
+                    </span>
+                  </label>
+                ) : null}
               </div>
             </div>
 

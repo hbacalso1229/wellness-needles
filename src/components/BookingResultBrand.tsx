@@ -3,9 +3,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { contactConfig } from '@/lib/contact-config'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 /** Logo + brand for full-screen booking result pages (no site header/footer). */
 export function BookingResultBrand() {
+  const { overlayEnabled, site } = useSiteOverlay()
+  const name = overlayEnabled ? site.clinicName : contactConfig.businessInfo.name
   return (
     <div className="mb-6 flex justify-center sm:mb-7 lg:mb-9">
       <Link
@@ -23,7 +26,7 @@ export function BookingResultBrand() {
           />
         </span>
         <span className="font-serif text-lg font-extrabold tracking-wide text-primary sm:text-xl lg:text-2xl">
-          {contactConfig.businessInfo.name}
+          {name}
         </span>
       </Link>
     </div>

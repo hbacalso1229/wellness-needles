@@ -1,0 +1,12 @@
+name = "wellness-needles-reminders"
+main = "src/index.ts"
+compatibility_date = "2025-08-01"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+# After D1 exists, add:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "wellness-needles"
+# database_id = "<from Cloudflare dashboard>"

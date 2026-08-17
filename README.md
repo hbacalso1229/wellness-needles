@@ -8,6 +8,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); Calendly / Fresha URLs configurable in code
+- Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). Public website overlay is **off by default** — see [docs/PORTAL.md](docs/PORTAL.md)
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
@@ -49,6 +50,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - **Fonts**: Inter & Playfair Display
 - **Staging**: Vercel Preview from `dev` → `https://wellness-needles.vercel.app`
 - **Production**: Cloudflare Pages on **GitHub Release published** → `https://www.wellnessneedles.ie`
+- **Owner portal**: `https://portal.wellnessneedles.ie` (Access). Setup: [docs/PORTAL.md](docs/PORTAL.md)
 
 ## Getting started
 
@@ -98,7 +100,12 @@ src/
     ├── booking-features.ts
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
-functions/api/booking-thank-you.ts # Resend patient thank-you
+functions/api/                 # booking-* (www). bff/admin stay off www until overlay is enabled
+portal/                        # Owner UI static export
+workers/booking-reminders/     # 24h reminder cron
+shared/                        # Site snapshot types/defaults
+d1/schema.sql
+docs/PORTAL.md
 ```
 
 ## Customization

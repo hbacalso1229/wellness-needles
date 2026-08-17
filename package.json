@@ -7,6 +7,7 @@
     "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "build:e2e": "node scripts/build-e2e.mjs",
+    "build:portal": "npm --prefix portal ci && npm --prefix portal run build",
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",

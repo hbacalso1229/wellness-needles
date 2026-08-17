@@ -16,12 +16,14 @@ import {
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { useSiteOverlay } from '@/lib/site-overlay'
 import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+  const { overlayEnabled, site } = useSiteOverlay()
 
-  const testimonials = [
+  const bakedTestimonials = [
     {
       name: 'Luiza Barbi',
       condition: 'Pain relief',
@@ -123,6 +125,22 @@ export default function Testimonials() {
     },
   ]
 
+  const testimonials =
+    overlayEnabled && site.reviews.length > 0
+      ? site.reviews.map((review) => ({
+          name: review.name,
+          condition: review.condition,
+          date: new Date(`${review.reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+          rating: review.rating,
+          source: review.source,
+          emphasis: review.emphasis || review.excerpt,
+          text: review.body || review.excerpt,
+        }))
+      : bakedTestimonials
   const reviewCount = testimonials.length
   const ratingAverage =
     reviewCount === 0

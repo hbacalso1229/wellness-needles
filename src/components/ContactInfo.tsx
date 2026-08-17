@@ -1,4 +1,7 @@
+'use client'
+
 import { contactConfig } from '../lib/contact-config'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 interface ContactInfoProps {
   variant?: 'default' | 'compact' | 'inline'
@@ -15,6 +18,25 @@ export default function ContactInfo({
   showPhone = true,
   showEmail = true
 }: ContactInfoProps) {
+  const { overlayEnabled, site } = useSiteOverlay()
+  const phoneHref = overlayEnabled ? site.phone.href : contactConfig.phone.href
+  const phoneText = overlayEnabled ? site.phone.displayText : contactConfig.phone.displayText
+  const emailHref = overlayEnabled ? site.email.href : contactConfig.email.href
+  const emailText = overlayEnabled ? site.email.address : contactConfig.email.address
+  const locations = overlayEnabled
+    ? site.locations.map((loc) => ({
+        id: loc.id,
+        label: loc.label,
+        full: loc.full,
+        directionsUrl: loc.directionsUrl,
+        formatted: {
+          street: loc.street,
+          city: loc.city,
+          county: loc.county,
+          postcode: loc.postcode,
+        },
+      }))
+    : contactConfig.address.locations
   const baseStyles = variant === 'inline' 
     ? 'flex items-center space-x-6' 
     : 'space-y-3'
@@ -33,10 +55,10 @@ export default function ContactInfo({
         <div className={itemStyles}>
           <contactConfig.phone.icon className="w-4 h-4 text-current opacity-80" />
           <a 
-            href={contactConfig.phone.href}
+            href={phoneHref}
             className="hover:opacity-100 transition-opacity"
           >
-            {contactConfig.phone.displayText}
+            {phoneText}
           </a>
         </div>
       )}
@@ -45,10 +67,10 @@ export default function ContactInfo({
         <div className={itemStyles}>
           <contactConfig.email.icon className="w-4 h-4 text-current opacity-80" />
           <a 
-            href={contactConfig.email.href}
+            href={emailHref}
             className="hover:opacity-100 transition-opacity"
           >
-            {contactConfig.email.address}
+            {emailText}
           </a>
         </div>
       )}
@@ -58,7 +80,7 @@ export default function ContactInfo({
           <contactConfig.address.icon className="w-4 h-4 text-current opacity-80 mt-1 flex-shrink-0" />
           {variant === 'inline' || variant === 'compact' ? (
             <div className="text-current opacity-80 space-y-1">
-              {contactConfig.address.locations.map((location) => (
+              {locations.map((location) => (
                 <a
                   key={location.full}
                   href={location.directionsUrl}
@@ -72,7 +94,7 @@ export default function ContactInfo({
             </div>
           ) : (
             <div className="text-current opacity-80 space-y-3">
-              {contactConfig.address.locations.map((location) => (
+              {locations.map((location) => (
                 <a
                   key={location.full}
                   href={location.directionsUrl}
