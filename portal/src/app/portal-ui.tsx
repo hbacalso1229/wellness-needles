@@ -25,10 +25,13 @@ export const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
 
 const COPY_DAYS = DISPLAY_DAYS.filter(([, key]) => key !== 'monday')
 
-export function PageHeader({ title, description }: { title: string; description?: string }) {
+export function PageHeader({ title, description }: { title?: string; description?: string }) {
+  if (!title && !description) return null
   return (
     <div className="space-y-1">
-      <h1 className="font-serif text-2xl font-semibold text-[var(--text-dark)]">{title}</h1>
+      {title ? (
+        <h1 className="font-serif text-2xl font-semibold text-[var(--text-dark)]">{title}</h1>
+      ) : null}
       {description ? <p className="max-w-2xl text-sm text-[var(--text-dark)]/65">{description}</p> : null}
     </div>
   )
@@ -324,31 +327,47 @@ export function ReviewStatusTabs({
   value,
   counts,
   onChange,
+  query,
+  onQueryChange,
 }: {
   value: ReviewStatusTab
   counts: Record<ReviewStatusTab, number>
   onChange: (next: ReviewStatusTab) => void
+  query: string
+  onQueryChange: (next: string) => void
 }) {
   return (
-    <nav className="flex gap-1 overflow-x-auto border-b border-black/[0.08]">
-      {REVIEW_STATUS_TABS.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          onClick={() => onChange(item.id)}
-          className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
-            value === item.id
-              ? 'border-primary text-primary'
-              : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
-          }`}
-        >
-          {item.label}
-          <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
-            {counts[item.id]}
-          </span>
-        </button>
-      ))}
-    </nav>
+    <div className="flex flex-col gap-2 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
+      <nav className="flex gap-1 overflow-x-auto">
+        {REVIEW_STATUS_TABS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onChange(item.id)}
+            className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+              value === item.id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+            }`}
+          >
+            {item.label}
+            <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+              {counts[item.id]}
+            </span>
+          </button>
+        ))}
+      </nav>
+      <label className="block pb-2 sm:w-64 sm:shrink-0">
+        <span className="sr-only">Search reviews</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+          placeholder="Search name, treatment, text…"
+          className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </label>
+    </div>
   )
 }
 
@@ -361,8 +380,12 @@ export function ReviewCard({
   source,
   body,
   tagValue,
+  emphasisValue,
+  bakedLiveNote,
   onTagChange,
-  onSaveTag,
+  onEmphasisChange,
+  onSuggestEmphasis,
+  onSaveTagAndHighlight,
   onConfirm,
   onReject,
   onUnpublish,
@@ -376,20 +399,34 @@ export function ReviewCard({
   source?: string
   body: string
   tagValue: string
+  emphasisValue: string
+  bakedLiveNote?: string
   onTagChange: (next: string) => void
-  onSaveTag: () => void
+  onEmphasisChange: (next: string) => void
+  onSuggestEmphasis: () => void
+  onSaveTagAndHighlight: () => void
   onConfirm: () => void
   onReject: () => void
   onUnpublish: () => void
   onRestore: () => void
 }) {
+  const phrase = emphasisValue.trim()
+  const phraseError =
+    phrase && !body.includes(phrase)
+      ? 'Must appear exactly in the full review.'
+      : undefined
+  const saveEdits = () => {
+    if (phraseError) return
+    onSaveTagAndHighlight()
+  }
+
   return (
     <article className="flex h-full flex-col rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="font-medium text-[var(--text-dark)]">{name}</p>
         <RatingStars rating={rating} />
       </div>
-      {bucket !== 'pending' && condition ? (
+      {bucket === 'rejected' && condition ? (
         <p className="mt-1 text-xs text-secondary">{condition}</p>
       ) : null}
       <p className="mt-1 text-xs text-secondary">
@@ -399,8 +436,11 @@ export function ReviewCard({
       <p className="mt-3 flex-1 text-sm italic leading-relaxed text-[var(--text-dark)]/80">
         {body}
       </p>
-      {bucket === 'pending' ? (
+      {bucket === 'pending' || bucket === 'confirmed' ? (
         <div className="mt-3 space-y-2 border-t border-black/[0.06] pt-3">
+          {bakedLiveNote ? (
+            <p className="text-xs leading-relaxed text-secondary">{bakedLiveNote}</p>
+          ) : null}
           <label className="block text-xs font-medium text-[var(--text-dark)]/60">
             Treatment tag
             <input
@@ -410,47 +450,76 @@ export function ReviewCard({
               onChange={(e) => onTagChange(e.target.value)}
             />
           </label>
+          <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+            Phrase to highlight
+            <input
+              className={`mt-1 w-full rounded-md border px-2 py-1.5 text-sm ${
+                phraseError ? 'border-red-400' : 'border-black/10'
+              }`}
+              value={emphasisValue}
+              onChange={(e) => onEmphasisChange(e.target.value)}
+              aria-invalid={Boolean(phraseError) || undefined}
+            />
+          </label>
+          {phraseError ? (
+            <p className="text-sm text-red-700" role="alert">
+              {phraseError}
+            </p>
+          ) : null}
+          <button
+            type="button"
+            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+            onClick={onSuggestEmphasis}
+          >
+            Suggest from review
+          </button>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-              onClick={onSaveTag}
+              onClick={saveEdits}
             >
-              Save tag
+              Save tag & highlight
             </button>
-            <button
-              type="button"
-              className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
-              onClick={onConfirm}
-            >
-              Confirm
-            </button>
-            <button
-              type="button"
-              className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-              onClick={onReject}
-            >
-              Reject
-            </button>
+            {bucket === 'pending' ? (
+              <>
+                <button
+                  type="button"
+                  className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
+                  onClick={() => {
+                    if (phraseError) return
+                    onConfirm()
+                  }}
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  onClick={onReject}
+                >
+                  Reject
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  onClick={onUnpublish}
+                >
+                  Unpublish
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  onClick={onReject}
+                >
+                  Reject
+                </button>
+              </>
+            )}
           </div>
-        </div>
-      ) : null}
-      {bucket === 'confirmed' ? (
-        <div className="mt-3 flex flex-wrap gap-2 border-t border-black/[0.06] pt-3">
-          <button
-            type="button"
-            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-            onClick={onUnpublish}
-          >
-            Unpublish
-          </button>
-          <button
-            type="button"
-            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-            onClick={onReject}
-          >
-            Reject
-          </button>
         </div>
       ) : null}
       {bucket === 'rejected' ? (

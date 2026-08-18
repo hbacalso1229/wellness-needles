@@ -1,5 +1,10 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../_lib/http'
-import { clipCondition, parseHalfStarRating } from '../../../shared/review-rating'
+import {
+  clipCondition,
+  excerptFromReview,
+  parseHalfStarRating,
+  resolveEmphasis,
+} from '../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -45,9 +50,8 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (condition == null) {
     return jsonResponse(400, { ok: false, error: 'condition too long' })
   }
-  const emphasisRaw = asString(body?.emphasis)
-  const emphasis = emphasisRaw && reviewBody.includes(emphasisRaw) ? emphasisRaw : ''
-  const excerpt = emphasis || asString(body?.excerpt) || reviewBody.slice(0, 120)
+  const emphasis = resolveEmphasis(reviewBody, body?.emphasis)
+  const excerpt = excerptFromReview(reviewBody, emphasis)
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
   const reviewedAt = asString(body?.reviewedAt) || now.slice(0, 10)

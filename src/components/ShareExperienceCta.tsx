@@ -12,6 +12,7 @@ import {
   REVIEW_NAME_MAX_LEN,
   TREATMENT_TAG_PRESETS,
   parseHalfStarRating,
+  suggestEmphasis,
 } from '../../shared/review-rating'
 
 const OTHER = 'Other'
@@ -113,20 +114,6 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
     return undefined
   }
 
-  const validateAll = () => {
-    const next = {
-      name: validateName(),
-      rating: validateRating(),
-      body: validateBody(),
-      emphasis: validateEmphasis(),
-    }
-    const compact = Object.fromEntries(
-      Object.entries(next).filter(([, message]) => Boolean(message))
-    ) as Partial<Record<FieldKey, string>>
-    setFieldErrors(compact)
-    return compact
-  }
-
   const requestClose = () => {
     if (sending) return
     if (done || !isDirty) {
@@ -166,8 +153,19 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
     event.preventDefault()
     setError('')
     setConfirmClose(false)
-    const nextErrors = validateAll()
-    if (Object.keys(nextErrors).length) return
+    const filledEmphasis = emphasis.trim() || suggestEmphasis(body)
+    if (filledEmphasis !== emphasis) setEmphasis(filledEmphasis)
+    const nextErrors = {
+      name: validateName(),
+      rating: validateRating(),
+      body: validateBody(),
+      emphasis: validateEmphasis(filledEmphasis, body),
+    }
+    const compact = Object.fromEntries(
+      Object.entries(nextErrors).filter(([, message]) => Boolean(message))
+    ) as Partial<Record<FieldKey, string>>
+    setFieldErrors(compact)
+    if (Object.keys(compact).length) return
 
     const parsed = parseHalfStarRating(rating)
     if (!parsed) return
@@ -197,7 +195,7 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
           rating: parsed,
           condition,
           body,
-          emphasis,
+          emphasis: filledEmphasis,
         }),
       })
       const json = (await res.json()) as { ok?: boolean; error?: string }
@@ -373,7 +371,13 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
                       setFieldError('emphasis', validateEmphasis(emphasis, next))
                     }
                   }}
-                  onBlur={() => setFieldError('body', validateBody())}
+                  onBlur={() => {
+                    setFieldError('body', validateBody())
+                    if (!emphasis.trim() && body.trim()) {
+                      const suggested = suggestEmphasis(body)
+                      if (suggested) setEmphasis(suggested)
+                    }
+                  }}
                   aria-required
                   aria-invalid={Boolean(fieldErrors.body) || undefined}
                   aria-describedby={`${bodyCountId}${fieldErrors.body ? ` ${bodyErrorId}` : ''}`}
@@ -420,8 +424,8 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
                 />
               </label>
               <p id={emphasisHelpId} className="-mt-2 pb-1 text-xs leading-relaxed text-secondary">
-                Optional — enter a short phrase from your review that you’d like us to
-                highlight. It must appear exactly in your review.
+                Optional — we’ll pick a short phrase from your review if you leave this blank.
+                You can edit it. It must appear exactly in your review.
               </p>
               {fieldErrors.emphasis ? (
                 <p id={emphasisErrorId} className="-mt-2 text-sm text-red-700" role="alert">

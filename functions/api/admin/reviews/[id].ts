@@ -1,7 +1,10 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
 import { approvedReviews, readPublishedSite } from '../../../_lib/site'
 import { KV_SITE_KEY } from '../../../../shared/site-snapshot'
-import { clipCondition } from '../../../../shared/review-rating'
+import {
+  clipCondition,
+  excerptFromReview,
+} from '../../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -30,6 +33,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   const body = (await readJsonBody(context.request)) as {
     action?: string
     condition?: string
+    emphasis?: string
   } | null
   const action = asString(body?.action)
 
@@ -38,12 +42,33 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     if (condition == null) {
       return jsonResponse(400, { ok: false, error: 'condition too long' })
     }
-    await context.env.DB.prepare(
-      `UPDATE reviews SET condition = ? WHERE id = ? AND status = 'pending'`
+    const row = await context.env.DB.prepare(
+      `SELECT status, body, excerpt FROM reviews WHERE id = ?`
     )
-      .bind(condition, id)
+      .bind(id)
+      .first<{ status: string; body: string | null; excerpt: string | null }>()
+    if (!row) return jsonResponse(404, { ok: false, error: 'not-found' })
+    if (row.status !== 'pending' && row.status !== 'approved') {
+      return jsonResponse(400, { ok: false, error: 'cannot-update' })
+    }
+    const reviewBody = asString(row.body) || asString(row.excerpt)
+    const phrase = asString(body?.emphasis)
+    const emphasis = phrase && reviewBody.includes(phrase) ? phrase : ''
+    const excerpt = excerptFromReview(reviewBody, emphasis)
+    await context.env.DB.prepare(
+      `UPDATE reviews SET condition = ?, emphasis = ?, excerpt = ?
+       WHERE id = ? AND status IN ('pending', 'approved')`
+    )
+      .bind(condition, emphasis, excerpt, id)
       .run()
-    return jsonResponse(200, { ok: true, status: 'pending' })
+    if (row.status === 'approved') {
+      try {
+        await refreshPublishedReviews(context.env)
+      } catch (error) {
+        console.error('[admin/reviews publish snapshot]', error)
+      }
+    }
+    return jsonResponse(200, { ok: true, status: row.status })
   }
 
   const status =

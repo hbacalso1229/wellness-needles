@@ -68,6 +68,117 @@ function parseHalfStarRating(value: unknown): number | null {
   return Math.round(n * 2) / 2
 }
 
+/* Keep in sync with shared/review-rating.ts — this Function cannot import shared. */
+const EMPHASIS_MIN = 24
+const EMPHASIS_MAX = 80
+const EMPHASIS_SWEET = 50
+const OUTCOME_TERMS = [
+  'pain-free',
+  'pain free',
+  'symptom',
+  'energy',
+  'sleep',
+  'recommend',
+  'session',
+  'relax',
+  'better',
+  'gone',
+  'disappeared',
+  'exceptional',
+  'effective',
+  'blooming',
+  'alive',
+  'miracle',
+]
+const CONTRAST_TERMS = ['first time', 'within one', 'only', ' now ', 'after']
+const OPENER_PREFIXES = [
+  'i had a',
+  'i would like to',
+  'going to arkinth',
+  'i have been to',
+  'i have had acupuncture',
+  'had my first session',
+]
+
+function addCandidate(found: Set<string>, body: string, raw: string) {
+  const phrase = raw.trim().replace(/^["“']+|["”']+$/g, '')
+  if (phrase.length < EMPHASIS_MIN || phrase.length > EMPHASIS_MAX) return
+  if (!body.includes(phrase)) return
+  found.add(phrase)
+}
+
+function collectEmphasisCandidates(body: string): string[] {
+  const found = new Set<string>()
+  const quoteRe = /["“]([^"”]{24,80})["”]/g
+  let match: RegExpExecArray | null
+  while ((match = quoteRe.exec(body))) {
+    addCandidate(found, body, match[1] ?? '')
+  }
+  const sentenceRe = /[^.!?]+[.!?]+|[^.!?]+$/g
+  const sentences: string[] = []
+  while ((match = sentenceRe.exec(body))) {
+    const sentence = (match[0] ?? '').trim()
+    sentences.push(sentence)
+    addCandidate(found, body, sentence)
+  }
+  for (const sentence of sentences) {
+    for (const part of sentence.split(/[;–—]/)) {
+      addCandidate(found, body, part)
+    }
+  }
+  return [...found]
+}
+
+function scoreEmphasis(candidate: string, body: string): number {
+  const lower = ` ${candidate.toLowerCase()} `
+  let score = 20 - Math.abs(candidate.length - EMPHASIS_SWEET) * 0.4
+  for (const term of OUTCOME_TERMS) {
+    if (lower.includes(term)) score += 12
+  }
+  for (const term of CONTRAST_TERMS) {
+    if (lower.includes(term)) score += 8
+  }
+  const start = candidate.toLowerCase()
+  for (const prefix of OPENER_PREFIXES) {
+    if (start.startsWith(prefix)) score -= 18
+  }
+  const index = body.indexOf(candidate)
+  if (index >= 0 && index < 20) score -= 6
+  return score
+}
+
+function suggestEmphasis(body: string): string {
+  const text = body.trim()
+  if (!text) return ''
+  const candidates = collectEmphasisCandidates(text)
+  let best = ''
+  let bestScore = -Infinity
+  for (const candidate of candidates) {
+    const score = scoreEmphasis(candidate, text)
+    if (score > bestScore) {
+      bestScore = score
+      best = candidate
+    }
+  }
+  if (best && bestScore > 0) return best
+  if (candidates.length) {
+    return [...candidates].sort(
+      (a, b) => Math.abs(a.length - EMPHASIS_SWEET) - Math.abs(b.length - EMPHASIS_SWEET)
+    )[0]
+  }
+  if (text.length <= EMPHASIS_MAX) return text
+  const slice = text.slice(0, EMPHASIS_MAX)
+  const space = slice.lastIndexOf(' ')
+  const cut = space > EMPHASIS_MIN ? slice.slice(0, space) : slice
+  return text.includes(cut) ? cut : text.slice(0, EMPHASIS_MAX)
+}
+
+function resolveEmphasis(body: string, raw: unknown): string {
+  const phrase = typeof raw === 'string' ? raw.trim() : ''
+  if (phrase && body.includes(phrase)) return phrase
+  return suggestEmphasis(body)
+}
+
 async function verifyTurnstile(
   secret: string,
   token: string,
@@ -147,8 +258,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'condition too long' })
   }
 
-  const emphasisRaw = asString(payload.emphasis)
-  const emphasis = emphasisRaw && reviewBody.includes(emphasisRaw) ? emphasisRaw : ''
+  const emphasis = resolveEmphasis(reviewBody, payload.emphasis)
   const excerpt = emphasis || reviewBody.slice(0, 120)
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
