@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
+import { PhoneFlagIcon } from '@/features/ui/PhoneFlagIcon'
 import { contactConfig } from '@/lib/contact-config'
 import {
   DEFAULT_PHONE_COUNTRY_ID,
@@ -28,6 +29,7 @@ import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import { persistBookingRequest } from '@/lib/booking-persist'
 import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
 import { useSiteOverlay } from '@/lib/site-overlay'
+import { withOverlayCatalog } from '@/lib/overlay-public'
 import {
   joinPersonName,
   normalizeNameParts,
@@ -230,23 +232,10 @@ function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim())
 }
 
-function PhoneFlagIcon({ countryId, className }: { countryId: string; className?: string }) {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element -- ISO flags from flagcdn; emoji flags do not render on Windows
-    <img
-      src={`https://flagcdn.com/w40/${countryId.toLowerCase()}.png`}
-      alt=""
-      width={24}
-      height={16}
-      className={`h-4 w-6 rounded-[1px] object-cover ${className ?? ''}`}
-      aria-hidden
-    />
-  )
-}
 
 export default function BookingForm() {
   const { features } = useBookingFeatures()
-  const { overlayEnabled, hours } = useSiteOverlay()
+  const { overlayEnabled, hours, site } = useSiteOverlay()
   const [smsOptIn, setSmsOptIn] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -382,11 +371,16 @@ export default function BookingForm() {
     turnstileRef.current?.reset()
   }
 
-  const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
+  const catalog = overlayEnabled ? withOverlayCatalog(site) : null
+  const clinicServices = catalog?.inClinicServices ?? inClinicServices
+  const visitServices = catalog?.homeVisitServices ?? homeVisitServices
+  const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
+  const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
+  const services = (activeTab === 'in-clinic' ? clinicServices : visitServices).filter(
     (service) =>
       features.treatmentPackagesEnabled || !service.id.includes('package')
   )
-  const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
+  const addOns = activeTab === 'in-clinic' ? clinicAddOns : visitAddOns
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
   const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
@@ -725,6 +719,13 @@ export default function BookingForm() {
     if (features.bookingEmailEnabled) {
       // Re-read so env fallback is always current at submit time
       const latestFeatures = readBookingFeatures()
+      const mailFeatures = {
+        ...latestFeatures,
+        bookingEmailTo:
+          overlayEnabled && site.email.address.trim()
+            ? site.email.address.trim()
+            : latestFeatures.bookingEmailTo,
+      }
       if (!isBookingEmailConfigured(latestFeatures)) {
         goToUnableToProcess(
           latestFeatures.bookingEmailAccessKey &&
@@ -778,14 +779,14 @@ export default function BookingForm() {
           if (useTurnstileWidget) {
             const verified = await sendTurnstileBookingRequest(turnstileToken)
             result = verified.ok
-              ? await sendBookingRequestEmail(payload, latestFeatures, undefined, {
+              ? await sendBookingRequestEmail(payload, mailFeatures, undefined, {
                   skipHCaptcha: true,
                 })
               : verified
           } else {
             result = await sendBookingRequestEmail(
               payload,
-              latestFeatures,
+              mailFeatures,
               hCaptchaToken
             )
           }
@@ -1266,10 +1267,7 @@ export default function BookingForm() {
                           lockIrelandPhone ? 'pr-3' : 'pr-7'
                         }`}
                       >
-                        <PhoneFlagIcon
-                          countryId={phoneCountry.id}
-                          className="h-4 w-6 shrink-0 rounded-[1px] shadow-sm ring-1 ring-black/10"
-                        />
+                        <PhoneFlagIcon countryId={phoneCountry.id} />
                         <span className="whitespace-nowrap text-sm font-medium text-[var(--text-dark)]">
                           {phoneCountry.dial}
                         </span>

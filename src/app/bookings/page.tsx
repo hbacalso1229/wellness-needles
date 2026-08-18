@@ -14,6 +14,8 @@ import {
   glassGreenPanelClassName,
 } from '../../features'
 import { contactConfig } from '@/lib/contact-config'
+import { usePublicContact } from '@/lib/site-overlay'
+import { withOverlayCatalog } from '@/lib/overlay-public'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
@@ -33,6 +35,8 @@ const panelClass =
   'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15'
 
 export default function Bookings() {
+  const { overlayEnabled, site, phoneHref, phoneText, emailHref } = usePublicContact()
+  const catalog = overlayEnabled ? withOverlayCatalog(site) : null
   const { features } = useBookingFeatures()
   const bookingFormEnabled = features.bookingFormEnabled
   const calendlyEnabled = features.calendlyEnabled
@@ -46,11 +50,16 @@ export default function Bookings() {
   const clinicLocations = contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
 
-  const services = (activeTab === 'in-clinic' ? inClinicServices : homeVisitServices).filter(
+  const clinicServices = catalog?.inClinicServices ?? inClinicServices
+  const visitServices = catalog?.homeVisitServices ?? homeVisitServices
+  const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
+  const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
+
+  const services = (activeTab === 'in-clinic' ? clinicServices : visitServices).filter(
     (service) =>
       features.treatmentPackagesEnabled || !service.id.includes('package')
   )
-  const addOns = activeTab === 'in-clinic' ? inClinicAddOns : homeVisitAddOns
+  const addOns = activeTab === 'in-clinic' ? clinicAddOns : visitAddOns
   const selectedServiceDetails = services.find((s) => s.id === selectedService)
   const selectedAddOnLabels = selectedAddOns
     .map((id) => addOns.find((a) => a.id === id)?.name)
@@ -138,11 +147,11 @@ export default function Bookings() {
                           Call us directly to schedule your consultation and begin your path to better health
                         </p>
                         <a
-                          href={contactConfig.phone.href}
+                          href={phoneHref}
                           className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
                         >
                           <Phone className="w-5 h-5 mr-2" />
-                          Call {contactConfig.phone.displayText}
+                          Call {phoneText}
                         </a>
                       </div>
                     )}
@@ -385,7 +394,7 @@ export default function Bookings() {
               <div className="flex flex-col gap-2.5">
                 <div>
                   <CTAButton
-                    href={contactConfig.phone.href}
+                    href={phoneHref}
                     variant="gold"
                     size="medium"
                     showArrow={false}
@@ -395,7 +404,7 @@ export default function Bookings() {
                     Call us
                   </CTAButton>
                   <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)] md:mt-2">
-                    {contactConfig.phone.displayText}
+                    {phoneText}
                   </p>
                 </div>
 
@@ -409,7 +418,7 @@ export default function Bookings() {
 
                 <div>
                   <CTAButton
-                    href={contactConfig.email.href}
+                    href={emailHref}
                     variant="outline"
                     size="medium"
                     showArrow={false}

@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { contactConfig } from '@/lib/contact-config'
 import {
   SITE_DEFAULTS,
   overlayKillSwitchOff,
@@ -30,6 +31,25 @@ const OverlayContext = createContext<OverlayValue>({
 
 export function useSiteOverlay(): OverlayValue {
   return useContext(OverlayContext)
+}
+
+export function usePublicContact() {
+  const { overlayEnabled, site } = useSiteOverlay()
+  return {
+    overlayEnabled,
+    site,
+    phoneHref: overlayEnabled ? site.phone.href : contactConfig.phone.href,
+    phoneText: overlayEnabled ? site.phone.displayText : contactConfig.phone.displayText,
+    emailHref: overlayEnabled ? site.email.href : contactConfig.email.href,
+    emailText: overlayEnabled ? site.email.address : contactConfig.email.address,
+    hoursDisplay: overlayEnabled
+      ? site.hoursDisplay
+      : contactConfig.businessInfo.hoursDisplay,
+    emergencyNote: overlayEnabled
+      ? site.emergencyNote
+      : contactConfig.businessInfo.emergencyNote,
+    hours: overlayEnabled ? site.hours : null,
+  }
 }
 
 export function SiteOverlayProvider({ children }: { children: ReactNode }) {

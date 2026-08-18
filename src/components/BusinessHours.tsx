@@ -1,5 +1,7 @@
-import { contactConfig } from '../lib/contact-config'
+'use client'
+
 import { Clock } from 'lucide-react'
+import { usePublicContact } from '@/lib/site-overlay'
 
 interface BusinessHoursProps {
   variant?: 'default' | 'compact' | 'card'
@@ -14,6 +16,8 @@ export default function BusinessHours({
   showIcon = true,
   showEmergencyNote = true
 }: BusinessHoursProps) {
+  const { hoursDisplay, emergencyNote } = usePublicContact()
+
   if (variant === 'card') {
     return (
       <div className={`bg-accent/5 rounded-lg p-6 ${className}`}>
@@ -22,13 +26,13 @@ export default function BusinessHours({
           <h3 className="font-semibold text-lg text-primary">Business Hours</h3>
         </div>
         <div className="space-y-2">
-          {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
+          {hoursDisplay.map((hours, index) => (
             <p key={index} className="text-secondary">{hours}</p>
           ))}
         </div>
         {showEmergencyNote && (
           <p className="text-secondary text-base mt-4 italic leading-relaxed">
-            {contactConfig.businessInfo.emergencyNote}
+            {emergencyNote}
           </p>
         )}
       </div>
@@ -43,20 +47,19 @@ export default function BusinessHours({
           <span className="font-medium">Hours:</span>
         </div>
         <div className="text-base space-y-1">
-          {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
+          {hoursDisplay.map((hours, index) => (
             <div key={index}>{hours}</div>
           ))}
         </div>
         {showEmergencyNote && (
           <p className="text-sm mt-2 opacity-80 leading-relaxed">
-            {contactConfig.businessInfo.emergencyNote}
+            {emergencyNote}
           </p>
         )}
       </div>
     )
   }
 
-  // Default variant
   return (
     <div className={className}>
       <div className="flex items-center space-x-3 mb-3">
@@ -64,13 +67,13 @@ export default function BusinessHours({
         <h4 className="font-semibold">Business Hours</h4>
       </div>
       <div className="space-y-1">
-        {contactConfig.businessInfo.hoursDisplay.map((hours, index) => (
+        {hoursDisplay.map((hours, index) => (
           <p key={index}>{hours}</p>
         ))}
       </div>
       {showEmergencyNote && (
         <p className="text-base mt-3 opacity-80 leading-relaxed">
-          {contactConfig.businessInfo.emergencyNote}
+          {emergencyNote}
         </p>
       )}
     </div>

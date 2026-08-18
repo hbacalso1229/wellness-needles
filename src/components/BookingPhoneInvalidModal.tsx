@@ -4,7 +4,7 @@ import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Info, Mail, Phone, Smartphone, X } from 'lucide-react'
 import { CTAButton } from '@/features'
-import { contactConfig } from '@/lib/contact-config'
+import { usePublicContact } from '@/lib/site-overlay'
 
 /** Same box for all three actions — Need help? inner width (max-w-xs minus card padding). */
 const modalActionWidthClass = 'w-[18rem] max-w-full mx-auto'
@@ -31,6 +31,7 @@ export function BookingPhoneInvalidModal({
   onTryAnother,
   enteredNumber,
 }: BookingPhoneInvalidModalProps) {
+  const { phoneHref, phoneText, emailHref } = usePublicContact()
   const titleId = useId()
   const descId = useId()
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -131,7 +132,7 @@ export function BookingPhoneInvalidModal({
         <div className="mt-3 flex w-full flex-col gap-2.5">
           <div className={modalActionWidthClass}>
             <CTAButton
-              href={contactConfig.phone.href}
+              href={phoneHref}
               variant="gold"
               size="medium"
               showArrow={false}
@@ -142,7 +143,7 @@ export function BookingPhoneInvalidModal({
               Call us
             </CTAButton>
             <p className="mt-1.5 text-center text-base font-bold text-[var(--text-dark)]">
-              {contactConfig.phone.displayText}
+              {phoneText}
             </p>
           </div>
 
@@ -156,7 +157,7 @@ export function BookingPhoneInvalidModal({
 
           <div className={modalActionWidthClass}>
             <CTAButton
-              href={contactConfig.email.href}
+              href={emailHref}
               variant="outline"
               size="medium"
               showArrow={false}

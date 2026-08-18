@@ -6,6 +6,9 @@ import { ClinicVisitCard, HeroSection, SectionHeading, glassGreenBandClassName }
 import { BookingSection } from '../../features/home/BookingSection'
 import { contactConfig } from '../../lib/contact-config'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { usePublicContact } from '@/lib/site-overlay'
+import { formatOverlayDayHours } from '@/lib/overlay-public'
+import type { Weekday } from '../../../shared/site-snapshot'
 
 const interactiveCardClass =
   'group bg-white rounded-xl p-3.5 md:p-6 border border-accent/15 transition-[transform,border-color] duration-300 motion-safe:md:hover:-translate-y-1 motion-safe:active:-translate-y-0.5 hover:border-primary/25 active:border-primary/25'
@@ -59,6 +62,8 @@ function ContactDetailCard({
 }
 
 export default function Contact() {
+  const { phoneHref, phoneText, emailHref, emailText, hours, emergencyNote } =
+    usePublicContact()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -67,6 +72,8 @@ export default function Contact() {
     message: '',
   })
   const [openFaqIndexes, setOpenFaqIndexes] = useState<Set<number>>(() => new Set())
+  const dayHours = (key: Weekday) =>
+    hours ? formatOverlayDayHours(hours, key) : contactConfig.businessInfo.hours[key]
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -250,7 +257,7 @@ export default function Contact() {
                             {label}
                           </span>
                           <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
-                            {contactConfig.businessInfo.hours[key]}
+                            {dayHours(key)}
                           </span>
                         </li>
                       ))}
@@ -275,7 +282,7 @@ export default function Contact() {
                             {label}
                           </span>
                           <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
-                            {contactConfig.businessInfo.hours[key]}
+                            {dayHours(key)}
                           </span>
                         </li>
                       ))}
@@ -289,7 +296,7 @@ export default function Contact() {
                         strokeWidth={2}
                         aria-hidden
                       />
-                      <span>{contactConfig.businessInfo.emergencyNote}</span>
+                      <span>{emergencyNote}</span>
                     </p>
                   </div>
 
@@ -300,10 +307,10 @@ export default function Contact() {
                         Speak with us directly—we&apos;re here to help.
                       </p>
                       <a
-                        href={contactConfig.phone.href}
+                        href={phoneHref}
                         className="block font-semibold text-[var(--text-dark)] hover:text-primary transition-colors"
                       >
-                        {contactConfig.phone.displayText}
+                        {phoneText}
                       </a>
                     </ContactDetailCard>
 
@@ -312,10 +319,10 @@ export default function Contact() {
                         Send us a message—we&apos;ll get back to you within 24 hours.
                       </p>
                       <a
-                        href={contactConfig.email.href}
+                        href={emailHref}
                         className="block font-semibold text-[var(--text-dark)] hover:text-primary transition-colors"
                       >
-                        {contactConfig.email.address}
+                        {emailText}
                       </a>
                     </ContactDetailCard>
 

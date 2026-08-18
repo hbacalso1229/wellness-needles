@@ -6,6 +6,7 @@ export type OptionalAddOn = {
   readonly id: string
   readonly name: string
   readonly price: string
+  readonly originalPrice?: string
   readonly description: string
 }
 
@@ -79,7 +80,16 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                     Free
                   </span>
                 ) : (
-                  <span className="text-sm font-bold tabular-nums text-primary">+{addOn.price}</span>
+                  <span className="flex flex-col items-end">
+                    {addOn.originalPrice ? (
+                      <span className="text-xs tabular-nums text-[var(--text-dark)]/45 line-through">
+                        +{addOn.originalPrice}
+                      </span>
+                    ) : null}
+                    <span className="text-sm font-bold tabular-nums text-primary">
+                      +{addOn.price}
+                    </span>
+                  </span>
                 )}
                 <span
                   className={`flex h-5 w-5 items-center justify-center rounded border ${
