@@ -35,6 +35,8 @@ type TurnstileVerifyJson = {
 }
 
 const CONDITION_MAX_LEN = 40
+const REVIEW_NAME_MAX_LEN = 80
+const REVIEW_BODY_MAX_LEN = 1000
 
 function isAllowedTurnstileHostname(hostname: string): boolean {
   return (
@@ -127,6 +129,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const reviewBody = asString(payload.body) || asString(payload.excerpt)
   if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and review text required' })
+  }
+  if (name.length > REVIEW_NAME_MAX_LEN) {
+    return jsonResponse(400, { ok: false, error: 'name too long' })
+  }
+  if (reviewBody.length > REVIEW_BODY_MAX_LEN) {
+    return jsonResponse(400, { ok: false, error: 'review too long' })
   }
 
   const rating = parseHalfStarRating(payload.rating)

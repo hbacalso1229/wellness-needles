@@ -49,7 +49,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - **Icons**: Lucide React
 - **Fonts**: Inter & Playfair Display
 - **Staging**: Vercel Preview from `dev` → `https://wellness-needles.vercel.app`
-- **Production**: Cloudflare Pages on **`Release-N` GitHub Release published** → `https://www.wellnessneedles.ie`
+- **Production**: Cloudflare Pages on **GitHub Release published** (`Release vX.Y.Z`) → `https://www.wellnessneedles.ie`
 - **Owner portal**: `https://portal.wellnessneedles.ie` (Access). Setup: [docs/PORTAL.md](docs/PORTAL.md)
 
 ## Getting started
@@ -134,9 +134,9 @@ In-clinic and home visit **must stay on different prices**. Change them only in 
 |-------|--------|
 | Push `dev` | Staging → Vercel (`https://wellness-needles.vercel.app`) |
 | Merge `main` | CI only — no live deploy |
-| **Actions → Create Production Release → Run workflow** (from `main`) | Publishes `Release-N` GitHub Release → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
+| **Actions → Create Production Release → Run workflow** (from `main`) | Publishes next `Release vX.Y.Z` **and** starts Deploy — Production → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
 
-Do not hand-write a `v*` Release for production. After CI is green on `main`, run **Create Production Release**. That workflow tags `Release-1`, `Release-2`, ... (existing `v*` tags stay as history) and fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog). PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
+Do not hand-write a Release for production. After CI is green on `main`, run **Create Production Release**. That workflow bumps the patch on the latest `v*` tag (`v1.1.3` → tag `v1.1.4`, title `Release v1.1.4`), fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog), then starts **Deploy — Production**. PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
 
 **Live booking rule:** enable only one of Fresha / Calendly / legacy form in `contact-config.ts`.
 

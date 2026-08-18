@@ -1,20 +1,20 @@
 name: Create Production Release
 
-# Publishes the next Release-N GitHub Release from main HEAD.
-# That published Release triggers Deploy — Production (Cloudflare Pages).
-# Do not run this on merge — production stays an explicit Actions click.
+# Publishes the next GitHub Release from main HEAD (tag vX.Y.Z, title "Release vX.Y.Z"),
+# then starts Deploy — Production. GITHUB_TOKEN cannot fire the `release` event, so this
+# workflow dispatches deploy explicitly. Do not run this on merge.
 
 on:
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
   pull-requests: read
 
 jobs:
   create_release:
-    name: Tag Release-N and publish notes
+    name: Tag next vX.Y.Z and publish notes
     runs-on: ubuntu-latest
 
     steps:
@@ -52,31 +52,31 @@ jobs:
           fi
           echo "Quality OK on ${sha}"
 
-      - name: Create Release-N
+      - name: Create Release vX.Y.Z
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           sha="$(git rev-parse HEAD)"
 
-          latest="$(git tag -l 'Release-*' | sed 's/^Release-//' | grep -E '^[0-9]+$' | sort -n | tail -1 || true)"
-          if [ -z "${latest}" ]; then
-            next=1
-            prev="$(git tag -l 'v*' --sort=-v:refname | head -n 1 || true)"
+          prev="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1 || true)"
+          if [ -z "${prev}" ]; then
+            tag="v1.0.0"
           else
-            next=$((latest + 1))
-            prev="Release-${latest}"
+            ver="${prev#v}"
+            IFS=. read -r major minor patch <<< "${ver}"
+            tag="v${major}.${minor}.$((patch + 1))"
           fi
-          tag="Release-${next}"
+          title="Release ${tag}"
 
           notes="$(printf '```\nProduction: https://www.wellnessneedles.ie\nCommit: %s\n```\n' "${sha}")"
 
-          echo "Creating ${tag} at ${sha} (notes from ${prev:-beginning})"
+          echo "Creating ${title} (tag ${tag}) at ${sha} (notes from ${prev:-beginning})"
 
           create_args=(
             "${tag}"
             --target "${sha}"
-            --title "${tag}"
+            --title "${title}"
             --generate-notes
             --notes "${notes}"
           )
@@ -86,5 +86,8 @@ jobs:
 
           gh release create "${create_args[@]}"
 
-          echo "Release ${tag} → https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}"
-          echo "Deploy — Production will start from this published Release."
+          echo "${title} → https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}"
+
+          # GITHUB_TOKEN release publishes do not start other workflows.
+          gh workflow run "Deploy — Production" --ref main -f "tag=${tag}"
+          echo "Started Deploy — Production for ${tag}."
