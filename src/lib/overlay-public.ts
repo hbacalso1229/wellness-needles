@@ -1,6 +1,10 @@
 import {
+  defaultPriceItemFlags,
   formatHourLabel,
+  type PriceItemKey,
   type PriceList,
+  type PriceListEnabled,
+  type PricingExtra,
   type SiteSnapshot,
   type Weekday,
 } from '../../shared/site-snapshot'
@@ -13,7 +17,7 @@ import {
   type BookingCatalogService,
 } from '@/lib/booking-catalog'
 
-const SERVICE_PRICE_KEY: Record<string, keyof PriceList> = {
+const SERVICE_PRICE_KEY: Record<string, PriceItemKey> = {
   'initial-consultation': 'initial',
   'follow-up': 'followUp',
   'package-5': 'package5',
@@ -24,69 +28,144 @@ const SERVICE_PRICE_KEY: Record<string, keyof PriceList> = {
   'home-package-10': 'package10',
 }
 
-const ADDON_PRICE_KEY: Record<string, keyof PriceList> = {
+const ADDON_PRICE_KEY: Record<string, PriceItemKey> = {
   cupping: 'cupping',
   'home-cupping': 'cupping',
+}
+
+function isFilledExtra(extra: PricingExtra): boolean {
+  return extra.enabled && Boolean(extra.name.trim()) && Boolean(extra.price.trim())
 }
 
 function applyServicePrices(
   services: BookingCatalogService[],
   discounted: PriceList,
-  original: PriceList
+  original: PriceList,
+  items: PriceListEnabled
 ): BookingCatalogService[] {
-  return services.map((service) => {
+  return services.flatMap((service) => {
     const key = SERVICE_PRICE_KEY[service.id]
-    if (!key) return service
+    if (key && items[key] === false) return []
+    if (!key) return [service]
     const price = discounted[key] || service.price
     const orig = original[key]
-    return {
-      ...service,
-      price,
-      originalPrice: orig && orig !== price ? orig : undefined,
-    }
+    return [
+      {
+        ...service,
+        price,
+        originalPrice: orig && orig !== price ? orig : undefined,
+      },
+    ]
   })
 }
 
 function applyAddOnPrices(
   addOns: BookingCatalogAddOn[],
   discounted: PriceList,
-  original: PriceList
+  original: PriceList,
+  items: PriceListEnabled
 ): BookingCatalogAddOn[] {
-  return addOns.map((addOn) => {
+  return addOns.flatMap((addOn) => {
     const key = ADDON_PRICE_KEY[addOn.id]
-    if (!key) return addOn
+    if (key && items[key] === false) return []
+    if (!key) return [addOn]
     const price = discounted[key] || addOn.price
     const orig = original[key]
-    return {
-      ...addOn,
-      price,
-      originalPrice: orig && orig !== price ? orig : undefined,
-    }
+    return [
+      {
+        ...addOn,
+        price,
+        originalPrice: orig && orig !== price ? orig : undefined,
+      },
+    ]
   })
 }
 
-export function withOverlayCatalog(site: SiteSnapshot) {
+function extraToService(extra: PricingExtra): BookingCatalogService | null {
+  if (extra.kind !== 'package' || !isFilledExtra(extra)) return null
+  const price = extra.price.trim()
+  const original = extra.original.trim()
   return {
-    inClinicServices: applyServicePrices(
-      inClinicServices,
-      site.pricing.inClinic,
-      site.pricing.inClinicOriginal
-    ),
-    homeVisitServices: applyServicePrices(
-      homeVisitServices,
-      site.pricing.homeVisit,
-      site.pricing.homeVisitOriginal
-    ),
-    inClinicAddOns: applyAddOnPrices(
-      inClinicAddOns,
-      site.pricing.inClinic,
-      site.pricing.inClinicOriginal
-    ),
-    homeVisitAddOns: applyAddOnPrices(
-      homeVisitAddOns,
-      site.pricing.homeVisit,
-      site.pricing.homeVisitOriginal
-    ),
+    id: extra.id,
+    name: extra.name.trim(),
+    duration: 'Multiple visits',
+    price,
+    originalPrice: original && original !== price ? original : undefined,
+    description: extra.description.trim() || extra.name.trim(),
+  }
+}
+
+function extraToAddOn(extra: PricingExtra): BookingCatalogAddOn | null {
+  if (extra.kind !== 'addon' || !isFilledExtra(extra)) return null
+  const price = extra.price.trim()
+  const original = extra.original.trim()
+  return {
+    id: extra.id,
+    name: extra.name.trim(),
+    price,
+    originalPrice: original && original !== price ? original : undefined,
+    description: extra.description.trim() || extra.name.trim(),
+  }
+}
+
+export function withOverlayCatalog(site: SiteSnapshot) {
+  const clinicOn = site.pricing.inClinicEnabled !== false
+  const visitOn = site.pricing.homeVisitEnabled !== false
+  const clinicItems = site.pricing.inClinicItems ?? defaultPriceItemFlags(false)
+  const visitItems = site.pricing.homeVisitItems ?? defaultPriceItemFlags(false)
+  const clinicExtras = site.pricing.inClinicExtras ?? []
+  const visitExtras = site.pricing.homeVisitExtras ?? []
+  const clinicServices = clinicOn
+    ? [
+        ...applyServicePrices(
+          inClinicServices,
+          site.pricing.inClinic,
+          site.pricing.inClinicOriginal,
+          clinicItems
+        ),
+        ...clinicExtras.map(extraToService).filter((row): row is BookingCatalogService => row !== null),
+      ]
+    : []
+  const visitServices = visitOn
+    ? [
+        ...applyServicePrices(
+          homeVisitServices,
+          site.pricing.homeVisit,
+          site.pricing.homeVisitOriginal,
+          visitItems
+        ),
+        ...visitExtras.map(extraToService).filter((row): row is BookingCatalogService => row !== null),
+      ]
+    : []
+  const clinicAddOns = clinicOn
+    ? [
+        ...applyAddOnPrices(
+          inClinicAddOns,
+          site.pricing.inClinic,
+          site.pricing.inClinicOriginal,
+          clinicItems
+        ),
+        ...clinicExtras.map(extraToAddOn).filter((row): row is BookingCatalogAddOn => row !== null),
+      ]
+    : []
+  const visitAddOns = visitOn
+    ? [
+        ...applyAddOnPrices(
+          homeVisitAddOns,
+          site.pricing.homeVisit,
+          site.pricing.homeVisitOriginal,
+          visitItems
+        ),
+        ...visitExtras.map(extraToAddOn).filter((row): row is BookingCatalogAddOn => row !== null),
+      ]
+    : []
+  return {
+    inClinicServices: clinicServices,
+    homeVisitServices: visitServices,
+    inClinicAddOns: clinicAddOns,
+    homeVisitAddOns: visitAddOns,
+    inClinicEnabled: clinicOn && clinicServices.length > 0,
+    homeVisitEnabled: visitOn && visitServices.length > 0,
   }
 }
 

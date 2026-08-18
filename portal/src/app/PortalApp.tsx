@@ -5,8 +5,11 @@ import {
   SITE_DEFAULTS,
   buildHoursDisplay,
   composeLocation,
+  createPricingExtra,
   parseSiteSnapshot,
+  BOOKABLE_PRICE_KEYS,
   type PriceList,
+  type PricingExtra,
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
 import {
@@ -105,6 +108,36 @@ function originalKind(
   kind: 'inClinic' | 'homeVisit'
 ): 'inClinicOriginal' | 'homeVisitOriginal' {
   return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
+}
+
+function extrasKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicExtras' | 'homeVisitExtras' {
+  return kind === 'inClinic' ? 'inClinicExtras' : 'homeVisitExtras'
+}
+
+function itemsKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicItems' | 'homeVisitItems' {
+  return kind === 'inClinic' ? 'inClinicItems' : 'homeVisitItems'
+}
+
+function categoryEnabledKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicEnabled' | 'homeVisitEnabled' {
+  return kind === 'inClinic' ? 'inClinicEnabled' : 'homeVisitEnabled'
+}
+
+function bookableOnCount(
+  pricing: SiteSnapshot['pricing'],
+  kind: 'inClinic' | 'homeVisit'
+): number {
+  const items = pricing[itemsKind(kind)]
+  const extras = pricing[extrasKind(kind)]
+  return (
+    BOOKABLE_PRICE_KEYS.filter((key) => items[key]).length +
+    extras.filter((row) => row.kind === 'package' && row.enabled).length
+  )
 }
 
 function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
@@ -665,20 +698,78 @@ export function PortalApp() {
               description="Manage the prices shown on your booking page. Update clinic and home-visit pricing, then publish your changes when you're ready."
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              {(['inClinic', 'homeVisit'] as const).map((kind) => (
-                <Card key={kind} title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}>
-                  <div className="space-y-3">
+              {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                const origKey = originalKind(kind)
+                const extrasKey = extrasKind(kind)
+                const itemsKey = itemsKind(kind)
+                const enabledKey = categoryEnabledKind(kind)
+                const categoryOn = draft.pricing[enabledKey]
+                const otherOn =
+                  kind === 'inClinic'
+                    ? draft.pricing.homeVisitEnabled
+                    : draft.pricing.inClinicEnabled
+                const lastCategory = categoryOn && !otherOn
+                const extras = draft.pricing[extrasKey]
+                const packageExtras = extras.filter((row) => row.kind === 'package')
+                const addonExtras = extras.filter((row) => row.kind === 'addon')
+                const bookable = bookableOnCount(draft.pricing, kind)
+                const patchExtras = (next: PricingExtra[]) =>
+                  setDraft({
+                    ...draft,
+                    pricing: { ...draft.pricing, [extrasKey]: next },
+                  })
+                const patchExtra = (id: string, patch: Partial<PricingExtra>) =>
+                  patchExtras(extras.map((row) => (row.id === id ? { ...row, ...patch } : row)))
+                return (
+                <Card
+                  key={kind}
+                  title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                  action={
+                    <OnOffSwitch
+                      checked={categoryOn}
+                      disabled={lastCategory}
+                      ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
+                      onChange={(enabled) => {
+                        if (!enabled && lastCategory) return
+                        setDraft({
+                          ...draft,
+                          pricing: { ...draft.pricing, [enabledKey]: enabled },
+                        })
+                      }}
+                    />
+                  }
+                >
+                  <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
                     {PRICE_ROWS.map(([key, label]) => {
-                      const origKey = originalKind(kind)
                       const original = draft.pricing[origKey][key]
                       const discounted = draft.pricing[kind][key]
                       const off = discountPercentLabel(original, discounted)
+                      const itemOn = draft.pricing[itemsKey][key]
+                      const isBookable = BOOKABLE_PRICE_KEYS.includes(key)
+                      const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
                       return (
                         <div
                           key={key}
                           className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
                         >
-                          <p className="mb-2 text-sm font-medium">{label}</p>
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium">{label}</p>
+                            <OnOffSwitch
+                              checked={itemOn}
+                              disabled={lastBookable}
+                              ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
+                              onChange={(enabled) => {
+                                if (!enabled && lastBookable) return
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [itemsKey]: { ...draft.pricing[itemsKey], [key]: enabled },
+                                  },
+                                })
+                              }}
+                            />
+                          </div>
                           <div className="flex flex-wrap items-end gap-2">
                             <CompactEuroField
                               label="Original"
@@ -715,9 +806,88 @@ export function PortalApp() {
                         </div>
                       )
                     })}
+                    {[...packageExtras, ...addonExtras].map((extra) => {
+                      const off = discountPercentLabel(extra.original, extra.price)
+                      const lastBookable =
+                        categoryOn &&
+                        extra.kind === 'package' &&
+                        extra.enabled &&
+                        bookable <= 1
+                      return (
+                        <div
+                          key={extra.id}
+                          className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                        >
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <input
+                              className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
+                              value={extra.name}
+                              aria-label={extra.kind === 'package' ? 'Package name' : 'Add-on name'}
+                              onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
+                            />
+                            <OnOffSwitch
+                              checked={extra.enabled}
+                              disabled={lastBookable}
+                              ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
+                              onChange={(enabled) => {
+                                if (!enabled && lastBookable) return
+                                patchExtra(extra.id, { enabled })
+                              }}
+                            />
+                          </div>
+                          <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
+                            {extra.kind === 'package' ? 'Package' : 'Add-on'}
+                          </p>
+                          <div className="flex flex-wrap items-end gap-2">
+                            <CompactEuroField
+                              label="Original"
+                              value={extra.original}
+                              onChange={(next) => patchExtra(extra.id, { original: next })}
+                            />
+                            <CompactEuroField
+                              label="Discounted"
+                              value={extra.price}
+                              onChange={(next) => patchExtra(extra.id, { price: next })}
+                            />
+                            {off ? (
+                              <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
+                                {off}
+                              </span>
+                            ) : null}
+                          </div>
+                          <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                            Description
+                            <input
+                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                              value={extra.description}
+                              onChange={(e) =>
+                                patchExtra(extra.id, { description: e.target.value })
+                              }
+                            />
+                          </label>
+                        </div>
+                      )
+                    })}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button
+                        type="button"
+                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                        onClick={() => patchExtras([...extras, createPricingExtra('package')])}
+                      >
+                        Add package
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                        onClick={() => patchExtras([...extras, createPricingExtra('addon')])}
+                      >
+                        Add add-on
+                      </button>
+                    </div>
                   </div>
                 </Card>
-              ))}
+                )
+              })}
             </div>
             <UnsavedBar
               dirty={dirty}

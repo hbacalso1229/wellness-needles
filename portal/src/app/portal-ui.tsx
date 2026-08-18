@@ -39,15 +39,24 @@ export function PageHeader({ title, description }: { title?: string; description
 
 export function Card({
   title,
+  action,
   children,
 }: {
   title?: string
+  action?: ReactNode
   children: ReactNode
 }) {
   return (
     <div className="rounded-lg border border-black/[0.08] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      {title ? (
-        <h2 className="mb-4 text-sm font-semibold tracking-wide text-[var(--text-dark)]">{title}</h2>
+      {title || action ? (
+        <div className="mb-4 flex items-center justify-between gap-2">
+          {title ? (
+            <h2 className="text-sm font-semibold tracking-wide text-[var(--text-dark)]">{title}</h2>
+          ) : (
+            <span />
+          )}
+          {action}
+        </div>
       ) : null}
       {children}
     </div>

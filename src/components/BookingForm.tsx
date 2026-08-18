@@ -386,11 +386,47 @@ export default function BookingForm() {
   const visitServices = catalog?.homeVisitServices ?? homeVisitServices
   const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
   const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
-  const services = (activeTab === 'in-clinic' ? clinicServices : visitServices).filter(
-    (service) =>
-      features.treatmentPackagesEnabled || !service.id.includes('package')
-  )
+  const showInClinic = overlayEnabled ? Boolean(catalog?.inClinicEnabled) : true
+  const showHomeVisit = overlayEnabled ? Boolean(catalog?.homeVisitEnabled) : true
+  const clinicList = overlayEnabled
+    ? clinicServices
+    : clinicServices.filter(
+        (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
+      )
+  const visitList = overlayEnabled
+    ? visitServices
+    : visitServices.filter(
+        (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
+      )
+  const services = activeTab === 'in-clinic' ? clinicList : visitList
   const addOns = activeTab === 'in-clinic' ? clinicAddOns : visitAddOns
+  const serviceIds = services.map((row) => row.id).join('|')
+  const addOnIds = addOns.map((row) => row.id).join('|')
+
+  useEffect(() => {
+    if (activeTab === 'in-clinic' && !showInClinic && showHomeVisit) {
+      setActiveTab('call-out')
+      setSelectedAddOns([])
+    } else if (activeTab === 'call-out' && !showHomeVisit && showInClinic) {
+      setActiveTab('in-clinic')
+      setSelectedAddOns([])
+    }
+  }, [activeTab, showInClinic, showHomeVisit])
+
+  useEffect(() => {
+    if (!serviceIds) return
+    const allowed = serviceIds.split('|')
+    if (allowed.includes(selectedService)) return
+    setSelectedService(allowed[0])
+  }, [serviceIds, selectedService])
+
+  useEffect(() => {
+    const allowed = new Set(addOnIds.split('|').filter(Boolean))
+    setSelectedAddOns((prev) => {
+      const next = prev.filter((id) => allowed.has(id))
+      return next.length === prev.length ? prev : next
+    })
+  }, [addOnIds])
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
   const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
@@ -439,9 +475,8 @@ export default function BookingForm() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    setSelectedService(
-      tab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
-    )
+    const list = tab === 'call-out' ? visitList : clinicList
+    setSelectedService(list[0]?.id ?? '')
     setSelectedAddOns([])
     clearFieldError('service')
   }
@@ -451,6 +486,8 @@ export default function BookingForm() {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
     event.preventDefault()
     const nextTab = activeTab === 'in-clinic' ? 'call-out' : 'in-clinic'
+    if (nextTab === 'in-clinic' && !showInClinic) return
+    if (nextTab === 'call-out' && !showHomeVisit) return
     handleTabChange(nextTab)
     const nextButton = nextTab === 'in-clinic' ? inClinicTabRef.current : homeVisitTabRef.current
     nextButton?.focus()
@@ -951,6 +988,7 @@ export default function BookingForm() {
                     activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
                   }`}
                 />
+                {showInClinic ? (
                 <button
                   ref={inClinicTabRef}
                   type="button"
@@ -965,6 +1003,8 @@ export default function BookingForm() {
                   <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                   In Clinic
                 </button>
+                ) : null}
+                {showHomeVisit ? (
                 <button
                   ref={homeVisitTabRef}
                   type="button"
@@ -979,6 +1019,7 @@ export default function BookingForm() {
                   <Home className="h-5 w-5 shrink-0" aria-hidden />
                   Home Visit
                 </button>
+                ) : null}
               </div>
             </div>
 

@@ -76,6 +76,59 @@ export type PriceList = {
   cupping: string
 }
 
+export type PriceItemKey = keyof PriceList
+
+export type PriceListEnabled = Record<PriceItemKey, boolean>
+
+export type PricingExtraKind = 'package' | 'addon'
+
+export type PricingExtra = {
+  id: string
+  kind: PricingExtraKind
+  name: string
+  price: string
+  original: string
+  description: string
+  enabled: boolean
+}
+
+export const PRICE_ITEM_KEYS: readonly PriceItemKey[] = [
+  'initial',
+  'followUp',
+  'package5',
+  'package10',
+  'cupping',
+]
+
+export const BOOKABLE_PRICE_KEYS: readonly PriceItemKey[] = [
+  'initial',
+  'followUp',
+  'package5',
+  'package10',
+]
+
+export function defaultPriceItemFlags(packagesEnabled: boolean): PriceListEnabled {
+  return {
+    initial: true,
+    followUp: true,
+    package5: packagesEnabled,
+    package10: packagesEnabled,
+    cupping: true,
+  }
+}
+
+export function createPricingExtra(kind: PricingExtraKind): PricingExtra {
+  return {
+    id: `extra-${crypto.randomUUID()}`,
+    kind,
+    name: kind === 'package' ? 'New package' : 'New add-on',
+    price: '',
+    original: '',
+    description: '',
+    enabled: true,
+  }
+}
+
 export type SiteSnapshot = {
   websiteOverlayEnabled: boolean
   clinicName: string
@@ -121,6 +174,12 @@ export type SiteSnapshot = {
     homeVisit: PriceList
     inClinicOriginal: PriceList
     homeVisitOriginal: PriceList
+    inClinicEnabled: boolean
+    homeVisitEnabled: boolean
+    inClinicItems: PriceListEnabled
+    homeVisitItems: PriceListEnabled
+    inClinicExtras: PricingExtra[]
+    homeVisitExtras: PricingExtra[]
   }
   insuranceParagraphs: [string, string, string]
   insurers: SiteInsurer[]
@@ -240,6 +299,12 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package10: '€750',
       cupping: '',
     },
+    inClinicEnabled: true,
+    homeVisitEnabled: true,
+    inClinicItems: defaultPriceItemFlags(false),
+    homeVisitItems: defaultPriceItemFlags(false),
+    inClinicExtras: [],
+    homeVisitExtras: [],
   },
   insuranceParagraphs: [
     'We are a registered professional acupuncture clinic',
@@ -445,6 +510,40 @@ function asBool(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
+function parsePriceItemFlags(value: unknown, packagesEnabled: boolean): PriceListEnabled {
+  const fallback = defaultPriceItemFlags(packagesEnabled)
+  const rec = isRecord(value) ? value : {}
+  return {
+    initial: asBool(rec.initial, fallback.initial),
+    followUp: asBool(rec.followUp, fallback.followUp),
+    package5: asBool(rec.package5, fallback.package5),
+    package10: asBool(rec.package10, fallback.package10),
+    cupping: asBool(rec.cupping, fallback.cupping),
+  }
+}
+
+function parsePricingExtra(value: unknown): PricingExtra | null {
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim()) return null
+  const kind: PricingExtraKind | null =
+    value.kind === 'package' || value.kind === 'addon' ? value.kind : null
+  if (!kind) return null
+  const id = value.id.trim()
+  return {
+    id: id.startsWith('extra-') ? id : `extra-${id}`,
+    kind,
+    name: typeof value.name === 'string' ? value.name.trim() : '',
+    price: typeof value.price === 'string' ? value.price.trim() : '',
+    original: typeof value.original === 'string' ? value.original.trim() : '',
+    description: typeof value.description === 'string' ? value.description.trim() : '',
+    enabled: asBool(value.enabled, true),
+  }
+}
+
+function parsePricingExtras(value: unknown): PricingExtra[] {
+  if (!Array.isArray(value)) return []
+  return value.map(parsePricingExtra).filter((row): row is PricingExtra => row !== null)
+}
+
 function parseLocation(value: unknown): SiteLocation | null {
   if (!isRecord(value) || typeof value.id !== 'string' || typeof value.label !== 'string') {
     return null
@@ -593,6 +692,24 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
         SITE_DEFAULTS.pricing.homeVisitOriginal,
         true
       ),
+      inClinicEnabled: asBool(value.pricing.inClinicEnabled, true),
+      homeVisitEnabled: asBool(value.pricing.homeVisitEnabled, true),
+      inClinicItems: parsePriceItemFlags(
+        value.pricing.inClinicItems,
+        asBool(
+          value.features.treatmentPackagesEnabled,
+          SITE_DEFAULTS.features.treatmentPackagesEnabled
+        )
+      ),
+      homeVisitItems: parsePriceItemFlags(
+        value.pricing.homeVisitItems,
+        asBool(
+          value.features.treatmentPackagesEnabled,
+          SITE_DEFAULTS.features.treatmentPackagesEnabled
+        )
+      ),
+      inClinicExtras: parsePricingExtras(value.pricing.inClinicExtras),
+      homeVisitExtras: parsePricingExtras(value.pricing.homeVisitExtras),
     },
     insuranceParagraphs: [
       asString(paragraphs[0], SITE_DEFAULTS.insuranceParagraphs[0]),
@@ -643,6 +760,16 @@ export function deepMergeSite(
         ...defaults.pricing.homeVisitOriginal,
         ...incoming.pricing.homeVisitOriginal,
       },
+      inClinicEnabled: incoming.pricing.inClinicEnabled,
+      homeVisitEnabled: incoming.pricing.homeVisitEnabled,
+      inClinicItems: { ...defaults.pricing.inClinicItems, ...incoming.pricing.inClinicItems },
+      homeVisitItems: { ...defaults.pricing.homeVisitItems, ...incoming.pricing.homeVisitItems },
+      inClinicExtras: incoming.pricing.inClinicExtras.length
+        ? incoming.pricing.inClinicExtras
+        : defaults.pricing.inClinicExtras,
+      homeVisitExtras: incoming.pricing.homeVisitExtras.length
+        ? incoming.pricing.homeVisitExtras
+        : defaults.pricing.homeVisitExtras,
     },
     hours: incoming.hours,
     hoursDisplay: incoming.hoursDisplay.length
