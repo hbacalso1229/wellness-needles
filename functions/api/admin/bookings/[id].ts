@@ -1,11 +1,11 @@
-import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../../_lib/http'
+import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
 import {
   dublinLocalToUtcIso,
   formatDublin,
   hoursUntil,
   sendPatientBookingMessage,
-} from '../../../../_lib/notify'
-import { readPublishedSite } from '../../../../_lib/site'
+} from '../../../_lib/notify'
+import { readPublishedSite } from '../../../_lib/site'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request

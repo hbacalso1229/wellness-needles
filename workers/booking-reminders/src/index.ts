@@ -1,9 +1,9 @@
 import {
   hoursUntil,
   sendPatientBookingMessage,
-} from '../../functions/_lib/notify'
-import { readPublishedSite } from '../../functions/_lib/site'
-import type { PagesEnv } from '../../functions/_lib/http'
+} from '../../../functions/_lib/notify'
+import { readPublishedSite } from '../../../functions/_lib/site'
+import type { PagesEnv } from '../../../functions/_lib/http'
 
 type BookingRow = {
   id: string
