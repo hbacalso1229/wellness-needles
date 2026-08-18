@@ -350,8 +350,8 @@ export function PortalApp() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-xl font-semibold leading-tight text-primary">
+          <div className="flex items-center gap-x-2.5">
+            <p className="shrink-0 font-serif text-xl font-semibold leading-tight text-primary">
               Wellness Needles
             </p>
             <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
@@ -741,6 +741,46 @@ export function PortalApp() {
             <PageHeader
               description="Manage the contact details, social links, and business hours displayed on your website."
             />
+            <Card title="Clinic">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">
+                  Clinic name
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.clinicName}
+                    onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
+                  />
+                </label>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Insurance</p>
+                  {draft.insurers.map((insurer, index) => (
+                    <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
+                      <input
+                        className="rounded-md border border-black/10 px-2 py-1.5"
+                        value={insurer.name}
+                        onChange={(e) => {
+                          const insurers = [...draft.insurers]
+                          insurers[index] = { ...insurer, name: e.target.value }
+                          setDraft({ ...draft, insurers })
+                        }}
+                      />
+                      <label className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={insurer.enabled}
+                          onChange={(e) => {
+                            const insurers = [...draft.insurers]
+                            insurers[index] = { ...insurer, enabled: e.target.checked }
+                            setDraft({ ...draft, insurers })
+                          }}
+                        />
+                        On
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
             <Card title="Contact details">
               <div className="space-y-4">
                 <label className="block text-sm font-medium">
@@ -919,40 +959,6 @@ export function PortalApp() {
                 />
                 Fresha
               </label>
-              <label className="block text-sm font-medium">
-                Clinic name
-                <input
-                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                  value={draft.clinicName}
-                  onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
-                />
-              </label>
-              <p className="text-sm font-medium">Insurance</p>
-              {draft.insurers.map((insurer, index) => (
-                <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
-                  <input
-                    className="rounded-md border border-black/10 px-2 py-1.5"
-                    value={insurer.name}
-                    onChange={(e) => {
-                      const insurers = [...draft.insurers]
-                      insurers[index] = { ...insurer, name: e.target.value }
-                      setDraft({ ...draft, insurers })
-                    }}
-                  />
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={insurer.enabled}
-                      onChange={(e) => {
-                        const insurers = [...draft.insurers]
-                        insurers[index] = { ...insurer, enabled: e.target.checked }
-                        setDraft({ ...draft, insurers })
-                      }}
-                    />
-                    On
-                  </label>
-                </div>
-              ))}
               </div>
             </Card>
             <UnsavedBar
