@@ -6,6 +6,10 @@
  * Usage:
  *   node scripts/pages-deploy-subset.mjs www
  *   node scripts/pages-deploy-subset.mjs portal
+ *
+ * www BFF (`/api/bff`) is uploaded only when NEXT_PUBLIC_SITE_OVERLAY_ENABLED
+ * is not "false". Set that env to "false" to roll www back to booking Functions
+ * only (same as live today) so a BFF compile error cannot take down Turnstile.
  */
 import { cpSync, mkdirSync, mkdtempSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -18,13 +22,36 @@ if (mode !== 'www' && mode !== 'portal') {
   process.exit(1)
 }
 
+const overlayLive = process.env.NEXT_PUBLIC_SITE_OVERLAY_ENABLED !== 'false'
+
 const root = process.cwd()
 const staging = mkdtempSync(join(tmpdir(), `wn-${mode}-`))
 const functionsDest = join(staging, 'functions', 'api')
 mkdirSync(functionsDest, { recursive: true })
+
+function copyLibAndShared() {
+  cpSync(join(root, 'functions', '_lib'), join(staging, 'functions', '_lib'), {
+    recursive: true,
+  })
+  cpSync(join(root, 'shared'), join(staging, 'shared'), { recursive: true })
+}
+
+function copyPublicBff() {
+  const bffDest = join(functionsDest, 'bff')
+  mkdirSync(bffDest, { recursive: true })
+  cpSync(join(root, 'functions', 'api', 'bff', 'site.ts'), join(bffDest, 'site.ts'))
+  cpSync(
+    join(root, 'functions', 'api', 'bff', 'booking-persist.ts'),
+    join(bffDest, 'booking-persist.ts')
+  )
+  mkdirSync(join(bffDest, 'insurance-logo'), { recursive: true })
+  cpSync(
+    join(root, 'functions', 'api', 'bff', 'insurance-logo', '[id].ts'),
+    join(bffDest, 'insurance-logo', '[id].ts')
+  )
+}
+
 if (mode === 'www') {
-  // Same booking Functions as live www. Do not upload portal or public BFF
-  // routes while overlay is off — a compile error must not take down Turnstile.
   for (const name of [
     'booking-request.ts',
     'booking-thank-you.ts',
@@ -34,14 +61,16 @@ if (mode === 'www') {
   ]) {
     cpSync(join(root, 'functions', 'api', name), join(functionsDest, name))
   }
+  if (overlayLive) {
+    copyLibAndShared()
+    copyPublicBff()
+  }
 } else {
-  cpSync(join(root, 'functions', '_lib'), join(staging, 'functions', '_lib'), {
-    recursive: true,
-  })
-  cpSync(join(root, 'shared'), join(staging, 'shared'), { recursive: true })
+  copyLibAndShared()
   cpSync(join(root, 'functions', 'api', 'admin'), join(functionsDest, 'admin'), {
     recursive: true,
   })
+  copyPublicBff()
 }
 
 const outDir = mode === 'www' ? join(root, 'out') : join(root, 'portal', 'out')

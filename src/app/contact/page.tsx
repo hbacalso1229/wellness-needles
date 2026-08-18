@@ -7,7 +7,7 @@ import { BookingSection } from '../../features/home/BookingSection'
 import { contactConfig } from '../../lib/contact-config'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { usePublicContact } from '@/lib/site-overlay'
-import { formatOverlayDayHours } from '@/lib/overlay-public'
+import { formatOverlayDayHours, joinLocationLabels } from '@/lib/overlay-public'
 import type { Weekday } from '../../../shared/site-snapshot'
 
 const interactiveCardClass =
@@ -62,8 +62,29 @@ function ContactDetailCard({
 }
 
 export default function Contact() {
-  const { phoneHref, phoneText, emailHref, emailText, hours, emergencyNote, locations } =
-    usePublicContact()
+  const {
+    overlayEnabled,
+    site,
+    phoneHref,
+    phoneText,
+    emailHref,
+    emailText,
+    hours,
+    emergencyNote,
+    locations,
+  } = usePublicContact()
+  const contactFormEnabled = overlayEnabled
+    ? site.features.contactFormEnabled
+    : contactConfig.features.contactFormEnabled
+  const liveChatEnabled = overlayEnabled
+    ? site.features.liveChatEnabled
+    : contactConfig.features.liveChatEnabled
+  const mapIntegrationEnabled = overlayEnabled
+    ? site.features.mapIntegrationEnabled
+    : contactConfig.features.mapIntegrationEnabled
+  const clinicLabels = overlayEnabled
+    ? joinLocationLabels(locations.map((loc) => loc.label))
+    : ''
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -114,7 +135,7 @@ export default function Contact() {
                   className="mb-6 text-center md:mb-8"
                 />
 
-                {contactConfig.features.contactFormEnabled && (
+                {contactFormEnabled && (
                   <div className={`${interactiveCardClass} mb-6 md:mb-8`}>
                     <h3 className="mb-2 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                       Send us a message
@@ -327,13 +348,19 @@ export default function Contact() {
                     </ContactDetailCard>
 
                     <ContactDetailCard icon={contactConfig.address.icon} title="Clinics">
-                      {contactConfig.features.mapIntegrationEnabled ? (
+                      {mapIntegrationEnabled ? (
                         <>
                           <p className="text-[var(--text-dark)]/70 text-base mb-2">Visit us in person</p>
                           <p className="mb-2 text-[var(--text-dark)]">
-                            <span className="font-semibold">Celbridge</span>
-                            {' and '}
-                            <span className="font-semibold">Carlow</span>
+                            {clinicLabels ? (
+                              <span className="font-semibold">{clinicLabels}</span>
+                            ) : (
+                              <>
+                                <span className="font-semibold">Celbridge</span>
+                                {' and '}
+                                <span className="font-semibold">Carlow</span>
+                              </>
+                            )}
                           </p>
                           <a
                             href="#find-us"
@@ -435,7 +462,7 @@ export default function Contact() {
                     </div>
                   </div>
                 </div>
-                {contactConfig.features.liveChatEnabled && (
+                {liveChatEnabled && (
                   <button
                     type="button"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-white px-4 py-2.5 text-sm font-medium text-primary shadow-md shadow-primary/10 transition-all duration-200 hover:border-primary hover:shadow-md"
@@ -518,7 +545,7 @@ export default function Contact() {
       </section>
 
       {/* Map Section */}
-      {contactConfig.features.mapIntegrationEnabled && (
+      {mapIntegrationEnabled && (
         <section
           id="find-us"
           className={`scroll-mt-20 ${glassGreenBandClassName} pb-8 pt-8 md:pb-10 md:pt-12`}

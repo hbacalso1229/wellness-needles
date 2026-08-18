@@ -5,27 +5,31 @@ import {
   BOOKING_FEATURES_EVENT,
   BOOKING_FEATURES_STORAGE_KEY,
   getDefaultBookingFeatures,
-  readBookingFeatures,
+  resolvePublicBookingFeatures,
   writeBookingFeatures,
   type BookingFeatureFlags,
 } from '@/lib/booking-features'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 export function useBookingFeatures() {
+  const { overlayEnabled, site } = useSiteOverlay()
   const [features, setFeaturesState] = useState<BookingFeatureFlags>(getDefaultBookingFeatures)
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    setFeaturesState(readBookingFeatures())
+    const read = () => resolvePublicBookingFeatures(overlayEnabled, site)
+    setFeaturesState(read())
     setHydrated(true)
 
     const onCustom = (event: Event) => {
       const detail = (event as CustomEvent<BookingFeatureFlags>).detail
-      if (detail) setFeaturesState(detail)
-      else setFeaturesState(readBookingFeatures())
+      if (overlayEnabled) setFeaturesState(read())
+      else if (detail) setFeaturesState(detail)
+      else setFeaturesState(read())
     }
     const onStorage = (event: StorageEvent) => {
       if (event.key === null || event.key === BOOKING_FEATURES_STORAGE_KEY) {
-        setFeaturesState(readBookingFeatures())
+        setFeaturesState(read())
       }
     }
 
@@ -35,7 +39,7 @@ export function useBookingFeatures() {
       window.removeEventListener(BOOKING_FEATURES_EVENT, onCustom)
       window.removeEventListener('storage', onStorage)
     }
-  }, [])
+  }, [overlayEnabled, site])
 
   const setFeatures = useCallback((next: BookingFeatureFlags) => {
     writeBookingFeatures(next)

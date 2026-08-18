@@ -121,7 +121,7 @@ export default function Footer() {
 
         <div className="border-t border-cream/20 mt-5 pt-4 md:mt-8 md:pt-8 text-center text-xs md:text-sm text-cream/60">
           <p className="leading-snug">
-            &copy; {new Date().getFullYear()} Wellness Needles. All rights reserved.
+            &copy; {new Date().getFullYear()} {clinicName}. All rights reserved.
             <span className="hidden sm:inline"> | </span>
             <span className="block sm:inline mt-1 sm:mt-0">Privacy Policy | Terms of Service</span>
           </p>

@@ -58,6 +58,11 @@ export function toPublicLocations(locations: SiteLocation[]): PublicClinicLocati
   return locations.filter((loc) => loc.enabled !== false).map(toPublicLocation)
 }
 
+export function publicLocationsOrBaked(locations: SiteLocation[]): PublicClinicLocation[] {
+  const next = toPublicLocations(locations)
+  return next.length > 0 ? next : [...contactConfig.address.locations]
+}
+
 const OverlayContext = createContext<OverlayValue>({
   overlayEnabled: false,
   site: SITE_DEFAULTS,
@@ -85,7 +90,7 @@ export function usePublicContact() {
       : contactConfig.businessInfo.emergencyNote,
     hours: overlayEnabled ? site.hours : null,
     locations: overlayEnabled
-      ? toPublicLocations(site.locations)
+      ? publicLocationsOrBaked(site.locations)
       : contactConfig.address.locations,
   }
 }

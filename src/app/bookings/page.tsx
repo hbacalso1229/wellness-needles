@@ -13,9 +13,8 @@ import {
   SectionHeading,
   glassGreenPanelClassName,
 } from '../../features'
-import { contactConfig } from '@/lib/contact-config'
 import { usePublicContact } from '@/lib/site-overlay'
-import { withOverlayCatalog } from '@/lib/overlay-public'
+import { overlayCatalogOrNull, joinLocationLabels } from '@/lib/overlay-public'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
@@ -36,7 +35,7 @@ const panelClass =
 
 export default function Bookings() {
   const { overlayEnabled, site, phoneHref, phoneText, emailHref, locations } = usePublicContact()
-  const catalog = overlayEnabled ? withOverlayCatalog(site) : null
+  const catalog = overlayEnabled ? overlayCatalogOrNull(site) : null
   const { features } = useBookingFeatures()
   const bookingFormEnabled = features.bookingFormEnabled
   const calendlyEnabled = features.calendlyEnabled
@@ -55,15 +54,15 @@ export default function Bookings() {
   const visitServices = catalog?.homeVisitServices ?? homeVisitServices
   const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
   const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
-  const showInClinic = overlayEnabled ? Boolean(catalog?.inClinicEnabled) : true
-  const showHomeVisit = overlayEnabled ? Boolean(catalog?.homeVisitEnabled) : true
+  const showInClinic = catalog ? catalog.inClinicEnabled : true
+  const showHomeVisit = catalog ? catalog.homeVisitEnabled : true
 
-  const clinicList = overlayEnabled
+  const clinicList = catalog
     ? clinicServices
     : clinicServices.filter(
         (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
       )
-  const visitList = overlayEnabled
+  const visitList = catalog
     ? visitServices
     : visitServices.filter(
         (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
@@ -212,9 +211,8 @@ export default function Bookings() {
                           </div>
                         ) : (
                           <p className="text-center text-sm text-red-700" role="alert">
-                            Fresha is enabled but the booking URL is missing or invalid. Update{' '}
-                            <code className="text-xs">contactConfig.fresha.bookingUrl</code> in{' '}
-                            <code className="text-xs">src/lib/contact-config.ts</code>.
+                            Fresha is enabled but the booking URL is missing or invalid. Set the
+                            Fresha booking URL in portal Settings, then Publish.
                           </p>
                         )}
                       </div>
@@ -278,8 +276,18 @@ export default function Bookings() {
                       <div className="mb-2 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
                       <p className="text-base text-secondary mb-4">
                         {activeTab === 'call-out'
-                          ? 'Where would you like your home visit? Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
-                          : 'Choose your clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
+                          ? overlayEnabled && clinicLocations.length
+                            ? `Where would you like your home visit? Availability is shared across ${
+                                clinicLocations.length === 1 ? 'this clinic' : 'these clinics'
+                              } — one practitioner runs ${joinLocationLabels(
+                                clinicLocations.map((loc) => loc.label)
+                              )}.`
+                            : 'Where would you like your home visit? Availability is shared across both clinics — one practitioner runs Celbridge and Carlow.'
+                          : overlayEnabled && clinicLocations.length
+                            ? `Choose your clinic. Availability is shared across ${
+                                clinicLocations.length === 1 ? 'this clinic' : 'these clinics'
+                              } — a booking at one location blocks that time at the other.`
+                            : 'Choose your clinic. Availability is shared across both clinics — a booking at one location blocks that time at the other.'}
                       </p>
                       <ClinicLocationCards
                         locations={clinicLocations}

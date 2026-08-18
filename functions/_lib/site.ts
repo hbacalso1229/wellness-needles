@@ -153,10 +153,15 @@ async function recordSiteHistory(
 }
 
 export async function approvedReviews(env: PagesEnv): Promise<SiteSnapshot['reviews']> {
-  if (!env.DB) return SITE_DEFAULTS.reviews
-  const { results } = await env.DB.prepare(
-    `SELECT id, name, condition, reviewed_at as reviewedAt, rating, source, emphasis, excerpt, body
-     FROM reviews WHERE status = 'approved' ORDER BY reviewed_at DESC`
-  ).all<SiteSnapshot['reviews'][number]>()
-  return results?.length ? results : SITE_DEFAULTS.reviews
+  if (!env.DB) return []
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, name, condition, reviewed_at as reviewedAt, rating, source, emphasis, excerpt, body
+       FROM reviews WHERE status = 'approved' ORDER BY reviewed_at DESC`
+    ).all<SiteSnapshot['reviews'][number]>()
+    return results?.length ? results : []
+  } catch (error) {
+    console.error('[approvedReviews]', error)
+    return []
+  }
 }

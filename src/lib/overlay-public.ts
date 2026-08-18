@@ -169,6 +169,21 @@ export function withOverlayCatalog(site: SiteSnapshot) {
   }
 }
 
+/** Overlay catalog, or null so callers keep baked lists when both categories are empty. */
+export function overlayCatalogOrNull(site: SiteSnapshot) {
+  const catalog = withOverlayCatalog(site)
+  if (!catalog.inClinicEnabled && !catalog.homeVisitEnabled) return null
+  return catalog
+}
+
+export function joinLocationLabels(labels: string[]): string {
+  const names = labels.map((label) => label.trim()).filter(Boolean)
+  if (names.length === 0) return ''
+  if (names.length === 1) return names[0]
+  if (names.length === 2) return `${names[0]} and ${names[1]}`
+  return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`
+}
+
 export function formatOverlayDayHours(
   hours: SiteSnapshot['hours'],
   day: Weekday
