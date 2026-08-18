@@ -25,7 +25,7 @@ import {
   toE164,
 } from '../../../src/lib/irish-phone'
 
-type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings'
+type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
 type BookingRow = {
   id: string
@@ -66,6 +66,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Contact Info' },
+  { id: 'history', label: 'Change History' },
   { id: 'settings', label: 'System Settings' },
 ]
 
@@ -810,8 +811,14 @@ export function PortalApp() {
                 </div>
               ))}
             </div>
-            <ChangeHistory rows={history} />
             <PublishBar onPublish={() => void publish()} />
+          </section>
+        )}
+
+        {tab === 'history' && (
+          <section className="space-y-4">
+            <h1 className="text-xl font-semibold">Change History</h1>
+            <ChangeHistory rows={history} />
           </section>
         )}
       </main>
@@ -870,7 +877,6 @@ function ChangeHistory({ rows }: { rows: HistoryRow[] }) {
   const groups = groupHistory(rows)
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Change history</h2>
       {groups.length === 0 ? (
         <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
           No published changes yet.
