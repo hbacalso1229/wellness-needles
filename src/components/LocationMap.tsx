@@ -7,6 +7,7 @@ interface LocationMapProps {
   title: string
   directionsUrl?: string
   className?: string
+  showDirections?: boolean
 }
 
 export default function LocationMap({
@@ -14,29 +15,40 @@ export default function LocationMap({
   title,
   directionsUrl,
   className = '',
+  showDirections = true,
 }: LocationMapProps) {
-  const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
+  const embedSrc = query.trim()
+    ? `https://www.google.com/maps?q=${encodeURIComponent(query.trim())}&output=embed`
+    : ''
 
   return (
     <div className={className}>
       <div className="relative h-44 overflow-hidden rounded-lg border border-accent/20 bg-accent/10 sm:h-48">
-        <iframe
-          title={title}
-          src={embedSrc}
-          className="pointer-events-none h-full w-full border-0"
-          loading="lazy"
-          tabIndex={-1}
-          aria-hidden
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-        <div
-          className="pointer-events-none absolute left-2 top-2 flex h-8 w-[4.75rem] items-center justify-center rounded-md bg-white shadow-sm"
-          aria-hidden
-        >
-          <MapPin className="h-4 w-4 text-primary" strokeWidth={2.25} />
-        </div>
+        {embedSrc ? (
+          <iframe
+            title={title}
+            src={embedSrc}
+            className="pointer-events-none h-full w-full border-0"
+            loading="lazy"
+            tabIndex={-1}
+            aria-hidden
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        ) : (
+          <p className="flex h-full items-center justify-center px-4 text-center text-sm text-[var(--text-dark)]/55">
+            Add an address to preview the map.
+          </p>
+        )}
+        {embedSrc ? (
+          <div
+            className="pointer-events-none absolute left-2 top-2 flex h-8 w-[4.75rem] items-center justify-center rounded-md bg-white shadow-sm"
+            aria-hidden
+          >
+            <MapPin className="h-4 w-4 text-primary" strokeWidth={2.25} />
+          </div>
+        ) : null}
       </div>
-      {directionsUrl && (
+      {showDirections && directionsUrl ? (
         <a
           href={directionsUrl}
           target="_blank"
@@ -49,7 +61,7 @@ export default function LocationMap({
             aria-hidden
           />
         </a>
-      )}
+      ) : null}
     </div>
   )
 }

@@ -5,8 +5,11 @@ import {
   SITE_DEFAULTS,
   buildHoursDisplay,
   composeLocation,
+  createPricingExtra,
   parseSiteSnapshot,
+  BOOKABLE_PRICE_KEYS,
   type PriceList,
+  type PricingExtra,
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
 import {
@@ -31,6 +34,7 @@ import {
   Card,
   CompactEuroField,
   HoursEditor,
+  OnOffSwitch,
   PageHeader,
   ReviewCard,
   ReviewStatusTabs,
@@ -39,6 +43,8 @@ import {
   snapshotsEqual,
   type ReviewStatusTab,
 } from './portal-ui'
+import { AddressSearch } from './AddressSearch'
+import { LocationPreview } from './LocationPreview'
 
 type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
@@ -104,6 +110,36 @@ function originalKind(
   return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
 }
 
+function extrasKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicExtras' | 'homeVisitExtras' {
+  return kind === 'inClinic' ? 'inClinicExtras' : 'homeVisitExtras'
+}
+
+function itemsKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicItems' | 'homeVisitItems' {
+  return kind === 'inClinic' ? 'inClinicItems' : 'homeVisitItems'
+}
+
+function categoryEnabledKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicEnabled' | 'homeVisitEnabled' {
+  return kind === 'inClinic' ? 'inClinicEnabled' : 'homeVisitEnabled'
+}
+
+function bookableOnCount(
+  pricing: SiteSnapshot['pricing'],
+  kind: 'inClinic' | 'homeVisit'
+): number {
+  const items = pricing[itemsKind(kind)]
+  const extras = pricing[extrasKind(kind)]
+  return (
+    BOOKABLE_PRICE_KEYS.filter((key) => items[key]).length +
+    extras.filter((row) => row.kind === 'package' && row.enabled).length
+  )
+}
+
 function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
   if (status === 'approved') return 'confirmed'
   if (status === 'rejected' || status === 'cancelled') return 'rejected'
@@ -162,6 +198,12 @@ function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['p
   const number = country.id === 'IE' && local ? `0${local}` : local
   const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
   return { number, formatted, displayText, href }
+}
+
+function looksLikeEircode(value: string): boolean {
+  const text = value.trim()
+  if (!text) return true
+  return /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(text)
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -656,20 +698,78 @@ export function PortalApp() {
               description="Manage the prices shown on your booking page. Update clinic and home-visit pricing, then publish your changes when you're ready."
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              {(['inClinic', 'homeVisit'] as const).map((kind) => (
-                <Card key={kind} title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}>
-                  <div className="space-y-3">
+              {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                const origKey = originalKind(kind)
+                const extrasKey = extrasKind(kind)
+                const itemsKey = itemsKind(kind)
+                const enabledKey = categoryEnabledKind(kind)
+                const categoryOn = draft.pricing[enabledKey]
+                const otherOn =
+                  kind === 'inClinic'
+                    ? draft.pricing.homeVisitEnabled
+                    : draft.pricing.inClinicEnabled
+                const lastCategory = categoryOn && !otherOn
+                const extras = draft.pricing[extrasKey]
+                const packageExtras = extras.filter((row) => row.kind === 'package')
+                const addonExtras = extras.filter((row) => row.kind === 'addon')
+                const bookable = bookableOnCount(draft.pricing, kind)
+                const patchExtras = (next: PricingExtra[]) =>
+                  setDraft({
+                    ...draft,
+                    pricing: { ...draft.pricing, [extrasKey]: next },
+                  })
+                const patchExtra = (id: string, patch: Partial<PricingExtra>) =>
+                  patchExtras(extras.map((row) => (row.id === id ? { ...row, ...patch } : row)))
+                return (
+                <Card
+                  key={kind}
+                  title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                  action={
+                    <OnOffSwitch
+                      checked={categoryOn}
+                      disabled={lastCategory}
+                      ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
+                      onChange={(enabled) => {
+                        if (!enabled && lastCategory) return
+                        setDraft({
+                          ...draft,
+                          pricing: { ...draft.pricing, [enabledKey]: enabled },
+                        })
+                      }}
+                    />
+                  }
+                >
+                  <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
                     {PRICE_ROWS.map(([key, label]) => {
-                      const origKey = originalKind(kind)
                       const original = draft.pricing[origKey][key]
                       const discounted = draft.pricing[kind][key]
                       const off = discountPercentLabel(original, discounted)
+                      const itemOn = draft.pricing[itemsKey][key]
+                      const isBookable = BOOKABLE_PRICE_KEYS.includes(key)
+                      const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
                       return (
                         <div
                           key={key}
                           className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
                         >
-                          <p className="mb-2 text-sm font-medium">{label}</p>
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium">{label}</p>
+                            <OnOffSwitch
+                              checked={itemOn}
+                              disabled={lastBookable}
+                              ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
+                              onChange={(enabled) => {
+                                if (!enabled && lastBookable) return
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [itemsKey]: { ...draft.pricing[itemsKey], [key]: enabled },
+                                  },
+                                })
+                              }}
+                            />
+                          </div>
                           <div className="flex flex-wrap items-end gap-2">
                             <CompactEuroField
                               label="Original"
@@ -706,9 +806,88 @@ export function PortalApp() {
                         </div>
                       )
                     })}
+                    {[...packageExtras, ...addonExtras].map((extra) => {
+                      const off = discountPercentLabel(extra.original, extra.price)
+                      const lastBookable =
+                        categoryOn &&
+                        extra.kind === 'package' &&
+                        extra.enabled &&
+                        bookable <= 1
+                      return (
+                        <div
+                          key={extra.id}
+                          className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                        >
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <input
+                              className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
+                              value={extra.name}
+                              aria-label={extra.kind === 'package' ? 'Package name' : 'Add-on name'}
+                              onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
+                            />
+                            <OnOffSwitch
+                              checked={extra.enabled}
+                              disabled={lastBookable}
+                              ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
+                              onChange={(enabled) => {
+                                if (!enabled && lastBookable) return
+                                patchExtra(extra.id, { enabled })
+                              }}
+                            />
+                          </div>
+                          <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
+                            {extra.kind === 'package' ? 'Package' : 'Add-on'}
+                          </p>
+                          <div className="flex flex-wrap items-end gap-2">
+                            <CompactEuroField
+                              label="Original"
+                              value={extra.original}
+                              onChange={(next) => patchExtra(extra.id, { original: next })}
+                            />
+                            <CompactEuroField
+                              label="Discounted"
+                              value={extra.price}
+                              onChange={(next) => patchExtra(extra.id, { price: next })}
+                            />
+                            {off ? (
+                              <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
+                                {off}
+                              </span>
+                            ) : null}
+                          </div>
+                          <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                            Description
+                            <input
+                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                              value={extra.description}
+                              onChange={(e) =>
+                                patchExtra(extra.id, { description: e.target.value })
+                              }
+                            />
+                          </label>
+                        </div>
+                      )
+                    })}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button
+                        type="button"
+                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                        onClick={() => patchExtras([...extras, createPricingExtra('package')])}
+                      >
+                        Add package
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                        onClick={() => patchExtras([...extras, createPricingExtra('addon')])}
+                      >
+                        Add add-on
+                      </button>
+                    </div>
                   </div>
                 </Card>
-              ))}
+                )
+              })}
             </div>
             <UnsavedBar
               dirty={dirty}
@@ -751,18 +930,15 @@ export function PortalApp() {
                           setDraft({ ...draft, insurers })
                         }}
                       />
-                      <label className="flex items-center gap-1">
-                        <input
-                          type="checkbox"
-                          checked={insurer.enabled}
-                          onChange={(e) => {
-                            const insurers = [...draft.insurers]
-                            insurers[index] = { ...insurer, enabled: e.target.checked }
-                            setDraft({ ...draft, insurers })
-                          }}
-                        />
-                        On
-                      </label>
+                      <OnOffSwitch
+                        checked={insurer.enabled}
+                        ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
+                        onChange={(enabled) => {
+                          const insurers = [...draft.insurers]
+                          insurers[index] = { ...insurer, enabled }
+                          setDraft({ ...draft, insurers })
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -770,27 +946,27 @@ export function PortalApp() {
             </Card>
             <Card title="Locations">
               <div className="space-y-5">
-                {draft.locations.map((loc, index) => (
-                  <div
-                    key={loc.id}
-                    className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
-                  >
+                {draft.locations.map((loc, index) => {
+                  const enabledCount = draft.locations.filter((row) => row.enabled).length
+                  const isLastEnabled = loc.enabled && enabledCount <= 1
+                  return (
+                    <div
+                      key={loc.id}
+                      className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
+                    >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium">{loc.label || 'Location'}</p>
-                      {draft.locations.length > 1 ? (
-                        <button
-                          type="button"
-                          className="text-sm text-primary hover:underline"
-                          onClick={() => {
-                            setDraft({
-                              ...draft,
-                              locations: draft.locations.filter((row) => row.id !== loc.id),
-                            })
-                          }}
-                        >
-                          Remove
-                        </button>
-                      ) : null}
+                      <OnOffSwitch
+                        checked={loc.enabled}
+                        disabled={isLastEnabled}
+                        ariaLabel={`${loc.enabled ? 'Disable' : 'Enable'} ${loc.label || 'location'}`}
+                        onChange={(enabled) => {
+                          if (!enabled && isLastEnabled) return
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, enabled })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
                     </div>
                     <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                       Label
@@ -804,6 +980,19 @@ export function PortalApp() {
                         }}
                       />
                     </label>
+                    <AddressSearch
+                      onPick={(address) => {
+                        const locations = [...draft.locations]
+                        locations[index] = composeLocation({
+                          ...loc,
+                          street: address.street,
+                          city: address.city,
+                          county: address.county,
+                          postcode: address.postcode,
+                        })
+                        setDraft({ ...draft, locations })
+                      }}
+                    />
                     <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                       Street
                       <input
@@ -854,8 +1043,24 @@ export function PortalApp() {
                         />
                       </label>
                     </div>
+                    {!loc.street.trim() || !loc.city.trim() ? (
+                      <p className="text-xs text-[var(--text-dark)]/55">
+                        Add a street and city so Google Maps can find this clinic.
+                      </p>
+                    ) : null}
+                    {loc.postcode.trim() && !looksLikeEircode(loc.postcode) ? (
+                      <p className="text-xs text-[var(--text-dark)]/55">
+                        Check this looks like an Eircode (e.g. W23 K603).
+                      </p>
+                    ) : null}
+                    <LocationPreview
+                      label={loc.label}
+                      mapQuery={loc.mapQuery}
+                      directionsUrl={loc.directionsUrl}
+                    />
                   </div>
-                ))}
+                  )
+                })}
                 <button
                   type="button"
                   className="rounded-md border border-black/10 px-3 py-1.5 text-sm"

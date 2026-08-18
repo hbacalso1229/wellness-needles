@@ -55,12 +55,23 @@ export default function Bookings() {
   const visitServices = catalog?.homeVisitServices ?? homeVisitServices
   const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
   const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
+  const showInClinic = overlayEnabled ? Boolean(catalog?.inClinicEnabled) : true
+  const showHomeVisit = overlayEnabled ? Boolean(catalog?.homeVisitEnabled) : true
 
-  const services = (activeTab === 'in-clinic' ? clinicServices : visitServices).filter(
-    (service) =>
-      features.treatmentPackagesEnabled || !service.id.includes('package')
-  )
+  const clinicList = overlayEnabled
+    ? clinicServices
+    : clinicServices.filter(
+        (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
+      )
+  const visitList = overlayEnabled
+    ? visitServices
+    : visitServices.filter(
+        (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
+      )
+  const services = activeTab === 'in-clinic' ? clinicList : visitList
   const addOns = activeTab === 'in-clinic' ? clinicAddOns : visitAddOns
+  const serviceIds = services.map((row) => row.id).join('|')
+  const addOnIds = addOns.map((row) => row.id).join('|')
   const selectedServiceDetails = services.find((s) => s.id === selectedService)
   const selectedAddOnLabels = selectedAddOns
     .map((id) => addOns.find((a) => a.id === id)?.name)
@@ -68,12 +79,29 @@ export default function Bookings() {
   const canOpenScheduler = Boolean(selectedLocation && selectedService)
 
   useEffect(() => {
-    if (!features.treatmentPackagesEnabled && selectedService.includes('package')) {
-      setSelectedService(
-        activeTab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
-      )
+    if (activeTab === 'in-clinic' && !showInClinic && showHomeVisit) {
+      setActiveTab('call-out')
+      setSelectedAddOns([])
+    } else if (activeTab === 'call-out' && !showHomeVisit && showInClinic) {
+      setActiveTab('in-clinic')
+      setSelectedAddOns([])
     }
-  }, [features.treatmentPackagesEnabled, selectedService, activeTab])
+  }, [activeTab, showInClinic, showHomeVisit])
+
+  useEffect(() => {
+    if (!serviceIds) return
+    const allowed = serviceIds.split('|')
+    if (allowed.includes(selectedService)) return
+    setSelectedService(allowed[0])
+  }, [serviceIds, selectedService])
+
+  useEffect(() => {
+    const allowed = new Set(addOnIds.split('|').filter(Boolean))
+    setSelectedAddOns((prev) => {
+      const next = prev.filter((id) => allowed.has(id))
+      return next.length === prev.length ? prev : next
+    })
+  }, [addOnIds])
 
   useEffect(() => {
     if (!clinicLocations.some((loc) => loc.id === selectedLocation)) {
@@ -83,9 +111,8 @@ export default function Bookings() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    setSelectedService(
-      tab === 'call-out' ? 'home-initial-consultation' : 'initial-consultation'
-    )
+    const list = tab === 'call-out' ? visitList : clinicList
+    setSelectedService(list[0]?.id ?? '')
     setSelectedAddOns([])
   }
 
@@ -203,6 +230,7 @@ export default function Bookings() {
                           activeTab === 'call-out' ? 'booking-service-tab__indicator--call-out' : ''
                         }`}
                       />
+                      {showInClinic ? (
                       <button
                         type="button"
                         onClick={() => handleTabChange('in-clinic')}
@@ -213,6 +241,8 @@ export default function Bookings() {
                         <Building2 className="h-5 w-5 shrink-0" aria-hidden />
                         In clinic services
                       </button>
+                      ) : null}
+                      {showHomeVisit ? (
                       <button
                         type="button"
                         onClick={() => handleTabChange('call-out')}
@@ -223,6 +253,7 @@ export default function Bookings() {
                         <Home className="h-5 w-5 shrink-0" aria-hidden />
                         Home visit services
                       </button>
+                      ) : null}
                     </div>
 
                     {/* Service first, then location (Fresha / Calendly flow) */}

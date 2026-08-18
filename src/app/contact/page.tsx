@@ -526,7 +526,13 @@ export default function Contact() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
               title="Visit Us in Person"
-              subtitle="Two convenient locations to support your care."
+              subtitle={
+                locations.length === 1
+                  ? 'A convenient location to support your care.'
+                  : locations.length === 2
+                    ? 'Two convenient locations to support your care.'
+                    : 'Convenient locations to support your care.'
+              }
             />
 
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-6">
