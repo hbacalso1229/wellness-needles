@@ -367,8 +367,6 @@ export default function BookingForm() {
       setSelectedLocation(defaultLocationId)
     }
   }, [locationIds, selectedLocation, defaultLocationId, clinicLocations])
-  /** 08x mobile rule when Ireland is selected — independent of the country-lock flag. */
-  const enforceIrishMobile = phoneCountry.id === 'IE'
 
   const resetHCaptcha = () => {
     setHCaptchaToken('')
