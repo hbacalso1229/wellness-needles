@@ -14,14 +14,79 @@ import {
   glassGreenBandClassName,
 } from '../../features'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
+import { ShareExperienceCta } from '@/components/ShareExperienceCta'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { useSiteOverlay } from '@/lib/site-overlay'
+import { useEffect, useMemo, useState } from 'react'
 import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
   const { overlayEnabled, site } = useSiteOverlay()
+  const [publishedReviews, setPublishedReviews] = useState<Array<{
+    id: string
+    name: string
+    condition: string
+    date: string
+    rating: number
+    source: string
+    emphasis: string
+    text: string
+  }>>([])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/reviews', { headers: { Accept: 'application/json' } })
+      .then(async (res) => {
+        if (!res.ok) return { reviews: [] as Array<Record<string, unknown>> }
+        return (await res.json()) as { reviews?: Array<Record<string, unknown>> }
+      })
+      .then((json) => {
+        if (cancelled) return
+        const rows = Array.isArray(json.reviews) ? json.reviews : []
+        setPublishedReviews(
+          rows
+            .filter((row) => typeof row.id === 'string' && typeof row.name === 'string')
+            .map((row) => {
+              const reviewedAt = typeof row.reviewedAt === 'string' ? row.reviewedAt : ''
+              const date = reviewedAt
+                ? new Date(`${reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })
+                : ''
+              return {
+                id: row.id as string,
+                name: row.name as string,
+                condition: typeof row.condition === 'string' ? row.condition : '',
+                date,
+                rating: typeof row.rating === 'number' ? row.rating : 5,
+                source: typeof row.source === 'string' ? row.source : 'Verified patient review',
+                emphasis:
+                  typeof row.emphasis === 'string'
+                    ? row.emphasis
+                    : typeof row.excerpt === 'string'
+                      ? row.excerpt
+                      : '',
+                text:
+                  typeof row.body === 'string'
+                    ? row.body
+                    : typeof row.excerpt === 'string'
+                      ? row.excerpt
+                      : '',
+              }
+            })
+        )
+      })
+      .catch(() => {
+        if (!cancelled) setPublishedReviews([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const bakedTestimonials = [
     {
@@ -125,9 +190,10 @@ export default function Testimonials() {
     },
   ]
 
-  const testimonials =
+  const overlayTestimonials =
     overlayEnabled && site.reviews.length > 0
       ? site.reviews.map((review) => ({
+          id: review.id,
           name: review.name,
           condition: review.condition,
           date: new Date(`${review.reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
@@ -140,7 +206,21 @@ export default function Testimonials() {
           emphasis: review.emphasis || review.excerpt,
           text: review.body || review.excerpt,
         }))
-      : bakedTestimonials
+      : null
+
+  const testimonials = useMemo(() => {
+    if (overlayTestimonials) return overlayTestimonials
+    const seen = new Set(
+      bakedTestimonials.map((card) => `${card.name}|${card.date}`.toLowerCase())
+    )
+    const extra = publishedReviews.filter((card) => {
+      const key = `${card.name}|${card.date}`.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    return [...bakedTestimonials, ...extra]
+  }, [overlayTestimonials, publishedReviews])
   const reviewCount = testimonials.length
   const ratingAverage =
     reviewCount === 0
@@ -392,9 +472,9 @@ export default function Testimonials() {
             className="mx-auto max-w-7xl"
             trackClassName={snapTrackHorizontalClassName}
           >
-            {testimonials.map((testimonial) => (
+            {testimonials.map((testimonial, index) => (
               <div
-                key={`${testimonial.name}-${testimonial.condition}`}
+                key={`${testimonial.name}-${testimonial.date}-${index}`}
                 className={`${reviewSlideClassName} flex`}
               >
                 <TestimonialCard
@@ -418,16 +498,7 @@ export default function Testimonials() {
         description="Hear from people who chose a different approach to their health and experienced care that was personal, thoughtful, and genuinely theirs."
         ctaLabel="Begin Your Own Journey"
       >
-        <a
-          href="/contact/"
-          className="group mt-3 inline-flex items-center gap-1 text-sm font-medium text-cream/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-cream hover:underline sm:mt-3.5"
-        >
-          Share Your Experience
-          <ArrowRight
-            className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
-            aria-hidden
-          />
-        </a>
+        <ShareExperienceCta />
         <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-cream/60 md:mt-6">
           <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
           <span>Trusted by 200+ patients</span>

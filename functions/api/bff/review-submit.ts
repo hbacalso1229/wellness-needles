@@ -1,5 +1,6 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../_lib/http'
 import { verifyTurnstile } from '../../_lib/turnstile'
+import { clipCondition, parseHalfStarRating } from '../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -14,6 +15,7 @@ type Body = {
   source?: string
   excerpt?: string
   body?: string
+  emphasis?: string
 }
 
 export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
@@ -33,15 +35,22 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   }
 
   const name = asString(payload.name)
-  const excerpt = asString(payload.excerpt) || asString(payload.body)
-  if (!name || !excerpt) {
+  const reviewBody = asString(payload.body) || asString(payload.excerpt)
+  if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and review text required' })
   }
 
-  const rating =
-    typeof payload.rating === 'number' && payload.rating >= 1 && payload.rating <= 5
-      ? Math.round(payload.rating)
-      : 5
+  const rating = parseHalfStarRating(payload.rating)
+  if (rating == null) {
+    return jsonResponse(400, { ok: false, error: 'rating must be 1–5 in half-star steps' })
+  }
+  const condition = clipCondition(payload.condition)
+  if (condition == null) {
+    return jsonResponse(400, { ok: false, error: 'condition too long' })
+  }
+  const emphasisRaw = asString(payload.emphasis)
+  const emphasis = emphasisRaw && reviewBody.includes(emphasisRaw) ? emphasisRaw : ''
+  const excerpt = emphasis || asString(payload.excerpt) || reviewBody.slice(0, 120)
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
   const reviewedAt = now.slice(0, 10)
@@ -54,13 +63,13 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     .bind(
       id,
       name,
-      asString(payload.condition),
+      condition,
       reviewedAt,
       rating,
-      asString(payload.source) || 'Website',
+      asString(payload.source) || 'Verified patient review',
+      emphasis,
       excerpt,
-      excerpt,
-      asString(payload.body) || excerpt,
+      reviewBody,
       now
     )
     .run()

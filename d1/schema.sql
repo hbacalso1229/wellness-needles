@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   name TEXT NOT NULL,
   condition TEXT,
   reviewed_at TEXT NOT NULL,
-  rating INTEGER NOT NULL,
+  rating REAL NOT NULL,
   source TEXT,
   emphasis TEXT,
   excerpt TEXT,

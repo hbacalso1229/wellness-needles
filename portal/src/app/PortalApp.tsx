@@ -24,6 +24,11 @@ import {
   subscriberDigits,
   toE164,
 } from '../../../src/lib/irish-phone'
+import {
+  CONDITION_MAX_LEN,
+  parseHalfStarRating,
+} from '../../../shared/review-rating'
+import { HalfStarPicker, RatingStars } from '../../../src/features/ui/RatingStars'
 
 type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
@@ -43,10 +48,15 @@ type BookingRow = {
 
 type ReviewRow = {
   id: string
+  status?: string
   name: string
   excerpt?: string
+  body?: string
+  condition?: string
   source?: string
+  rating?: number
   reviewedAt?: string
+  emphasis?: string
 }
 
 type HistoryRow = {
@@ -93,6 +103,12 @@ const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
   ['Saturday', 'saturday'],
   ['Sunday', 'sunday'],
 ]
+
+function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
+  if (status === 'approved') return 'confirmed'
+  if (status === 'rejected' || status === 'cancelled') return 'rejected'
+  return 'pending'
+}
 
 function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
   const hay = `${phone.href} ${phone.displayText} ${phone.number}`
@@ -180,6 +196,13 @@ export function PortalApp() {
   const [startsAtLocal, setStartsAtLocal] = useState('')
   const [newReviewName, setNewReviewName] = useState('')
   const [newReviewExcerpt, setNewReviewExcerpt] = useState('')
+  const [newReviewRating, setNewReviewRating] = useState<number | null>(null)
+  const [newReviewCondition, setNewReviewCondition] = useState('')
+  const [newReviewSource, setNewReviewSource] = useState('Verified Google review')
+  const [newReviewEmphasis, setNewReviewEmphasis] = useState('')
+  const [newReviewBody, setNewReviewBody] = useState('')
+  const [newReviewDate, setNewReviewDate] = useState('')
+  const [pendingTags, setPendingTags] = useState<Record<string, string>>({})
   const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
   const phoneCountry = getPhoneCountry(phoneCountryId)
 
@@ -201,8 +224,12 @@ export function PortalApp() {
       }
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
       setBookings(inbox.bookings || [])
-      const pending = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=pending')
-      setReviews(pending.reviews || [])
+      const allReviews = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=all')
+      const rows = allReviews.reviews || []
+      setReviews(rows)
+      setPendingTags(
+        Object.fromEntries(rows.map((row) => [row.id, row.condition || '']))
+      )
       try {
         const log = await api<{ changes: HistoryRow[] }>('/api/admin/site-history')
         setHistory(log.changes || [])
@@ -384,17 +411,35 @@ export function PortalApp() {
               className="space-y-2 rounded-xl border border-accent/20 bg-white p-4"
               onSubmit={async (e) => {
                 e.preventDefault()
+                const rating = parseHalfStarRating(newReviewRating)
+                if (rating == null) {
+                  show('Choose a star rating')
+                  return
+                }
+                const bodyText = newReviewBody.trim() || newReviewExcerpt.trim()
                 try {
                   await api('/api/admin/reviews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       name: newReviewName,
-                      excerpt: newReviewExcerpt,
+                      rating,
+                      condition: newReviewCondition,
+                      reviewedAt: newReviewDate,
+                      source: newReviewSource,
+                      emphasis: newReviewEmphasis,
+                      excerpt: newReviewExcerpt || bodyText,
+                      body: bodyText,
                     }),
                   })
                   setNewReviewName('')
                   setNewReviewExcerpt('')
+                  setNewReviewRating(null)
+                  setNewReviewCondition('')
+                  setNewReviewSource('Verified Google review')
+                  setNewReviewEmphasis('')
+                  setNewReviewBody('')
+                  setNewReviewDate('')
                   show('Review added (pending)')
                   await load()
                 } catch (error) {
@@ -410,60 +455,170 @@ export function PortalApp() {
                 onChange={(e) => setNewReviewName(e.target.value)}
                 required
               />
+              <HalfStarPicker value={newReviewRating} onChange={setNewReviewRating} />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Treatment tag"
+                maxLength={CONDITION_MAX_LEN}
+                value={newReviewCondition}
+                onChange={(e) => setNewReviewCondition(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                type="date"
+                value={newReviewDate}
+                onChange={(e) => setNewReviewDate(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Source (e.g. Verified Google review)"
+                value={newReviewSource}
+                onChange={(e) => setNewReviewSource(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Phrase to bold (optional)"
+                value={newReviewEmphasis}
+                onChange={(e) => setNewReviewEmphasis(e.target.value)}
+              />
               <textarea
                 className="w-full rounded border px-2 py-1"
-                placeholder="Short quote"
+                placeholder="Full review"
+                value={newReviewBody}
+                onChange={(e) => setNewReviewBody(e.target.value)}
+                required
+              />
+              <textarea
+                className="w-full rounded border px-2 py-1"
+                placeholder="Short quote (optional)"
                 value={newReviewExcerpt}
                 onChange={(e) => setNewReviewExcerpt(e.target.value)}
-                required
               />
               <button type="submit" className="rounded-full bg-primary px-3 py-1.5 text-sm text-white">
                 Save pending
               </button>
             </form>
-            {reviews.length === 0 ? (
-              <p className="text-sm text-secondary">No pending reviews.</p>
-            ) : (
-              <ul className="space-y-3">
-                {reviews.map((row) => (
-                  <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                    <p className="font-medium">{row.name}</p>
-                    <p className="text-sm italic">{row.excerpt}</p>
-                    <div className="mt-2 flex gap-2">
-                      <button
-                        type="button"
-                        className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                        onClick={async () => {
-                          await api(`/api/admin/reviews/${row.id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'confirm' }),
-                          })
-                          show('Review published')
-                          await load()
-                        }}
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-full border px-3 py-1.5 text-sm"
-                        onClick={async () => {
-                          await api(`/api/admin/reviews/${row.id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'cancel' }),
-                          })
-                          await load()
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {(
+              [
+                ['pending', 'Pending'],
+                ['confirmed', 'Confirmed'],
+                ['rejected', 'Rejected'],
+              ] as const
+            ).map(([bucket, heading]) => {
+              const rows = reviews.filter((row) => reviewBucket(row.status) === bucket)
+              return (
+                <div key={bucket} className="space-y-2">
+                  <h2 className="text-base font-semibold">{heading}</h2>
+                  {rows.length === 0 ? (
+                    <p className="text-sm text-secondary">None.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {rows.map((row) => (
+                        <li
+                          key={row.id}
+                          className="rounded-xl border border-accent/20 bg-white p-4"
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">{row.name}</p>
+                            <RatingStars rating={row.rating ?? 0} />
+                          </div>
+                          {row.condition ? (
+                            <p className="mt-1 text-xs text-secondary">{row.condition}</p>
+                          ) : null}
+                          <p className="mt-1 text-xs text-secondary">
+                            {row.reviewedAt || ''}
+                            {row.source ? ` · ${row.source}` : ''}
+                          </p>
+                          <p className="mt-2 text-sm italic">{row.body || row.excerpt}</p>
+                          {bucket === 'pending' ? (
+                            <div className="mt-2 space-y-2">
+                              <label className="block text-sm">
+                                Treatment tag
+                                <input
+                                  className="mt-1 w-full rounded border px-2 py-1"
+                                  maxLength={CONDITION_MAX_LEN}
+                                  value={pendingTags[row.id] ?? row.condition ?? ''}
+                                  onChange={(e) =>
+                                    setPendingTags((prev) => ({
+                                      ...prev,
+                                      [row.id]: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  className="rounded-full border px-3 py-1.5 text-sm"
+                                  onClick={async () => {
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        action: 'update',
+                                        condition: pendingTags[row.id] ?? row.condition,
+                                      }),
+                                    })
+                                    show('Tag saved')
+                                    await load()
+                                  }}
+                                >
+                                  Save tag
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                                  onClick={async () => {
+                                    const tag = pendingTags[row.id]
+                                    if (tag !== undefined && tag !== (row.condition || '')) {
+                                      await api(`/api/admin/reviews/${row.id}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          action: 'update',
+                                          condition: tag,
+                                        }),
+                                      })
+                                    }
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'confirm' }),
+                                    })
+                                    show('Review published')
+                                    await load()
+                                  }}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded-full border px-3 py-1.5 text-sm"
+                                  onClick={async () => {
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'reject' }),
+                                    })
+                                    await load()
+                                  }}
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-secondary">
+                              {bucket === 'confirmed' ? 'Confirmed' : 'Rejected'}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )
+            })}
           </section>
         )}
 
@@ -776,7 +931,7 @@ export function PortalApp() {
                 />
                 Fresha
               </label>
-              <label className="block text-sm">
+              <label className="block text-sm font-medium">
                 Clinic name
                 <input
                   className="mt-1 w-full rounded border px-2 py-1"

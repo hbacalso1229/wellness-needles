@@ -77,6 +77,10 @@ jobs:
           # Marketing /admin removed for Phase 1 — contact-config defaults + env Web3Forms key
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
           NEXT_PUBLIC_CAPTCHA_PROVIDER: hcaptcha
+          # Public Turnstile site key so the review modal matches production layout.
+          # Booking on staging stays hCaptcha (provider above). Widget host must include
+          # wellness-needles.vercel.app in the Cloudflare Turnstile widget settings.
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAEPCqhDUf9aLTuLx"
           # Country lock: hide phone country picker, keep +353.
           NEXT_PUBLIC_STRICT_IRISH_PHONE: "true"
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}

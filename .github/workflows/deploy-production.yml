@@ -78,6 +78,8 @@ jobs:
           test -f functions/api/booking-thank-you.ts
           test -f functions/api/booking-request.ts
           test -f functions/api/booking-captcha.ts
+          test -f functions/api/review-submit.ts
+          test -f functions/api/reviews.ts
 
       - name: Guard clinic send is Turnstile + Function
         env:
