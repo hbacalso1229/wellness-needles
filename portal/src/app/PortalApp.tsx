@@ -4,7 +4,11 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   SITE_DEFAULTS,
   WEEKDAYS,
+  euroPrice,
   parseSiteSnapshot,
+  priceDigits,
+  pricesDiffer,
+  type PriceList,
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
 
@@ -51,6 +55,50 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'contact', label: 'Contact Info' },
   { id: 'settings', label: 'System Settings' },
 ]
+
+const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
+  ['initial', 'Initial'],
+  ['followUp', 'Follow-up'],
+  ['package5', '5 sessions'],
+  ['package10', '10 sessions'],
+  ['cupping', 'Cupping'],
+]
+
+function originalKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicOriginal' | 'homeVisitOriginal' {
+  return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
+}
+
+function EuroField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (next: string) => void
+}) {
+  return (
+    <label className="block min-w-0 flex-1 text-sm">
+      {label}
+      <span className="mt-1 flex rounded border bg-white">
+        <span className="select-none px-2 py-1 text-[var(--text-dark)]/55" aria-hidden>
+          €
+        </span>
+        <input
+          className="min-w-0 flex-1 rounded-r border-0 px-2 py-1 outline-none"
+          inputMode="decimal"
+          pattern="[0-9]*[.]?[0-9]{0,2}"
+          autoComplete="off"
+          aria-label={`${label} in euro`}
+          value={priceDigits(value)}
+          onChange={(e) => onChange(euroPrice(e.target.value))}
+        />
+      </span>
+    </label>
+  )
+}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -367,32 +415,58 @@ export function PortalApp() {
                   <h2 className="mb-2 font-medium">
                     {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
                   </h2>
-                  {(
-                    [
-                      ['initial', 'Initial'],
-                      ['followUp', 'Follow-up'],
-                      ['package5', '5 sessions'],
-                      ['package10', '10 sessions'],
-                      ['cupping', 'Cupping'],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label key={key} className="mb-2 block text-sm">
-                      {label}
-                      <input
-                        className="mt-1 w-full rounded border px-2 py-1"
-                        value={draft.pricing[kind][key]}
-                        onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            pricing: {
-                              ...draft.pricing,
-                              [kind]: { ...draft.pricing[kind], [key]: e.target.value },
-                            },
-                          })
-                        }
-                      />
-                    </label>
-                  ))}
+                  {PRICE_ROWS.map(([key, label]) => {
+                    const origKey = originalKind(kind)
+                    const original = draft.pricing[origKey][key]
+                    const discounted = draft.pricing[kind][key]
+                    const showStrike = pricesDiffer(original, discounted)
+                    return (
+                      <div
+                        key={key}
+                        className="mb-3 border-b border-accent/15 pb-3 last:mb-0 last:border-0 last:pb-0"
+                      >
+                        <p className="mb-2 text-sm font-medium">{label}</p>
+                        <div className="flex flex-wrap items-end gap-2">
+                          <EuroField
+                            label="Original"
+                            value={original}
+                            onChange={(next) =>
+                              setDraft({
+                                ...draft,
+                                pricing: {
+                                  ...draft.pricing,
+                                  [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                },
+                              })
+                            }
+                          />
+                          <EuroField
+                            label="Discounted"
+                            value={discounted}
+                            onChange={(next) =>
+                              setDraft({
+                                ...draft,
+                                pricing: {
+                                  ...draft.pricing,
+                                  [kind]: { ...draft.pricing[kind], [key]: next },
+                                },
+                              })
+                            }
+                          />
+                          <div className="mb-1 shrink-0 self-end text-right leading-none">
+                            {showStrike ? (
+                              <span className="mb-0.5 block text-sm font-semibold tabular-nums text-secondary/70 line-through">
+                                {original}
+                              </span>
+                            ) : null}
+                            <span className="block font-serif text-xl font-extrabold tabular-nums text-primary">
+                              {discounted || '—'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               ))}
             </div>
