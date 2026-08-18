@@ -120,7 +120,7 @@ export default function BookingThankYouPage() {
         <div className="mx-auto my-auto w-full max-w-md pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-12 sm:max-w-lg md:max-w-xl md:pt-14">
           <BookingResultNav onNavigate={handleClose} />
 
-          <BookingResultBrand />
+          <BookingResultBrand logoOnly />
 
           <SectionHeading
             titleAs="h1"
@@ -135,7 +135,7 @@ export default function BookingThankYouPage() {
               </>
             }
             subtitle={subtitle}
-            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1B3B2B] mb-2 md:mb-3"
+            titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
             creditClassName="mb-2 text-base text-[var(--text-dark)]/70 md:mb-3"
             subtitleClassName="text-base sm:text-lg text-[var(--text-dark)]/70 max-w-xl mx-auto leading-relaxed"
             className="text-center mb-4 sm:mb-5 lg:mb-6"

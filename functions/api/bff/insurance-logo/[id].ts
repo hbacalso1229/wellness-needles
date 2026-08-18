@@ -1,4 +1,4 @@
-import { jsonResponse, type PagesEnv } from '../../../../_lib/http'
+import { jsonResponse, type PagesEnv } from '../../../_lib/http'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request

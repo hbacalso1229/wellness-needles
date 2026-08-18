@@ -6,7 +6,7 @@ import { contactConfig } from '@/lib/contact-config'
 import { useSiteOverlay } from '@/lib/site-overlay'
 
 /** Logo + brand for full-screen booking result pages (no site header/footer). */
-export function BookingResultBrand() {
+export function BookingResultBrand({ logoOnly = false }: { logoOnly?: boolean }) {
   const { overlayEnabled, site } = useSiteOverlay()
   const name = overlayEnabled ? site.clinicName : contactConfig.businessInfo.name
   return (
@@ -18,16 +18,18 @@ export function BookingResultBrand() {
         <span className="relative block size-10 shrink-0 sm:size-11 lg:size-12">
           <Image
             src="/logo_wellness_transparent.png"
-            alt="Wellness Needles Logo"
+            alt={name}
             fill
             sizes="(max-width: 639px) 40px, (max-width: 1023px) 44px, 48px"
             className="object-contain object-center"
             priority
           />
         </span>
-        <span className="font-serif text-lg font-extrabold tracking-wide text-primary sm:text-xl lg:text-2xl">
-          {name}
-        </span>
+        {logoOnly ? null : (
+          <span className="font-serif text-lg font-extrabold tracking-wide text-primary sm:text-xl lg:text-2xl">
+            {name}
+          </span>
+        )}
       </Link>
     </div>
   )

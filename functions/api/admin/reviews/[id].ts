@@ -1,5 +1,5 @@
-import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../../_lib/http'
-import { approvedReviews, publishSite, readPublishedSite } from '../../../../_lib/site'
+import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
+import { approvedReviews, publishSite, readPublishedSite } from '../../../_lib/site'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
