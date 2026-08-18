@@ -381,7 +381,6 @@ export function ReviewCard({
   body,
   tagValue,
   emphasisValue,
-  bakedLiveNote,
   onTagChange,
   onEmphasisChange,
   onSuggestEmphasis,
@@ -400,7 +399,6 @@ export function ReviewCard({
   body: string
   tagValue: string
   emphasisValue: string
-  bakedLiveNote?: string
   onTagChange: (next: string) => void
   onEmphasisChange: (next: string) => void
   onSuggestEmphasis: () => void
@@ -438,9 +436,6 @@ export function ReviewCard({
       </p>
       {bucket === 'pending' || bucket === 'confirmed' ? (
         <div className="mt-3 space-y-2 border-t border-black/[0.06] pt-3">
-          {bakedLiveNote ? (
-            <p className="text-xs leading-relaxed text-secondary">{bakedLiveNote}</p>
-          ) : null}
           <label className="block text-xs font-medium text-[var(--text-dark)]/60">
             Treatment tag
             <input

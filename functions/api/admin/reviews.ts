@@ -4,6 +4,7 @@ import {
   excerptFromReview,
   parseHalfStarRating,
   resolveEmphasis,
+  titleCasePersonName,
 } from '../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
@@ -37,7 +38,7 @@ export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
 export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(503, { ok: false, error: 'no-db' })
   const body = (await readJsonBody(context.request)) as Record<string, unknown> | null
-  const name = asString(body?.name)
+  const name = titleCasePersonName(asString(body?.name))
   const reviewBody = asString(body?.body) || asString(body?.excerpt)
   if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and excerpt required' })

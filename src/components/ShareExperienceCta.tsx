@@ -604,8 +604,7 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
                 />
               </label>
               <p id={emphasisHelpId} className="-mt-2 pb-1 text-xs leading-relaxed text-secondary">
-                Optional — we’ll pick a short phrase from your review if you leave this blank.
-                You can edit it. It must appear exactly in your review.
+                Optional — leave blank and we’ll choose a phrase for you.
               </p>
               {fieldErrors.emphasis ? (
                 <p id={emphasisErrorId} className="-mt-2 text-sm text-red-700" role="alert">

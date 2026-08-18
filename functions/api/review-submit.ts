@@ -61,6 +61,15 @@ function asString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+/* Keep in sync with shared/review-rating.ts — this Function cannot import shared. */
+function titleCasePersonName(name: string): string {
+  const text = name.trim().replace(/\s+/g, ' ')
+  if (!text) return ''
+  return text.replace(/[A-Za-zÀ-ÿ]+/g, (chunk) =>
+    chunk.charAt(0).toUpperCase() + chunk.slice(1).toLowerCase()
+  )
+}
+
 function parseHalfStarRating(value: unknown): number | null {
   const n = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
   if (!Number.isFinite(n) || n < 1 || n > 5) return null
@@ -236,7 +245,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'captcha-required' })
   }
 
-  const name = asString(payload.name)
+  const name = titleCasePersonName(asString(payload.name))
   const reviewBody = asString(payload.body) || asString(payload.excerpt)
   if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and review text required' })

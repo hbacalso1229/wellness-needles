@@ -25,7 +25,6 @@ import {
   parseHalfStarRating,
   suggestEmphasis,
 } from '../../../shared/review-rating'
-import { DEFAULT_REVIEWS } from '../../../shared/default-reviews'
 import { HalfStarPicker } from '../../../src/features/ui/RatingStars'
 import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import {
@@ -109,14 +108,6 @@ function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
   if (status === 'approved') return 'confirmed'
   if (status === 'rejected' || status === 'cancelled') return 'rejected'
   return 'pending'
-}
-
-function isBakedGoogleReview(row: { name: string; reviewedAt?: string }): boolean {
-  const date = (row.reviewedAt || '').slice(0, 10)
-  const name = row.name.trim().toLowerCase()
-  return DEFAULT_REVIEWS.some(
-    (baked) => baked.name.trim().toLowerCase() === name && baked.reviewedAt === date
-  )
 }
 
 function reviewMatchesQuery(
@@ -602,11 +593,6 @@ export function PortalApp() {
                         body={row.body || row.excerpt || ''}
                         tagValue={pendingTags[row.id] ?? row.condition ?? ''}
                         emphasisValue={pendingEmphasis[row.id] ?? row.emphasis ?? ''}
-                        bakedLiveNote={
-                          reviewStatusTab === 'confirmed' && isBakedGoogleReview(row)
-                            ? 'This review matches a baked card on the live site. Overlay is off, so changing the tag or highlight here will not update that card until overlay is on.'
-                            : undefined
-                        }
                         onTagChange={(next) =>
                           setPendingTags((prev) => ({ ...prev, [row.id]: next }))
                         }
