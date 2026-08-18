@@ -3,14 +3,27 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   SITE_DEFAULTS,
-  WEEKDAYS,
+  buildHoursDisplay,
   euroPrice,
+  formatHourLabel,
   parseSiteSnapshot,
   priceDigits,
   pricesDiffer,
   type PriceList,
   type SiteSnapshot,
+  type Weekday,
 } from '../../../shared/site-snapshot'
+import {
+  DEFAULT_PHONE_COUNTRY_ID,
+  PHONE_COUNTRIES,
+  getPhoneCountry,
+  type PhoneCountry,
+} from '../../../src/lib/phone-countries'
+import {
+  formatLocalPhoneInput,
+  subscriberDigits,
+  toE164,
+} from '../../../src/lib/irish-phone'
 
 type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings'
 
@@ -70,6 +83,48 @@ function originalKind(
   return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
 }
 
+const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
+  ['Monday', 'monday'],
+  ['Tuesday', 'tuesday'],
+  ['Wednesday', 'wednesday'],
+  ['Thursday', 'thursday'],
+  ['Friday', 'friday'],
+  ['Saturday', 'saturday'],
+  ['Sunday', 'sunday'],
+]
+
+function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
+  const hay = `${phone.href} ${phone.displayText} ${phone.number}`
+  const digits = hay.replace(/\D/g, '')
+  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
+  let best = 0
+  for (const country of PHONE_COUNTRIES) {
+    const code = country.dial.replace(/\D/g, '')
+    if (digits.startsWith(code) && code.length > best) {
+      match = country
+      best = code.length
+    }
+  }
+  return match
+}
+
+function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['phone'] {
+  const local = subscriberDigits(rawLocal, country)
+  const grouped = formatLocalPhoneInput(local, country)
+  const displayText = toE164(local, country)
+  const href = local ? `tel:+${country.dial.replace(/\D/g, '')}${local}` : ''
+  const number = country.id === 'IE' && local ? `0${local}` : local
+  const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
+  return { number, formatted, displayText, href }
+}
+
+/** Native time inputs may emit HH:mm:ss; snapshot parse requires HH:mm. */
+function toHhmm(value: string, fallback: string): string {
+  const match = /^([01]?\d|2[0-3]):([0-5]\d)/.exec(value.trim())
+  if (!match) return fallback
+  return `${match[1].padStart(2, '0')}:${match[2]}`
+}
+
 function EuroField({
   label,
   value,
@@ -124,6 +179,8 @@ export function PortalApp() {
   const [startsAtLocal, setStartsAtLocal] = useState('')
   const [newReviewName, setNewReviewName] = useState('')
   const [newReviewExcerpt, setNewReviewExcerpt] = useState('')
+  const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
+  const phoneCountry = getPhoneCountry(phoneCountryId)
 
   const show = (message: string) => {
     setToast(message)
@@ -137,7 +194,10 @@ export function PortalApp() {
       setEmail(me.email)
       const site = await api<SiteSnapshot>('/api/admin/site')
       const parsed = parseSiteSnapshot(site)
-      if (parsed) setDraft(parsed)
+      if (parsed) {
+        setDraft(parsed)
+        setPhoneCountryId(inferPhoneCountry(parsed.phone).id)
+      }
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
       setBookings(inbox.bookings || [])
       const pending = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=pending')
@@ -480,16 +540,49 @@ export function PortalApp() {
             <div className="rounded-xl border border-accent/20 bg-white p-4 space-y-3">
               <label className="block text-sm">
                 Phone display
-                <input
-                  className="mt-1 w-full rounded border px-2 py-1"
-                  value={draft.phone.displayText}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      phone: { ...draft.phone, displayText: e.target.value },
-                    })
-                  }
-                />
+                <span className="mt-1 flex overflow-hidden rounded border bg-white">
+                  <select
+                    className="max-w-[11rem] shrink-0 border-r bg-white px-2 py-1"
+                    aria-label="Country code"
+                    value={phoneCountry.id}
+                    onChange={(e) => {
+                      const nextCountry = getPhoneCountry(e.target.value)
+                      const local = subscriberDigits(
+                        draft.phone.displayText || draft.phone.number,
+                        phoneCountry
+                      )
+                      setPhoneCountryId(nextCountry.id)
+                      setDraft({
+                        ...draft,
+                        phone: phoneSnapshot(nextCountry, local),
+                      })
+                    }}
+                  >
+                    {PHONE_COUNTRIES.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name} ({country.dial})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    className="min-w-0 flex-1 border-0 px-2 py-1 outline-none"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    aria-label="Phone number"
+                    placeholder={phoneCountry.placeholder}
+                    value={formatLocalPhoneInput(
+                      draft.phone.displayText || draft.phone.number,
+                      phoneCountry
+                    )}
+                    onChange={(e) => {
+                      setDraft({
+                        ...draft,
+                        phone: phoneSnapshot(phoneCountry, e.target.value),
+                      })
+                    }}
+                  />
+                </span>
               </label>
               <label className="block text-sm">
                 Email
@@ -534,53 +627,90 @@ export function PortalApp() {
                   }
                 />
               </label>
-              {WEEKDAYS.map((day) => (
-                <div key={day} className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="w-24 capitalize">{day}</span>
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={draft.hours[day].closed}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          hours: {
-                            ...draft.hours,
-                            [day]: { ...draft.hours[day], closed: e.target.checked },
-                          },
-                        })
-                      }
-                    />
-                    Closed
-                  </label>
-                  <input
-                    className="rounded border px-2 py-1"
-                    value={draft.hours[day].open}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        hours: {
-                          ...draft.hours,
-                          [day]: { ...draft.hours[day], open: e.target.value },
-                        },
-                      })
-                    }
-                  />
-                  <input
-                    className="rounded border px-2 py-1"
-                    value={draft.hours[day].close}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        hours: {
-                          ...draft.hours,
-                          [day]: { ...draft.hours[day], close: e.target.value },
-                        },
-                      })
-                    }
-                  />
-                </div>
-              ))}
+              <div className="rounded-xl border border-accent/20 bg-[var(--bg)]/40 p-3">
+                <h2 className="mb-2 text-base font-semibold">Business hours</h2>
+                <ul className="space-y-0">
+                  {DISPLAY_DAYS.map(([label, day]) => {
+                    const row = draft.hours[day]
+                    const closed = row.closed
+                    return (
+                      <li
+                        key={day}
+                        className="border-b border-accent/15 py-2 last:border-b-0"
+                      >
+                        <div className="flex items-baseline justify-between gap-4">
+                          <span className="w-28 shrink-0 text-[var(--text-dark)]/70">
+                            {label}
+                          </span>
+                          <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
+                            {closed
+                              ? 'Closed'
+                              : `${formatHourLabel(row.open)} – ${formatHourLabel(row.close)}`}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center justify-end gap-2 text-sm">
+                          <label className="flex items-center gap-1">
+                            <input
+                              type="checkbox"
+                              checked={closed}
+                              onChange={(e) => {
+                                const hours = {
+                                  ...draft.hours,
+                                  [day]: { ...row, closed: e.target.checked },
+                                }
+                                setDraft({
+                                  ...draft,
+                                  hours,
+                                  hoursDisplay: buildHoursDisplay(hours),
+                                })
+                              }}
+                            />
+                            Closed
+                          </label>
+                          <input
+                            type="time"
+                            step={60}
+                            className="rounded border px-2 py-1 disabled:opacity-40"
+                            aria-label={`${label} opens`}
+                            disabled={closed}
+                            value={toHhmm(row.open, '09:00')}
+                            onChange={(e) => {
+                              const hours = {
+                                ...draft.hours,
+                                [day]: { ...row, open: toHhmm(e.target.value, row.open) },
+                              }
+                              setDraft({
+                                ...draft,
+                                hours,
+                                hoursDisplay: buildHoursDisplay(hours),
+                              })
+                            }}
+                          />
+                          <input
+                            type="time"
+                            step={60}
+                            className="rounded border px-2 py-1 disabled:opacity-40"
+                            aria-label={`${label} closes`}
+                            disabled={closed}
+                            value={toHhmm(row.close, '20:00')}
+                            onChange={(e) => {
+                              const hours = {
+                                ...draft.hours,
+                                [day]: { ...row, close: toHhmm(e.target.value, row.close) },
+                              }
+                              setDraft({
+                                ...draft,
+                                hours,
+                                hoursDisplay: buildHoursDisplay(hours),
+                              })
+                            }}
+                          />
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
             </div>
             <PublishBar onPublish={() => void publish()} />
           </section>
