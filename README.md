@@ -49,7 +49,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - **Icons**: Lucide React
 - **Fonts**: Inter & Playfair Display
 - **Staging**: Vercel Preview from `dev` → `https://wellness-needles.vercel.app`
-- **Production**: Cloudflare Pages on **GitHub Release published** → `https://www.wellnessneedles.ie`
+- **Production**: Cloudflare Pages on **`prod-N` GitHub Release published** → `https://www.wellnessneedles.ie`
 - **Owner portal**: `https://portal.wellnessneedles.ie` (Access). Setup: [docs/PORTAL.md](docs/PORTAL.md)
 
 ## Getting started
@@ -134,7 +134,9 @@ In-clinic and home visit **must stay on different prices**. Change them only in 
 |-------|--------|
 | Push `dev` | Staging → Vercel (`https://wellness-needles.vercel.app`) |
 | Merge `main` | CI only — no live deploy |
-| **Publish GitHub Release** | Production → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
+| **Actions → Create Production Release → Run workflow** (from `main`) | Publishes `prod-N` GitHub Release → Cloudflare Pages (`https://www.wellnessneedles.ie`) |
+
+Do not hand-write a `v*` Release for production. After CI is green on `main`, run **Create Production Release**. That workflow tags `prod-1`, `prod-2`, ... and fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog). PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
 
 **Live booking rule:** enable only one of Fresha / Calendly / legacy form in `contact-config.ts`.
 
@@ -156,7 +158,7 @@ In-clinic and home visit **must stay on different prices**. Change them only in 
 2. **Production** Web3Forms form: Captcha **None** after Turnstile Function is live, Autoresponder **OFF**
 3. Pages secrets: `TURNSTILE_SECRET_KEY`, `WEB3FORMS_ACCESS_KEY`, `RESEND_API_KEY`
 4. Pages text variable: `BOOKING_CAPTCHA_PROVIDER=turnstile` (set to `hcaptcha` to roll back — [docs/CAPTCHA_ROLLBACK.md](docs/CAPTCHA_ROLLBACK.md))
-5. Push `dev` for staging (checkbox); **Release** for production (Turnstile badge)
+5. Push `dev` for staging (checkbox); **Create Production Release** for production (Turnstile badge)
 
 ### Build locally
 
