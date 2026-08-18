@@ -16,10 +16,15 @@ export function RatingStars({
   rating: number
   className?: string
 }) {
-  const clamped = Number.isFinite(rating) ? Math.min(5, Math.max(0, rating)) : 0
+  const numeric = typeof rating === 'number' ? rating : Number(rating)
+  const clamped = Number.isFinite(numeric) ? Math.min(5, Math.max(0, numeric)) : 0
   const label = formatStarRating(clamped)
   return (
-    <div className="flex items-center" aria-label={`${label} out of 5 stars`}>
+    <div
+      className="flex items-center"
+      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+      aria-label={`${label} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((star) => {
         const fill =
           clamped >= star ? 'full' : clamped >= star - 0.5 ? 'half' : 'empty'
@@ -28,6 +33,8 @@ export function RatingStars({
     </div>
   )
 }
+
+const GOLD = '#d4af37'
 
 export function StarGlyph({
   fill,
@@ -38,11 +45,21 @@ export function StarGlyph({
 }) {
   return (
     <span className={`relative inline-block ${className}`}>
-      <Star className={`${className} text-gold/25`} aria-hidden />
+      <Star
+        className={className}
+        style={{ color: 'rgba(212, 175, 55, 0.25)' }}
+        aria-hidden
+      />
       {fill !== 'empty' ? (
         <Star
-          className={`absolute inset-0 ${className} fill-gold text-gold`}
-          style={fill === 'half' ? { clipPath: 'inset(0 50% 0 0)' } : undefined}
+          className={className}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            color: GOLD,
+            fill: GOLD,
+            clipPath: fill === 'half' ? 'inset(0 50% 0 0)' : undefined,
+          }}
           aria-hidden
         />
       ) : null}
@@ -114,9 +131,15 @@ export function HalfStarPicker({
         aria-valuetext={valueText}
         aria-invalid={invalid || undefined}
         aria-required
-        className={`inline-flex items-center rounded-lg px-1 py-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+        className={`rounded-lg px-1 py-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
           invalid ? 'ring-2 ring-red-400' : ''
         }`}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'nowrap',
+          alignItems: 'center',
+        }}
         onMouseLeave={() => setPreview(null)}
         onBlur={() => setPreview(null)}
         onKeyDown={onKeyDown}
@@ -128,15 +151,33 @@ export function HalfStarPicker({
           return (
             <span
               key={star}
-              className={`relative inline-flex h-11 w-11 items-center justify-center ${
-                selected ? 'scale-[1.04]' : ''
-              }`}
+              style={{
+                position: 'relative',
+                display: 'inline-flex',
+                width: 36,
+                height: 36,
+                flexShrink: 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: selected ? 'scale(1.04)' : undefined,
+              }}
             >
               <button
                 type="button"
                 tabIndex={-1}
                 aria-label={`${formatStarRating(half)} out of 5`}
-                className="absolute left-0 top-0 z-10 h-full w-1/2 cursor-pointer rounded-l-sm [@media(hover:hover)]:hover:bg-gold/10"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  zIndex: 10,
+                  width: '50%',
+                  height: '100%',
+                  padding: 0,
+                  border: 0,
+                  background: 'transparent',
+                  cursor: 'pointer',
+                }}
                 onMouseEnter={() => setPreview(half)}
                 onFocus={() => setPreview(half)}
                 onClick={() => onChange(half)}
@@ -145,16 +186,44 @@ export function HalfStarPicker({
                 type="button"
                 tabIndex={-1}
                 aria-label={`${star} out of 5`}
-                className="absolute right-0 top-0 z-10 h-full w-1/2 cursor-pointer rounded-r-sm [@media(hover:hover)]:hover:bg-gold/10"
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  zIndex: 10,
+                  width: '50%',
+                  height: '100%',
+                  padding: 0,
+                  border: 0,
+                  background: 'transparent',
+                  cursor: 'pointer',
+                }}
                 onMouseEnter={() => setPreview(star)}
                 onFocus={() => setPreview(star)}
                 onClick={() => onChange(star)}
               />
-              <span className="pointer-events-none relative flex h-7 w-7 items-center justify-center">
+              <span
+                style={{
+                  pointerEvents: 'none',
+                  position: 'relative',
+                  display: 'flex',
+                  width: 28,
+                  height: 28,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 <StarGlyph fill={fill} className="h-7 w-7" />
                 {fill === 'half' ? (
                   <span
-                    className="absolute inset-y-0.5 left-1/2 w-px bg-gold/70"
+                    style={{
+                      position: 'absolute',
+                      top: 2,
+                      bottom: 2,
+                      left: '50%',
+                      width: 1,
+                      background: 'rgba(212, 175, 55, 0.7)',
+                    }}
                     aria-hidden
                   />
                 ) : null}

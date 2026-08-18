@@ -23,19 +23,22 @@ import {
   CONDITION_MAX_LEN,
   parseHalfStarRating,
 } from '../../../shared/review-rating'
-import { HalfStarPicker, RatingStars } from '../../../src/features/ui/RatingStars'
+import { HalfStarPicker } from '../../../src/features/ui/RatingStars'
 import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import {
   Card,
   CompactEuroField,
   HoursEditor,
   PageHeader,
+  ReviewCard,
+  ReviewStatusTabs,
   UnsavedBar,
   discountPercentLabel,
   snapshotsEqual,
+  type ReviewStatusTab,
 } from './portal-ui'
 
-type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings'
+type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
 type BookingRow = {
   id: string
@@ -82,6 +85,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Contact' },
   { id: 'settings', label: 'Settings' },
+  { id: 'history', label: 'Change History' },
 ]
 
 const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
@@ -163,6 +167,7 @@ export function PortalApp() {
   const [newReviewBody, setNewReviewBody] = useState('')
   const [newReviewDate, setNewReviewDate] = useState('')
   const [pendingTags, setPendingTags] = useState<Record<string, string>>({})
+  const [reviewStatusTab, setReviewStatusTab] = useState<ReviewStatusTab>('pending')
   const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
   const phoneCountry = getPhoneCountry(phoneCountryId)
 
@@ -209,6 +214,18 @@ export function PortalApp() {
   }, [load])
 
   const dirty = useMemo(() => snapshotsEqual(draft, baseline) === false, [draft, baseline])
+  const reviewCounts = useMemo(
+    () => ({
+      pending: reviews.filter((row) => reviewBucket(row.status) === 'pending').length,
+      confirmed: reviews.filter((row) => reviewBucket(row.status) === 'confirmed').length,
+      rejected: reviews.filter((row) => reviewBucket(row.status) === 'rejected').length,
+    }),
+    [reviews]
+  )
+  const reviewRows = useMemo(
+    () => reviews.filter((row) => reviewBucket(row.status) === reviewStatusTab),
+    [reviews, reviewStatusTab]
+  )
   const lastPublish = history[0]
     ? { at: history[0].changedAt, by: history[0].changedBy }
     : null
@@ -236,6 +253,18 @@ export function PortalApp() {
     setDraft(baseline)
     setPhoneCountryId(inferPhoneCountry(baseline.phone).id)
     setPublishSuccess(false)
+  }
+
+  const postReview = async (
+    id: string,
+    action: string,
+    extra?: Record<string, unknown>
+  ) => {
+    await api(`/api/admin/reviews/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...extra }),
+    })
   }
 
   const confirmBooking = async (id: string) => {
@@ -394,9 +423,12 @@ export function PortalApp() {
 
         {tab === 'reviews' && (
           <section className="space-y-4">
-            <PageHeader title="Reviews" />
+            <PageHeader
+              title="Reviews"
+              description="Visitor submissions from the website land in Awaiting review. Confirm to publish on the live site, or reject to keep them off."
+            />
             <form
-              className="space-y-2 rounded-xl border border-accent/20 bg-white p-4"
+              className="space-y-2 rounded-lg border border-black/[0.08] bg-white p-4"
               onSubmit={async (e) => {
                 e.preventDefault()
                 const rating = parseHalfStarRating(newReviewRating)
@@ -428,7 +460,8 @@ export function PortalApp() {
                   setNewReviewEmphasis('')
                   setNewReviewBody('')
                   setNewReviewDate('')
-                  show('Review added (pending)')
+                  setReviewStatusTab('pending')
+                  show('Added to Awaiting review')
                   await load()
                 } catch (error) {
                   show(error instanceof Error ? error.message : 'Could not add review')
@@ -483,130 +516,78 @@ export function PortalApp() {
                 onChange={(e) => setNewReviewExcerpt(e.target.value)}
               />
               <button type="submit" className="rounded-full bg-primary px-3 py-1.5 text-sm text-white">
-                Save pending
+                Save to Awaiting review
               </button>
             </form>
-            {(
-              [
-                ['pending', 'Pending'],
-                ['confirmed', 'Confirmed'],
-                ['rejected', 'Rejected'],
-              ] as const
-            ).map(([bucket, heading]) => {
-              const rows = reviews.filter((row) => reviewBucket(row.status) === bucket)
-              return (
-                <div key={bucket} className="space-y-2">
-                  <h2 className="text-base font-semibold">{heading}</h2>
-                  {rows.length === 0 ? (
-                    <p className="text-sm text-secondary">None.</p>
-                  ) : (
-                    <ul className="space-y-3">
-                      {rows.map((row) => (
-                        <li
-                          key={row.id}
-                          className="rounded-xl border border-accent/20 bg-white p-4"
-                        >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-medium">{row.name}</p>
-                            <RatingStars rating={row.rating ?? 0} />
-                          </div>
-                          {row.condition ? (
-                            <p className="mt-1 text-xs text-secondary">{row.condition}</p>
-                          ) : null}
-                          <p className="mt-1 text-xs text-secondary">
-                            {row.reviewedAt || ''}
-                            {row.source ? ` · ${row.source}` : ''}
-                          </p>
-                          <p className="mt-2 text-sm italic">{row.body || row.excerpt}</p>
-                          {bucket === 'pending' ? (
-                            <div className="mt-2 space-y-2">
-                              <label className="block text-sm">
-                                Treatment tag
-                                <input
-                                  className="mt-1 w-full rounded border px-2 py-1"
-                                  maxLength={CONDITION_MAX_LEN}
-                                  value={pendingTags[row.id] ?? row.condition ?? ''}
-                                  onChange={(e) =>
-                                    setPendingTags((prev) => ({
-                                      ...prev,
-                                      [row.id]: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </label>
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  className="rounded-full border px-3 py-1.5 text-sm"
-                                  onClick={async () => {
-                                    await api(`/api/admin/reviews/${row.id}`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({
-                                        action: 'update',
-                                        condition: pendingTags[row.id] ?? row.condition,
-                                      }),
-                                    })
-                                    show('Tag saved')
-                                    await load()
-                                  }}
-                                >
-                                  Save tag
-                                </button>
-                                <button
-                                  type="button"
-                                  className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                                  onClick={async () => {
-                                    const tag = pendingTags[row.id]
-                                    if (tag !== undefined && tag !== (row.condition || '')) {
-                                      await api(`/api/admin/reviews/${row.id}`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                          action: 'update',
-                                          condition: tag,
-                                        }),
-                                      })
-                                    }
-                                    await api(`/api/admin/reviews/${row.id}`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ action: 'confirm' }),
-                                    })
-                                    show('Review published')
-                                    await load()
-                                  }}
-                                >
-                                  Confirm
-                                </button>
-                                <button
-                                  type="button"
-                                  className="rounded-full border px-3 py-1.5 text-sm"
-                                  onClick={async () => {
-                                    await api(`/api/admin/reviews/${row.id}`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ action: 'reject' }),
-                                    })
-                                    await load()
-                                  }}
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-secondary">
-                              {bucket === 'confirmed' ? 'Confirmed' : 'Rejected'}
-                            </p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )
-            })}
+            <div className="space-y-4">
+              <ReviewStatusTabs
+                value={reviewStatusTab}
+                counts={reviewCounts}
+                onChange={setReviewStatusTab}
+              />
+              {reviewRows.length === 0 ? (
+                <p className="text-sm text-secondary">
+                  {reviewStatusTab === 'pending'
+                    ? 'Nothing awaiting review.'
+                    : 'None.'}
+                </p>
+              ) : (
+                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {reviewRows.map((row) => (
+                    <li key={row.id}>
+                      <ReviewCard
+                        bucket={reviewStatusTab}
+                        name={row.name}
+                        rating={row.rating ?? 0}
+                        condition={row.condition}
+                        reviewedAt={row.reviewedAt}
+                        source={row.source}
+                        body={row.body || row.excerpt || ''}
+                        tagValue={pendingTags[row.id] ?? row.condition ?? ''}
+                        onTagChange={(next) =>
+                          setPendingTags((prev) => ({ ...prev, [row.id]: next }))
+                        }
+                        onSaveTag={async () => {
+                          await postReview(row.id, 'update', {
+                            condition: pendingTags[row.id] ?? row.condition,
+                          })
+                          show('Tag saved')
+                          await load()
+                        }}
+                        onConfirm={async () => {
+                          const tag = pendingTags[row.id]
+                          if (tag !== undefined && tag !== (row.condition || '')) {
+                            await postReview(row.id, 'update', { condition: tag })
+                          }
+                          await postReview(row.id, 'confirm')
+                          show('Published to the website.')
+                          setReviewStatusTab('confirmed')
+                          await load()
+                        }}
+                        onReject={async () => {
+                          await postReview(row.id, 'reject')
+                          show('Review rejected')
+                          setReviewStatusTab('rejected')
+                          await load()
+                        }}
+                        onUnpublish={async () => {
+                          await postReview(row.id, 'unpublish')
+                          show('Moved to Awaiting review')
+                          setReviewStatusTab('pending')
+                          await load()
+                        }}
+                        onRestore={async () => {
+                          await postReview(row.id, 'restore')
+                          show('Moved to Awaiting review')
+                          setReviewStatusTab('pending')
+                          await load()
+                        }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </section>
         )}
 
@@ -905,9 +886,6 @@ export function PortalApp() {
               ))}
               </div>
             </Card>
-            <Card title="Change History">
-              <ChangeHistory rows={history} />
-            </Card>
             <UnsavedBar
               dirty={dirty}
               publishing={publishing}
@@ -918,6 +896,18 @@ export function PortalApp() {
               onDiscard={discard}
               onPublish={() => void publish()}
             />
+          </section>
+        )}
+
+        {tab === 'history' && (
+          <section className="space-y-5">
+            <PageHeader
+              title="Change History"
+              description="Published updates to contact, hours, pricing, and site settings."
+            />
+            <Card>
+              <ChangeHistory rows={history} />
+            </Card>
           </section>
         )}
       </main>

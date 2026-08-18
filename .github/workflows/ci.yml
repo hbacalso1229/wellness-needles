@@ -2,6 +2,7 @@ name: Check — Quality
 
 # Runs on every PR and on pushes to dev/main.
 # Acts as the quality gate — no deployment here.
+# After a successful push to `dev`, starts Deploy — Staging.
 
 on:
   pull_request:
@@ -13,6 +14,9 @@ jobs:
   quality:
     name: Lint, Typecheck, Build & E2E
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - name: Checkout
@@ -52,3 +56,10 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+      - name: Start staging deploy
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy-to-staging.yml --ref dev -f sha="${{ github.sha }}"
