@@ -1,16 +1,19 @@
 name: Deploy — Staging
 
-# Runs on push to dev (not PRs, not merge to main).
-# Deploys a Vercel Preview deployment, then aliases it to the stable staging
-# hostname: https://wellness-needles.vercel.app
-# Also supports manual runs via workflow_dispatch.
-# Vercel Git auto-deploys are off (vercel.json git.deploymentEnabled) so merge
-# to main cannot reclaim the staging hostname.
+# Check — Quality is the only lint / typecheck / e2e gate.
+# After Quality succeeds on a push to `dev`, it starts this workflow, which
+# only builds the staging export and deploys it. Manual workflow_dispatch
+# still works. Does not run for PRs or merge to main.
+# Vercel Git auto-deploys are off (vercel.json git.deploymentEnabled) so
+# merge to main cannot reclaim https://wellness-needles.vercel.app
 
 on:
-  push:
-    branches: [dev]
   workflow_dispatch:
+    inputs:
+      sha:
+        description: Git SHA to deploy (defaults to the selected branch tip)
+        required: false
+        type: string
 
 concurrency:
   group: deploy-staging
@@ -18,7 +21,7 @@ concurrency:
 
 jobs:
   deploy_staging:
-    name: Build & Deploy to Staging (Vercel Preview)
+    name: Deploy to Staging (Vercel Preview)
     runs-on: ubuntu-latest
     environment:
       name: staging
@@ -27,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,29 +41,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npx tsc --noEmit
-
-      - name: Build for E2E (no Web3Forms / captcha)
-        run: npm run build:e2e
-
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: End-to-end tests
-        run: npm run test:e2e
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-staging
-          path: playwright-report/
-          retention-days: 7
 
       - name: Build static export for staging
         env:
