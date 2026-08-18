@@ -28,7 +28,7 @@ import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import { persistBookingRequest } from '@/lib/booking-persist'
 import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
-import { useSiteOverlay } from '@/lib/site-overlay'
+import { useSiteOverlay, toPublicLocation } from '@/lib/site-overlay'
 import { withOverlayCatalog } from '@/lib/overlay-public'
 import {
   joinPersonName,
@@ -352,11 +352,21 @@ export default function BookingForm() {
 
   const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
-  const clinicLocations = contactConfig.address.locations
+  const clinicLocations = overlayEnabled
+    ? site.locations.map(toPublicLocation)
+    : contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
+  const defaultLocationId = clinicLocations[0]?.id ?? 'celbridge'
+  const locationIds = clinicLocations.map((loc) => loc.id).join('|')
   const phoneCountry = getPhoneCountry(phoneCountryId)
   /** 08x mobile rule when Ireland is selected — independent of the country-lock flag. */
   const enforceIrishMobile = phoneCountry.id === 'IE'
+
+  useEffect(() => {
+    if (!clinicLocations.some((loc) => loc.id === selectedLocation)) {
+      setSelectedLocation(defaultLocationId)
+    }
+  }, [locationIds, selectedLocation, defaultLocationId, clinicLocations])
 
   const resetHCaptcha = () => {
     setHCaptchaToken('')
@@ -628,7 +638,7 @@ export default function BookingForm() {
     setCurrentStep(0)
     clearAllFieldErrors()
     setActiveTab('in-clinic')
-    setSelectedLocation('celbridge')
+    setSelectedLocation(defaultLocationId)
     setSelectedService('initial-consultation')
     setSelectedAddOns([])
     setSelectedDate(defaultPreferredDate(hours))

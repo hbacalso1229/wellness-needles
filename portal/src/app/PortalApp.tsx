@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   SITE_DEFAULTS,
   buildHoursDisplay,
+  composeLocation,
   parseSiteSnapshot,
   type PriceList,
   type SiteSnapshot,
@@ -350,8 +351,8 @@ export function PortalApp() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-xl font-semibold leading-tight text-primary">
+          <div className="flex items-center gap-x-2.5">
+            <p className="shrink-0 font-serif text-xl font-semibold leading-tight text-primary">
               Wellness Needles
             </p>
             <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
@@ -741,6 +742,158 @@ export function PortalApp() {
             <PageHeader
               description="Manage the contact details, social links, and business hours displayed on your website."
             />
+            <Card title="Clinic">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">
+                  Clinic name
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.clinicName}
+                    onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
+                  />
+                </label>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Insurance</p>
+                  {draft.insurers.map((insurer, index) => (
+                    <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
+                      <input
+                        className="rounded-md border border-black/10 px-2 py-1.5"
+                        value={insurer.name}
+                        onChange={(e) => {
+                          const insurers = [...draft.insurers]
+                          insurers[index] = { ...insurer, name: e.target.value }
+                          setDraft({ ...draft, insurers })
+                        }}
+                      />
+                      <label className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={insurer.enabled}
+                          onChange={(e) => {
+                            const insurers = [...draft.insurers]
+                            insurers[index] = { ...insurer, enabled: e.target.checked }
+                            setDraft({ ...draft, insurers })
+                          }}
+                        />
+                        On
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+            <Card title="Locations">
+              <div className="space-y-5">
+                {draft.locations.map((loc, index) => (
+                  <div
+                    key={loc.id}
+                    className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{loc.label || 'Location'}</p>
+                      {draft.locations.length > 1 ? (
+                        <button
+                          type="button"
+                          className="text-sm text-primary hover:underline"
+                          onClick={() => {
+                            setDraft({
+                              ...draft,
+                              locations: draft.locations.filter((row) => row.id !== loc.id),
+                            })
+                          }}
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Label
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={loc.label}
+                        onChange={(e) => {
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, label: e.target.value })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
+                    </label>
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Street
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={loc.street}
+                        onChange={(e) => {
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, street: e.target.value })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
+                    </label>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        City
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.city}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, city: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        County
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.county}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, county: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Postcode
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.postcode}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, postcode: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  onClick={() => {
+                    setDraft({
+                      ...draft,
+                      locations: [
+                        ...draft.locations,
+                        composeLocation({
+                          id: `loc-${crypto.randomUUID()}`,
+                          label: 'New location',
+                          street: '',
+                          city: '',
+                          county: '',
+                          postcode: '',
+                        }),
+                      ],
+                    })
+                  }}
+                >
+                  Add location
+                </button>
+              </div>
+            </Card>
             <Card title="Contact details">
               <div className="space-y-4">
                 <label className="block text-sm font-medium">
@@ -919,40 +1072,6 @@ export function PortalApp() {
                 />
                 Fresha
               </label>
-              <label className="block text-sm font-medium">
-                Clinic name
-                <input
-                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                  value={draft.clinicName}
-                  onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
-                />
-              </label>
-              <p className="text-sm font-medium">Insurance</p>
-              {draft.insurers.map((insurer, index) => (
-                <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
-                  <input
-                    className="rounded-md border border-black/10 px-2 py-1.5"
-                    value={insurer.name}
-                    onChange={(e) => {
-                      const insurers = [...draft.insurers]
-                      insurers[index] = { ...insurer, name: e.target.value }
-                      setDraft({ ...draft, insurers })
-                    }}
-                  />
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={insurer.enabled}
-                      onChange={(e) => {
-                        const insurers = [...draft.insurers]
-                        insurers[index] = { ...insurer, enabled: e.target.checked }
-                        setDraft({ ...draft, insurers })
-                      }}
-                    />
-                    On
-                  </label>
-                </div>
-              ))}
               </div>
             </Card>
             <UnsavedBar

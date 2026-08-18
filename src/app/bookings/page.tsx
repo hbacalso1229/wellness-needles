@@ -35,7 +35,7 @@ const panelClass =
   'bg-white rounded-xl p-3.5 md:p-6 border border-accent/15'
 
 export default function Bookings() {
-  const { overlayEnabled, site, phoneHref, phoneText, emailHref } = usePublicContact()
+  const { overlayEnabled, site, phoneHref, phoneText, emailHref, locations } = usePublicContact()
   const catalog = overlayEnabled ? withOverlayCatalog(site) : null
   const { features } = useBookingFeatures()
   const bookingFormEnabled = features.bookingFormEnabled
@@ -47,8 +47,9 @@ export default function Bookings() {
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
   const [selectedService, setSelectedService] = useState('initial-consultation')
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
-  const clinicLocations = contactConfig.address.locations
+  const clinicLocations = locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
+  const defaultLocationId = clinicLocations[0]?.id ?? 'celbridge'
 
   const clinicServices = catalog?.inClinicServices ?? inClinicServices
   const visitServices = catalog?.homeVisitServices ?? homeVisitServices
@@ -73,6 +74,12 @@ export default function Bookings() {
       )
     }
   }, [features.treatmentPackagesEnabled, selectedService, activeTab])
+
+  useEffect(() => {
+    if (!clinicLocations.some((loc) => loc.id === selectedLocation)) {
+      setSelectedLocation(defaultLocationId)
+    }
+  }, [clinicLocations, selectedLocation, defaultLocationId])
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)

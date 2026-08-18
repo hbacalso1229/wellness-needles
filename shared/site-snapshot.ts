@@ -32,6 +32,29 @@ export type SiteLocation = {
   directionsUrl: string
 }
 
+export function composeLocation(
+  loc: Pick<SiteLocation, 'id' | 'label' | 'street' | 'city' | 'county' | 'postcode'>
+): SiteLocation {
+  const street = loc.street.trim()
+  const city = loc.city.trim()
+  const county = loc.county.trim()
+  const postcode = loc.postcode.trim()
+  const full = [street, city, county, postcode].filter(Boolean).join(' ')
+  return {
+    id: loc.id,
+    label: loc.label.trim(),
+    street,
+    city,
+    county,
+    postcode,
+    full,
+    mapQuery: full,
+    directionsUrl: full
+      ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(full)}`
+      : '',
+  }
+}
+
 export type SiteInsurer = {
   id: string
   name: string

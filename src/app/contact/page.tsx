@@ -62,7 +62,7 @@ function ContactDetailCard({
 }
 
 export default function Contact() {
-  const { phoneHref, phoneText, emailHref, emailText, hours, emergencyNote } =
+  const { phoneHref, phoneText, emailHref, emailText, hours, emergencyNote, locations } =
     usePublicContact()
   const [formData, setFormData] = useState({
     name: '',
@@ -347,8 +347,8 @@ export default function Contact() {
                         <>
                           <p className="text-[var(--text-dark)]/70 text-base mb-2">Visit us in person</p>
                           <div className="mb-2 space-y-3 text-[var(--text-dark)]/80">
-                            {contactConfig.address.locations.map((location) => (
-                              <div key={location.full}>
+                            {locations.map((location) => (
+                              <div key={location.id}>
                                 <a
                                   href={location.directionsUrl}
                                   target="_blank"
@@ -530,7 +530,7 @@ export default function Contact() {
             />
 
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-6">
-              {contactConfig.address.locations.map((location) => (
+              {locations.map((location) => (
                 <ClinicVisitCard
                   key={location.id}
                   location={location}

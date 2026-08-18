@@ -13,6 +13,7 @@ import {
   SITE_DEFAULTS,
   overlayKillSwitchOff,
   parseSiteSnapshot,
+  type SiteLocation,
   type SiteSnapshot,
   type WeekHours,
 } from '../../shared/site-snapshot'
@@ -21,6 +22,36 @@ type OverlayValue = {
   overlayEnabled: boolean
   site: SiteSnapshot
   hours: WeekHours | null
+}
+
+export type PublicClinicLocation = {
+  id: string
+  label: string
+  full: string
+  mapQuery: string
+  directionsUrl: string
+  formatted: {
+    street: string
+    city: string
+    county: string
+    postcode: string
+  }
+}
+
+export function toPublicLocation(loc: SiteLocation): PublicClinicLocation {
+  return {
+    id: loc.id,
+    label: loc.label,
+    full: loc.full,
+    mapQuery: loc.mapQuery,
+    directionsUrl: loc.directionsUrl,
+    formatted: {
+      street: loc.street,
+      city: loc.city,
+      county: loc.county,
+      postcode: loc.postcode,
+    },
+  }
 }
 
 const OverlayContext = createContext<OverlayValue>({
@@ -49,6 +80,9 @@ export function usePublicContact() {
       ? site.emergencyNote
       : contactConfig.businessInfo.emergencyNote,
     hours: overlayEnabled ? site.hours : null,
+    locations: overlayEnabled
+      ? site.locations.map(toPublicLocation)
+      : contactConfig.address.locations,
   }
 }
 
