@@ -1,6 +1,6 @@
 name: Create Production Release
 
-# Publishes the next prod-N GitHub Release from main HEAD.
+# Publishes the next Release-N GitHub Release from main HEAD.
 # That published Release triggers Deploy — Production (Cloudflare Pages).
 # Do not run this on merge — production stays an explicit Actions click.
 
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   create_release:
-    name: Tag prod-N and publish notes
+    name: Tag Release-N and publish notes
     runs-on: ubuntu-latest
 
     steps:
@@ -52,22 +52,22 @@ jobs:
           fi
           echo "Quality OK on ${sha}"
 
-      - name: Create prod-N Release
+      - name: Create Release-N
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           sha="$(git rev-parse HEAD)"
 
-          latest="$(git tag -l 'prod-*' | sed 's/^prod-//' | grep -E '^[0-9]+$' | sort -n | tail -1 || true)"
+          latest="$(git tag -l 'Release-*' | sed 's/^Release-//' | grep -E '^[0-9]+$' | sort -n | tail -1 || true)"
           if [ -z "${latest}" ]; then
             next=1
             prev="$(git tag -l 'v*' --sort=-v:refname | head -n 1 || true)"
           else
             next=$((latest + 1))
-            prev="prod-${latest}"
+            prev="Release-${latest}"
           fi
-          tag="prod-${next}"
+          tag="Release-${next}"
 
           notes="$(printf '```\nProduction: https://www.wellnessneedles.ie\nCommit: %s\n```\n' "${sha}")"
 
