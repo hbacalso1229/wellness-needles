@@ -5,6 +5,7 @@ import {
   excerptFromReview,
   parseHalfStarRating,
   resolveEmphasis,
+  titleCasePersonName,
 } from '../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
@@ -39,7 +40,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'captcha-required' })
   }
 
-  const name = asString(payload.name)
+  const name = titleCasePersonName(asString(payload.name))
   const reviewBody = asString(payload.body) || asString(payload.excerpt)
   if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and review text required' })

@@ -25,6 +25,15 @@ export function clipCondition(value: unknown): string | null {
   return text
 }
 
+/** “john doe” / “JOHN DOE” → “John Doe”. Spaces stay. Capitalizes after - and '. */
+export function titleCasePersonName(name: string): string {
+  const text = name.trim().replace(/\s+/g, ' ')
+  if (!text) return ''
+  return text.replace(/[A-Za-zÀ-ÿ]+/g, (chunk) =>
+    chunk.charAt(0).toUpperCase() + chunk.slice(1).toLowerCase()
+  )
+}
+
 const EMPHASIS_MIN = 24
 const EMPHASIS_MAX = 80
 const EMPHASIS_SWEET = 50
