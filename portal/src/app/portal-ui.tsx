@@ -2,6 +2,8 @@
 
 import { useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { RatingStars } from '../../../src/features/ui/RatingStars'
+import { CONDITION_MAX_LEN } from '../../../shared/review-rating'
 import {
   euroPrice,
   formatHourLabel,
@@ -307,5 +309,161 @@ export function UnsavedBar({
         ) : null}
       </div>
     </div>
+  )
+}
+
+export type ReviewStatusTab = 'pending' | 'confirmed' | 'rejected'
+
+export const REVIEW_STATUS_TABS: { id: ReviewStatusTab; label: string }[] = [
+  { id: 'pending', label: 'Awaiting review' },
+  { id: 'confirmed', label: 'Confirmed' },
+  { id: 'rejected', label: 'Rejected' },
+]
+
+export function ReviewStatusTabs({
+  value,
+  counts,
+  onChange,
+}: {
+  value: ReviewStatusTab
+  counts: Record<ReviewStatusTab, number>
+  onChange: (next: ReviewStatusTab) => void
+}) {
+  return (
+    <nav className="flex gap-1 overflow-x-auto border-b border-black/[0.08]">
+      {REVIEW_STATUS_TABS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+            value === item.id
+              ? 'border-primary text-primary'
+              : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+          }`}
+        >
+          {item.label}
+          <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+            {counts[item.id]}
+          </span>
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+export function ReviewCard({
+  bucket,
+  name,
+  rating,
+  condition,
+  reviewedAt,
+  source,
+  body,
+  tagValue,
+  onTagChange,
+  onSaveTag,
+  onConfirm,
+  onReject,
+  onUnpublish,
+  onRestore,
+}: {
+  bucket: ReviewStatusTab
+  name: string
+  rating: number
+  condition?: string
+  reviewedAt?: string
+  source?: string
+  body: string
+  tagValue: string
+  onTagChange: (next: string) => void
+  onSaveTag: () => void
+  onConfirm: () => void
+  onReject: () => void
+  onUnpublish: () => void
+  onRestore: () => void
+}) {
+  return (
+    <article className="flex h-full flex-col rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-medium text-[var(--text-dark)]">{name}</p>
+        <RatingStars rating={rating} />
+      </div>
+      {bucket !== 'pending' && condition ? (
+        <p className="mt-1 text-xs text-secondary">{condition}</p>
+      ) : null}
+      <p className="mt-1 text-xs text-secondary">
+        {reviewedAt || ''}
+        {source ? ` · ${source}` : ''}
+      </p>
+      <p className="mt-3 flex-1 text-sm italic leading-relaxed text-[var(--text-dark)]/80">
+        {body}
+      </p>
+      {bucket === 'pending' ? (
+        <div className="mt-3 space-y-2 border-t border-black/[0.06] pt-3">
+          <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+            Treatment tag
+            <input
+              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+              maxLength={CONDITION_MAX_LEN}
+              value={tagValue}
+              onChange={(e) => onTagChange(e.target.value)}
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+              onClick={onSaveTag}
+            >
+              Save tag
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
+              onClick={onConfirm}
+            >
+              Confirm
+            </button>
+            <button
+              type="button"
+              className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+              onClick={onReject}
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {bucket === 'confirmed' ? (
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-black/[0.06] pt-3">
+          <button
+            type="button"
+            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+            onClick={onUnpublish}
+          >
+            Unpublish
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+            onClick={onReject}
+          >
+            Reject
+          </button>
+        </div>
+      ) : null}
+      {bucket === 'rejected' ? (
+        <div className="mt-3 border-t border-black/[0.06] pt-3">
+          <button
+            type="button"
+            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+            onClick={onRestore}
+          >
+            Restore
+          </button>
+        </div>
+      ) : null}
+    </article>
   )
 }

@@ -1,5 +1,6 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
-import { approvedReviews, publishSite, readPublishedSite } from '../../../_lib/site'
+import { approvedReviews, readPublishedSite } from '../../../_lib/site'
+import { KV_SITE_KEY } from '../../../../shared/site-snapshot'
 import { clipCondition } from '../../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
@@ -7,6 +8,21 @@ type PagesFunction<Env = unknown> = (context: {
   env: Env
   params: Record<string, string>
 }) => Response | Promise<Response>
+
+async function refreshPublishedReviews(env: PagesEnv): Promise<void> {
+  const site = await readPublishedSite(env)
+  site.reviews = await approvedReviews(env)
+  const json = JSON.stringify(site)
+  const now = new Date().toISOString()
+  if (env.DB) {
+    await env.DB.prepare(
+      'UPDATE site_settings SET published_json = ?, updated_at = ? WHERE id = 1'
+    )
+      .bind(json, now)
+      .run()
+  }
+  await env.SITE_CACHE?.put(KV_SITE_KEY, json)
+}
 
 export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(503, { ok: false, error: 'no-db' })
@@ -35,20 +51,26 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       ? 'approved'
       : action === 'reject' || action === 'cancel'
         ? 'rejected'
-        : ''
+        : action === 'restore' || action === 'unpublish'
+          ? 'pending'
+          : ''
   if (!status) return jsonResponse(400, { ok: false, error: 'unknown-action' })
+
+  const previous = await context.env.DB.prepare(
+    'SELECT status FROM reviews WHERE id = ?'
+  )
+    .bind(id)
+    .first<{ status: string }>()
 
   await context.env.DB.prepare('UPDATE reviews SET status = ? WHERE id = ?')
     .bind(status, id)
     .run()
 
-  if (status === 'approved') {
+  if (previous?.status === 'approved' || status === 'approved') {
     try {
-      const site = await readPublishedSite(context.env)
-      site.reviews = await approvedReviews(context.env)
-      await publishSite(context.env, site, caches)
+      await refreshPublishedReviews(context.env)
     } catch (error) {
-      console.error('[admin/reviews confirm publish]', error)
+      console.error('[admin/reviews publish snapshot]', error)
     }
   }
 
