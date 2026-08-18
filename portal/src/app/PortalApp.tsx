@@ -86,8 +86,8 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Business Info' },
-  { id: 'settings', label: 'Settings' },
   { id: 'history', label: 'Change History' },
+  { id: 'settings', label: 'Settings' },
 ]
 
 const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [

@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { ArrowRight, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, X } from 'lucide-react'
 import { getTurnstileSiteKey } from '@/lib/booking-features'
 import { HalfStarPicker } from '@/features/ui/RatingStars'
 import {
@@ -16,6 +16,11 @@ import {
 } from '../../shared/review-rating'
 
 const OTHER = 'Other'
+const TREATMENT_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: '', label: 'No theme' },
+  ...TREATMENT_TAG_PRESETS.map((tag) => ({ value: tag, label: tag })),
+  { value: OTHER, label: OTHER },
+]
 const SHARE_CTA_CLASS =
   'group mt-3 inline-flex items-center gap-1 text-sm font-medium text-cream/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-cream hover:underline sm:mt-3.5'
 
@@ -23,6 +28,190 @@ const fieldClass = (invalid?: boolean) =>
   `mt-1 w-full rounded-lg border px-3 py-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 ${
     invalid ? 'border-red-400' : 'border-accent/30'
   }`
+
+function TreatmentSelect({
+  id,
+  value,
+  onChange,
+}: {
+  id: string
+  value: string
+  onChange: (next: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [menuRect, setMenuRect] = useState<{ top: number; left: number; width: number } | null>(
+    null
+  )
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const activeIndexRef = useRef(0)
+  const listId = useId()
+  const selectedIndex = Math.max(
+    0,
+    TREATMENT_OPTIONS.findIndex((option) => option.value === value)
+  )
+  const isPlaceholder = value === ''
+  const triggerLabel = isPlaceholder
+    ? 'Optional — choose a theme'
+    : (TREATMENT_OPTIONS[selectedIndex]?.label ?? 'Optional — choose a theme')
+
+  activeIndexRef.current = activeIndex
+
+  const placeMenu = () => {
+    const el = triggerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    setMenuRect({ top: rect.bottom + 4, left: rect.left, width: rect.width })
+  }
+
+  const choose = (next: string) => {
+    onChange(next)
+    setOpen(false)
+    triggerRef.current?.focus()
+  }
+
+  useEffect(() => {
+    if (!open) return
+    placeMenu()
+    setActiveIndex(selectedIndex)
+
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (triggerRef.current?.contains(target) || listRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        setOpen(false)
+        triggerRef.current?.focus()
+        return
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        event.stopPropagation()
+        setActiveIndex((index) => Math.min(TREATMENT_OPTIONS.length - 1, index + 1))
+        return
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        event.stopPropagation()
+        setActiveIndex((index) => Math.max(0, index - 1))
+        return
+      }
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        event.stopPropagation()
+        const option = TREATMENT_OPTIONS[activeIndexRef.current]
+        if (option) choose(option.value)
+      }
+    }
+    const onScrollOrResize = (event: Event) => {
+      if (event.type === 'scroll' && listRef.current?.contains(event.target as Node)) return
+      setOpen(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKey, true)
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKey, true)
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [open, selectedIndex, onChange])
+
+  useEffect(() => {
+    if (!open) return
+    const option = optionRefs.current[activeIndex]
+    const list = listRef.current
+    if (!option || !list) return
+    const optionRect = option.getBoundingClientRect()
+    const listRect = list.getBoundingClientRect()
+    if (optionRect.top < listRect.top) {
+      list.scrollTop -= listRect.top - optionRect.top
+    } else if (optionRect.bottom > listRect.bottom) {
+      list.scrollTop += optionRect.bottom - listRect.bottom
+    }
+  }, [open, activeIndex])
+
+  return (
+    <div className="relative">
+      <button
+        ref={triggerRef}
+        id={id}
+        type="button"
+        className={`${fieldClass()} flex items-center justify-between gap-2 text-left`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listId}
+        aria-activedescendant={open ? `${listId}-opt-${activeIndex}` : undefined}
+        onClick={() => {
+          setOpen((current) => {
+            if (current) return false
+            placeMenu()
+            return true
+          })
+        }}
+      >
+        <span className={`min-w-0 truncate ${isPlaceholder ? 'text-secondary' : ''}`}>
+          {triggerLabel}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-secondary/70 transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+          strokeWidth={2.25}
+        />
+      </button>
+      {open && menuRect && typeof document !== 'undefined'
+        ? createPortal(
+            <ul
+              ref={listRef}
+              id={listId}
+              role="listbox"
+              aria-label="Treatment"
+              className="fixed z-[220] max-h-60 overflow-y-auto overscroll-contain rounded-lg border border-accent/20 bg-white py-1 shadow-lg [scrollbar-width:thin] [scrollbar-color:var(--accent-green)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--accent-green)]"
+              style={{ top: menuRect.top, left: menuRect.left, width: menuRect.width }}
+              onWheel={(event) => event.stopPropagation()}
+            >
+              {TREATMENT_OPTIONS.map((option, index) => {
+                const selected = option.value === value
+                const active = index === activeIndex
+                return (
+                  <li key={option.label} role="none">
+                    <button
+                      ref={(node) => {
+                        optionRefs.current[index] = node
+                      }}
+                      type="button"
+                      id={`${listId}-opt-${index}`}
+                      role="option"
+                      aria-selected={selected}
+                      className={`w-full px-3 py-2.5 text-left text-sm ${
+                        selected ? 'bg-accent/10 font-medium' : ''
+                      } ${active ? 'bg-accent/15' : ''} [@media(hover:hover)]:hover:bg-accent/15`}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onClick={() => choose(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>,
+            document.body
+          )
+        : null}
+    </div>
+  )
+}
 
 type FieldKey = 'name' | 'rating' | 'body' | 'emphasis'
 
@@ -50,6 +239,7 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
   const bodyCountId = useId()
   const emphasisHelpId = useId()
   const emphasisErrorId = useId()
+  const treatmentId = useId()
   const closeRef = useRef<HTMLButtonElement>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const siteKey = getTurnstileSiteKey()
@@ -271,7 +461,7 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <form className="flex min-h-0 flex-1 flex-col" onSubmit={(e) => void submit(e)} noValidate>
-            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-5 pt-4 [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.22)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-5 pt-4 [scrollbar-width:thin] [scrollbar-color:var(--accent-green)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--accent-green)] [&::-webkit-scrollbar-thumb]:hover:bg-[var(--secondary-green)]">
               <label className="block text-sm font-medium">
                 Your name{' '}
                 <span className="text-primary" aria-hidden>
@@ -324,22 +514,12 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
                 ) : null}
               </div>
 
-              <label className="block text-sm font-medium">
-                Treatment
-                <select
-                  className={fieldClass()}
-                  value={preset}
-                  onChange={(e) => setPreset(e.target.value)}
-                >
-                  <option value="">Optional — choose a theme</option>
-                  {TREATMENT_TAG_PRESETS.map((tag) => (
-                    <option key={tag} value={tag}>
-                      {tag}
-                    </option>
-                  ))}
-                  <option value={OTHER}>{OTHER}</option>
-                </select>
-              </label>
+              <div>
+                <label htmlFor={treatmentId} className="block text-sm font-medium">
+                  Treatment
+                </label>
+                <TreatmentSelect id={treatmentId} value={preset} onChange={setPreset} />
+              </div>
               {preset === OTHER ? (
                 <label className="block text-sm font-medium">
                   Your own tag
