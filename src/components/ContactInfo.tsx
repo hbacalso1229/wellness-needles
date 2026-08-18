@@ -1,7 +1,7 @@
 'use client'
 
 import { contactConfig } from '../lib/contact-config'
-import { useSiteOverlay } from '@/lib/site-overlay'
+import { useSiteOverlay, usePublicContact } from '@/lib/site-overlay'
 
 interface ContactInfoProps {
   variant?: 'default' | 'compact' | 'inline'
@@ -117,28 +117,30 @@ export default function ContactInfo({
 
 // Export individual contact items for more granular use
 export function PhoneContact({ className = '', linkClassName = '' }) {
+  const { phoneHref, phoneText } = usePublicContact()
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
       <contactConfig.phone.icon className="w-4 h-4" />
       <a 
-        href={contactConfig.phone.href}
+        href={phoneHref}
         className={`hover:opacity-80 transition-opacity ${linkClassName}`}
       >
-        {contactConfig.phone.displayText}
+        {phoneText}
       </a>
     </div>
   )
 }
 
 export function EmailContact({ className = '', linkClassName = '' }) {
+  const { emailHref, emailText } = usePublicContact()
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
       <contactConfig.email.icon className="w-4 h-4" />
       <a 
-        href={contactConfig.email.href}
+        href={emailHref}
         className={`hover:opacity-80 transition-opacity ${linkClassName}`}
       >
-        {contactConfig.email.address}
+        {emailText}
       </a>
     </div>
   )

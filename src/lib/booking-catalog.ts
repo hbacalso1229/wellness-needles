@@ -14,6 +14,7 @@ export type BookingCatalogAddOn = {
   id: string
   name: string
   price: string
+  originalPrice?: string
   description: string
 }
 

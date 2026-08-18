@@ -1,17 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   SITE_DEFAULTS,
   buildHoursDisplay,
-  euroPrice,
-  formatHourLabel,
   parseSiteSnapshot,
-  priceDigits,
-  pricesDiffer,
   type PriceList,
   type SiteSnapshot,
-  type Weekday,
 } from '../../../shared/site-snapshot'
 import {
   DEFAULT_PHONE_COUNTRY_ID,
@@ -29,8 +24,18 @@ import {
   parseHalfStarRating,
 } from '../../../shared/review-rating'
 import { HalfStarPicker, RatingStars } from '../../../src/features/ui/RatingStars'
+import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
+import {
+  Card,
+  CompactEuroField,
+  HoursEditor,
+  PageHeader,
+  UnsavedBar,
+  discountPercentLabel,
+  snapshotsEqual,
+} from './portal-ui'
 
-type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
+type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings'
 
 type BookingRow = {
   id: string
@@ -72,19 +77,18 @@ type HistoryRow = {
 }
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'bookings', label: 'Booking Email' },
+  { id: 'bookings', label: 'Bookings' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
-  { id: 'contact', label: 'Contact Info' },
-  { id: 'history', label: 'Change History' },
-  { id: 'settings', label: 'System Settings' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'settings', label: 'Settings' },
 ]
 
 const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
-  ['initial', 'Initial'],
-  ['followUp', 'Follow-up'],
-  ['package5', '5 sessions'],
-  ['package10', '10 sessions'],
+  ['initial', 'Initial Consultation'],
+  ['followUp', 'Follow-up Treatment'],
+  ['package5', '5-Session Package'],
+  ['package10', '10-Session Package'],
   ['cupping', 'Cupping'],
 ]
 
@@ -93,16 +97,6 @@ function originalKind(
 ): 'inClinicOriginal' | 'homeVisitOriginal' {
   return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
 }
-
-const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
-  ['Monday', 'monday'],
-  ['Tuesday', 'tuesday'],
-  ['Wednesday', 'wednesday'],
-  ['Thursday', 'thursday'],
-  ['Friday', 'friday'],
-  ['Saturday', 'saturday'],
-  ['Sunday', 'sunday'],
-]
 
 function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
   if (status === 'approved') return 'confirmed'
@@ -135,43 +129,6 @@ function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['p
   return { number, formatted, displayText, href }
 }
 
-/** Native time inputs may emit HH:mm:ss; snapshot parse requires HH:mm. */
-function toHhmm(value: string, fallback: string): string {
-  const match = /^([01]?\d|2[0-3]):([0-5]\d)/.exec(value.trim())
-  if (!match) return fallback
-  return `${match[1].padStart(2, '0')}:${match[2]}`
-}
-
-function EuroField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (next: string) => void
-}) {
-  return (
-    <label className="block min-w-0 flex-1 text-sm">
-      {label}
-      <span className="mt-1 flex rounded border bg-white">
-        <span className="select-none px-2 py-1 text-[var(--text-dark)]/55" aria-hidden>
-          €
-        </span>
-        <input
-          className="min-w-0 flex-1 rounded-r border-0 px-2 py-1 outline-none"
-          inputMode="decimal"
-          pattern="[0-9]*[.]?[0-9]{0,2}"
-          autoComplete="off"
-          aria-label={`${label} in euro`}
-          value={priceDigits(value)}
-          onChange={(e) => onChange(euroPrice(e.target.value))}
-        />
-      </span>
-    </label>
-  )
-}
-
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'include',
@@ -189,6 +146,9 @@ export function PortalApp() {
   const [toast, setToast] = useState('')
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState<SiteSnapshot>(SITE_DEFAULTS)
+  const [baseline, setBaseline] = useState<SiteSnapshot>(SITE_DEFAULTS)
+  const [publishing, setPublishing] = useState(false)
+  const [publishSuccess, setPublishSuccess] = useState(false)
   const [bookings, setBookings] = useState<BookingRow[]>([])
   const [reviews, setReviews] = useState<ReviewRow[]>([])
   const [history, setHistory] = useState<HistoryRow[]>([])
@@ -220,6 +180,7 @@ export function PortalApp() {
       const parsed = parseSiteSnapshot(site)
       if (parsed) {
         setDraft(parsed)
+        setBaseline(parsed)
         setPhoneCountryId(inferPhoneCountry(parsed.phone).id)
       }
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
@@ -247,18 +208,34 @@ export function PortalApp() {
     void load()
   }, [load])
 
+  const dirty = useMemo(() => snapshotsEqual(draft, baseline) === false, [draft, baseline])
+  const lastPublish = history[0]
+    ? { at: history[0].changedAt, by: history[0].changedBy }
+    : null
+
   const publish = async () => {
+    setPublishing(true)
     try {
       await api('/api/admin/site?action=publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(draft),
       })
-      show('Published to website')
+      setBaseline(draft)
+      setPublishSuccess(true)
+      window.setTimeout(() => setPublishSuccess(false), 6000)
       await load()
     } catch (error) {
       show(error instanceof Error ? error.message : 'Publish failed')
+    } finally {
+      setPublishing(false)
     }
+  }
+
+  const discard = () => {
+    setDraft(baseline)
+    setPhoneCountryId(inferPhoneCountry(baseline.phone).id)
+    setPublishSuccess(false)
   }
 
   const confirmBooking = async (id: string) => {
@@ -297,26 +274,37 @@ export function PortalApp() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b border-black/5 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-serif text-lg font-semibold text-primary">
-            Wellness Needles - Admin Portal
-          </p>
+          <div>
+            <p className="font-serif text-xl font-semibold leading-tight text-primary">
+              Wellness Needles
+            </p>
+            <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
+              Admin Portal
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-[var(--text-dark)]/70">{email || 'Signed in'}</span>
-            <button type="button" className="text-primary underline" onClick={logout}>
+            <span className="text-[var(--text-dark)]/65">{email || 'Signed in'}</span>
+            <button
+              type="button"
+              className="font-medium text-primary hover:underline"
+              onClick={logout}
+            >
               Log out
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 pb-2">
+        <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2">
           {TABS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm ${
-                tab === item.id ? 'bg-primary text-white' : 'text-primary hover:bg-accent/20'
+              className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+                tab === item.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
               }`}
             >
               {item.label}
@@ -331,15 +319,15 @@ export function PortalApp() {
         </div>
       ) : null}
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto max-w-5xl px-4 py-8 pb-28">
         {loading ? <p className="text-sm text-secondary">Loading…</p> : null}
 
         {tab === 'bookings' && (
           <section className="space-y-4">
-            <h1 className="text-xl font-semibold">Booking Email</h1>
-            <p className="text-sm text-secondary">
-              Inbox for {draft.email.address}. Confirm sets the exact Europe/Dublin start.
-            </p>
+            <PageHeader
+              title="Bookings"
+              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start.`}
+            />
             {bookings.length === 0 ? (
               <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
                 No requests yet.
@@ -406,7 +394,7 @@ export function PortalApp() {
 
         {tab === 'reviews' && (
           <section className="space-y-4">
-            <h1 className="text-xl font-semibold">Reviews</h1>
+            <PageHeader title="Reviews" />
             <form
               className="space-y-2 rounded-xl border border-accent/20 bg-white p-4"
               onSubmit={async (e) => {
@@ -623,259 +611,209 @@ export function PortalApp() {
         )}
 
         {tab === 'pricing' && (
-          <section className="space-y-4">
-            <h1 className="text-xl font-semibold">Pricing</h1>
+          <section className="space-y-5">
+            <PageHeader
+              title="Pricing"
+              description="Manage the prices shown on your booking page. Update clinic and home-visit pricing, then publish your changes when you're ready."
+            />
             <div className="grid gap-4 sm:grid-cols-2">
               {(['inClinic', 'homeVisit'] as const).map((kind) => (
-                <div key={kind} className="rounded-xl border border-accent/20 bg-white p-4">
-                  <h2 className="mb-2 font-medium">
-                    {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
-                  </h2>
-                  {PRICE_ROWS.map(([key, label]) => {
-                    const origKey = originalKind(kind)
-                    const original = draft.pricing[origKey][key]
-                    const discounted = draft.pricing[kind][key]
-                    const showStrike = pricesDiffer(original, discounted)
-                    return (
-                      <div
-                        key={key}
-                        className="mb-3 border-b border-accent/15 pb-3 last:mb-0 last:border-0 last:pb-0"
-                      >
-                        <p className="mb-2 text-sm font-medium">{label}</p>
-                        <div className="flex flex-wrap items-end gap-2">
-                          <EuroField
-                            label="Original"
-                            value={original}
-                            onChange={(next) =>
-                              setDraft({
-                                ...draft,
-                                pricing: {
-                                  ...draft.pricing,
-                                  [origKey]: { ...draft.pricing[origKey], [key]: next },
-                                },
-                              })
-                            }
-                          />
-                          <EuroField
-                            label="Discounted"
-                            value={discounted}
-                            onChange={(next) =>
-                              setDraft({
-                                ...draft,
-                                pricing: {
-                                  ...draft.pricing,
-                                  [kind]: { ...draft.pricing[kind], [key]: next },
-                                },
-                              })
-                            }
-                          />
-                          <div className="mb-1 shrink-0 self-end text-right leading-none">
-                            {showStrike ? (
-                              <span className="mb-0.5 block text-sm font-semibold tabular-nums text-secondary/70 line-through">
-                                {original}
+                <Card key={kind} title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}>
+                  <div className="space-y-3">
+                    {PRICE_ROWS.map(([key, label]) => {
+                      const origKey = originalKind(kind)
+                      const original = draft.pricing[origKey][key]
+                      const discounted = draft.pricing[kind][key]
+                      const off = discountPercentLabel(original, discounted)
+                      return (
+                        <div
+                          key={key}
+                          className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                        >
+                          <p className="mb-2 text-sm font-medium">{label}</p>
+                          <div className="flex flex-wrap items-end gap-2">
+                            <CompactEuroField
+                              label="Original"
+                              value={original}
+                              onChange={(next) =>
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                  },
+                                })
+                              }
+                            />
+                            <CompactEuroField
+                              label="Discounted"
+                              value={discounted}
+                              onChange={(next) =>
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [kind]: { ...draft.pricing[kind], [key]: next },
+                                  },
+                                })
+                              }
+                            />
+                            {off ? (
+                              <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
+                                {off}
                               </span>
                             ) : null}
-                            <span className="block font-serif text-xl font-extrabold tabular-nums text-primary">
-                              {discounted || '—'}
-                            </span>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      )
+                    })}
+                  </div>
+                </Card>
               ))}
             </div>
-            <PublishBar onPublish={() => void publish()} />
+            <UnsavedBar
+              dirty={dirty}
+              publishing={publishing}
+              success={publishSuccess}
+              overlayEnabled={draft.websiteOverlayEnabled}
+              lastPublishedAt={lastPublish?.at ?? null}
+              lastPublishedBy={lastPublish?.by ?? null}
+              onDiscard={discard}
+              onPublish={() => void publish()}
+            />
           </section>
         )}
 
         {tab === 'contact' && (
-          <section className="space-y-4">
-            <h1 className="text-xl font-semibold">Contact Info</h1>
-            <div className="rounded-xl border border-accent/20 bg-white p-4 space-y-3">
-              <label className="block text-sm">
-                Phone display
-                <span className="mt-1 flex overflow-hidden rounded border bg-white">
-                  <select
-                    className="max-w-[11rem] shrink-0 border-r bg-white px-2 py-1"
-                    aria-label="Country code"
-                    value={phoneCountry.id}
-                    onChange={(e) => {
-                      const nextCountry = getPhoneCountry(e.target.value)
-                      const local = subscriberDigits(
+          <section className="space-y-5">
+            <PageHeader
+              title="Contact & Business Information"
+              description="Manage the contact details, social links, and business hours displayed on your website."
+            />
+            <Card title="Contact details">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">
+                  Phone
+                  <span className="relative mt-1 flex rounded-md border border-black/10 bg-white">
+                    <PhoneCountrySelect
+                      value={phoneCountry}
+                      onChange={(nextCountry) => {
+                        const local = subscriberDigits(
+                          draft.phone.displayText || draft.phone.number,
+                          phoneCountry
+                        )
+                        setPhoneCountryId(nextCountry.id)
+                        setDraft({
+                          ...draft,
+                          phone: phoneSnapshot(nextCountry, local),
+                        })
+                      }}
+                    />
+                    <input
+                      type="tel"
+                      className="min-w-0 flex-1 border-0 px-2 py-1.5 outline-none"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      aria-label="Phone number"
+                      placeholder={phoneCountry.placeholder}
+                      value={formatLocalPhoneInput(
                         draft.phone.displayText || draft.phone.number,
                         phoneCountry
-                      )
-                      setPhoneCountryId(nextCountry.id)
-                      setDraft({
-                        ...draft,
-                        phone: phoneSnapshot(nextCountry, local),
-                      })
-                    }}
-                  >
-                    {PHONE_COUNTRIES.map((country) => (
-                      <option key={country.id} value={country.id}>
-                        {country.name} ({country.dial})
-                      </option>
-                    ))}
-                  </select>
+                      )}
+                      onChange={(e) => {
+                        setDraft({
+                          ...draft,
+                          phone: phoneSnapshot(phoneCountry, e.target.value),
+                        })
+                      }}
+                    />
+                  </span>
+                </label>
+                <label className="block text-sm font-medium">
+                  Email
                   <input
-                    type="tel"
-                    className="min-w-0 flex-1 border-0 px-2 py-1 outline-none"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    aria-label="Phone number"
-                    placeholder={phoneCountry.placeholder}
-                    value={formatLocalPhoneInput(
-                      draft.phone.displayText || draft.phone.number,
-                      phoneCountry
-                    )}
-                    onChange={(e) => {
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.email.address}
+                    onChange={(e) =>
                       setDraft({
                         ...draft,
-                        phone: phoneSnapshot(phoneCountry, e.target.value),
+                        email: {
+                          ...draft.email,
+                          address: e.target.value,
+                          href: `mailto:${e.target.value}`,
+                        },
                       })
-                    }}
+                    }
                   />
-                </span>
-              </label>
-              <label className="block text-sm">
-                Email
-                <input
-                  className="mt-1 w-full rounded border px-2 py-1"
-                  value={draft.email.address}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      email: {
-                        ...draft.email,
-                        address: e.target.value,
-                        href: `mailto:${e.target.value}`,
-                      },
-                    })
-                  }
-                />
-              </label>
-              <label className="block text-sm">
-                Facebook URL
-                <input
-                  className="mt-1 w-full rounded border px-2 py-1"
-                  value={draft.social.facebookUrl}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      social: { ...draft.social, facebookUrl: e.target.value },
-                    })
-                  }
-                />
-              </label>
-              <label className="block text-sm">
-                Instagram URL
-                <input
-                  className="mt-1 w-full rounded border px-2 py-1"
-                  value={draft.social.instagramUrl}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      social: { ...draft.social, instagramUrl: e.target.value },
-                    })
-                  }
-                />
-              </label>
-              <div className="rounded-xl border border-accent/20 bg-[var(--bg)]/40 p-3">
-                <h2 className="mb-2 text-base font-semibold">Business hours</h2>
-                <ul className="space-y-0">
-                  {DISPLAY_DAYS.map(([label, day]) => {
-                    const row = draft.hours[day]
-                    const closed = row.closed
-                    return (
-                      <li
-                        key={day}
-                        className="border-b border-accent/15 py-2 last:border-b-0"
-                      >
-                        <div className="flex items-baseline justify-between gap-4">
-                          <span className="w-28 shrink-0 text-[var(--text-dark)]/70">
-                            {label}
-                          </span>
-                          <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
-                            {closed
-                              ? 'Closed'
-                              : `${formatHourLabel(row.open)} – ${formatHourLabel(row.close)}`}
-                          </span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap items-center justify-end gap-2 text-sm">
-                          <label className="flex items-center gap-1">
-                            <input
-                              type="checkbox"
-                              checked={closed}
-                              onChange={(e) => {
-                                const hours = {
-                                  ...draft.hours,
-                                  [day]: { ...row, closed: e.target.checked },
-                                }
-                                setDraft({
-                                  ...draft,
-                                  hours,
-                                  hoursDisplay: buildHoursDisplay(hours),
-                                })
-                              }}
-                            />
-                            Closed
-                          </label>
-                          <input
-                            type="time"
-                            step={60}
-                            className="rounded border px-2 py-1 disabled:opacity-40"
-                            aria-label={`${label} opens`}
-                            disabled={closed}
-                            value={toHhmm(row.open, '09:00')}
-                            onChange={(e) => {
-                              const hours = {
-                                ...draft.hours,
-                                [day]: { ...row, open: toHhmm(e.target.value, row.open) },
-                              }
-                              setDraft({
-                                ...draft,
-                                hours,
-                                hoursDisplay: buildHoursDisplay(hours),
-                              })
-                            }}
-                          />
-                          <input
-                            type="time"
-                            step={60}
-                            className="rounded border px-2 py-1 disabled:opacity-40"
-                            aria-label={`${label} closes`}
-                            disabled={closed}
-                            value={toHhmm(row.close, '20:00')}
-                            onChange={(e) => {
-                              const hours = {
-                                ...draft.hours,
-                                [day]: { ...row, close: toHhmm(e.target.value, row.close) },
-                              }
-                              setDraft({
-                                ...draft,
-                                hours,
-                                hoursDisplay: buildHoursDisplay(hours),
-                              })
-                            }}
-                          />
-                        </div>
-                      </li>
-                    )
-                  })}
-                </ul>
+                </label>
               </div>
-            </div>
-            <PublishBar onPublish={() => void publish()} />
+            </Card>
+            <Card title="Social links">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">
+                  Facebook
+                  <span className="mt-0.5 block text-xs font-normal text-[var(--text-dark)]/50">
+                    facebook.com/…
+                  </span>
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.social.facebookUrl}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        social: { ...draft.social, facebookUrl: e.target.value },
+                      })
+                    }
+                  />
+                </label>
+                <label className="block text-sm font-medium">
+                  Instagram
+                  <span className="mt-0.5 block text-xs font-normal text-[var(--text-dark)]/50">
+                    instagram.com/…
+                  </span>
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.social.instagramUrl}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        social: { ...draft.social, instagramUrl: e.target.value },
+                      })
+                    }
+                  />
+                </label>
+              </div>
+            </Card>
+            <Card title="Business hours">
+              <HoursEditor
+                hours={draft.hours}
+                onChange={(hours) =>
+                  setDraft({
+                    ...draft,
+                    hours,
+                    hoursDisplay: buildHoursDisplay(hours),
+                  })
+                }
+              />
+            </Card>
+            <UnsavedBar
+              dirty={dirty}
+              publishing={publishing}
+              success={publishSuccess}
+              overlayEnabled={draft.websiteOverlayEnabled}
+              lastPublishedAt={lastPublish?.at ?? null}
+              lastPublishedBy={lastPublish?.by ?? null}
+              onDiscard={discard}
+              onPublish={() => void publish()}
+            />
           </section>
         )}
 
         {tab === 'settings' && (
-          <section className="space-y-4">
-            <h1 className="text-xl font-semibold">System Settings</h1>
-            <div className="rounded-xl border border-accent/20 bg-white p-4 space-y-3">
+          <section className="space-y-5">
+            <PageHeader title="Settings" />
+            <Card>
+              <div className="space-y-3">
               <label className="flex items-start gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -934,7 +872,7 @@ export function PortalApp() {
               <label className="block text-sm font-medium">
                 Clinic name
                 <input
-                  className="mt-1 w-full rounded border px-2 py-1"
+                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
                   value={draft.clinicName}
                   onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
                 />
@@ -943,7 +881,7 @@ export function PortalApp() {
               {draft.insurers.map((insurer, index) => (
                 <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
                   <input
-                    className="rounded border px-2 py-1"
+                    className="rounded-md border border-black/10 px-2 py-1.5"
                     value={insurer.name}
                     onChange={(e) => {
                       const insurers = [...draft.insurers]
@@ -965,15 +903,21 @@ export function PortalApp() {
                   </label>
                 </div>
               ))}
-            </div>
-            <PublishBar onPublish={() => void publish()} />
-          </section>
-        )}
-
-        {tab === 'history' && (
-          <section className="space-y-4">
-            <h1 className="text-xl font-semibold">Change History</h1>
-            <ChangeHistory rows={history} />
+              </div>
+            </Card>
+            <Card title="Change History">
+              <ChangeHistory rows={history} />
+            </Card>
+            <UnsavedBar
+              dirty={dirty}
+              publishing={publishing}
+              success={publishSuccess}
+              overlayEnabled={draft.websiteOverlayEnabled}
+              lastPublishedAt={lastPublish?.at ?? null}
+              lastPublishedBy={lastPublish?.by ?? null}
+              onDiscard={discard}
+              onPublish={() => void publish()}
+            />
           </section>
         )}
       </main>
@@ -1030,54 +974,33 @@ function groupHistory(rows: HistoryRow[]): Array<{
 
 function ChangeHistory({ rows }: { rows: HistoryRow[] }) {
   const groups = groupHistory(rows)
+  if (groups.length === 0) {
+    return <p className="text-sm text-[var(--text-dark)]/60">No published changes yet.</p>
+  }
   return (
-    <section className="space-y-3">
-      {groups.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
-          No published changes yet.
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {groups.map((group) => (
-            <li
-              key={group.publishId}
-              className="rounded-xl border border-accent/20 bg-white p-4"
-            >
-              <p className="text-sm font-medium">
-                {formatChangedAt(group.changedAt)}
-                {group.changedBy ? (
-                  <span className="font-normal text-secondary"> · {group.changedBy}</span>
-                ) : null}
-              </p>
-              <ul className="mt-2 space-y-1.5 text-sm">
-                {group.rows.map((row) => (
-                  <li key={row.id}>
-                    <span className="font-medium">{row.fieldLabel}</span>
-                    <span className="text-secondary"> · </span>
-                    <span>{displayValue(row.fromValue, row.action, 'from')}</span>
-                    <span className="text-secondary"> → </span>
-                    <span>{displayValue(row.toValue, row.action, 'to')}</span>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <ul className="space-y-4">
+      {groups.map((group) => (
+        <li key={group.publishId} className="border-b border-black/[0.06] pb-4 last:border-0 last:pb-0">
+          <p className="text-sm font-medium">
+            {formatChangedAt(group.changedAt)}
+            {group.changedBy ? (
+              <span className="font-normal text-secondary"> · {group.changedBy}</span>
+            ) : null}
+          </p>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {group.rows.map((row) => (
+              <li key={row.id}>
+                <span className="font-medium">{row.fieldLabel}</span>
+                <span className="text-secondary"> · </span>
+                <span>{displayValue(row.fromValue, row.action, 'from')}</span>
+                <span className="text-secondary"> → </span>
+                <span>{displayValue(row.toValue, row.action, 'to')}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
   )
 }
 
-function PublishBar({ onPublish }: { onPublish: () => void }) {
-  return (
-    <div className="sticky bottom-3 rounded-full border border-primary/20 bg-white px-4 py-3 shadow">
-      <button
-        type="button"
-        onClick={onPublish}
-        className="w-full rounded-full bg-primary py-2 text-sm font-medium text-white"
-      >
-        Publish to website
-      </button>
-    </div>
-  )
-}

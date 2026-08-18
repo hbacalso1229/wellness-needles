@@ -61,7 +61,7 @@ export type SendBookingEmailResult =
       message?: string
     }
 
-/** Clinic inbox default for website booking requests. */
+/** Baked clinic inbox while overlay is off. Overlay-on callers pass portal email via `bookingEmailTo`. */
 export const BOOKING_REQUEST_INBOX = contactConfig.email.address
 
 /**
