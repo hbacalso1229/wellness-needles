@@ -7,6 +7,8 @@ export function parseHalfStarRating(value: unknown): number | null {
 }
 
 export const CONDITION_MAX_LEN = 40
+export const REVIEW_BODY_MAX_LEN = 1000
+export const REVIEW_NAME_MAX_LEN = 80
 
 export const TREATMENT_TAG_PRESETS = [
   'Pain relief',

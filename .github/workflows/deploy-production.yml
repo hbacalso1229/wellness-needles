@@ -1,16 +1,28 @@
 name: Deploy — Production
 
-# Production goes live ONLY when a GitHub Release is published.
+# Production goes live when a GitHub Release is published (GitHub UI)
+# or when Create Production Release dispatches this workflow with a tag.
 # Merging to main runs CI quality checks only — it does not deploy.
 # Prefer Direct Upload via this workflow (do not connect Cloudflare GitHub auto-deploy).
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git tag to deploy (e.g. v1.1.4)
+        required: true
+        type: string
 
 jobs:
   deploy_production:
     name: Build & Deploy to Cloudflare Pages
+    # Ignore non-semver tags (e.g. Release-1). Manual UI publishes and
+    # Create Production Release both pass a vX.Y.Z tag.
+    if: >
+      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'v')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -20,7 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name || github.sha }}
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
