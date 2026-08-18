@@ -28,7 +28,7 @@ import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import { persistBookingRequest } from '@/lib/booking-persist'
 import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
-import { useSiteOverlay, toPublicLocation } from '@/lib/site-overlay'
+import { useSiteOverlay, toPublicLocations } from '@/lib/site-overlay'
 import { withOverlayCatalog } from '@/lib/overlay-public'
 import {
   joinPersonName,
@@ -353,7 +353,7 @@ export default function BookingForm() {
   const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
   const clinicLocations = overlayEnabled
-    ? site.locations.map(toPublicLocation)
+    ? toPublicLocations(site.locations)
     : contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
   const defaultLocationId = clinicLocations[0]?.id ?? 'celbridge'

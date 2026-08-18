@@ -54,6 +54,48 @@ export function Card({
   )
 }
 
+export function OnOffSwitch({
+  checked,
+  disabled,
+  ariaLabel,
+  onChange,
+}: {
+  checked: boolean
+  disabled?: boolean
+  ariaLabel: string
+  onChange: (next: boolean) => void
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={() => {
+        if (disabled) return
+        onChange(!checked)
+      }}
+      className={`flex items-center gap-2 text-sm ${
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+      }`}
+    >
+      <span
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+          checked ? 'bg-primary' : 'bg-black/20'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+            checked ? 'translate-x-4' : 'translate-x-0'
+          }`}
+        />
+      </span>
+      {checked ? 'On' : 'Off'}
+    </button>
+  )
+}
+
 export function CompactEuroField({
   label,
   value,

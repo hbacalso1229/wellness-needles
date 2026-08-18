@@ -31,6 +31,7 @@ import {
   Card,
   CompactEuroField,
   HoursEditor,
+  OnOffSwitch,
   PageHeader,
   ReviewCard,
   ReviewStatusTabs,
@@ -39,6 +40,8 @@ import {
   snapshotsEqual,
   type ReviewStatusTab,
 } from './portal-ui'
+import { AddressSearch } from './AddressSearch'
+import { LocationPreview } from './LocationPreview'
 
 type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
@@ -162,6 +165,12 @@ function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['p
   const number = country.id === 'IE' && local ? `0${local}` : local
   const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
   return { number, formatted, displayText, href }
+}
+
+function looksLikeEircode(value: string): boolean {
+  const text = value.trim()
+  if (!text) return true
+  return /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(text)
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -751,18 +760,15 @@ export function PortalApp() {
                           setDraft({ ...draft, insurers })
                         }}
                       />
-                      <label className="flex items-center gap-1">
-                        <input
-                          type="checkbox"
-                          checked={insurer.enabled}
-                          onChange={(e) => {
-                            const insurers = [...draft.insurers]
-                            insurers[index] = { ...insurer, enabled: e.target.checked }
-                            setDraft({ ...draft, insurers })
-                          }}
-                        />
-                        On
-                      </label>
+                      <OnOffSwitch
+                        checked={insurer.enabled}
+                        ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
+                        onChange={(enabled) => {
+                          const insurers = [...draft.insurers]
+                          insurers[index] = { ...insurer, enabled }
+                          setDraft({ ...draft, insurers })
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -770,27 +776,27 @@ export function PortalApp() {
             </Card>
             <Card title="Locations">
               <div className="space-y-5">
-                {draft.locations.map((loc, index) => (
-                  <div
-                    key={loc.id}
-                    className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
-                  >
+                {draft.locations.map((loc, index) => {
+                  const enabledCount = draft.locations.filter((row) => row.enabled).length
+                  const isLastEnabled = loc.enabled && enabledCount <= 1
+                  return (
+                    <div
+                      key={loc.id}
+                      className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
+                    >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium">{loc.label || 'Location'}</p>
-                      {draft.locations.length > 1 ? (
-                        <button
-                          type="button"
-                          className="text-sm text-primary hover:underline"
-                          onClick={() => {
-                            setDraft({
-                              ...draft,
-                              locations: draft.locations.filter((row) => row.id !== loc.id),
-                            })
-                          }}
-                        >
-                          Remove
-                        </button>
-                      ) : null}
+                      <OnOffSwitch
+                        checked={loc.enabled}
+                        disabled={isLastEnabled}
+                        ariaLabel={`${loc.enabled ? 'Disable' : 'Enable'} ${loc.label || 'location'}`}
+                        onChange={(enabled) => {
+                          if (!enabled && isLastEnabled) return
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, enabled })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
                     </div>
                     <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                       Label
@@ -804,6 +810,19 @@ export function PortalApp() {
                         }}
                       />
                     </label>
+                    <AddressSearch
+                      onPick={(address) => {
+                        const locations = [...draft.locations]
+                        locations[index] = composeLocation({
+                          ...loc,
+                          street: address.street,
+                          city: address.city,
+                          county: address.county,
+                          postcode: address.postcode,
+                        })
+                        setDraft({ ...draft, locations })
+                      }}
+                    />
                     <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                       Street
                       <input
@@ -854,8 +873,24 @@ export function PortalApp() {
                         />
                       </label>
                     </div>
+                    {!loc.street.trim() || !loc.city.trim() ? (
+                      <p className="text-xs text-[var(--text-dark)]/55">
+                        Add a street and city so Google Maps can find this clinic.
+                      </p>
+                    ) : null}
+                    {loc.postcode.trim() && !looksLikeEircode(loc.postcode) ? (
+                      <p className="text-xs text-[var(--text-dark)]/55">
+                        Check this looks like an Eircode (e.g. W23 K603).
+                      </p>
+                    ) : null}
+                    <LocationPreview
+                      label={loc.label}
+                      mapQuery={loc.mapQuery}
+                      directionsUrl={loc.directionsUrl}
+                    />
                   </div>
-                ))}
+                  )
+                })}
                 <button
                   type="button"
                   className="rounded-md border border-black/10 px-3 py-1.5 text-sm"

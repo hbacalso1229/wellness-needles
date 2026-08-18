@@ -30,10 +30,13 @@ export type SiteLocation = {
   postcode: string
   mapQuery: string
   directionsUrl: string
+  enabled: boolean
 }
 
 export function composeLocation(
-  loc: Pick<SiteLocation, 'id' | 'label' | 'street' | 'city' | 'county' | 'postcode'>
+  loc: Pick<SiteLocation, 'id' | 'label' | 'street' | 'city' | 'county' | 'postcode'> & {
+    enabled?: boolean
+  }
 ): SiteLocation {
   const street = loc.street.trim()
   const city = loc.city.trim()
@@ -52,6 +55,7 @@ export function composeLocation(
     directionsUrl: full
       ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(full)}`
       : '',
+    enabled: loc.enabled ?? true,
   }
 }
 
@@ -171,6 +175,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       postcode: 'W23 K603',
       mapQuery: celbridgeAddress,
       directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(celbridgeAddress)}`,
+      enabled: true,
     },
     {
       id: 'carlow',
@@ -182,6 +187,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       postcode: 'R93 H2X8',
       mapQuery: carlowAddress,
       directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(carlowAddress)}`,
+      enabled: true,
     },
   ],
   hours: DEFAULT_HOURS,
@@ -439,6 +445,28 @@ function asBool(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
+function parseLocation(value: unknown): SiteLocation | null {
+  if (!isRecord(value) || typeof value.id !== 'string' || typeof value.label !== 'string') {
+    return null
+  }
+  const composed = composeLocation({
+    id: value.id,
+    label: value.label,
+    street: asString(value.street, ''),
+    city: asString(value.city, ''),
+    county: asString(value.county, ''),
+    postcode: asString(value.postcode, ''),
+    enabled: asBool(value.enabled, true),
+  })
+  const full = asString(value.full, composed.full)
+  return {
+    ...composed,
+    full,
+    mapQuery: asString(value.mapQuery, full),
+    directionsUrl: asString(value.directionsUrl, composed.directionsUrl),
+  }
+}
+
 export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
   if (!isRecord(value)) return null
   const hours = parseWeekHours(value.hours)
@@ -447,6 +475,10 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
     return null
   }
   if (!Array.isArray(value.locations) || value.locations.length < 1) return null
+  const locations = value.locations
+    .map(parseLocation)
+    .filter((loc): loc is SiteLocation => loc !== null)
+  if (locations.length < 1) return null
   if (!isRecord(value.pricing) || !isRecord(value.pricing.inClinic) || !isRecord(value.pricing.homeVisit)) {
     return null
   }
@@ -486,7 +518,7 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
         SITE_DEFAULTS.social.instagramUrl
       ),
     },
-    locations: value.locations.filter(isLocationShape) as SiteLocation[],
+    locations,
     hours,
     hoursDisplay: buildHoursDisplay(hours),
     emergencyNote: asString(value.emergencyNote, SITE_DEFAULTS.emergencyNote),
@@ -585,11 +617,6 @@ function isReviewShape(value: unknown): value is DefaultReview {
 function isInsurerShape(value: unknown): value is SiteInsurer {
   if (!isRecord(value)) return false
   return typeof value.id === 'string' && typeof value.name === 'string'
-}
-
-function isLocationShape(value: unknown): value is SiteLocation {
-  if (!isRecord(value)) return false
-  return typeof value.id === 'string' && typeof value.label === 'string'
 }
 
 export function deepMergeSite(

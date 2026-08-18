@@ -3,6 +3,7 @@ module.exports = {
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
     '../src/features/ui/**/*.{js,ts,jsx,tsx}',
+    '../src/components/LocationMap.tsx',
   ],
   theme: {
     extend: {
