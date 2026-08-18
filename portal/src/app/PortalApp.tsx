@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   SITE_DEFAULTS,
   buildHoursDisplay,
+  composeLocation,
   parseSiteSnapshot,
   type PriceList,
   type SiteSnapshot,
@@ -779,6 +780,118 @@ export function PortalApp() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </Card>
+            <Card title="Locations">
+              <div className="space-y-5">
+                {draft.locations.map((loc, index) => (
+                  <div
+                    key={loc.id}
+                    className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{loc.label || 'Location'}</p>
+                      {draft.locations.length > 1 ? (
+                        <button
+                          type="button"
+                          className="text-sm text-primary hover:underline"
+                          onClick={() => {
+                            setDraft({
+                              ...draft,
+                              locations: draft.locations.filter((row) => row.id !== loc.id),
+                            })
+                          }}
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Label
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={loc.label}
+                        onChange={(e) => {
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, label: e.target.value })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
+                    </label>
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Street
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={loc.street}
+                        onChange={(e) => {
+                          const locations = [...draft.locations]
+                          locations[index] = composeLocation({ ...loc, street: e.target.value })
+                          setDraft({ ...draft, locations })
+                        }}
+                      />
+                    </label>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        City
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.city}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, city: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        County
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.county}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, county: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Postcode
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={loc.postcode}
+                          onChange={(e) => {
+                            const locations = [...draft.locations]
+                            locations[index] = composeLocation({ ...loc, postcode: e.target.value })
+                            setDraft({ ...draft, locations })
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  onClick={() => {
+                    setDraft({
+                      ...draft,
+                      locations: [
+                        ...draft.locations,
+                        composeLocation({
+                          id: `loc-${crypto.randomUUID()}`,
+                          label: 'New location',
+                          street: '',
+                          city: '',
+                          county: '',
+                          postcode: '',
+                        }),
+                      ],
+                    })
+                  }}
+                >
+                  Add location
+                </button>
               </div>
             </Card>
             <Card title="Contact details">

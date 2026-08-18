@@ -1,7 +1,7 @@
 'use client'
 
 import { contactConfig } from '../lib/contact-config'
-import { useSiteOverlay, usePublicContact } from '@/lib/site-overlay'
+import { usePublicContact } from '@/lib/site-overlay'
 
 interface ContactInfoProps {
   variant?: 'default' | 'compact' | 'inline'
@@ -18,25 +18,7 @@ export default function ContactInfo({
   showPhone = true,
   showEmail = true
 }: ContactInfoProps) {
-  const { overlayEnabled, site } = useSiteOverlay()
-  const phoneHref = overlayEnabled ? site.phone.href : contactConfig.phone.href
-  const phoneText = overlayEnabled ? site.phone.displayText : contactConfig.phone.displayText
-  const emailHref = overlayEnabled ? site.email.href : contactConfig.email.href
-  const emailText = overlayEnabled ? site.email.address : contactConfig.email.address
-  const locations = overlayEnabled
-    ? site.locations.map((loc) => ({
-        id: loc.id,
-        label: loc.label,
-        full: loc.full,
-        directionsUrl: loc.directionsUrl,
-        formatted: {
-          street: loc.street,
-          city: loc.city,
-          county: loc.county,
-          postcode: loc.postcode,
-        },
-      }))
-    : contactConfig.address.locations
+  const { phoneHref, phoneText, emailHref, emailText, locations } = usePublicContact()
   const baseStyles = variant === 'inline' 
     ? 'flex items-center space-x-6' 
     : 'space-y-3'
@@ -82,7 +64,7 @@ export default function ContactInfo({
             <div className="text-current opacity-80 space-y-1">
               {locations.map((location) => (
                 <a
-                  key={location.full}
+                  key={location.id}
                   href={location.directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -96,7 +78,7 @@ export default function ContactInfo({
             <div className="text-current opacity-80 space-y-3">
               {locations.map((location) => (
                 <a
-                  key={location.full}
+                  key={location.id}
                   href={location.directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -147,14 +129,15 @@ export function EmailContact({ className = '', linkClassName = '' }) {
 }
 
 export function AddressContact({ className = '', compact = false }) {
+  const { locations } = usePublicContact()
   return (
     <div className={`flex items-start space-x-2 ${className}`}>
       <contactConfig.address.icon className="w-4 h-4 mt-1 flex-shrink-0" />
       {compact ? (
         <div className="space-y-1">
-          {contactConfig.address.locations.map((location) => (
+          {locations.map((location) => (
             <a
-              key={location.full}
+              key={location.id}
               href={location.directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -166,9 +149,9 @@ export function AddressContact({ className = '', compact = false }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {contactConfig.address.locations.map((location) => (
+          {locations.map((location) => (
             <a
-              key={location.full}
+              key={location.id}
               href={location.directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
