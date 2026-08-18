@@ -46,7 +46,7 @@ import {
 import { AddressSearch } from './AddressSearch'
 import { LocationPreview } from './LocationPreview'
 
-type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
+type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
 type BookingRow = {
   id: string
@@ -88,7 +88,7 @@ type HistoryRow = {
 }
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'bookings', label: 'Bookings' },
+  { id: 'appointments', label: 'Appointments' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Business Info' },
@@ -218,7 +218,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function PortalApp() {
-  const [tab, setTab] = useState<TabId>('bookings')
+  const [tab, setTab] = useState<TabId>('appointments')
   const [email, setEmail] = useState('')
   const [toast, setToast] = useState('')
   const [loading, setLoading] = useState(true)
@@ -430,7 +430,7 @@ export function PortalApp() {
       <main className="mx-auto max-w-5xl px-4 py-8 pb-28">
         {loading ? <p className="text-sm text-secondary">Loading…</p> : null}
 
-        {tab === 'bookings' && (
+        {tab === 'appointments' && (
           <section className="space-y-4">
             <PageHeader
               description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start.`}
