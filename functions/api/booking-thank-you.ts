@@ -23,6 +23,14 @@ type ThankYouBody = {
 
 type Env = {
   RESEND_API_KEY: string
+  DB?: {
+    prepare: (query: string) => {
+      first: <T>() => Promise<T | null>
+    }
+  }
+  SITE_CACHE?: {
+    get: (key: string, type: 'text') => Promise<string | null>
+  }
 }
 
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
@@ -123,34 +131,81 @@ function displayCounty(county: string): string {
   return county.replace(/^Co\.(?=\S)/, 'Co. ')
 }
 
+type KnownLocation = {
+  label: string
+  street: string
+  city: string
+  county: string
+  postcode: string
+  full?: string
+}
+
+const BAKED_LOCATIONS: KnownLocation[] = [
+  {
+    label: 'Celbridge',
+    street: '56 The Orchard Oldtown Mill',
+    city: 'Celbridge',
+    county: 'Co.Kildare',
+    postcode: 'W23 K603',
+  },
+  {
+    label: 'Carlow',
+    street: '16 Kennedy St',
+    city: 'Graigue',
+    county: 'Carlow',
+    postcode: 'R93 H2X8',
+  },
+]
+
+function asLocationRow(value: unknown): KnownLocation | null {
+  if (!value || typeof value !== 'object') return null
+  const row = value as Record<string, unknown>
+  if (row.enabled === false) return null
+  const label = typeof row.label === 'string' ? row.label.trim() : ''
+  if (!label) return null
+  return {
+    label,
+    street: typeof row.street === 'string' ? row.street : '',
+    city: typeof row.city === 'string' ? row.city : '',
+    county: typeof row.county === 'string' ? row.county : '',
+    postcode: typeof row.postcode === 'string' ? row.postcode : '',
+    full: typeof row.full === 'string' ? row.full : undefined,
+  }
+}
+
+async function publishedLocations(env: Env): Promise<KnownLocation[]> {
+  try {
+    const fromKv = await env.SITE_CACHE?.get('public:site:v1', 'text')
+    let raw = fromKv || ''
+    if (!raw && env.DB) {
+      const row = await env.DB.prepare(
+        'SELECT published_json FROM site_settings WHERE id = 1'
+      ).first<{ published_json: string }>()
+      raw = row?.published_json || ''
+    }
+    if (!raw) return BAKED_LOCATIONS
+    const parsed = JSON.parse(raw) as { locations?: unknown }
+    const extra = Array.isArray(parsed.locations)
+      ? parsed.locations.map(asLocationRow).filter((item): item is KnownLocation => Boolean(item))
+      : []
+    return extra.length ? extra : BAKED_LOCATIONS
+  } catch {
+    return BAKED_LOCATIONS
+  }
+}
+
 /** Keep in sync with src/lib/format-location-display.ts */
-function parseLocationDisplay(locationLabel: string): { town: string; address: string } | null {
+function parseLocationDisplay(
+  locationLabel: string,
+  known: KnownLocation[] = BAKED_LOCATIONS
+): { town: string; address: string } | null {
   const trimmed = locationLabel.trim()
   if (!trimmed) return null
-  const known: Array<{
-    label: string
-    street: string
-    city: string
-    county: string
-    postcode: string
-  }> = [
-    {
-      label: 'Celbridge',
-      street: '56 The Orchard Oldtown Mill',
-      city: 'Celbridge',
-      county: 'Co.Kildare',
-      postcode: 'W23 K603',
-    },
-    {
-      label: 'Carlow',
-      street: '16 Kennedy St',
-      city: 'Graigue',
-      county: 'Carlow',
-      postcode: 'R93 H2X8',
-    },
-  ]
   const loc = known.find(
-    (item) => trimmed === item.label || trimmed.startsWith(`${item.label} —`)
+    (item) =>
+      trimmed === item.label ||
+      trimmed.startsWith(`${item.label} —`) ||
+      Boolean(item.full && trimmed === item.full)
   )
   if (loc) {
     return {
@@ -159,7 +214,9 @@ function parseLocationDisplay(locationLabel: string): { town: string; address: s
         loc.street,
         `${loc.city}, ${displayCounty(loc.county)}`,
         loc.postcode,
-      ].join('\n'),
+      ]
+        .filter(Boolean)
+        .join('\n'),
     }
   }
   const dash = trimmed.indexOf(' — ')
@@ -174,9 +231,10 @@ function parseLocationDisplay(locationLabel: string): { town: string; address: s
 
 function visitTypeDisplay(
   serviceType: string,
-  locationLabel?: string
+  locationLabel?: string,
+  known: KnownLocation[] = BAKED_LOCATIONS
 ): { value: string; address?: string } {
-  const parsed = locationLabel ? parseLocationDisplay(locationLabel) : null
+  const parsed = locationLabel ? parseLocationDisplay(locationLabel, known) : null
   if (!parsed) return { value: serviceType }
   if (parsed.town) {
     return { value: `${serviceType} — ${parsed.town}`, address: parsed.address }
@@ -301,10 +359,14 @@ function orDivider(): string {
     </table>`
 }
 
-function buildHtml(body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> & ThankYouBody): string {
+function buildHtml(
+  body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> &
+    ThankYouBody,
+  known: KnownLocation[] = BAKED_LOCATIONS
+): string {
   const fullName = joinPersonName(body.firstName, body.lastName || '')
   const logoUrl = `${SITE}/logo_wellness_transparent.png`
-  const visit = visitTypeDisplay(body.serviceType, body.locationLabel)
+  const visit = visitTypeDisplay(body.serviceType, body.locationLabel, known)
   const rows = [
     row('user', 'Name', fullName),
     body.serviceLabel ? row('check', 'Service', body.serviceLabel) : '',
@@ -452,6 +514,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'Missing required booking fields' })
   }
 
+  const known = await publishedLocations(context.env)
   const html = buildHtml({
     firstName,
     lastName: typeof body.lastName === 'string' ? body.lastName.trim() : undefined,
@@ -464,7 +527,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     time,
     serviceType,
     message: typeof body.message === 'string' ? body.message.trim() : undefined,
-  })
+  }, known)
 
   const resendResponse = await fetch('https://api.resend.com/emails', {
     method: 'POST',

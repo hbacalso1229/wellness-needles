@@ -7,8 +7,8 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Modern tropical/jungle design system (CSS variables + Tailwind)
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
-- Bookings via **legacy stepper form** by default (`contact-config.ts`); Calendly / Fresha URLs configurable in code
-- Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). Public website overlay is **off by default** — see [docs/PORTAL.md](docs/PORTAL.md)
+- Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha come from portal Settings
+- Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → “Show portal changes on the public website” is published. API failure keeps the baked site. Details: [docs/PORTAL.md](docs/PORTAL.md)
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
@@ -37,7 +37,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 | `/testimonials` | Verified Google reviews + before/after imagery |
 | `/blog` | Article listing only (no detail routes yet) |
 | `/contact` | Dual locations, maps, FAQ (contact form gated) |
-| `/bookings` | Pricing + legacy stepper (default) or Calendly/Fresha via config |
+| `/bookings` | Pricing + legacy stepper (default); overlay-on uses portal catalog and booking mode |
 | `/bookings/thank-you` | Legacy form success — confirmation summary |
 | `/bookings/unable-to-process` | Legacy form submit failure — apologetic call/email + close to bookings |
 
@@ -100,7 +100,7 @@ src/
     ├── booking-features.ts
     ├── send-booking-email.ts      # Web3Forms → clinic
     └── send-patient-thank-you.ts  # → Pages Function → Resend
-functions/api/                 # booking-* (www). bff/admin stay off www until overlay is enabled
+functions/api/                 # booking-* on www; public BFF when overlay kill switch is true. /api/admin never on www
 portal/                        # Owner UI static export
 workers/booking-reminders/     # 24h reminder cron
 shared/                        # Site snapshot types/defaults
@@ -111,13 +111,14 @@ docs/PORTAL.md
 ## Customization
 
 - Colors: `src/app/globals.css`
-- Clinic details / booking defaults: `src/lib/contact-config.ts`
-- Booking prices (in clinic vs home visit): `src/lib/booking-catalog.ts`
+- Baked clinic details / booking defaults: `src/lib/contact-config.ts` (used when overlay is off or the overlay API fails)
+- Live clinic details, hours, locations, prices, reviews: owner portal, then Publish (see [docs/PORTAL.md](docs/PORTAL.md))
+- Booking prices when overlay is off: [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts)
 - Images: `public/`
 
 ## Booking prices
 
-In-clinic and home visit **must stay on different prices**. Change them only in [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts) — the stepper and the bookings page both read from there.
+In-clinic and home visit **must stay on different prices**. Overlay-off (and API fallback) reads [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts). Overlay-on reads portal Pricing after Publish.
 
 | Service | In clinic | Home visit |
 |---------|-----------|------------|
@@ -138,7 +139,9 @@ In-clinic and home visit **must stay on different prices**. Change them only in 
 
 Do not hand-write a Release for production. After CI is green on `main`, run **Create Production Release**. That workflow bumps the patch on the latest `v*` tag (`v1.1.3` → tag `v1.1.4`, title `Release v1.1.4`), fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog), then starts **Deploy — Production**. PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
 
-**Live booking rule:** enable only one of Fresha / Calendly / legacy form in `contact-config.ts`.
+**Live booking rule:** enable only one of Fresha / Calendly / legacy form. Overlay-off uses `contact-config.ts`. Overlay-on uses portal Settings (then Publish).
+
+Overlay kill switch is `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/deploy-production.yml` (build **and** deploy). `"true"` allows www to fetch `/api/bff/site`. `"false"` restores baked www + booking Functions only. Do not set this in the Cloudflare dashboard. Off-ramps: [docs/PORTAL.md](docs/PORTAL.md).
 
 ### GitHub Actions secrets
 

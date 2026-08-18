@@ -22,14 +22,14 @@ import BookingStepper, { type BookingStepperStep } from '@/components/BookingSte
 import { BookingPhoneInvalidModal } from '@/components/BookingPhoneInvalidModal'
 import Toast from '@/components/Toast'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
-import { isBookingEmailConfigured, readBookingFeatures, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled, fetchRuntimeCaptchaProvider } from '@/lib/booking-features'
+import { isBookingEmailConfigured, readBookingFeatures, bookingFeaturesFromOverlay, isValidWeb3FormsAccessKey, getTurnstileSiteKey, isTurnstileCaptchaEnabled, fetchRuntimeCaptchaProvider } from '@/lib/booking-features'
 import { sendPatientThankYouEmail } from '@/lib/send-patient-thank-you'
 import { sendBookingRequestEmail, sendTurnstileBookingRequest } from '@/lib/send-booking-email'
 import { saveBookingThankYouSummary } from '@/lib/booking-thank-you'
 import { persistBookingRequest } from '@/lib/booking-persist'
 import { saveBookingSubmitOutcome } from '@/lib/booking-submit-outcome'
-import { useSiteOverlay, toPublicLocations } from '@/lib/site-overlay'
-import { withOverlayCatalog } from '@/lib/overlay-public'
+import { useSiteOverlay, publicLocationsOrBaked } from '@/lib/site-overlay'
+import { overlayCatalogOrNull } from '@/lib/overlay-public'
 import {
   joinPersonName,
   normalizeNameParts,
@@ -353,7 +353,7 @@ export default function BookingForm() {
   const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
   const clinicLocations = overlayEnabled
-    ? toPublicLocations(site.locations)
+    ? publicLocationsOrBaked(site.locations)
     : contactConfig.address.locations
   const selectedLocationDetails = clinicLocations.find((l) => l.id === selectedLocation)
   const defaultLocationId = clinicLocations[0]?.id ?? 'celbridge'
@@ -381,19 +381,19 @@ export default function BookingForm() {
     turnstileRef.current?.reset()
   }
 
-  const catalog = overlayEnabled ? withOverlayCatalog(site) : null
+  const catalog = overlayEnabled ? overlayCatalogOrNull(site) : null
   const clinicServices = catalog?.inClinicServices ?? inClinicServices
   const visitServices = catalog?.homeVisitServices ?? homeVisitServices
   const clinicAddOns = catalog?.inClinicAddOns ?? inClinicAddOns
   const visitAddOns = catalog?.homeVisitAddOns ?? homeVisitAddOns
-  const showInClinic = overlayEnabled ? Boolean(catalog?.inClinicEnabled) : true
-  const showHomeVisit = overlayEnabled ? Boolean(catalog?.homeVisitEnabled) : true
-  const clinicList = overlayEnabled
+  const showInClinic = catalog ? catalog.inClinicEnabled : true
+  const showHomeVisit = catalog ? catalog.homeVisitEnabled : true
+  const clinicList = catalog
     ? clinicServices
     : clinicServices.filter(
         (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
       )
-  const visitList = overlayEnabled
+  const visitList = catalog
     ? visitServices
     : visitServices.filter(
         (service) => features.treatmentPackagesEnabled || !service.id.includes('package')
@@ -765,7 +765,9 @@ export default function BookingForm() {
 
     if (features.bookingEmailEnabled) {
       // Re-read so env fallback is always current at submit time
-      const latestFeatures = readBookingFeatures()
+      const latestFeatures = overlayEnabled
+        ? bookingFeaturesFromOverlay(site, readBookingFeatures())
+        : readBookingFeatures()
       const mailFeatures = {
         ...latestFeatures,
         bookingEmailTo:

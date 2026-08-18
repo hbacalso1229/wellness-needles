@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import NextImage from 'next/image'
 import {
@@ -30,6 +30,7 @@ import {
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { useSiteOverlay } from '@/lib/site-overlay'
+import { DEFAULT_REVIEWS, type DefaultReview } from '../../../shared/default-reviews'
 
 /** Known logo files only — avoid requesting missing .svg/.png (404 spam). */
 const insurers = [
@@ -117,6 +118,35 @@ const bioSections = [
   },
 ] as const
 
+type FeaturedReview = Pick<
+  DefaultReview,
+  'name' | 'condition' | 'reviewedAt' | 'rating' | 'source' | 'emphasis' | 'excerpt'
+>
+
+function newestReview<T extends { reviewedAt: string }>(rows: T[]): T | null {
+  if (rows.length === 0) return null
+  return [...rows].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt))[0]
+}
+
+function mapApiReview(row: Record<string, unknown>): FeaturedReview | null {
+  if (typeof row.name !== 'string' || typeof row.reviewedAt !== 'string') return null
+  const excerpt =
+    typeof row.excerpt === 'string'
+      ? row.excerpt
+      : typeof row.emphasis === 'string'
+        ? row.emphasis
+        : ''
+  return {
+    name: row.name,
+    condition: typeof row.condition === 'string' ? row.condition : '',
+    reviewedAt: row.reviewedAt,
+    rating: typeof row.rating === 'number' ? row.rating : 5,
+    source: typeof row.source === 'string' ? row.source : 'Verified patient review',
+    emphasis: typeof row.emphasis === 'string' ? row.emphasis : excerpt,
+    excerpt,
+  }
+}
+
 function InsurerLogo({
   name,
   logo,
@@ -144,7 +174,34 @@ function InsurerLogo({
 export default function About() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
   const { overlayEnabled, site } = useSiteOverlay()
-  const featured = overlayEnabled ? site.reviews[0] : null
+  const overlayNewest =
+    overlayEnabled && site.reviews.length > 0 ? newestReview(site.reviews) : null
+  const [apiNewest, setApiNewest] = useState<FeaturedReview | null>(null)
+
+  useEffect(() => {
+    if (overlayNewest) return
+    let cancelled = false
+    fetch('/api/reviews', { headers: { Accept: 'application/json' } })
+      .then(async (res) => {
+        if (!res.ok) return { reviews: [] as Array<Record<string, unknown>> }
+        return (await res.json()) as { reviews?: Array<Record<string, unknown>> }
+      })
+      .then((json) => {
+        if (cancelled) return
+        const rows = Array.isArray(json.reviews) ? json.reviews : []
+        setApiNewest(
+          newestReview(rows.map(mapApiReview).filter((row): row is FeaturedReview => Boolean(row)))
+        )
+      })
+      .catch(() => {
+        if (!cancelled) setApiNewest(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [overlayNewest])
+
+  const featured = overlayNewest ?? apiNewest ?? DEFAULT_REVIEWS[0]
   const shownInsurers = overlayEnabled
     ? site.insurers.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder)
     : insurers
@@ -373,7 +430,7 @@ export default function About() {
             <div className="mb-4">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <cite className="not-italic text-sm font-semibold text-[var(--text-dark)] md:text-base">
-                  {featured?.name ?? 'Pavlo Nikulin'}
+                  {featured.name}
                 </cite>
                 <span
                   className="inline-flex items-center gap-0.5 text-gold"
@@ -385,30 +442,26 @@ export default function About() {
                 </span>
               </div>
               <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
-                {featured?.condition ?? 'Lower back pain'}
+                {featured.condition}
               </span>
               <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-secondary md:text-xs">
-                <time dateTime={featured?.reviewedAt ?? '2026-07-22'}>
-                  {featured
-                    ? new Date(`${featured.reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })
-                    : '22 July 2026'}
+                <time dateTime={featured.reviewedAt}>
+                  {new Date(`${featured.reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </time>
                 <span aria-hidden>·</span>
                 <span className="inline-flex items-center gap-1">
                   <CheckCircle className="h-3 w-3 shrink-0 text-accent md:h-3.5 md:w-3.5" aria-hidden />
-                  {featured?.source ?? 'Verified Google review'}
+                  {featured.source}
                 </span>
               </p>
             </div>
 
             <p className="font-serif text-base font-medium italic leading-relaxed text-[var(--text-dark)]">
-              {featured
-                ? `“${featured.excerpt || featured.emphasis}”`
-                : '“I\'d been struggling with lower back pain for so long, and after just two sessions, I finally felt relief again.”'}
+              “{featured.excerpt || featured.emphasis}”
             </p>
 
             <p className="mt-auto pt-4">

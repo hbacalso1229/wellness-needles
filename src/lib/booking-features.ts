@@ -1,5 +1,6 @@
 import { contactConfig } from '@/lib/contact-config'
 import { isAdminUiEnabled } from '@/lib/admin-ui'
+import type { SiteSnapshot } from '../../shared/site-snapshot'
 
 export type BookingFeatureFlags = {
   calendlyEnabled: boolean
@@ -146,6 +147,57 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     strictIrishPhoneEnabled:
       getEnvStrictIrishPhone() ?? contactConfig.features.strictIrishPhoneEnabled,
   }
+}
+
+/**
+ * Portal Settings booking mode when overlay is on. Email/captcha stay on the
+ * baked env path. Overlay-off callers keep readBookingFeatures().
+ */
+export function bookingFeaturesFromOverlay(
+  site: SiteSnapshot,
+  base: BookingFeatureFlags
+): BookingFeatureFlags {
+  const freshaEnabled = Boolean(site.features.freshaEnabled)
+  let bookingFormEnabled = Boolean(site.features.bookingFormEnabled)
+  let calendlyEnabled = Boolean(site.features.calendlyEnabled)
+  if (freshaEnabled) {
+    bookingFormEnabled = false
+    calendlyEnabled = false
+  } else if (bookingFormEnabled) {
+    calendlyEnabled = false
+  }
+
+  const calendlySchedulingUrl = isValidCalendlySchedulingUrl(site.calendly.schedulingUrl)
+    ? site.calendly.schedulingUrl.trim()
+    : base.calendlySchedulingUrl
+  const calendlyInitialUrl = isValidCalendlySchedulingUrl(
+    site.calendly.initialConsultationUrl
+  )
+    ? site.calendly.initialConsultationUrl.trim()
+    : base.calendlyInitialUrl
+  const calendlyFollowUpUrl = isValidCalendlySchedulingUrl(site.calendly.followUpUrl)
+    ? site.calendly.followUpUrl.trim()
+    : base.calendlyFollowUpUrl
+
+  return {
+    ...base,
+    freshaEnabled,
+    bookingFormEnabled,
+    calendlyEnabled,
+    treatmentPackagesEnabled: Boolean(site.features.treatmentPackagesEnabled),
+    calendlySchedulingUrl,
+    calendlyInitialUrl,
+    calendlyFollowUpUrl,
+    freshaBookingUrl: site.fresha.bookingUrl.trim() || base.freshaBookingUrl,
+  }
+}
+
+export function resolvePublicBookingFeatures(
+  overlayEnabled: boolean,
+  site: SiteSnapshot
+): BookingFeatureFlags {
+  const base = readBookingFeatures()
+  return overlayEnabled ? bookingFeaturesFromOverlay(site, base) : base
 }
 
 export function isValidCalendlySchedulingUrl(url: string): boolean {

@@ -69,8 +69,10 @@ jobs:
       - name: Build static export for production
         env:
           NEXT_PUBLIC_ADMIN_UI_ENABLED: "false"
-          # Portal overlay stays off on www until this is removed in a later Release.
-          NEXT_PUBLIC_SITE_OVERLAY_ENABLED: "false"
+          # Overlay kill switch. "true" allows www to fetch /api/bff/site (owner
+          # must still Publish overlay on). Set to "false" and Release to restore
+          # baked www + booking Functions only (no /api/bff).
+          NEXT_PUBLIC_SITE_OVERLAY_ENABLED: "true"
           # Turnstile widget + /api/booking-request. Client must not abort this fetch
           # (a 15s timeout previously showed apology after clinic mail had already sent).
           NEXT_PUBLIC_CAPTCHA_PROVIDER: turnstile
@@ -106,12 +108,29 @@ jobs:
             echo "::error::deploy-production.yml must bake NEXT_PUBLIC_STRICT_IRISH_PHONE=true."
             exit 1
           fi
-          if ! grep -E 'NEXT_PUBLIC_SITE_OVERLAY_ENABLED:[[:space:]]*"false"' .github/workflows/deploy-production.yml; then
-            echo "::error::deploy-production.yml must bake NEXT_PUBLIC_SITE_OVERLAY_ENABLED=false so www stays unchanged."
+          overlay_true=$(grep -cE 'NEXT_PUBLIC_SITE_OVERLAY_ENABLED:[[:space:]]*"true"' .github/workflows/deploy-production.yml || true)
+          overlay_false=$(grep -cE 'NEXT_PUBLIC_SITE_OVERLAY_ENABLED:[[:space:]]*"false"' .github/workflows/deploy-production.yml || true)
+          if [ "$overlay_true" != "0" ] && [ "$overlay_false" != "0" ]; then
+            echo "::error::NEXT_PUBLIC_SITE_OVERLAY_ENABLED must be the same value everywhere in deploy-production.yml."
             exit 1
           fi
-          if grep -F "join(functionsDest, 'bff')" scripts/pages-deploy-subset.mjs; then
-            echo "::error::www subset deploy must not upload /api/bff while overlay is off."
+          if [ "$overlay_false" != "0" ]; then
+            if ! grep -F "NEXT_PUBLIC_SITE_OVERLAY_ENABLED !== 'false'" scripts/pages-deploy-subset.mjs; then
+              echo "::error::www subset deploy must skip /api/bff when NEXT_PUBLIC_SITE_OVERLAY_ENABLED=false."
+              exit 1
+            fi
+            echo "Overlay kill switch off: www deploys booking Functions only."
+          elif [ "$overlay_true" != "0" ]; then
+            test -f functions/api/bff/site.ts
+            test -f functions/api/bff/booking-persist.ts
+            test -f "functions/api/bff/insurance-logo/[id].ts"
+            if ! grep -F "join(functionsDest, 'bff')" scripts/pages-deploy-subset.mjs; then
+              echo "::error::www subset deploy must upload /api/bff/site when overlay is on."
+              exit 1
+            fi
+            echo "Overlay kill switch on: www may upload public BFF."
+          else
+            echo "::error::deploy-production.yml must bake NEXT_PUBLIC_SITE_OVERLAY_ENABLED as \"true\" or \"false\"."
             exit 1
           fi
           if [ -z "${PROD_WEB3FORMS_KEY}" ]; then
@@ -164,6 +183,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Must match the build-step bake so www BFF upload stays in lockstep.
+          NEXT_PUBLIC_SITE_OVERLAY_ENABLED: "true"
         run: |
           set -euo pipefail
           # Releases check out a tag (detached HEAD). Without an explicit branch,
@@ -218,6 +239,12 @@ jobs:
             echo "HTTP $pcode → ${dep}/${path}"
             test "$pcode" = "200"
           done
+
+          if grep -qE 'NEXT_PUBLIC_SITE_OVERLAY_ENABLED:[[:space:]]*"true"' .github/workflows/deploy-production.yml; then
+            bcode=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 "${dep}/api/bff/site" || true)
+            echo "HTTP $bcode → ${dep}/api/bff/site"
+            test "$bcode" = "200"
+          fi
 
       - name: Verify canonical www (best-effort with retries)
         run: |

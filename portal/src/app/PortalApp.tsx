@@ -217,6 +217,20 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return json
 }
 
+async function uploadInsuranceLogo(id: string, file: File): Promise<string> {
+  const form = new FormData()
+  form.append('id', id)
+  form.append('file', file)
+  const res = await fetch('/api/admin/insurance-logo', {
+    method: 'POST',
+    credentials: 'include',
+    body: form,
+  })
+  const json = (await res.json()) as { url?: string; error?: string }
+  if (!res.ok || !json.url) throw new Error(json.error || res.statusText)
+  return json.url
+}
+
 export function PortalApp() {
   const [tab, setTab] = useState<TabId>('appointments')
   const [email, setEmail] = useState('')
@@ -917,6 +931,24 @@ export function PortalApp() {
                     onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
                   />
                 </label>
+                <label className="block text-sm font-medium">
+                  Footer tagline
+                  <textarea
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    rows={2}
+                    value={draft.tagline}
+                    onChange={(e) => setDraft({ ...draft, tagline: e.target.value })}
+                  />
+                </label>
+                <label className="block text-sm font-medium">
+                  Footer description
+                  <textarea
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    rows={3}
+                    value={draft.description}
+                    onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                  />
+                </label>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Insurance</p>
                   {draft.insurers.map((insurer, index) => (
@@ -939,7 +971,51 @@ export function PortalApp() {
                           setDraft({ ...draft, insurers })
                         }}
                       />
+                      <label className="text-xs text-[var(--text-dark)]/60">
+                        Logo
+                        <input
+                          type="file"
+                          accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                          className="mt-1 block max-w-[12rem] text-xs"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            e.target.value = ''
+                            if (!file) return
+                            void uploadInsuranceLogo(insurer.id, file)
+                              .then((url) => {
+                                const insurers = [...draft.insurers]
+                                insurers[index] = { ...insurers[index], logo: url }
+                                setDraft({ ...draft, insurers })
+                              })
+                              .catch((error) => {
+                                show(
+                                  error instanceof Error
+                                    ? error.message
+                                    : 'Could not upload logo'
+                                )
+                              })
+                          }}
+                        />
+                      </label>
                     </div>
+                  ))}
+                  <p className="text-xs font-medium text-[var(--text-dark)]/60">About page copy</p>
+                  {draft.insuranceParagraphs.map((paragraph, index) => (
+                    <textarea
+                      key={index}
+                      className="w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                      rows={2}
+                      value={paragraph}
+                      onChange={(e) => {
+                        const insuranceParagraphs: [string, string, string] = [
+                          draft.insuranceParagraphs[0],
+                          draft.insuranceParagraphs[1],
+                          draft.insuranceParagraphs[2],
+                        ]
+                        insuranceParagraphs[index] = e.target.value
+                        setDraft({ ...draft, insuranceParagraphs })
+                      }}
+                    />
                   ))}
                 </div>
               </div>
@@ -1190,6 +1266,14 @@ export function PortalApp() {
                   })
                 }
               />
+              <label className="mt-4 block text-sm font-medium">
+                Emergency note
+                <input
+                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                  value={draft.emergencyNote}
+                  onChange={(e) => setDraft({ ...draft, emergencyNote: e.target.value })}
+                />
+              </label>
             </Card>
             <UnsavedBar
               dirty={dirty}
@@ -1217,23 +1301,28 @@ export function PortalApp() {
                   }
                 />
                 <span>
-                  Show portal changes on the public website (off by default — www stays as
-                  today until you publish this on).
+                  Show portal changes on the public website. If the live site looks wrong,
+                  uncheck this and Publish — the website returns to the original baked
+                  content. Fetch failures also keep the baked site automatically.
                 </span>
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={draft.features.bookingFormEnabled}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const on = e.target.checked
                     setDraft({
                       ...draft,
                       features: {
                         ...draft.features,
-                        bookingFormEnabled: e.target.checked,
+                        bookingFormEnabled: on,
+                        ...(on
+                          ? { calendlyEnabled: false, freshaEnabled: false }
+                          : {}),
                       },
                     })
-                  }
+                  }}
                 />
                 Booking form
               </label>
@@ -1241,28 +1330,103 @@ export function PortalApp() {
                 <input
                   type="checkbox"
                   checked={draft.features.calendlyEnabled}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const on = e.target.checked
                     setDraft({
                       ...draft,
-                      features: { ...draft.features, calendlyEnabled: e.target.checked },
+                      features: {
+                        ...draft.features,
+                        calendlyEnabled: on,
+                        ...(on
+                          ? { bookingFormEnabled: false, freshaEnabled: false }
+                          : {}),
+                      },
                     })
-                  }
+                  }}
                 />
                 Calendly
               </label>
+              {draft.features.calendlyEnabled ? (
+                <div className="ml-6 space-y-2">
+                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                    Scheduling URL
+                    <input
+                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                      value={draft.calendly.schedulingUrl}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          calendly: { ...draft.calendly, schedulingUrl: e.target.value },
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                    Initial consultation URL
+                    <input
+                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                      value={draft.calendly.initialConsultationUrl}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          calendly: {
+                            ...draft.calendly,
+                            initialConsultationUrl: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                    Follow-up URL
+                    <input
+                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                      value={draft.calendly.followUpUrl}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          calendly: { ...draft.calendly, followUpUrl: e.target.value },
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+              ) : null}
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={draft.features.freshaEnabled}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const on = e.target.checked
                     setDraft({
                       ...draft,
-                      features: { ...draft.features, freshaEnabled: e.target.checked },
+                      features: {
+                        ...draft.features,
+                        freshaEnabled: on,
+                        ...(on
+                          ? { bookingFormEnabled: false, calendlyEnabled: false }
+                          : {}),
+                      },
                     })
-                  }
+                  }}
                 />
                 Fresha
               </label>
+              {draft.features.freshaEnabled ? (
+                <label className="ml-6 block text-xs font-medium text-[var(--text-dark)]/60">
+                  Booking URL
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                    value={draft.fresha.bookingUrl}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        fresha: { ...draft.fresha, bookingUrl: e.target.value },
+                      })
+                    }
+                  />
+                </label>
+              ) : null}
               </div>
             </Card>
             <UnsavedBar

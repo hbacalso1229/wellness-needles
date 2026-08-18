@@ -21,6 +21,7 @@ import {
 } from '@/lib/booking-thank-you'
 import { joinPersonName } from '@/lib/person-name'
 import { visitTypeDisplay } from '@/lib/format-location-display'
+import { usePublicContact } from '@/lib/site-overlay'
 
 function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
@@ -72,6 +73,8 @@ export default function BookingThankYouPage() {
   const [summary, setSummary] = useState<BookingThankYouSummary | null>(null)
   const [ready, setReady] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const { overlayEnabled, site, locations } = usePublicContact()
+  const clinicName = overlayEnabled ? site.clinicName : 'Wellness Needles'
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -95,14 +98,18 @@ export default function BookingThankYouPage() {
     ready && summary ? `Thank you, ${summary.firstName}!` : 'Thank you!'
 
   const visit = summary
-    ? visitTypeDisplay(summary.serviceType, summary.locationLabel)
+    ? visitTypeDisplay(
+        summary.serviceType,
+        summary.locationLabel,
+        overlayEnabled ? locations : []
+      )
     : null
 
   const subtitle =
     ready && summary ? (
       <>
         Thank you for choosing{' '}
-        <span className="font-bold text-primary">Wellness Needles</span>.
+        <span className="font-bold text-primary">{clinicName}</span>.
         We&apos;ll be in touch soon to confirm your appointment.
       </>
     ) : (
