@@ -2,11 +2,12 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { CheckCircle, ChevronRight, Quote, Star, X } from 'lucide-react'
+import { CheckCircle, ChevronRight, Quote, X } from 'lucide-react'
+import { RatingStars } from './RatingStars'
 
 export type TestimonialCardProps = {
   name: string
-  condition: string
+  condition?: string
   date: string
   rating: number
   text: string
@@ -190,13 +191,7 @@ export function TestimonialCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lock/listeners tied to open; closeModal uses refs
   }, [modalOpen])
 
-  const stars = (
-    <div className="flex items-center" aria-label={`${rating} out of 5 stars`}>
-      {[...Array(rating)].map((_, i) => (
-        <Star key={i} className="h-3.5 w-3.5 text-gold fill-current" />
-      ))}
-    </div>
-  )
+  const stars = <RatingStars rating={rating} />
 
   const avatar = (
     <div
@@ -250,9 +245,11 @@ export function TestimonialCard({
                 </h3>
                 {stars}
               </div>
-              <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
-                {condition}
-              </span>
+              {condition ? (
+                <span className="mt-2 inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
+                  {condition}
+                </span>
+              ) : null}
               <p className="mt-2 flex items-center text-xs text-secondary">{date}</p>
               {source ? <SourceLabel source={source} /> : null}
             </div>
@@ -280,9 +277,11 @@ export function TestimonialCard({
             </h4>
             {stars}
           </div>
-          <span className="mt-2 inline-flex max-w-full truncate rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
-            {condition}
-          </span>
+          {condition ? (
+            <span className="mt-2 inline-flex max-w-full truncate rounded-full bg-accent/15 px-2.5 py-0.5 text-xs text-secondary">
+              {condition}
+            </span>
+          ) : null}
           <p className="mt-2 text-[11px] text-secondary md:text-xs">{date}</p>
           {source ? <SourceLabel source={source} /> : null}
         </div>

@@ -1,4 +1,5 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../_lib/http'
+import { clipCondition, parseHalfStarRating } from '../../../shared/review-rating'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -8,12 +9,22 @@ type PagesFunction<Env = unknown> = (context: {
 export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(200, { reviews: [] })
   const status = new URL(context.request.url).searchParams.get('status') || 'pending'
+  const allowed = new Set(['pending', 'approved', 'rejected', 'cancelled'])
+  if (status === 'all') {
+    const { results } = await context.env.DB.prepare(
+      `SELECT id, status, name, condition, reviewed_at as reviewedAt, rating, source,
+              emphasis, excerpt, body, created_at as createdAt
+       FROM reviews ORDER BY created_at DESC LIMIT 400`
+    ).all()
+    return jsonResponse(200, { reviews: results || [] })
+  }
+  const filter = allowed.has(status) ? status : 'pending'
   const { results } = await context.env.DB.prepare(
     `SELECT id, status, name, condition, reviewed_at as reviewedAt, rating, source,
             emphasis, excerpt, body, created_at as createdAt
      FROM reviews WHERE status = ? ORDER BY created_at DESC LIMIT 200`
   )
-    .bind(status)
+    .bind(filter)
     .all()
   return jsonResponse(200, { reviews: results || [] })
 }
@@ -22,17 +33,24 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(503, { ok: false, error: 'no-db' })
   const body = (await readJsonBody(context.request)) as Record<string, unknown> | null
   const name = asString(body?.name)
-  const excerpt = asString(body?.excerpt) || asString(body?.body)
-  if (!name || !excerpt) {
+  const reviewBody = asString(body?.body) || asString(body?.excerpt)
+  if (!name || !reviewBody) {
     return jsonResponse(400, { ok: false, error: 'name and excerpt required' })
   }
+  const rating = parseHalfStarRating(body?.rating)
+  if (rating == null) {
+    return jsonResponse(400, { ok: false, error: 'rating must be 1–5 in half-star steps' })
+  }
+  const condition = clipCondition(body?.condition)
+  if (condition == null) {
+    return jsonResponse(400, { ok: false, error: 'condition too long' })
+  }
+  const emphasisRaw = asString(body?.emphasis)
+  const emphasis = emphasisRaw && reviewBody.includes(emphasisRaw) ? emphasisRaw : ''
+  const excerpt = emphasis || asString(body?.excerpt) || reviewBody.slice(0, 120)
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
   const reviewedAt = asString(body?.reviewedAt) || now.slice(0, 10)
-  const rating =
-    typeof body?.rating === 'number' && body.rating >= 1 && body.rating <= 5
-      ? Math.round(body.rating)
-      : 5
   await context.env.DB.prepare(
     `INSERT INTO reviews (
       id, status, name, condition, reviewed_at, rating, source, emphasis, excerpt, body, created_at
@@ -41,13 +59,13 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     .bind(
       id,
       name,
-      asString(body?.condition),
+      condition,
       reviewedAt,
       rating,
       asString(body?.source) || 'Owner',
+      emphasis,
       excerpt,
-      excerpt,
-      asString(body?.body) || excerpt,
+      reviewBody,
       now
     )
     .run()

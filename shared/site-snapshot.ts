@@ -41,6 +41,14 @@ export type SiteInsurer = {
   sortOrder: number
 }
 
+export type PriceList = {
+  initial: string
+  followUp: string
+  package5: string
+  package10: string
+  cupping: string
+}
+
 export type SiteSnapshot = {
   websiteOverlayEnabled: boolean
   clinicName: string
@@ -82,20 +90,10 @@ export type SiteSnapshot = {
     bookingUrl: string
   }
   pricing: {
-    inClinic: {
-      initial: string
-      followUp: string
-      package5: string
-      package10: string
-      cupping: string
-    }
-    homeVisit: {
-      initial: string
-      followUp: string
-      package5: string
-      package10: string
-      cupping: string
-    }
+    inClinic: PriceList
+    homeVisit: PriceList
+    inClinicOriginal: PriceList
+    homeVisitOriginal: PriceList
   }
   insuranceParagraphs: [string, string, string]
   insurers: SiteInsurer[]
@@ -199,6 +197,20 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package10: '€690',
       cupping: '€25',
     },
+    inClinicOriginal: {
+      initial: '€150',
+      followUp: '€120',
+      package5: '€300',
+      package10: '€600',
+      cupping: '',
+    },
+    homeVisitOriginal: {
+      initial: '€250',
+      followUp: '€180',
+      package5: '€375',
+      package10: '€750',
+      cupping: '',
+    },
   },
   insuranceParagraphs: [
     'We are a registered professional acupuncture clinic',
@@ -248,6 +260,41 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     },
   ],
   reviews: DEFAULT_REVIEWS,
+}
+
+/** Owner types an amount; published snapshot keeps a hardcoded euro prefix. */
+export function priceDigits(value: string): string {
+  const cleaned = value.replace(/[^\d.]/g, '')
+  const dot = cleaned.indexOf('.')
+  if (dot === -1) return cleaned
+  const whole = cleaned.slice(0, dot).replace(/\./g, '')
+  const fraction = cleaned
+    .slice(dot + 1)
+    .replace(/\./g, '')
+    .slice(0, 2)
+  return `${whole}.${fraction}`
+}
+
+export function euroPrice(value: string): string {
+  const amount = priceDigits(value)
+  if (!amount || amount === '.') return ''
+  return `€${amount}`
+}
+
+function priceAmount(value: string): number | null {
+  const amount = priceDigits(value)
+  if (!amount || amount === '.') return null
+  const n = Number(amount)
+  return Number.isFinite(n) ? n : null
+}
+
+/** Strikethrough only when original and discounted are both set and differ. */
+export function pricesDiffer(original: string, discounted: string): boolean {
+  const orig = priceAmount(original)
+  if (orig == null) return false
+  const disc = priceAmount(discounted)
+  if (disc == null) return false
+  return orig !== disc
 }
 
 const HHMM = /^([01]\d|2[0-3]):([0-5]\d)$/
@@ -344,6 +391,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function asString(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback
+}
+
+function parsePriceList(
+  value: unknown,
+  fallback: PriceList,
+  allowEmpty: boolean
+): PriceList {
+  const rec = isRecord(value) ? value : {}
+  const pick = (key: keyof PriceList) => {
+    if (allowEmpty && typeof rec[key] === 'string') return rec[key].trim()
+    return asString(rec[key], fallback[key])
+  }
+  return {
+    initial: pick('initial'),
+    followUp: pick('followUp'),
+    package5: pick('package5'),
+    package10: pick('package10'),
+    cupping: pick('cupping'),
+  }
 }
 
 function asBool(value: unknown, fallback: boolean): boolean {
@@ -452,20 +518,26 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       ),
     },
     pricing: {
-      inClinic: {
-        initial: asString(value.pricing.inClinic.initial, SITE_DEFAULTS.pricing.inClinic.initial),
-        followUp: asString(value.pricing.inClinic.followUp, SITE_DEFAULTS.pricing.inClinic.followUp),
-        package5: asString(value.pricing.inClinic.package5, SITE_DEFAULTS.pricing.inClinic.package5),
-        package10: asString(value.pricing.inClinic.package10, SITE_DEFAULTS.pricing.inClinic.package10),
-        cupping: asString(value.pricing.inClinic.cupping, SITE_DEFAULTS.pricing.inClinic.cupping),
-      },
-      homeVisit: {
-        initial: asString(value.pricing.homeVisit.initial, SITE_DEFAULTS.pricing.homeVisit.initial),
-        followUp: asString(value.pricing.homeVisit.followUp, SITE_DEFAULTS.pricing.homeVisit.followUp),
-        package5: asString(value.pricing.homeVisit.package5, SITE_DEFAULTS.pricing.homeVisit.package5),
-        package10: asString(value.pricing.homeVisit.package10, SITE_DEFAULTS.pricing.homeVisit.package10),
-        cupping: asString(value.pricing.homeVisit.cupping, SITE_DEFAULTS.pricing.homeVisit.cupping),
-      },
+      inClinic: parsePriceList(
+        value.pricing.inClinic,
+        SITE_DEFAULTS.pricing.inClinic,
+        false
+      ),
+      homeVisit: parsePriceList(
+        value.pricing.homeVisit,
+        SITE_DEFAULTS.pricing.homeVisit,
+        false
+      ),
+      inClinicOriginal: parsePriceList(
+        value.pricing.inClinicOriginal,
+        SITE_DEFAULTS.pricing.inClinicOriginal,
+        true
+      ),
+      homeVisitOriginal: parsePriceList(
+        value.pricing.homeVisitOriginal,
+        SITE_DEFAULTS.pricing.homeVisitOriginal,
+        true
+      ),
     },
     insuranceParagraphs: [
       asString(paragraphs[0], SITE_DEFAULTS.insuranceParagraphs[0]),
@@ -513,6 +585,14 @@ export function deepMergeSite(
     pricing: {
       inClinic: { ...defaults.pricing.inClinic, ...incoming.pricing.inClinic },
       homeVisit: { ...defaults.pricing.homeVisit, ...incoming.pricing.homeVisit },
+      inClinicOriginal: {
+        ...defaults.pricing.inClinicOriginal,
+        ...incoming.pricing.inClinicOriginal,
+      },
+      homeVisitOriginal: {
+        ...defaults.pricing.homeVisitOriginal,
+        ...incoming.pricing.homeVisitOriginal,
+      },
     },
     hours: incoming.hours,
     hoursDisplay: incoming.hoursDisplay.length

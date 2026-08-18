@@ -1,0 +1,90 @@
+name: Create Production Release
+
+# Publishes the next Release-N GitHub Release from main HEAD.
+# That published Release triggers Deploy — Production (Cloudflare Pages).
+# Do not run this on merge — production stays an explicit Actions click.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+  pull-requests: read
+
+jobs:
+  create_release:
+    name: Tag Release-N and publish notes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require main
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::Run this workflow from the main branch (Actions → Run workflow → Use workflow from: main)."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Fetch all tags
+        run: git fetch --tags --force origin
+
+      - name: Verify Check — Quality succeeded on HEAD
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          conclusion="$(gh run list \
+            --workflow "Check — Quality" \
+            --commit "${sha}" \
+            --json conclusion,event,status \
+            --jq '[.[] | select(.event == "push" and .status == "completed")] | .[0].conclusion // empty')"
+          if [ "${conclusion}" != "success" ]; then
+            echo "::error::Check — Quality has not succeeded on ${sha} (got ${conclusion:-none}). Merge to main and wait for CI before releasing."
+            exit 1
+          fi
+          echo "Quality OK on ${sha}"
+
+      - name: Create Release-N
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+
+          latest="$(git tag -l 'Release-*' | sed 's/^Release-//' | grep -E '^[0-9]+$' | sort -n | tail -1 || true)"
+          if [ -z "${latest}" ]; then
+            next=1
+            prev="$(git tag -l 'v*' --sort=-v:refname | head -n 1 || true)"
+          else
+            next=$((latest + 1))
+            prev="Release-${latest}"
+          fi
+          tag="Release-${next}"
+
+          notes="$(printf '```\nProduction: https://www.wellnessneedles.ie\nCommit: %s\n```\n' "${sha}")"
+
+          echo "Creating ${tag} at ${sha} (notes from ${prev:-beginning})"
+
+          create_args=(
+            "${tag}"
+            --target "${sha}"
+            --title "${tag}"
+            --generate-notes
+            --notes "${notes}"
+          )
+          if [ -n "${prev}" ]; then
+            create_args+=(--notes-start-tag "${prev}")
+          fi
+
+          gh release create "${create_args[@]}"
+
+          echo "Release ${tag} → https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}"
+          echo "Deploy — Production will start from this published Release."

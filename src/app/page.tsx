@@ -1,4 +1,5 @@
-import { ArrowRight, Star } from 'lucide-react'
+import { Star } from 'lucide-react'
+import { ShareExperienceCta } from '@/components/ShareExperienceCta'
 import {
   HeroSection,
   BenefitsSection,
@@ -23,16 +24,7 @@ export default function Home() {
           <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-hidden />
           <span>Trusted by 200+ patients</span>
         </p>
-        <a
-          href="/contact/"
-          className="group mt-3 inline-flex items-center gap-1 text-sm font-medium text-cream/70 underline-offset-4 transition-colors duration-300 ease-out hover:text-cream hover:underline sm:mt-3.5"
-        >
-          Share Your Experience
-          <ArrowRight
-            className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
-            aria-hidden
-          />
-        </a>
+        <ShareExperienceCta />
       </BookingSection>
     </div>
   )

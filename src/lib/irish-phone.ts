@@ -1,7 +1,7 @@
 import {
   getPhoneCountry,
   type PhoneCountry,
-} from '@/lib/phone-countries'
+} from './phone-countries'
 
 /** ComReg 08x mobiles after dropping the trunk 0: 082, 083, 085, 086, 087, 089. */
 const IRISH_MOBILE_SUBSCRIBER = /^(?:82|83|85|86|87|89)\d{7}$/

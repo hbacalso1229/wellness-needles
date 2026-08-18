@@ -25,7 +25,13 @@ mkdirSync(functionsDest, { recursive: true })
 if (mode === 'www') {
   // Same booking Functions as live www. Do not upload portal or public BFF
   // routes while overlay is off — a compile error must not take down Turnstile.
-  for (const name of ['booking-request.ts', 'booking-thank-you.ts', 'booking-captcha.ts']) {
+  for (const name of [
+    'booking-request.ts',
+    'booking-thank-you.ts',
+    'booking-captcha.ts',
+    'review-submit.ts',
+    'reviews.ts',
+  ]) {
     cpSync(join(root, 'functions', 'api', name), join(functionsDest, name))
   }
 } else {

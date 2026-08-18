@@ -3,12 +3,34 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   SITE_DEFAULTS,
-  WEEKDAYS,
+  buildHoursDisplay,
+  euroPrice,
+  formatHourLabel,
   parseSiteSnapshot,
+  priceDigits,
+  pricesDiffer,
+  type PriceList,
   type SiteSnapshot,
+  type Weekday,
 } from '../../../shared/site-snapshot'
+import {
+  DEFAULT_PHONE_COUNTRY_ID,
+  PHONE_COUNTRIES,
+  getPhoneCountry,
+  type PhoneCountry,
+} from '../../../src/lib/phone-countries'
+import {
+  formatLocalPhoneInput,
+  subscriberDigits,
+  toE164,
+} from '../../../src/lib/irish-phone'
+import {
+  CONDITION_MAX_LEN,
+  parseHalfStarRating,
+} from '../../../shared/review-rating'
+import { HalfStarPicker, RatingStars } from '../../../src/features/ui/RatingStars'
 
-type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings'
+type TabId = 'bookings' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
 type BookingRow = {
   id: string
@@ -26,10 +48,15 @@ type BookingRow = {
 
 type ReviewRow = {
   id: string
+  status?: string
   name: string
   excerpt?: string
+  body?: string
+  condition?: string
   source?: string
+  rating?: number
   reviewedAt?: string
+  emphasis?: string
 }
 
 type HistoryRow = {
@@ -49,8 +76,101 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Contact Info' },
+  { id: 'history', label: 'Change History' },
   { id: 'settings', label: 'System Settings' },
 ]
+
+const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
+  ['initial', 'Initial'],
+  ['followUp', 'Follow-up'],
+  ['package5', '5 sessions'],
+  ['package10', '10 sessions'],
+  ['cupping', 'Cupping'],
+]
+
+function originalKind(
+  kind: 'inClinic' | 'homeVisit'
+): 'inClinicOriginal' | 'homeVisitOriginal' {
+  return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
+}
+
+const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
+  ['Monday', 'monday'],
+  ['Tuesday', 'tuesday'],
+  ['Wednesday', 'wednesday'],
+  ['Thursday', 'thursday'],
+  ['Friday', 'friday'],
+  ['Saturday', 'saturday'],
+  ['Sunday', 'sunday'],
+]
+
+function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
+  if (status === 'approved') return 'confirmed'
+  if (status === 'rejected' || status === 'cancelled') return 'rejected'
+  return 'pending'
+}
+
+function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
+  const hay = `${phone.href} ${phone.displayText} ${phone.number}`
+  const digits = hay.replace(/\D/g, '')
+  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
+  let best = 0
+  for (const country of PHONE_COUNTRIES) {
+    const code = country.dial.replace(/\D/g, '')
+    if (digits.startsWith(code) && code.length > best) {
+      match = country
+      best = code.length
+    }
+  }
+  return match
+}
+
+function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['phone'] {
+  const local = subscriberDigits(rawLocal, country)
+  const grouped = formatLocalPhoneInput(local, country)
+  const displayText = toE164(local, country)
+  const href = local ? `tel:+${country.dial.replace(/\D/g, '')}${local}` : ''
+  const number = country.id === 'IE' && local ? `0${local}` : local
+  const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
+  return { number, formatted, displayText, href }
+}
+
+/** Native time inputs may emit HH:mm:ss; snapshot parse requires HH:mm. */
+function toHhmm(value: string, fallback: string): string {
+  const match = /^([01]?\d|2[0-3]):([0-5]\d)/.exec(value.trim())
+  if (!match) return fallback
+  return `${match[1].padStart(2, '0')}:${match[2]}`
+}
+
+function EuroField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (next: string) => void
+}) {
+  return (
+    <label className="block min-w-0 flex-1 text-sm">
+      {label}
+      <span className="mt-1 flex rounded border bg-white">
+        <span className="select-none px-2 py-1 text-[var(--text-dark)]/55" aria-hidden>
+          €
+        </span>
+        <input
+          className="min-w-0 flex-1 rounded-r border-0 px-2 py-1 outline-none"
+          inputMode="decimal"
+          pattern="[0-9]*[.]?[0-9]{0,2}"
+          autoComplete="off"
+          aria-label={`${label} in euro`}
+          value={priceDigits(value)}
+          onChange={(e) => onChange(euroPrice(e.target.value))}
+        />
+      </span>
+    </label>
+  )
+}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -76,6 +196,15 @@ export function PortalApp() {
   const [startsAtLocal, setStartsAtLocal] = useState('')
   const [newReviewName, setNewReviewName] = useState('')
   const [newReviewExcerpt, setNewReviewExcerpt] = useState('')
+  const [newReviewRating, setNewReviewRating] = useState<number | null>(null)
+  const [newReviewCondition, setNewReviewCondition] = useState('')
+  const [newReviewSource, setNewReviewSource] = useState('Verified Google review')
+  const [newReviewEmphasis, setNewReviewEmphasis] = useState('')
+  const [newReviewBody, setNewReviewBody] = useState('')
+  const [newReviewDate, setNewReviewDate] = useState('')
+  const [pendingTags, setPendingTags] = useState<Record<string, string>>({})
+  const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
+  const phoneCountry = getPhoneCountry(phoneCountryId)
 
   const show = (message: string) => {
     setToast(message)
@@ -89,11 +218,18 @@ export function PortalApp() {
       setEmail(me.email)
       const site = await api<SiteSnapshot>('/api/admin/site')
       const parsed = parseSiteSnapshot(site)
-      if (parsed) setDraft(parsed)
+      if (parsed) {
+        setDraft(parsed)
+        setPhoneCountryId(inferPhoneCountry(parsed.phone).id)
+      }
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
       setBookings(inbox.bookings || [])
-      const pending = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=pending')
-      setReviews(pending.reviews || [])
+      const allReviews = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=all')
+      const rows = allReviews.reviews || []
+      setReviews(rows)
+      setPendingTags(
+        Object.fromEntries(rows.map((row) => [row.id, row.condition || '']))
+      )
       try {
         const log = await api<{ changes: HistoryRow[] }>('/api/admin/site-history')
         setHistory(log.changes || [])
@@ -163,10 +299,9 @@ export function PortalApp() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-black/5 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-lg font-semibold text-primary">Wellness Needles</p>
-            <p className="text-xs uppercase tracking-wide text-secondary">Owner portal</p>
-          </div>
+          <p className="font-serif text-lg font-semibold text-primary">
+            Wellness Needles - Admin Portal
+          </p>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="text-[var(--text-dark)]/70">{email || 'Signed in'}</span>
             <button type="button" className="text-primary underline" onClick={logout}>
@@ -276,17 +411,35 @@ export function PortalApp() {
               className="space-y-2 rounded-xl border border-accent/20 bg-white p-4"
               onSubmit={async (e) => {
                 e.preventDefault()
+                const rating = parseHalfStarRating(newReviewRating)
+                if (rating == null) {
+                  show('Choose a star rating')
+                  return
+                }
+                const bodyText = newReviewBody.trim() || newReviewExcerpt.trim()
                 try {
                   await api('/api/admin/reviews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       name: newReviewName,
-                      excerpt: newReviewExcerpt,
+                      rating,
+                      condition: newReviewCondition,
+                      reviewedAt: newReviewDate,
+                      source: newReviewSource,
+                      emphasis: newReviewEmphasis,
+                      excerpt: newReviewExcerpt || bodyText,
+                      body: bodyText,
                     }),
                   })
                   setNewReviewName('')
                   setNewReviewExcerpt('')
+                  setNewReviewRating(null)
+                  setNewReviewCondition('')
+                  setNewReviewSource('Verified Google review')
+                  setNewReviewEmphasis('')
+                  setNewReviewBody('')
+                  setNewReviewDate('')
                   show('Review added (pending)')
                   await load()
                 } catch (error) {
@@ -302,60 +455,170 @@ export function PortalApp() {
                 onChange={(e) => setNewReviewName(e.target.value)}
                 required
               />
+              <HalfStarPicker value={newReviewRating} onChange={setNewReviewRating} />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Treatment tag"
+                maxLength={CONDITION_MAX_LEN}
+                value={newReviewCondition}
+                onChange={(e) => setNewReviewCondition(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                type="date"
+                value={newReviewDate}
+                onChange={(e) => setNewReviewDate(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Source (e.g. Verified Google review)"
+                value={newReviewSource}
+                onChange={(e) => setNewReviewSource(e.target.value)}
+              />
+              <input
+                className="w-full rounded border px-2 py-1"
+                placeholder="Phrase to bold (optional)"
+                value={newReviewEmphasis}
+                onChange={(e) => setNewReviewEmphasis(e.target.value)}
+              />
               <textarea
                 className="w-full rounded border px-2 py-1"
-                placeholder="Short quote"
+                placeholder="Full review"
+                value={newReviewBody}
+                onChange={(e) => setNewReviewBody(e.target.value)}
+                required
+              />
+              <textarea
+                className="w-full rounded border px-2 py-1"
+                placeholder="Short quote (optional)"
                 value={newReviewExcerpt}
                 onChange={(e) => setNewReviewExcerpt(e.target.value)}
-                required
               />
               <button type="submit" className="rounded-full bg-primary px-3 py-1.5 text-sm text-white">
                 Save pending
               </button>
             </form>
-            {reviews.length === 0 ? (
-              <p className="text-sm text-secondary">No pending reviews.</p>
-            ) : (
-              <ul className="space-y-3">
-                {reviews.map((row) => (
-                  <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                    <p className="font-medium">{row.name}</p>
-                    <p className="text-sm italic">{row.excerpt}</p>
-                    <div className="mt-2 flex gap-2">
-                      <button
-                        type="button"
-                        className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                        onClick={async () => {
-                          await api(`/api/admin/reviews/${row.id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'confirm' }),
-                          })
-                          show('Review published')
-                          await load()
-                        }}
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-full border px-3 py-1.5 text-sm"
-                        onClick={async () => {
-                          await api(`/api/admin/reviews/${row.id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'cancel' }),
-                          })
-                          await load()
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {(
+              [
+                ['pending', 'Pending'],
+                ['confirmed', 'Confirmed'],
+                ['rejected', 'Rejected'],
+              ] as const
+            ).map(([bucket, heading]) => {
+              const rows = reviews.filter((row) => reviewBucket(row.status) === bucket)
+              return (
+                <div key={bucket} className="space-y-2">
+                  <h2 className="text-base font-semibold">{heading}</h2>
+                  {rows.length === 0 ? (
+                    <p className="text-sm text-secondary">None.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {rows.map((row) => (
+                        <li
+                          key={row.id}
+                          className="rounded-xl border border-accent/20 bg-white p-4"
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">{row.name}</p>
+                            <RatingStars rating={row.rating ?? 0} />
+                          </div>
+                          {row.condition ? (
+                            <p className="mt-1 text-xs text-secondary">{row.condition}</p>
+                          ) : null}
+                          <p className="mt-1 text-xs text-secondary">
+                            {row.reviewedAt || ''}
+                            {row.source ? ` · ${row.source}` : ''}
+                          </p>
+                          <p className="mt-2 text-sm italic">{row.body || row.excerpt}</p>
+                          {bucket === 'pending' ? (
+                            <div className="mt-2 space-y-2">
+                              <label className="block text-sm">
+                                Treatment tag
+                                <input
+                                  className="mt-1 w-full rounded border px-2 py-1"
+                                  maxLength={CONDITION_MAX_LEN}
+                                  value={pendingTags[row.id] ?? row.condition ?? ''}
+                                  onChange={(e) =>
+                                    setPendingTags((prev) => ({
+                                      ...prev,
+                                      [row.id]: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  className="rounded-full border px-3 py-1.5 text-sm"
+                                  onClick={async () => {
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        action: 'update',
+                                        condition: pendingTags[row.id] ?? row.condition,
+                                      }),
+                                    })
+                                    show('Tag saved')
+                                    await load()
+                                  }}
+                                >
+                                  Save tag
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                                  onClick={async () => {
+                                    const tag = pendingTags[row.id]
+                                    if (tag !== undefined && tag !== (row.condition || '')) {
+                                      await api(`/api/admin/reviews/${row.id}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          action: 'update',
+                                          condition: tag,
+                                        }),
+                                      })
+                                    }
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'confirm' }),
+                                    })
+                                    show('Review published')
+                                    await load()
+                                  }}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded-full border px-3 py-1.5 text-sm"
+                                  onClick={async () => {
+                                    await api(`/api/admin/reviews/${row.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'reject' }),
+                                    })
+                                    await load()
+                                  }}
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-secondary">
+                              {bucket === 'confirmed' ? 'Confirmed' : 'Rejected'}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )
+            })}
           </section>
         )}
 
@@ -368,32 +631,58 @@ export function PortalApp() {
                   <h2 className="mb-2 font-medium">
                     {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
                   </h2>
-                  {(
-                    [
-                      ['initial', 'Initial'],
-                      ['followUp', 'Follow-up'],
-                      ['package5', '5 sessions'],
-                      ['package10', '10 sessions'],
-                      ['cupping', 'Cupping'],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label key={key} className="mb-2 block text-sm">
-                      {label}
-                      <input
-                        className="mt-1 w-full rounded border px-2 py-1"
-                        value={draft.pricing[kind][key]}
-                        onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            pricing: {
-                              ...draft.pricing,
-                              [kind]: { ...draft.pricing[kind], [key]: e.target.value },
-                            },
-                          })
-                        }
-                      />
-                    </label>
-                  ))}
+                  {PRICE_ROWS.map(([key, label]) => {
+                    const origKey = originalKind(kind)
+                    const original = draft.pricing[origKey][key]
+                    const discounted = draft.pricing[kind][key]
+                    const showStrike = pricesDiffer(original, discounted)
+                    return (
+                      <div
+                        key={key}
+                        className="mb-3 border-b border-accent/15 pb-3 last:mb-0 last:border-0 last:pb-0"
+                      >
+                        <p className="mb-2 text-sm font-medium">{label}</p>
+                        <div className="flex flex-wrap items-end gap-2">
+                          <EuroField
+                            label="Original"
+                            value={original}
+                            onChange={(next) =>
+                              setDraft({
+                                ...draft,
+                                pricing: {
+                                  ...draft.pricing,
+                                  [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                },
+                              })
+                            }
+                          />
+                          <EuroField
+                            label="Discounted"
+                            value={discounted}
+                            onChange={(next) =>
+                              setDraft({
+                                ...draft,
+                                pricing: {
+                                  ...draft.pricing,
+                                  [kind]: { ...draft.pricing[kind], [key]: next },
+                                },
+                              })
+                            }
+                          />
+                          <div className="mb-1 shrink-0 self-end text-right leading-none">
+                            {showStrike ? (
+                              <span className="mb-0.5 block text-sm font-semibold tabular-nums text-secondary/70 line-through">
+                                {original}
+                              </span>
+                            ) : null}
+                            <span className="block font-serif text-xl font-extrabold tabular-nums text-primary">
+                              {discounted || '—'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               ))}
             </div>
@@ -407,16 +696,49 @@ export function PortalApp() {
             <div className="rounded-xl border border-accent/20 bg-white p-4 space-y-3">
               <label className="block text-sm">
                 Phone display
-                <input
-                  className="mt-1 w-full rounded border px-2 py-1"
-                  value={draft.phone.displayText}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      phone: { ...draft.phone, displayText: e.target.value },
-                    })
-                  }
-                />
+                <span className="mt-1 flex overflow-hidden rounded border bg-white">
+                  <select
+                    className="max-w-[11rem] shrink-0 border-r bg-white px-2 py-1"
+                    aria-label="Country code"
+                    value={phoneCountry.id}
+                    onChange={(e) => {
+                      const nextCountry = getPhoneCountry(e.target.value)
+                      const local = subscriberDigits(
+                        draft.phone.displayText || draft.phone.number,
+                        phoneCountry
+                      )
+                      setPhoneCountryId(nextCountry.id)
+                      setDraft({
+                        ...draft,
+                        phone: phoneSnapshot(nextCountry, local),
+                      })
+                    }}
+                  >
+                    {PHONE_COUNTRIES.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name} ({country.dial})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    className="min-w-0 flex-1 border-0 px-2 py-1 outline-none"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    aria-label="Phone number"
+                    placeholder={phoneCountry.placeholder}
+                    value={formatLocalPhoneInput(
+                      draft.phone.displayText || draft.phone.number,
+                      phoneCountry
+                    )}
+                    onChange={(e) => {
+                      setDraft({
+                        ...draft,
+                        phone: phoneSnapshot(phoneCountry, e.target.value),
+                      })
+                    }}
+                  />
+                </span>
               </label>
               <label className="block text-sm">
                 Email
@@ -461,53 +783,90 @@ export function PortalApp() {
                   }
                 />
               </label>
-              {WEEKDAYS.map((day) => (
-                <div key={day} className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="w-24 capitalize">{day}</span>
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={draft.hours[day].closed}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          hours: {
-                            ...draft.hours,
-                            [day]: { ...draft.hours[day], closed: e.target.checked },
-                          },
-                        })
-                      }
-                    />
-                    Closed
-                  </label>
-                  <input
-                    className="rounded border px-2 py-1"
-                    value={draft.hours[day].open}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        hours: {
-                          ...draft.hours,
-                          [day]: { ...draft.hours[day], open: e.target.value },
-                        },
-                      })
-                    }
-                  />
-                  <input
-                    className="rounded border px-2 py-1"
-                    value={draft.hours[day].close}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        hours: {
-                          ...draft.hours,
-                          [day]: { ...draft.hours[day], close: e.target.value },
-                        },
-                      })
-                    }
-                  />
-                </div>
-              ))}
+              <div className="rounded-xl border border-accent/20 bg-[var(--bg)]/40 p-3">
+                <h2 className="mb-2 text-base font-semibold">Business hours</h2>
+                <ul className="space-y-0">
+                  {DISPLAY_DAYS.map(([label, day]) => {
+                    const row = draft.hours[day]
+                    const closed = row.closed
+                    return (
+                      <li
+                        key={day}
+                        className="border-b border-accent/15 py-2 last:border-b-0"
+                      >
+                        <div className="flex items-baseline justify-between gap-4">
+                          <span className="w-28 shrink-0 text-[var(--text-dark)]/70">
+                            {label}
+                          </span>
+                          <span className="shrink-0 text-right font-semibold tabular-nums text-[var(--text-dark)]">
+                            {closed
+                              ? 'Closed'
+                              : `${formatHourLabel(row.open)} – ${formatHourLabel(row.close)}`}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center justify-end gap-2 text-sm">
+                          <label className="flex items-center gap-1">
+                            <input
+                              type="checkbox"
+                              checked={closed}
+                              onChange={(e) => {
+                                const hours = {
+                                  ...draft.hours,
+                                  [day]: { ...row, closed: e.target.checked },
+                                }
+                                setDraft({
+                                  ...draft,
+                                  hours,
+                                  hoursDisplay: buildHoursDisplay(hours),
+                                })
+                              }}
+                            />
+                            Closed
+                          </label>
+                          <input
+                            type="time"
+                            step={60}
+                            className="rounded border px-2 py-1 disabled:opacity-40"
+                            aria-label={`${label} opens`}
+                            disabled={closed}
+                            value={toHhmm(row.open, '09:00')}
+                            onChange={(e) => {
+                              const hours = {
+                                ...draft.hours,
+                                [day]: { ...row, open: toHhmm(e.target.value, row.open) },
+                              }
+                              setDraft({
+                                ...draft,
+                                hours,
+                                hoursDisplay: buildHoursDisplay(hours),
+                              })
+                            }}
+                          />
+                          <input
+                            type="time"
+                            step={60}
+                            className="rounded border px-2 py-1 disabled:opacity-40"
+                            aria-label={`${label} closes`}
+                            disabled={closed}
+                            value={toHhmm(row.close, '20:00')}
+                            onChange={(e) => {
+                              const hours = {
+                                ...draft.hours,
+                                [day]: { ...row, close: toHhmm(e.target.value, row.close) },
+                              }
+                              setDraft({
+                                ...draft,
+                                hours,
+                                hoursDisplay: buildHoursDisplay(hours),
+                              })
+                            }}
+                          />
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
             </div>
             <PublishBar onPublish={() => void publish()} />
           </section>
@@ -572,7 +931,7 @@ export function PortalApp() {
                 />
                 Fresha
               </label>
-              <label className="block text-sm">
+              <label className="block text-sm font-medium">
                 Clinic name
                 <input
                   className="mt-1 w-full rounded border px-2 py-1"
@@ -607,8 +966,14 @@ export function PortalApp() {
                 </div>
               ))}
             </div>
-            <ChangeHistory rows={history} />
             <PublishBar onPublish={() => void publish()} />
+          </section>
+        )}
+
+        {tab === 'history' && (
+          <section className="space-y-4">
+            <h1 className="text-xl font-semibold">Change History</h1>
+            <ChangeHistory rows={history} />
           </section>
         )}
       </main>
@@ -667,7 +1032,6 @@ function ChangeHistory({ rows }: { rows: HistoryRow[] }) {
   const groups = groupHistory(rows)
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Change history</h2>
       {groups.length === 0 ? (
         <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
           No published changes yet.

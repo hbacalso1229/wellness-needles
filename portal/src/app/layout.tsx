@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Wellness Needles — Owner portal',
+  title: 'Wellness Needles - Admin Portal',
   robots: { index: false, follow: false },
 }
 
