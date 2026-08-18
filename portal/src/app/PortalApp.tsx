@@ -163,10 +163,9 @@ export function PortalApp() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-black/5 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-lg font-semibold text-primary">Wellness Needles</p>
-            <p className="text-xs uppercase tracking-wide text-secondary">Owner portal</p>
-          </div>
+          <p className="font-serif text-lg font-semibold text-primary">
+            Wellness Needles - Admin Portal
+          </p>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="text-[var(--text-dark)]/70">{email || 'Signed in'}</span>
             <button type="button" className="text-primary underline" onClick={logout}>
