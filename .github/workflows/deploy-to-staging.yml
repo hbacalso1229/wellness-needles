@@ -1,19 +1,17 @@
 name: Deploy — Staging
 
-# Runs after CI succeeds on dev.
+# Runs on push to dev (not PRs, not merge to main).
 # Deploys a Vercel Preview deployment, then aliases it to the stable staging
 # hostname: https://wellness-needles.vercel.app
 # Also supports manual runs via workflow_dispatch.
+# Vercel Git auto-deploys are off (vercel.json git.deploymentEnabled) so merge
+# to main cannot reclaim the staging hostname.
 
 on:
-  workflow_run:
-    workflows: [Check — Quality]
-    types: [completed]
+  push:
     branches: [dev]
   workflow_dispatch:
 
-# workflow_run.branches / head_branch use the PR head, so a Quality run for a
-# `dev` → `main` PR looks like a `dev` run. Only follow Quality from a push.
 concurrency:
   group: deploy-staging
   cancel-in-progress: true
@@ -21,14 +19,6 @@ concurrency:
 jobs:
   deploy_staging:
     name: Build & Deploy to Staging (Vercel Preview)
-    # Only deploy when Quality succeeded on a push to `dev` (or manual dispatch).
-    # Do not promote `main` merges, or PRs from `dev` (including `dev` → `main`),
-    # to the staging alias. workflow_run.head_branch is the PR head, not the base.
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'dev' &&
-       github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     environment:
       name: staging
@@ -37,8 +27,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

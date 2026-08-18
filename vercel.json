@@ -1,4 +1,7 @@
 {
   "trailingSlash": true,
-  "framework": null
+  "framework": null,
+  "git": {
+    "deploymentEnabled": false
+  }
 }
