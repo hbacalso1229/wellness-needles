@@ -22,7 +22,9 @@ import {
 import {
   CONDITION_MAX_LEN,
   parseHalfStarRating,
+  suggestEmphasis,
 } from '../../../shared/review-rating'
+import { DEFAULT_REVIEWS } from '../../../shared/default-reviews'
 import { HalfStarPicker } from '../../../src/features/ui/RatingStars'
 import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import {
@@ -83,7 +85,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'bookings', label: 'Bookings' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'contact', label: 'Business Info' },
   { id: 'settings', label: 'Settings' },
   { id: 'history', label: 'Change History' },
 ]
@@ -106,6 +108,43 @@ function reviewBucket(status?: string): 'pending' | 'confirmed' | 'rejected' {
   if (status === 'approved') return 'confirmed'
   if (status === 'rejected' || status === 'cancelled') return 'rejected'
   return 'pending'
+}
+
+function isBakedGoogleReview(row: { name: string; reviewedAt?: string }): boolean {
+  const date = (row.reviewedAt || '').slice(0, 10)
+  const name = row.name.trim().toLowerCase()
+  return DEFAULT_REVIEWS.some(
+    (baked) => baked.name.trim().toLowerCase() === name && baked.reviewedAt === date
+  )
+}
+
+function reviewMatchesQuery(
+  row: {
+    name: string
+    condition?: string
+    source?: string
+    reviewedAt?: string
+    body?: string
+    excerpt?: string
+    emphasis?: string
+  },
+  query: string
+): boolean {
+  const q = query.trim().toLowerCase()
+  if (!q) return true
+  return [
+    row.name,
+    row.condition,
+    row.source,
+    row.reviewedAt,
+    row.body,
+    row.excerpt,
+    row.emphasis,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join('\n')
+    .toLowerCase()
+    .includes(q)
 }
 
 function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
@@ -159,7 +198,6 @@ export function PortalApp() {
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [startsAtLocal, setStartsAtLocal] = useState('')
   const [newReviewName, setNewReviewName] = useState('')
-  const [newReviewExcerpt, setNewReviewExcerpt] = useState('')
   const [newReviewRating, setNewReviewRating] = useState<number | null>(null)
   const [newReviewCondition, setNewReviewCondition] = useState('')
   const [newReviewSource, setNewReviewSource] = useState('Verified Google review')
@@ -167,7 +205,9 @@ export function PortalApp() {
   const [newReviewBody, setNewReviewBody] = useState('')
   const [newReviewDate, setNewReviewDate] = useState('')
   const [pendingTags, setPendingTags] = useState<Record<string, string>>({})
+  const [pendingEmphasis, setPendingEmphasis] = useState<Record<string, string>>({})
   const [reviewStatusTab, setReviewStatusTab] = useState<ReviewStatusTab>('pending')
+  const [reviewQuery, setReviewQuery] = useState('')
   const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
   const phoneCountry = getPhoneCountry(phoneCountryId)
 
@@ -223,8 +263,13 @@ export function PortalApp() {
     [reviews]
   )
   const reviewRows = useMemo(
-    () => reviews.filter((row) => reviewBucket(row.status) === reviewStatusTab),
-    [reviews, reviewStatusTab]
+    () =>
+      reviews.filter(
+        (row) =>
+          reviewBucket(row.status) === reviewStatusTab &&
+          reviewMatchesQuery(row, reviewQuery)
+      ),
+    [reviews, reviewStatusTab, reviewQuery]
   )
   const lastPublish = history[0]
     ? { at: history[0].changedAt, by: history[0].changedBy }
@@ -354,7 +399,6 @@ export function PortalApp() {
         {tab === 'bookings' && (
           <section className="space-y-4">
             <PageHeader
-              title="Bookings"
               description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start.`}
             />
             {bookings.length === 0 ? (
@@ -424,7 +468,6 @@ export function PortalApp() {
         {tab === 'reviews' && (
           <section className="space-y-4">
             <PageHeader
-              title="Reviews"
               description="Visitor submissions from the website land in Awaiting review. Confirm to publish on the live site, or reject to keep them off."
             />
             <form
@@ -436,7 +479,19 @@ export function PortalApp() {
                   show('Choose a star rating')
                   return
                 }
-                const bodyText = newReviewBody.trim() || newReviewExcerpt.trim()
+                const bodyText = newReviewBody.trim()
+                if (!bodyText) {
+                  show('Write the full review')
+                  return
+                }
+                let phrase = newReviewEmphasis.trim()
+                if (!phrase) {
+                  phrase = suggestEmphasis(bodyText)
+                  setNewReviewEmphasis(phrase)
+                } else if (!bodyText.includes(phrase)) {
+                  show('Phrase to bold must appear exactly in the full review')
+                  return
+                }
                 try {
                   await api('/api/admin/reviews', {
                     method: 'POST',
@@ -447,13 +502,11 @@ export function PortalApp() {
                       condition: newReviewCondition,
                       reviewedAt: newReviewDate,
                       source: newReviewSource,
-                      emphasis: newReviewEmphasis,
-                      excerpt: newReviewExcerpt || bodyText,
+                      emphasis: phrase,
                       body: bodyText,
                     }),
                   })
                   setNewReviewName('')
-                  setNewReviewExcerpt('')
                   setNewReviewRating(null)
                   setNewReviewCondition('')
                   setNewReviewSource('Verified Google review')
@@ -496,24 +549,23 @@ export function PortalApp() {
                 value={newReviewSource}
                 onChange={(e) => setNewReviewSource(e.target.value)}
               />
-              <input
-                className="w-full rounded border px-2 py-1"
-                placeholder="Phrase to bold (optional)"
-                value={newReviewEmphasis}
-                onChange={(e) => setNewReviewEmphasis(e.target.value)}
-              />
               <textarea
                 className="w-full rounded border px-2 py-1"
                 placeholder="Full review"
                 value={newReviewBody}
                 onChange={(e) => setNewReviewBody(e.target.value)}
+                onBlur={() => {
+                  if (!newReviewEmphasis.trim() && newReviewBody.trim()) {
+                    setNewReviewEmphasis(suggestEmphasis(newReviewBody))
+                  }
+                }}
                 required
               />
-              <textarea
+              <input
                 className="w-full rounded border px-2 py-1"
-                placeholder="Short quote (optional)"
-                value={newReviewExcerpt}
-                onChange={(e) => setNewReviewExcerpt(e.target.value)}
+                placeholder="Phrase to bold (optional — auto-filled from the review)"
+                value={newReviewEmphasis}
+                onChange={(e) => setNewReviewEmphasis(e.target.value)}
               />
               <button type="submit" className="rounded-full bg-primary px-3 py-1.5 text-sm text-white">
                 Save to Awaiting review
@@ -524,12 +576,16 @@ export function PortalApp() {
                 value={reviewStatusTab}
                 counts={reviewCounts}
                 onChange={setReviewStatusTab}
+                query={reviewQuery}
+                onQueryChange={setReviewQuery}
               />
               {reviewRows.length === 0 ? (
                 <p className="text-sm text-secondary">
-                  {reviewStatusTab === 'pending'
-                    ? 'Nothing awaiting review.'
-                    : 'None.'}
+                  {reviewQuery.trim()
+                    ? `No reviews match “${reviewQuery.trim()}”.`
+                    : reviewStatusTab === 'pending'
+                      ? 'Nothing awaiting review.'
+                      : 'None.'}
                 </p>
               ) : (
                 <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -544,21 +600,37 @@ export function PortalApp() {
                         source={row.source}
                         body={row.body || row.excerpt || ''}
                         tagValue={pendingTags[row.id] ?? row.condition ?? ''}
+                        emphasisValue={pendingEmphasis[row.id] ?? row.emphasis ?? ''}
+                        bakedLiveNote={
+                          reviewStatusTab === 'confirmed' && isBakedGoogleReview(row)
+                            ? 'This review matches a baked card on the live site. Overlay is off, so changing the tag or highlight here will not update that card until overlay is on.'
+                            : undefined
+                        }
                         onTagChange={(next) =>
                           setPendingTags((prev) => ({ ...prev, [row.id]: next }))
                         }
-                        onSaveTag={async () => {
+                        onEmphasisChange={(next) =>
+                          setPendingEmphasis((prev) => ({ ...prev, [row.id]: next }))
+                        }
+                        onSuggestEmphasis={() => {
+                          const suggested = suggestEmphasis(row.body || row.excerpt || '')
+                          if (suggested) {
+                            setPendingEmphasis((prev) => ({ ...prev, [row.id]: suggested }))
+                          }
+                        }}
+                        onSaveTagAndHighlight={async () => {
                           await postReview(row.id, 'update', {
                             condition: pendingTags[row.id] ?? row.condition,
+                            emphasis: pendingEmphasis[row.id] ?? row.emphasis ?? '',
                           })
-                          show('Tag saved')
+                          show('Tag and highlight saved')
                           await load()
                         }}
                         onConfirm={async () => {
-                          const tag = pendingTags[row.id]
-                          if (tag !== undefined && tag !== (row.condition || '')) {
-                            await postReview(row.id, 'update', { condition: tag })
-                          }
+                          await postReview(row.id, 'update', {
+                            condition: pendingTags[row.id] ?? row.condition,
+                            emphasis: pendingEmphasis[row.id] ?? row.emphasis ?? '',
+                          })
                           await postReview(row.id, 'confirm')
                           show('Published to the website.')
                           setReviewStatusTab('confirmed')
@@ -594,7 +666,6 @@ export function PortalApp() {
         {tab === 'pricing' && (
           <section className="space-y-5">
             <PageHeader
-              title="Pricing"
               description="Manage the prices shown on your booking page. Update clinic and home-visit pricing, then publish your changes when you're ready."
             />
             <div className="grid gap-4 sm:grid-cols-2">
@@ -668,7 +739,6 @@ export function PortalApp() {
         {tab === 'contact' && (
           <section className="space-y-5">
             <PageHeader
-              title="Contact & Business Information"
               description="Manage the contact details, social links, and business hours displayed on your website."
             />
             <Card title="Contact details">
@@ -792,7 +862,6 @@ export function PortalApp() {
 
         {tab === 'settings' && (
           <section className="space-y-5">
-            <PageHeader title="Settings" />
             <Card>
               <div className="space-y-3">
               <label className="flex items-start gap-2 text-sm">
@@ -902,7 +971,6 @@ export function PortalApp() {
         {tab === 'history' && (
           <section className="space-y-5">
             <PageHeader
-              title="Change History"
               description="Published updates to contact, hours, pricing, and site settings."
             />
             <Card>
