@@ -8,7 +8,10 @@ type PagesFunction<Env = unknown> = (context: {
 export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(200, { bookings: [] })
   const url = new URL(context.request.url)
-  const status = url.searchParams.get('status') || 'pending'
+  const requested = url.searchParams.get('status') || 'pending'
+  const status =
+    requested === 'confirmed' || requested === 'cancelled' ? requested : 'pending'
+  const orderSql = status === 'confirmed' ? 'starts_at IS NULL, starts_at DESC' : 'created_at DESC'
   const { results } = await context.env.DB.prepare(
     `SELECT id, status, first_name as firstName, last_name as lastName, email, phone,
             service_type as serviceType, location_label as locationLabel, service_label as serviceLabel,
@@ -16,7 +19,7 @@ export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
             sms_opt_in as smsOptIn, created_at as createdAt
      FROM bookings
      WHERE status = ?
-     ORDER BY created_at DESC
+     ORDER BY ${orderSql}
      LIMIT 200`
   )
     .bind(status)

@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   reminder_sms_sent INTEGER NOT NULL DEFAULT 0,
   cancel_email_sent INTEGER NOT NULL DEFAULT 0,
   cancel_sms_sent INTEGER NOT NULL DEFAULT 0,
+  ics_sequence INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
 

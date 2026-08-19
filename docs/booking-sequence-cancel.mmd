@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  participant Owner
+  participant Portal
+  participant D1
+  participant Resend
+  participant Zoho_info
+  participant Twilio
+  participant Patient
+
+  Owner->>Portal: Cancel
+  alt Was still pending
+    Portal->>Resend: We could not confirm this request
+    Resend->>Patient: Cancel email (no calendar invite)
+  else Was already confirmed
+    Portal->>Resend: Appointment cancelled + invite.ics CANCEL
+    Resend->>Patient: Cancel email + calendar cancel
+  end
+  opt Patient SMS On and opted in
+    Portal->>Twilio: Same text SMS
+    Twilio->>Patient: SMS
+  end
+  Portal->>D1: status cancelled
+  Portal-->>Owner: 200
+  opt Was already confirmed
+    Portal->>Resend: clinic copy (waitUntil, same UID)
+    Resend->>Zoho_info: clinic calendar cancel
+  end

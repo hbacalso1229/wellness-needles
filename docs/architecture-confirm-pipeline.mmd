@@ -1,0 +1,19 @@
+flowchart TD
+  start[Owner Confirm + Europe/Dublin start snapped to 15 min]
+  mail[Await patient email + invite.ics]
+  sms{Patient SMS On and opted in?}
+  twilio[Await Twilio SMS]
+  d1[UPDATE D1: confirmed, starts_at, remind_at]
+  ok[HTTP 200 to portal]
+  clinic[waitUntil clinic ICS copy to info@]
+  window{Already in reminder window?}
+  cron[Worker later: reminder card, no ICS]
+  skip[Skip cron: reminder flags already set]
+
+  start --> mail --> sms
+  sms -->|yes| twilio --> d1
+  sms -->|no| d1
+  d1 --> ok --> clinic
+  clinic --> window
+  window -->|no: still time| cron
+  window -->|yes: last minute| skip

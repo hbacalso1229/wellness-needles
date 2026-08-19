@@ -1,0 +1,18 @@
+sequenceDiagram
+  autonumber
+  participant Patient
+  participant Site_bookings
+  participant Web3Forms
+  participant Zoho_info
+  participant D1
+  participant Resend
+
+  Patient->>Site_bookings: Submit booking + Turnstile
+  Site_bookings->>Web3Forms: Send booking fields
+  Web3Forms->>Zoho_info: To info@
+  Web3Forms-->>Site_bookings: Success
+  Site_bookings->>D1: Save pending request if overlay on
+  Note over D1: Persist is fire-and-forget. Failure does not block clinic email
+  Site_bookings->>Resend: Thank-you HTML From info@
+  Resend->>Patient: Email = request received
+  Site_bookings->>Patient: Show /bookings/thank-you/

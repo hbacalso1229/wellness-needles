@@ -1,0 +1,36 @@
+sequenceDiagram
+  autonumber
+  participant Owner
+  participant Portal
+  participant D1
+  participant Reminders
+  participant Resend
+  participant Zoho_info
+  participant Twilio
+  participant Patient
+
+  Owner->>Portal: Confirm + exact Ireland start
+  alt Still time (before day-before 09:00)
+    Portal->>Resend: Appointment confirmed + invite.ics
+    Resend->>Patient: Confirmation email + calendar invite
+  else Last minute (day before after 09:00, or same day)
+    Portal->>Resend: Confirmed, see you then + invite.ics
+    Resend->>Patient: Combined email + calendar invite
+  end
+  opt Patient SMS On and opted in
+    Portal->>Twilio: Same text SMS
+    Twilio->>Patient: SMS
+  end
+  Portal->>D1: status confirmed, remind_at = 09:00 day before
+  Portal-->>Owner: 200
+  Portal->>Resend: clinic copy (waitUntil, same UID)
+  Resend->>Zoho_info: clinic calendar copy
+  opt Still time — cron every 15 min (email only, no ICS)
+    Reminders->>D1: confirmed where remind_at is due
+    Reminders->>Resend: Reminder — your appointment is tomorrow
+    Resend->>Patient: Reminder email (See you tomorrow)
+    opt Patient SMS On and opted in
+      Reminders->>Twilio: Same text SMS
+      Twilio->>Patient: SMS
+    end
+  end

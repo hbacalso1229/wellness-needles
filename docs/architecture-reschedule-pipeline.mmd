@@ -1,0 +1,19 @@
+flowchart TD
+  start[Owner Reschedule + new Dublin start service location]
+  mail[Await Appointment updated + invite.ics SEQUENCE plus 1]
+  sms{Patient SMS On and opted in?}
+  twilio[Await Twilio SMS]
+  d1[UPDATE starts_at remind_at service location ics_sequence]
+  ok[HTTP 200 to portal]
+  clinic[waitUntil clinic ICS copy to info@]
+  window{New slot still before day-before 09:00?}
+  cron[Worker later: reminder card, no ICS]
+  skip[Skip cron: reminder flags set]
+
+  start --> mail --> sms
+  sms -->|yes| twilio --> d1
+  sms -->|no| d1
+  d1 --> ok --> clinic
+  clinic --> window
+  window -->|yes still time| cron
+  window -->|no last minute| skip

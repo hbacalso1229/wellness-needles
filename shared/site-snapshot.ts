@@ -100,12 +100,18 @@ export const PRICE_ITEM_KEYS: readonly PriceItemKey[] = [
   'cupping',
 ]
 
-export const BOOKABLE_PRICE_KEYS: readonly PriceItemKey[] = [
+export const BOOKABLE_PRICE_KEYS = [
   'initial',
   'followUp',
   'package5',
   'package10',
-]
+] as const satisfies readonly PriceItemKey[]
+
+export type BookablePriceKey = (typeof BOOKABLE_PRICE_KEYS)[number]
+
+export function isBookablePriceKey(key: PriceItemKey): key is BookablePriceKey {
+  return (BOOKABLE_PRICE_KEYS as readonly PriceItemKey[]).includes(key)
+}
 
 export function defaultPriceItemFlags(packagesEnabled: boolean): PriceListEnabled {
   return {

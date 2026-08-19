@@ -1,0 +1,36 @@
+flowchart LR
+  Patient[Patient browser]
+  Owner[Owner browser]
+
+  subgraph Cloudflare
+    WWW[Pages www]
+    Portal[Pages portal]
+    Worker[Reminders Worker */15]
+    D1[(D1 wellness-needles)]
+    KV[(KV SITE_CACHE)]
+  end
+
+  subgraph MailSMS
+    W3[Web3Forms]
+    Resend[Resend From info@]
+    Zoho[Zoho info@]
+    Twilio[Twilio]
+  end
+
+  Patient --> WWW
+  Owner -->|Access| Portal
+  WWW -->|Turnstile then clinic email| W3
+  W3 --> Zoho
+  WWW -->|overlay on: persist| D1
+  WWW -->|thank-you| Resend
+  Resend --> Patient
+  Portal --> D1
+  Portal --> KV
+  WWW -->|overlay on: /api/bff/site| KV
+  Portal -->|Confirm Reschedule Cancel| Resend
+  Resend --> Zoho
+  Worker --> D1
+  Worker --> Resend
+  Portal -.->|Patient SMS on| Twilio
+  Worker -.->|Patient SMS on| Twilio
+  Twilio -.-> Patient
