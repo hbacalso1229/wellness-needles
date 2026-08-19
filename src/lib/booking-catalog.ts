@@ -130,7 +130,7 @@ export const inClinicAddOns: BookingCatalogAddOn[] = [
   {
     id: 'moxibustion',
     name: 'Moxibustion',
-    price: 'Free (if required)',
+    price: 'Free',
     description:
       'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
   },
@@ -146,7 +146,7 @@ export const homeVisitAddOns: BookingCatalogAddOn[] = [
   {
     id: 'moxibustion',
     name: 'Moxibustion',
-    price: 'Free (if required)',
+    price: 'Free',
     description:
       'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
   },

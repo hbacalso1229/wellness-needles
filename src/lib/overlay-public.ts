@@ -2,6 +2,7 @@ import {
   DEFAULT_SERVICE_COPY,
   defaultPriceItemFlags,
   formatHourLabel,
+  pricesDiffer,
   type PriceItemKey,
   type PriceList,
   type PriceListEnabled,
@@ -61,7 +62,7 @@ function applyServicePrices(
         description: item.description.trim() || service.description,
         duration: item.duration.trim() || service.duration,
         price,
-        originalPrice: orig && orig !== price ? orig : undefined,
+        originalPrice: pricesDiffer(orig ?? '', price) ? orig : undefined,
       },
     ]
   })
@@ -87,7 +88,7 @@ function applyAddOnPrices(
         name: item.name.trim() || addOn.name,
         description: item.description.trim() || addOn.description,
         price,
-        originalPrice: orig && orig !== price ? orig : undefined,
+        originalPrice: pricesDiffer(orig ?? '', price) ? orig : undefined,
       },
     ]
   })
@@ -102,7 +103,7 @@ function extraToService(extra: PricingExtra): BookingCatalogService | null {
     name: extra.name.trim(),
     duration: 'Multiple visits',
     price,
-    originalPrice: original && original !== price ? original : undefined,
+    originalPrice: pricesDiffer(original, price) ? original : undefined,
     description: extra.description.trim() || extra.name.trim(),
   }
 }
@@ -115,7 +116,7 @@ function extraToAddOn(extra: PricingExtra): BookingCatalogAddOn | null {
     id: extra.id,
     name: extra.name.trim(),
     price,
-    originalPrice: original && original !== price ? original : undefined,
+    originalPrice: pricesDiffer(original, price) ? original : undefined,
     description: extra.description.trim() || extra.name.trim(),
   }
 }

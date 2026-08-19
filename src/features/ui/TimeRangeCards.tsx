@@ -162,7 +162,7 @@ export function TimeRangeCards({
 }: TimeRangeCardsProps) {
   const ranges = visibleTimeRanges(dateStr, hours)
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-4">
+    <div className="grid grid-cols-3 gap-2 md:gap-3 lg:gap-4">
       {ranges.map((range) => {
         const selected = selectedId === range.id
         const past = Boolean(range.unavailable) || isPastTimeRange(dateStr, range.id, hours)
@@ -171,14 +171,14 @@ export function TimeRangeCards({
         return (
           <label
             key={range.id}
-            className={`booking-select-card relative block min-w-0 box-border rounded-xl border p-2.5 sm:p-4 ${
+            className={`booking-select-card relative block min-w-0 box-border rounded-xl border p-2.5 md:p-3 lg:p-4 ${
               past
                 ? 'cursor-not-allowed border-accent/20 bg-accent/[0.04]'
                 : selected
                   ? 'z-[1] cursor-pointer border-primary bg-accent/20'
                   : hasError
                     ? 'cursor-pointer border-red-400 bg-white [@media(hover:hover)]:hover:border-red-500'
-                    : 'cursor-pointer border-[var(--text-dark)]/12 bg-white [@media(hover:hover)]:hover:border-primary/40'
+                    : 'cursor-pointer border-[var(--text-dark)]/12 bg-white [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
             }`}
           >
             <input
@@ -206,12 +206,12 @@ export function TimeRangeCards({
               ) : null}
             </span>
             <div
-              className={`pointer-events-none relative z-0 flex flex-col items-start gap-2 pr-6 sm:gap-3 sm:pr-7 ${
+              className={`pointer-events-none relative z-0 flex flex-col items-start gap-2 pr-6 lg:gap-3 ${
                 past ? 'opacity-60' : ''
               }`}
             >
               <span
-                className={`booking-select-card__icon flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-11 sm:w-11 ${
+                className={`booking-select-card__icon flex h-8 w-8 shrink-0 items-center justify-center rounded-full lg:h-11 lg:w-11 ${
                   selected && !past
                     ? 'bg-primary text-cream'
                     : past
@@ -219,31 +219,35 @@ export function TimeRangeCards({
                       : 'bg-accent/15 text-primary'
                 }`}
               >
-                <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
+                <Icon className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
               </span>
               <div className="min-w-0 w-full">
                 <h4
-                  className={`text-sm font-semibold leading-snug sm:text-base ${
+                  className={`text-sm font-semibold leading-snug lg:text-base ${
                     past ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]'
                   }`}
                 >
                   {range.label}
                 </h4>
                 <p
-                  className={`mt-0.5 text-[11px] leading-snug sm:text-sm sm:leading-relaxed ${
+                  className={`mt-0.5 text-[11px] leading-tight tabular-nums md:whitespace-nowrap lg:text-sm lg:leading-relaxed ${
                     past ? 'text-secondary/80' : 'text-[var(--text-dark)]'
                   }`}
                 >
                   {range.window}
                 </p>
                 {past ? (
-                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-secondary sm:mt-1.5 sm:text-xs">
+                  <span className="mt-1 inline-flex max-w-full items-center rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-secondary md:whitespace-nowrap lg:mt-1.5 lg:text-xs">
                     Unavailable
-                  </p>
+                  </span>
                 ) : (
-                  <p className="mt-1 text-[10px] font-semibold leading-snug text-primary sm:mt-1.5 sm:text-xs">
+                  <span
+                    className={`mt-1 inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-snug md:whitespace-nowrap lg:mt-1.5 lg:text-xs ${
+                      selected ? 'bg-white text-primary' : 'bg-accent/20 text-primary'
+                    }`}
+                  >
                     {range.hint}
-                  </p>
+                  </span>
                 )}
               </div>
             </div>

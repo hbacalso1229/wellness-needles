@@ -352,7 +352,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€270',
       package10: '€520',
       cupping: '€20',
-      moxibustion: 'Free (if required)',
+      moxibustion: '€0',
     },
     homeVisit: {
       initial: '€120',
@@ -360,7 +360,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€350',
       package10: '€690',
       cupping: '€25',
-      moxibustion: 'Free (if required)',
+      moxibustion: '€0',
     },
     inClinicOriginal: {
       initial: '€150',
@@ -462,10 +462,20 @@ function priceAmount(value: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+export function isFreePrice(value: string): boolean {
+  if (/^\s*free\b/i.test(value)) return true
+  return priceAmount(value) === 0
+}
+
+function asEuroOrFree(value: string): string {
+  if (isFreePrice(value)) return '€0'
+  return value
+}
+
 /** Strikethrough only when original and discounted are both set and differ. */
 export function pricesDiffer(original: string, discounted: string): boolean {
   const orig = priceAmount(original)
-  if (orig == null) return false
+  if (orig == null || orig <= 0) return false
   const disc = priceAmount(discounted)
   if (disc == null) return false
   return orig !== disc
@@ -583,7 +593,7 @@ function parsePriceList(
     package5: pick('package5'),
     package10: pick('package10'),
     cupping: pick('cupping'),
-    moxibustion: pick('moxibustion'),
+    moxibustion: asEuroOrFree(pick('moxibustion')),
   }
 }
 

@@ -140,7 +140,7 @@ docs/
 
 ## Booking prices
 
-In-clinic and home visit **must stay on different prices**. Overlay-off (and API fallback) reads [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts). Overlay-on reads portal Pricing after Publish (euro amounts, names, descriptions, durations, Cupping and Moxibustion on/off). Moxibustion defaults to **Free (if required)** until you change it.
+In-clinic and home visit **must stay on different prices**. Overlay-off (and API fallback) reads [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts). Overlay-on reads portal Pricing after Publish (euro amounts, names, descriptions, durations, Cupping and Moxibustion on/off). Moxibustion defaults to **€0** (shown as Free on the booking form) until you change it.
 
 | Service | In clinic | Home visit |
 |---------|-----------|------------|
@@ -149,7 +149,7 @@ In-clinic and home visit **must stay on different prices**. Overlay-off (and API
 | Treatment Package (5 sessions) | €270 | €350 |
 | Treatment Package (10 sessions) | €520 | €690 |
 | Cupping add-on | €20 | €25 |
-| Moxibustion | Free (if required) | Free (if required) |
+| Moxibustion | Free (€0) | Free (€0) |
 
 ## Production deployment
 

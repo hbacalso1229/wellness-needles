@@ -121,6 +121,11 @@ export function CompactEuroField({
   value: string
   onChange: (next: string) => void
 }) {
+  const digits = priceDigits(value)
+  const display =
+    !digits || digits === '.' || (Number(digits) === 0 && !digits.endsWith('.'))
+      ? '0.00'
+      : digits
   return (
     <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
       {label}
@@ -134,7 +139,7 @@ export function CompactEuroField({
           pattern="[0-9]*[.]?[0-9]{0,2}"
           autoComplete="off"
           aria-label={`${label} in euro`}
-          value={priceDigits(value)}
+          value={display}
           onChange={(e) => onChange(euroPrice(e.target.value))}
         />
       </span>
@@ -198,6 +203,51 @@ function HourAmPmSelect({
         <option value="PM">PM</option>
       </select>
     </span>
+  )
+}
+
+function formatYmdDisplay(ymd: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd)
+  if (!match) return ymd
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+  return date.toLocaleDateString('en-IE', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+export function FullWidthDateField({
+  label,
+  value,
+  onChange,
+  max,
+}: {
+  label: string
+  value: string
+  onChange: (next: string) => void
+  max?: string
+}) {
+  return (
+    <label className="block w-full text-xs font-medium text-[var(--text-dark)]/60">
+      {label}
+      <span className="relative mt-1 block w-full min-w-0">
+        <span
+          aria-hidden
+          className="flex w-full min-w-0 items-center rounded border bg-white px-2 py-1 text-[var(--text-dark)]"
+        >
+          {formatYmdDisplay(value) || 'Select date'}
+        </span>
+        <input
+          type="date"
+          aria-label={label}
+          className="absolute inset-0 z-10 h-full w-full min-w-0 cursor-pointer opacity-0 [color-scheme:light]"
+          value={value}
+          max={max}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </span>
+    </label>
   )
 }
 

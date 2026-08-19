@@ -1461,18 +1461,29 @@ export default function BookingForm() {
                   />
                 </div>
                 {overlayEnabled && site.features.smsEnabled ? (
-                  <label className="flex items-start gap-2 text-sm text-[var(--text-dark)]">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={smsOptIn}
-                      onChange={(e) => setSmsOptIn(e.target.checked)}
-                    />
-                    <span>
-                      Text me confirmation, a reminder the day before, and if the clinic
-                      cancels.
-                    </span>
-                  </label>
+                  <div className="min-w-0 w-full max-w-full">
+                    <p className="block text-sm font-medium text-[var(--text-dark)] mb-1">
+                      Appointment reminders
+                    </p>
+                    <p className="mb-3 text-sm text-[var(--text-dark)]/55">
+                      We&apos;ll still email you either way.
+                    </p>
+                    <label className="flex items-start gap-2 text-sm text-[var(--text-dark)]">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={smsOptIn}
+                        onChange={(e) => setSmsOptIn(e.target.checked)}
+                      />
+                      <span>
+                        <span className="font-medium">Text me appointment updates</span>
+                        <span className="mt-0.5 block text-[var(--text-dark)]/55">
+                          Confirmation, a reminder the day before, and important changes or
+                          cancellations.
+                        </span>
+                      </span>
+                    </label>
+                  </div>
                 ) : null}
               </div>
             </div>
