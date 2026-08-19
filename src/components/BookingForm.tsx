@@ -42,13 +42,13 @@ import {
   TravelPolicyNotice,
   BookingDatePicker,
   TimeRangeCards,
-  findTimeRange,
   formatTimeRangeLabel,
   isPastTimeRange,
   isClosedBookingDate,
   nextOpenBookingDate,
   defaultPreferredDate,
   defaultPreferredTime,
+  visibleTimeRanges,
 } from '@/features'
 import {
   homeVisitAddOns,
@@ -349,6 +349,14 @@ export default function BookingForm() {
       variant: 'error',
     })
   }, [selectedDate, hours])
+
+  useEffect(() => {
+    const ranges = visibleTimeRanges(selectedDate, hours)
+    if (ranges.length === 0) return
+    if (!ranges.some((range) => range.id === selectedTime)) {
+      setSelectedTime(defaultPreferredTime(selectedDate, hours))
+    }
+  }, [selectedDate, hours, selectedTime])
 
   const showSecurityCheck = isBookingEmailConfigured(features) && !isLocalHost
   const showLocalSecurityNotice = isBookingEmailConfigured(features) && isLocalHost
@@ -723,7 +731,9 @@ export default function BookingForm() {
       practitioner: 'arkinth-garcia',
       date: selectedDate,
       time: (() => {
-        const range = findTimeRange(selectedTime)
+        const range = visibleTimeRanges(selectedDate, hours).find(
+          (item) => item.id === selectedTime
+        )
         return range ? formatTimeRangeLabel(range) : selectedTime
       })(),
       ...formData,

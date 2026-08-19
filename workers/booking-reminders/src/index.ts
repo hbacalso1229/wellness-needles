@@ -61,7 +61,7 @@ const worker = {
         firstName: row.first_name,
         patientName: row.first_name,
         startsAtIso: row.starts_at,
-        durationMinutes: bookingDurationMinutes(row.service_label),
+        durationMinutes: bookingDurationMinutes(row.service_label, site),
       })
       await env.DB.prepare(
         `UPDATE bookings SET reminder_email_sent = ?, reminder_sms_sent = ? WHERE id = ?`

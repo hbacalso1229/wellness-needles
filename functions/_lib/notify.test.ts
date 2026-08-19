@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { SITE_DEFAULTS } from '../../shared/site-snapshot'
 import {
   appointmentCopy,
   bookingDurationMinutes,
@@ -17,6 +18,25 @@ describe('bookingDurationMinutes', () => {
     assert.equal(bookingDurationMinutes('Package of 5'), 45)
     assert.equal(bookingDurationMinutes('Acupuncture'), 60)
     assert.equal(bookingDurationMinutes(null), 60)
+  })
+
+  it('uses published durationMinutes when the service name matches', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        serviceCopy: {
+          ...SITE_DEFAULTS.pricing.serviceCopy,
+          followUp: {
+            ...SITE_DEFAULTS.pricing.serviceCopy.followUp,
+            name: 'Return visit',
+            durationMinutes: 50,
+          },
+        },
+      },
+    }
+    assert.equal(bookingDurationMinutes('Return visit', site), 50)
+    assert.equal(bookingDurationMinutes('Follow-up', site), 45)
   })
 })
 

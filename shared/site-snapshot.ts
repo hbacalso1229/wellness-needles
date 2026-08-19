@@ -74,6 +74,7 @@ export type PriceList = {
   package5: string
   package10: string
   cupping: string
+  moxibustion: string
 }
 
 export type PriceItemKey = keyof PriceList
@@ -98,6 +99,7 @@ export const PRICE_ITEM_KEYS: readonly PriceItemKey[] = [
   'package5',
   'package10',
   'cupping',
+  'moxibustion',
 ]
 
 export const BOOKABLE_PRICE_KEYS = [
@@ -120,6 +122,7 @@ export function defaultPriceItemFlags(packagesEnabled: boolean): PriceListEnable
     package5: packagesEnabled,
     package10: packagesEnabled,
     cupping: true,
+    moxibustion: true,
   }
 }
 
@@ -144,6 +147,58 @@ export function createSiteInsurer(sortOrder: number): SiteInsurer {
     enabled: true,
     sortOrder,
   }
+}
+
+export type ServiceCopyKey = PriceItemKey
+
+export type ServiceCopyItem = {
+  name: string
+  description: string
+  duration: string
+  durationMinutes: number
+}
+
+export type ServiceCopy = Record<ServiceCopyKey, ServiceCopyItem>
+
+export const DEFAULT_SERVICE_COPY: ServiceCopy = {
+  initial: {
+    name: 'Initial Consultation & First Treatment',
+    description:
+      'Comprehensive health assessment with personalized treatment plan and first acupuncture session',
+    duration: '1 hour 15 minutes',
+    durationMinutes: 75,
+  },
+  followUp: {
+    name: 'Follow-up Sessions',
+    description: 'Tailored acupuncture treatment based on your progress and ongoing needs',
+    duration: '45 minutes',
+    durationMinutes: 45,
+  },
+  package5: {
+    name: 'Treatment Package (5 sessions)',
+    description: 'Save €30 with our 5-session package (Valid for 6 months – non-transferable)',
+    duration: 'Multiple visits',
+    durationMinutes: 45,
+  },
+  package10: {
+    name: 'Treatment Package (10 sessions)',
+    description: 'Save €80 with our 10-session package (Valid for 6 months – non-transferable)',
+    duration: 'Multiple visits',
+    durationMinutes: 45,
+  },
+  cupping: {
+    name: 'Cupping Therapy',
+    description: 'Therapeutic cupping treatment as an add-on to your acupuncture session',
+    duration: '',
+    durationMinutes: 0,
+  },
+  moxibustion: {
+    name: 'Moxibustion',
+    description:
+      'Traditional warming therapy using dried mugwort to stimulate acupuncture points',
+    duration: '',
+    durationMinutes: 0,
+  },
 }
 
 export type SiteSnapshot = {
@@ -198,6 +253,7 @@ export type SiteSnapshot = {
     homeVisitItems: PriceListEnabled
     inClinicExtras: PricingExtra[]
     homeVisitExtras: PricingExtra[]
+    serviceCopy: ServiceCopy
   }
   insuranceParagraphs: [string, string, string]
   insurers: SiteInsurer[]
@@ -296,6 +352,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€270',
       package10: '€520',
       cupping: '€20',
+      moxibustion: 'Free (if required)',
     },
     homeVisit: {
       initial: '€120',
@@ -303,6 +360,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€350',
       package10: '€690',
       cupping: '€25',
+      moxibustion: 'Free (if required)',
     },
     inClinicOriginal: {
       initial: '€150',
@@ -310,6 +368,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€300',
       package10: '€600',
       cupping: '',
+      moxibustion: '',
     },
     homeVisitOriginal: {
       initial: '€250',
@@ -317,6 +376,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
       package5: '€375',
       package10: '€750',
       cupping: '',
+      moxibustion: '',
     },
     inClinicEnabled: true,
     homeVisitEnabled: true,
@@ -324,6 +384,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     homeVisitItems: defaultPriceItemFlags(false),
     inClinicExtras: [],
     homeVisitExtras: [],
+    serviceCopy: DEFAULT_SERVICE_COPY,
   },
   insuranceParagraphs: [
     'We are a registered professional acupuncture clinic',
@@ -522,6 +583,7 @@ function parsePriceList(
     package5: pick('package5'),
     package10: pick('package10'),
     cupping: pick('cupping'),
+    moxibustion: pick('moxibustion'),
   }
 }
 
@@ -538,6 +600,7 @@ function parsePriceItemFlags(value: unknown, packagesEnabled: boolean): PriceLis
     package5: asBool(rec.package5, fallback.package5),
     package10: asBool(rec.package10, fallback.package10),
     cupping: asBool(rec.cupping, fallback.cupping),
+    moxibustion: asBool(rec.moxibustion, fallback.moxibustion),
   }
 }
 
@@ -561,6 +624,32 @@ function parsePricingExtra(value: unknown): PricingExtra | null {
 function parsePricingExtras(value: unknown): PricingExtra[] {
   if (!Array.isArray(value)) return []
   return value.map(parsePricingExtra).filter((row): row is PricingExtra => row !== null)
+}
+
+function parseServiceCopyItem(value: unknown, fallback: ServiceCopyItem): ServiceCopyItem {
+  const rec = isRecord(value) ? value : {}
+  const minutes =
+    typeof rec.durationMinutes === 'number' && Number.isFinite(rec.durationMinutes)
+      ? rec.durationMinutes
+      : fallback.durationMinutes
+  return {
+    name: asString(rec.name, fallback.name),
+    description: asString(rec.description, fallback.description),
+    duration: typeof rec.duration === 'string' ? rec.duration.trim() : fallback.duration,
+    durationMinutes: minutes,
+  }
+}
+
+function parseServiceCopy(value: unknown): ServiceCopy {
+  const rec = isRecord(value) ? value : {}
+  return {
+    initial: parseServiceCopyItem(rec.initial, DEFAULT_SERVICE_COPY.initial),
+    followUp: parseServiceCopyItem(rec.followUp, DEFAULT_SERVICE_COPY.followUp),
+    package5: parseServiceCopyItem(rec.package5, DEFAULT_SERVICE_COPY.package5),
+    package10: parseServiceCopyItem(rec.package10, DEFAULT_SERVICE_COPY.package10),
+    cupping: parseServiceCopyItem(rec.cupping, DEFAULT_SERVICE_COPY.cupping),
+    moxibustion: parseServiceCopyItem(rec.moxibustion, DEFAULT_SERVICE_COPY.moxibustion),
+  }
 }
 
 function parseLocation(value: unknown): SiteLocation | null {
@@ -732,6 +821,7 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       ),
       inClinicExtras: parsePricingExtras(value.pricing.inClinicExtras),
       homeVisitExtras: parsePricingExtras(value.pricing.homeVisitExtras),
+      serviceCopy: parseServiceCopy(value.pricing.serviceCopy),
     },
     insuranceParagraphs: [
       asString(paragraphs[0], SITE_DEFAULTS.insuranceParagraphs[0]),
@@ -804,6 +894,34 @@ export function deepMergeSite(
       homeVisitExtras: incoming.pricing.homeVisitExtras.length
         ? incoming.pricing.homeVisitExtras
         : defaults.pricing.homeVisitExtras,
+      serviceCopy: {
+        ...defaults.pricing.serviceCopy,
+        ...incoming.pricing.serviceCopy,
+        initial: {
+          ...defaults.pricing.serviceCopy.initial,
+          ...incoming.pricing.serviceCopy?.initial,
+        },
+        followUp: {
+          ...defaults.pricing.serviceCopy.followUp,
+          ...incoming.pricing.serviceCopy?.followUp,
+        },
+        package5: {
+          ...defaults.pricing.serviceCopy.package5,
+          ...incoming.pricing.serviceCopy?.package5,
+        },
+        package10: {
+          ...defaults.pricing.serviceCopy.package10,
+          ...incoming.pricing.serviceCopy?.package10,
+        },
+        cupping: {
+          ...defaults.pricing.serviceCopy.cupping,
+          ...incoming.pricing.serviceCopy?.cupping,
+        },
+        moxibustion: {
+          ...defaults.pricing.serviceCopy.moxibustion,
+          ...incoming.pricing.serviceCopy?.moxibustion,
+        },
+      },
     },
     hours: incoming.hours,
     hoursDisplay: incoming.hoursDisplay.length

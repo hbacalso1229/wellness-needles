@@ -44,6 +44,28 @@ describe('booking options', () => {
     assert.equal(labels.some((item) => /cupping/i.test(item)), false)
   })
 
+  it('does not treat moxibustion as a bookable appointment service', () => {
+    const labels = publishedServiceLabels(SITE_DEFAULTS, 'In Clinic')
+    assert.equal(labels.some((item) => /moxibustion/i.test(item)), false)
+  })
+
+  it('uses published serviceCopy names for reschedule', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        serviceCopy: {
+          ...SITE_DEFAULTS.pricing.serviceCopy,
+          followUp: {
+            ...SITE_DEFAULTS.pricing.serviceCopy.followUp,
+            name: 'Return visit',
+          },
+        },
+      },
+    }
+    assert.ok(publishedServiceLabels(site, 'In Clinic').includes('Return visit'))
+  })
+
   it('accepts published In Clinic / Home Visit types', () => {
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'In Clinic'), true)
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Home Visit'), true)

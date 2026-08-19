@@ -2,8 +2,11 @@
 
 import { Check, Moon, Sun, Sunrise, type LucideIcon } from 'lucide-react'
 import {
+  clipPreferredWindows,
+  formatPreferredWindowLabel,
+} from '../../../shared/preferred-time-windows'
+import {
   isClosedBookingDate as isClosedForHours,
-  weekdayFromDateInput,
   type WeekHours,
 } from '../../../shared/site-snapshot'
 
@@ -15,29 +18,20 @@ export type TimeRangeOption = {
   readonly icon: LucideIcon
 }
 
-export const TIME_RANGES: ReadonlyArray<TimeRangeOption> = [
-  {
-    id: 'morning',
-    label: 'Morning',
-    window: '9:00 AM – 12:00 PM',
-    hint: 'Most popular',
-    icon: Sunrise,
-  },
-  {
-    id: 'afternoon',
-    label: 'Afternoon',
-    window: '12:00 PM – 4:00 PM',
-    hint: 'Limited availability',
-    icon: Sun,
-  },
-  {
-    id: 'evening',
-    label: 'Evening',
-    window: '4:00 PM – 7:00 PM',
-    hint: 'Next available',
-    icon: Moon,
-  },
-]
+const ICONS: Record<string, LucideIcon> = {
+  morning: Sunrise,
+  afternoon: Sun,
+  evening: Moon,
+  open: Sun,
+}
+
+export const TIME_RANGES: ReadonlyArray<TimeRangeOption> = clipPreferredWindows(
+  '2000-01-03',
+  null
+).map((row) => ({
+  ...row,
+  icon: ICONS[row.id] ?? Sun,
+}))
 
 /** End of each range in minutes from midnight (exclusive past threshold). */
 const RANGE_END_MINUTES: Record<string, number> = {
@@ -47,7 +41,7 @@ const RANGE_END_MINUTES: Record<string, number> = {
 }
 
 export function formatTimeRangeLabel(range: TimeRangeOption): string {
-  return `${range.label} (${range.window})`
+  return formatPreferredWindowLabel(range)
 }
 
 export function findTimeRange(id: string): TimeRangeOption | undefined {
@@ -111,51 +105,17 @@ export function defaultPreferredTime(
   dateStr: string,
   hours?: WeekHours | null
 ): string {
-  if (!isPastTimeRange(dateStr, 'morning', hours)) return 'morning'
-  return firstAvailableTimeRange(dateStr, hours)?.id ?? 'morning'
-}
-
-function minutesFromHhmm(hhmm: string): number {
-  const [h, m] = hhmm.split(':').map(Number)
-  return h * 60 + m
+  return firstAvailableTimeRange(dateStr, hours)?.id ?? visibleTimeRanges(dateStr, hours)[0]?.id ?? 'morning'
 }
 
 export function visibleTimeRanges(
   dateStr: string,
   hours?: WeekHours | null
 ): Array<TimeRangeOption & { unavailable?: boolean; window: string }> {
-  if (!hours) {
-    return TIME_RANGES.map((r) => ({ ...r }))
-  }
-  const weekday = weekdayFromDateInput(dateStr)
-  if (!weekday || hours[weekday].closed) {
-    return TIME_RANGES.map((r) => ({ ...r, unavailable: true }))
-  }
-  const open = minutesFromHhmm(hours[weekday].open)
-  const close = minutesFromHhmm(hours[weekday].close)
-  const buckets: Record<string, { start: number; end: number }> = {
-    morning: { start: 9 * 60, end: 12 * 60 },
-    afternoon: { start: 12 * 60, end: 16 * 60 },
-    evening: { start: 16 * 60, end: Math.max(16 * 60 + 1, close) },
-  }
-  return TIME_RANGES.map((range) => {
-    const bucket = buckets[range.id]
-    const start = Math.max(bucket.start, open)
-    const end = Math.min(bucket.end, close)
-    if (end <= start) {
-      return { ...range, unavailable: true, window: 'Unavailable' }
-    }
-    const label = formatMinutes(start) + ' – ' + formatMinutes(end)
-    return { ...range, window: label }
-  })
-}
-
-function formatMinutes(total: number): string {
-  const h = Math.floor(total / 60)
-  const m = total % 60
-  const suffix = h >= 12 ? 'PM' : 'AM'
-  const hour12 = h % 12 || 12
-  return m === 0 ? `${hour12}:00 ${suffix}` : `${hour12}:${String(m).padStart(2, '0')} ${suffix}`
+  return clipPreferredWindows(dateStr, hours).map((row) => ({
+    ...row,
+    icon: ICONS[row.id] ?? Sun,
+  }))
 }
 
 export function isPastTimeRange(

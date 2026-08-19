@@ -1,10 +1,12 @@
 import {
+  DEFAULT_SERVICE_COPY,
   defaultPriceItemFlags,
   formatHourLabel,
   type PriceItemKey,
   type PriceList,
   type PriceListEnabled,
   type PricingExtra,
+  type ServiceCopy,
   type SiteSnapshot,
   type Weekday,
 } from '../../shared/site-snapshot'
@@ -31,6 +33,7 @@ const SERVICE_PRICE_KEY: Record<string, PriceItemKey> = {
 const ADDON_PRICE_KEY: Record<string, PriceItemKey> = {
   cupping: 'cupping',
   'home-cupping': 'cupping',
+  moxibustion: 'moxibustion',
 }
 
 function isFilledExtra(extra: PricingExtra): boolean {
@@ -41,7 +44,8 @@ function applyServicePrices(
   services: BookingCatalogService[],
   discounted: PriceList,
   original: PriceList,
-  items: PriceListEnabled
+  items: PriceListEnabled,
+  copy: ServiceCopy
 ): BookingCatalogService[] {
   return services.flatMap((service) => {
     const key = SERVICE_PRICE_KEY[service.id]
@@ -49,9 +53,13 @@ function applyServicePrices(
     if (!key) return [service]
     const price = discounted[key] || service.price
     const orig = original[key]
+    const item = copy[key]
     return [
       {
         ...service,
+        name: item.name.trim() || service.name,
+        description: item.description.trim() || service.description,
+        duration: item.duration.trim() || service.duration,
         price,
         originalPrice: orig && orig !== price ? orig : undefined,
       },
@@ -63,7 +71,8 @@ function applyAddOnPrices(
   addOns: BookingCatalogAddOn[],
   discounted: PriceList,
   original: PriceList,
-  items: PriceListEnabled
+  items: PriceListEnabled,
+  copy: ServiceCopy
 ): BookingCatalogAddOn[] {
   return addOns.flatMap((addOn) => {
     const key = ADDON_PRICE_KEY[addOn.id]
@@ -71,9 +80,12 @@ function applyAddOnPrices(
     if (!key) return [addOn]
     const price = discounted[key] || addOn.price
     const orig = original[key]
+    const item = copy[key]
     return [
       {
         ...addOn,
+        name: item.name.trim() || addOn.name,
+        description: item.description.trim() || addOn.description,
         price,
         originalPrice: orig && orig !== price ? orig : undefined,
       },
@@ -115,13 +127,15 @@ export function withOverlayCatalog(site: SiteSnapshot) {
   const visitItems = site.pricing.homeVisitItems ?? defaultPriceItemFlags(false)
   const clinicExtras = site.pricing.inClinicExtras ?? []
   const visitExtras = site.pricing.homeVisitExtras ?? []
+  const copy = site.pricing.serviceCopy ?? DEFAULT_SERVICE_COPY
   const clinicServices = clinicOn
     ? [
         ...applyServicePrices(
           inClinicServices,
           site.pricing.inClinic,
           site.pricing.inClinicOriginal,
-          clinicItems
+          clinicItems,
+          copy
         ),
         ...clinicExtras.map(extraToService).filter((row): row is BookingCatalogService => row !== null),
       ]
@@ -132,7 +146,8 @@ export function withOverlayCatalog(site: SiteSnapshot) {
           homeVisitServices,
           site.pricing.homeVisit,
           site.pricing.homeVisitOriginal,
-          visitItems
+          visitItems,
+          copy
         ),
         ...visitExtras.map(extraToService).filter((row): row is BookingCatalogService => row !== null),
       ]
@@ -143,7 +158,8 @@ export function withOverlayCatalog(site: SiteSnapshot) {
           inClinicAddOns,
           site.pricing.inClinic,
           site.pricing.inClinicOriginal,
-          clinicItems
+          clinicItems,
+          copy
         ),
         ...clinicExtras.map(extraToAddOn).filter((row): row is BookingCatalogAddOn => row !== null),
       ]
@@ -154,7 +170,8 @@ export function withOverlayCatalog(site: SiteSnapshot) {
           homeVisitAddOns,
           site.pricing.homeVisit,
           site.pricing.homeVisitOriginal,
-          visitItems
+          visitItems,
+          copy
         ),
         ...visitExtras.map(extraToAddOn).filter((row): row is BookingCatalogAddOn => row !== null),
       ]

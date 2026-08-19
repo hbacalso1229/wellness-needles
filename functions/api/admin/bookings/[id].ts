@@ -98,7 +98,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       patientName,
       firstName: row.first_name,
       startsAtIso: startsAt,
-      durationMinutes: bookingDurationMinutes(row.service_label),
+      durationMinutes: bookingDurationMinutes(row.service_label, site),
     })
 
     await context.env.DB.prepare(
@@ -168,7 +168,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       patientName,
       firstName: row.first_name,
       startsAtIso: startsAt,
-      durationMinutes: bookingDurationMinutes(serviceLabel),
+      durationMinutes: bookingDurationMinutes(serviceLabel, site),
       icsSequence: nextSequence,
     })
 
@@ -228,7 +228,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       patientName: `${row.first_name} ${row.last_name}`.trim(),
       firstName: row.first_name,
       startsAtIso: wasConfirmed && row.starts_at ? row.starts_at : undefined,
-      durationMinutes: bookingDurationMinutes(row.service_label),
+      durationMinutes: bookingDurationMinutes(row.service_label, site),
       icsSequence: wasConfirmed ? icsSequenceOf(row) + 1 : undefined,
     })
     await context.env.DB.prepare(
