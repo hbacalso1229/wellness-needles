@@ -48,7 +48,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
               className={`booking-select-card relative flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 ${
                 selected
                   ? 'z-[1] border-primary bg-accent/20'
-                  : 'border-[var(--text-dark)]/12 [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:bg-accent/10 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
+                  : 'border-[var(--text-dark)]/12 [@media(hover:hover)]:hover:border-primary/40 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:-translate-y-0.5'
               }`}
             >
               <input
