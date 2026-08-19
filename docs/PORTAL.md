@@ -27,7 +27,7 @@ Do not set this in the Cloudflare dashboard — `NEXT_PUBLIC_*` is baked at buil
 |--------|---------|----------------------|
 | Public website overlay | off until you turn it on | www uses portal hours, contact, pricing, locations, insurers, booking mode |
 | Booking form / Calendly / Fresha | one channel required | mutually exclusive |
-| Patient SMS | **off** | Shows the booking-form text opt-in and allows Twilio on confirm / reschedule / day-before reminder / cancel. Email still sends when this is off. |
+| Patient SMS | **off** | Shows the booking-form **Appointment reminders** checkbox (text me appointment updates) and allows Twilio on confirm / reschedule / day-before reminder / cancel. Email still sends when this is off. |
 
 Footer tagline, footer description, emergency note, and About insurance paragraphs are not edited in the portal (baked copy). Clinic name, hours, locations, insurance **logos** (add / remove / website URL), and pricing (including names, descriptions, durations, Cupping, and Moxibustion) are. Hours and Confirm/Reschedule exact-start pickers are **12-hour AM/PM**; stored values stay 24-hour `HH:mm` / `YYYY-MM-DDTHH:mm`.
 
@@ -104,7 +104,7 @@ flowchart TD
 
 Patient SMS, when on, is sent with the patient email **before** D1 is updated. Clinic ICS is `waitUntil` **after** D1. Last-minute Confirm sets reminder flags so the Worker does not send again.
 
-1. **Patient request (www).** Preferred date/time window, not an exact slot. Overlay-on windows follow published hours (Morning 9–12 / Afternoon 12–4 / Evening 4–close, 12-hour AM/PM; empty buckets are hidden). Overlay-off stays baked Evening 4–7. SMS checkbox only if overlay is on **and** Patient SMS is published on. Turnstile must pass, then clinic email (`/api/booking-request` → Web3Forms). If that fails, the patient sees unable-to-process; nothing is saved to the portal.
+1. **Patient request (www).** Preferred date/time window, not an exact slot. Overlay-on windows follow published hours (Morning 9–12 / Afternoon 12–4 / Evening 4–close, 12-hour AM/PM; empty buckets are hidden). Overlay-off stays baked Evening 4–7. SMS checkbox (**Appointment reminders** / text me appointment updates) only if overlay is on **and** Patient SMS is published on. Turnstile must pass, then clinic email (`/api/booking-request` → Web3Forms). If that fails, the patient sees unable-to-process; nothing is saved to the portal.
 2. **Persist.** On clinic-email success, if overlay is on, the browser fire-and-forget posts to `/api/bff/booking-persist`. Persist failure does **not** block the clinic email.
 3. **Thank-you.** Resend `/api/booking-thank-you` is “request received”, not a confirmed appointment. Patient lands on `/bookings/thank-you/`.
 4. **Portal inbox.** D1 row `status = pending` with preferred date/time and `sms_opt_in`. Appointments → **Pending** shows Confirm / Cancel. After Confirm, the row moves to **Confirmed** (Reschedule / Cancel). After Cancel, the row moves to **Cancelled** (read-only; no restore). Search (name, phone, email, service, location, slot) filters the open tab only; tab counts stay unfiltered.

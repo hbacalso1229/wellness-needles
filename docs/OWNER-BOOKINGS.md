@@ -76,7 +76,7 @@ Not sent today: same-day reminder.
 **SMS** is extra. It is a short labeled text (not the HTML card), and only if:
 
 - Settings → **Patient SMS** is On, then **Publish**
-- the patient ticked the reminder box on the form
+- the patient ticked **Text me appointment updates** on the form
 
 If either is off, they still get email.
 

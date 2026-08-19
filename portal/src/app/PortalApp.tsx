@@ -38,6 +38,7 @@ import {
   Card,
   CompactEuroField,
   DublinStartPicker,
+  FullWidthDateField,
   HoursEditor,
   OnOffSwitch,
   PageHeader,
@@ -932,17 +933,12 @@ export function PortalApp() {
                 value={newReviewCondition}
                 onChange={(e) => setNewReviewCondition(e.target.value)}
               />
-              <label className="block w-full text-xs font-medium text-[var(--text-dark)]/60">
-                Review date
-                <span className="mt-1 block w-full">
-                  <input
-                    className="box-border min-h-11 w-full min-w-0 max-w-none rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[var(--text-dark)] [color-scheme:light] [&::-webkit-date-and-time-value]:min-w-full [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:w-full"
-                    type="date"
-                    value={newReviewDate}
-                    onChange={(e) => setNewReviewDate(e.target.value)}
-                  />
-                </span>
-              </label>
+              <FullWidthDateField
+                label="Review date"
+                value={newReviewDate}
+                max={dublinTodayYmd()}
+                onChange={setNewReviewDate}
+              />
               <input
                 className="w-full rounded border px-2 py-1"
                 placeholder="Source (e.g. Verified Google review)"
@@ -1114,7 +1110,6 @@ export function PortalApp() {
                       const isBookable = isBookablePriceKey(key)
                       const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
                       const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
-                      const isFreeTextPrice = key === 'moxibustion'
                       const patchCopy = (patch: Partial<ServiceCopyItem>) =>
                         setDraft({
                           ...draft,
@@ -1195,71 +1190,32 @@ export function PortalApp() {
                             </div>
                           ) : null}
                           <div className="flex flex-wrap items-end gap-2">
-                            {isFreeTextPrice ? (
-                              <>
-                                <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
-                                  Original
-                                  <input
-                                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                                    value={original}
-                                    onChange={(e) =>
-                                      setDraft({
-                                        ...draft,
-                                        pricing: {
-                                          ...draft.pricing,
-                                          [origKey]: { ...draft.pricing[origKey], [key]: e.target.value },
-                                        },
-                                      })
-                                    }
-                                  />
-                                </label>
-                                <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
-                                  Price
-                                  <input
-                                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                                    value={discounted}
-                                    onChange={(e) =>
-                                      setDraft({
-                                        ...draft,
-                                        pricing: {
-                                          ...draft.pricing,
-                                          [kind]: { ...draft.pricing[kind], [key]: e.target.value },
-                                        },
-                                      })
-                                    }
-                                  />
-                                </label>
-                              </>
-                            ) : (
-                              <>
-                                <CompactEuroField
-                                  label="Original"
-                                  value={original}
-                                  onChange={(next) =>
-                                    setDraft({
-                                      ...draft,
-                                      pricing: {
-                                        ...draft.pricing,
-                                        [origKey]: { ...draft.pricing[origKey], [key]: next },
-                                      },
-                                    })
-                                  }
-                                />
-                                <CompactEuroField
-                                  label="Discounted"
-                                  value={discounted}
-                                  onChange={(next) =>
-                                    setDraft({
-                                      ...draft,
-                                      pricing: {
-                                        ...draft.pricing,
-                                        [kind]: { ...draft.pricing[kind], [key]: next },
-                                      },
-                                    })
-                                  }
-                                />
-                              </>
-                            )}
+                            <CompactEuroField
+                              label="Original"
+                              value={original}
+                              onChange={(next) =>
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                  },
+                                })
+                              }
+                            />
+                            <CompactEuroField
+                              label={key === 'moxibustion' ? 'Price' : 'Discounted'}
+                              value={discounted}
+                              onChange={(next) =>
+                                setDraft({
+                                  ...draft,
+                                  pricing: {
+                                    ...draft.pricing,
+                                    [kind]: { ...draft.pricing[kind], [key]: next },
+                                  },
+                                })
+                              }
+                            />
                             {off ? (
                               <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
                                 {off}

@@ -1,6 +1,7 @@
 'use client'
 
 import { Check, Droplets, Flame, Info, Sparkles, type LucideIcon } from 'lucide-react'
+import { isFreePrice } from '../../../shared/site-snapshot'
 
 export type OptionalAddOn = {
   readonly id: string
@@ -39,7 +40,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
         {addOns.map((addOn) => {
           const selected = selectedIds.includes(addOn.id)
           const Icon = iconForAddOn(addOn.id)
-          const isFree = /^\s*free\b/i.test(addOn.price)
+          const isFree = isFreePrice(addOn.price)
 
           return (
             <label
