@@ -2,7 +2,8 @@ import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_l
 import {
   dublinLocalToUtcIso,
   formatDublin,
-  hoursUntil,
+  remindAtMorningBefore,
+  reminderWindowStarted,
   sendPatientBookingMessage,
 } from '../../../_lib/notify'
 import { readPublishedSite } from '../../../_lib/site'
@@ -55,16 +56,17 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       return jsonResponse(400, { ok: false, error: 'startsAtLocal required (YYYY-MM-DDTHH:mm)' })
     }
     const startsAt = dublinLocalToUtcIso(match[1], match[2])
-    const remindAt = new Date(new Date(startsAt).getTime() - 24 * 36e5).toISOString()
-    const within24h = hoursUntil(startsAt) <= 24
-    const kind = within24h ? 'combined' : 'confirm'
+    const remindAt = remindAtMorningBefore(startsAt)
+    const combined = reminderWindowStarted(remindAt)
+    const kind = combined ? 'combined' : 'confirm'
     const whenLabel = formatDublin(startsAt)
+    const smsOptIn = Boolean(row.sms_opt_in) && site.features.smsEnabled
     const sent = await sendPatientBookingMessage({
       env: context.env,
       kind,
       toEmail: row.email,
       toPhone: row.phone,
-      smsOptIn: Boolean(row.sms_opt_in),
+      smsOptIn,
       whenLabel,
       locationLabel: row.location_label || '',
       site,
@@ -86,13 +88,13 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
         remindAt,
         (sent.email || row.confirm_email_sent) ? 1 : 0,
         (sent.sms || row.confirm_sms_sent) ? 1 : 0,
-        within24h && sent.email ? 1 : row.reminder_email_sent,
-        within24h && sent.sms ? 1 : row.reminder_sms_sent,
+        combined && sent.email ? 1 : row.reminder_email_sent,
+        combined && sent.sms ? 1 : row.reminder_sms_sent,
         id
       )
       .run()
 
-    return jsonResponse(200, { ok: true, startsAt, combined: within24h, sent })
+    return jsonResponse(200, { ok: true, startsAt, combined, sent })
   }
 
   if (action === 'cancel') {
@@ -105,7 +107,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       kind: wasConfirmed ? 'cancel-confirmed' : 'cancel-pending',
       toEmail: row.email,
       toPhone: row.phone,
-      smsOptIn: Boolean(row.sms_opt_in),
+      smsOptIn: Boolean(row.sms_opt_in) && site.features.smsEnabled,
       whenLabel,
       locationLabel: row.location_label || '',
       site,

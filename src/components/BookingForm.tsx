@@ -729,7 +729,7 @@ export default function BookingForm() {
       ...formData,
       firstName,
       lastName,
-      smsOptIn: overlayEnabled ? smsOptIn : undefined,
+      smsOptIn: overlayEnabled && site.features.smsEnabled ? smsOptIn : undefined,
     }
 
     // E2E-only: force apologetic page without live Web3Forms / captcha.
@@ -867,7 +867,7 @@ export default function BookingForm() {
               serviceLabel: payload.serviceLabel,
               date: payload.date,
               time: payload.time,
-              smsOptIn: smsOptIn,
+              smsOptIn: site.features.smsEnabled && smsOptIn,
             })
           }
           const patientEmail = payload.email.trim()
@@ -1450,7 +1450,7 @@ export default function BookingForm() {
                     className={`${inputClassName} min-h-[6.5rem] resize-y`}
                   />
                 </div>
-                {overlayEnabled ? (
+                {overlayEnabled && site.features.smsEnabled ? (
                   <label className="flex items-start gap-2 text-sm text-[var(--text-dark)]">
                     <input
                       type="checkbox"
@@ -1459,7 +1459,7 @@ export default function BookingForm() {
                       onChange={(e) => setSmsOptIn(e.target.checked)}
                     />
                     <span>
-                      Text me confirmation, a reminder 24 hours before, and if the clinic
+                      Text me confirmation, a reminder the day before, and if the clinic
                       cancels.
                     </span>
                   </label>
