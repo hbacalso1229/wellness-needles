@@ -259,6 +259,15 @@ function formatDublinSlot(iso?: string): string {
   }).format(date)
 }
 
+function dublinTodayYmd(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Dublin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'include',
@@ -312,7 +321,7 @@ export function PortalApp() {
   const [newReviewSource, setNewReviewSource] = useState('Verified Google review')
   const [newReviewEmphasis, setNewReviewEmphasis] = useState('')
   const [newReviewBody, setNewReviewBody] = useState('')
-  const [newReviewDate, setNewReviewDate] = useState('')
+  const [newReviewDate, setNewReviewDate] = useState(dublinTodayYmd)
   const [pendingTags, setPendingTags] = useState<Record<string, string>>({})
   const [pendingEmphasis, setPendingEmphasis] = useState<Record<string, string>>({})
   const [reviewStatusTab, setReviewStatusTab] = useState<ReviewStatusTab>('pending')
@@ -916,7 +925,7 @@ export function PortalApp() {
                   setNewReviewSource('Verified Google review')
                   setNewReviewEmphasis('')
                   setNewReviewBody('')
-                  setNewReviewDate('')
+                  setNewReviewDate(dublinTodayYmd())
                   setReviewStatusTab('pending')
                   show('Added to Awaiting review')
                   await load()
@@ -941,12 +950,15 @@ export function PortalApp() {
                 value={newReviewCondition}
                 onChange={(e) => setNewReviewCondition(e.target.value)}
               />
-              <input
-                className="w-full rounded border px-2 py-1"
-                type="date"
-                value={newReviewDate}
-                onChange={(e) => setNewReviewDate(e.target.value)}
-              />
+              <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                Review date
+                <input
+                  className="mt-1 w-full min-h-11 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[var(--text-dark)] [color-scheme:light]"
+                  type="date"
+                  value={newReviewDate}
+                  onChange={(e) => setNewReviewDate(e.target.value)}
+                />
+              </label>
               <input
                 className="w-full rounded border px-2 py-1"
                 placeholder="Source (e.g. Verified Google review)"
