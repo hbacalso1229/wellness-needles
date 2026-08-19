@@ -14,6 +14,7 @@ jobs:
   quality:
     name: Lint, Typecheck, Build & E2E
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       actions: write
@@ -43,10 +44,27 @@ jobs:
       - name: Build for E2E (no Web3Forms / captcha)
         run: npm run build:e2e
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # --with-deps runs apt against azure.archive.ubuntu.com and can hang
+      # for 30–50+ minutes when that mirror stalls. Install browsers without
+      # apt; ubuntu-latest already has Chromium system libraries. OS deps are
+      # best-effort with a short timeout so a stuck mirror cannot block CI.
+      - name: Install Playwright OS deps
+        timeout-minutes: 2
+        continue-on-error: true
+        run: npx playwright install-deps chromium
+
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        timeout-minutes: 3
+        run: npx playwright install chromium
 
       - name: End-to-end tests
+        timeout-minutes: 3
         run: npm run test:e2e
 
       - name: Upload Playwright report
