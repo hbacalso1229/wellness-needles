@@ -9,6 +9,7 @@ import {
   createSiteInsurer,
   parseSiteSnapshot,
   BOOKABLE_PRICE_KEYS,
+  isBookablePriceKey,
   type PriceList,
   type PricingExtra,
   type SiteSnapshot,
@@ -1010,7 +1011,7 @@ export function PortalApp() {
                       const discounted = draft.pricing[kind][key]
                       const off = discountPercentLabel(original, discounted)
                       const itemOn = draft.pricing[itemsKey][key]
-                      const isBookable = BOOKABLE_PRICE_KEYS.includes(key)
+                      const isBookable = isBookablePriceKey(key)
                       const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
                       return (
                         <div

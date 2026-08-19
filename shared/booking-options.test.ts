@@ -39,6 +39,11 @@ describe('booking options', () => {
     assert.ok(publishedServiceLabels(site, 'In Clinic', current).includes(current))
   })
 
+  it('does not treat cupping as a bookable appointment service', () => {
+    const labels = publishedServiceLabels(SITE_DEFAULTS, 'In Clinic')
+    assert.equal(labels.some((item) => /cupping/i.test(item)), false)
+  })
+
   it('accepts published In Clinic / Home Visit types', () => {
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'In Clinic'), true)
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Home Visit'), true)

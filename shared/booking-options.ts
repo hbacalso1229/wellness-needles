@@ -1,9 +1,13 @@
-import { BOOKABLE_PRICE_KEYS, type SiteSnapshot } from './site-snapshot'
+import {
+  BOOKABLE_PRICE_KEYS,
+  type BookablePriceKey,
+  type SiteSnapshot,
+} from './site-snapshot'
 
 export const SERVICE_TYPE_IN_CLINIC = 'In Clinic'
 export const SERVICE_TYPE_HOME_VISIT = 'Home Visit'
 
-export const BOOKABLE_SERVICE_NAMES: Record<(typeof BOOKABLE_PRICE_KEYS)[number], string> = {
+export const BOOKABLE_SERVICE_NAMES: Record<BookablePriceKey, string> = {
   initial: 'Initial Consultation & First Treatment',
   followUp: 'Follow-up Sessions',
   package5: 'Treatment Package (5 sessions)',
