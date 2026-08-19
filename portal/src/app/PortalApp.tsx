@@ -56,7 +56,7 @@ import {
 } from '../../../shared/booking-options'
 
 type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
-type BookingInboxTab = 'pending' | 'confirmed'
+type BookingInboxTab = 'pending' | 'confirmed' | 'cancelled'
 
 type BookingRow = {
   id: string
@@ -187,6 +187,31 @@ function reviewMatchesQuery(
     .includes(q)
 }
 
+function bookingMatchesQuery(row: BookingRow, query: string): boolean {
+  const q = query.trim().toLowerCase()
+  if (!q) return true
+  const phoneDigits = (row.phone || '').replace(/\D/g, '')
+  const queryDigits = q.replace(/\D/g, '')
+  if (queryDigits && phoneDigits.includes(queryDigits)) return true
+  return [
+    row.firstName,
+    row.lastName,
+    `${row.firstName || ''} ${row.lastName || ''}`,
+    row.email,
+    row.phone,
+    row.serviceType,
+    row.serviceLabel,
+    row.locationLabel,
+    row.preferredDate,
+    row.preferredTime,
+    formatDublinSlot(row.startsAt),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join('\n')
+    .toLowerCase()
+    .includes(q)
+}
+
 function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
   const hay = `${phone.href} ${phone.displayText} ${phone.number}`
   const digits = hay.replace(/\D/g, '')
@@ -270,7 +295,9 @@ export function PortalApp() {
   const [publishSuccess, setPublishSuccess] = useState(false)
   const [bookings, setBookings] = useState<BookingRow[]>([])
   const [confirmedBookings, setConfirmedBookings] = useState<BookingRow[]>([])
+  const [cancelledBookings, setCancelledBookings] = useState<BookingRow[]>([])
   const [bookingTab, setBookingTab] = useState<BookingInboxTab>('pending')
+  const [bookingQuery, setBookingQuery] = useState('')
   const [reviews, setReviews] = useState<ReviewRow[]>([])
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [confirmId, setConfirmId] = useState<string | null>(null)
@@ -316,6 +343,10 @@ export function PortalApp() {
         '/api/admin/bookings?status=confirmed'
       )
       setConfirmedBookings(confirmed.bookings || [])
+      const cancelled = await api<{ bookings: BookingRow[] }>(
+        '/api/admin/bookings?status=cancelled'
+      )
+      setCancelledBookings(cancelled.bookings || [])
       const allReviews = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=all')
       const rows = allReviews.reviews || []
       setReviews(rows)
@@ -356,6 +387,18 @@ export function PortalApp() {
           reviewMatchesQuery(row, reviewQuery)
       ),
     [reviews, reviewStatusTab, reviewQuery]
+  )
+  const pendingRows = useMemo(
+    () => bookings.filter((row) => bookingMatchesQuery(row, bookingQuery)),
+    [bookings, bookingQuery]
+  )
+  const confirmedRows = useMemo(
+    () => confirmedBookings.filter((row) => bookingMatchesQuery(row, bookingQuery)),
+    [confirmedBookings, bookingQuery]
+  )
+  const cancelledRows = useMemo(
+    () => cancelledBookings.filter((row) => bookingMatchesQuery(row, bookingQuery)),
+    [cancelledBookings, bookingQuery]
   )
   const lastPublish = history[0]
     ? { at: history[0].changedAt, by: history[0].changedBy }
@@ -525,44 +568,61 @@ export function PortalApp() {
         {tab === 'appointments' && (
           <section className="space-y-4">
             <PageHeader
-              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start. Reschedule confirmed slots from the Confirmed tab.`}
+              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
             />
-            <nav className="flex gap-1 border-b border-black/[0.08]">
-              {(
-                [
-                  { id: 'pending', label: 'Pending', count: bookings.length },
-                  { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    setBookingTab(item.id)
-                    setConfirmId(null)
-                    setRescheduleId(null)
-                  }}
-                  className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
-                    bookingTab === item.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
-                  }`}
-                >
-                  {item.label}
-                  <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
-                    {item.count}
-                  </span>
-                </button>
-              ))}
-            </nav>
+            <div className="flex flex-col gap-2 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
+              <nav className="flex gap-1 overflow-x-auto">
+                {(
+                  [
+                    { id: 'pending', label: 'Pending', count: bookings.length },
+                    { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
+                    { id: 'cancelled', label: 'Cancelled', count: cancelledBookings.length },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setBookingTab(item.id)
+                      setConfirmId(null)
+                      setRescheduleId(null)
+                    }}
+                    className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+                      bookingTab === item.id
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+                    }`}
+                  >
+                    {item.label}
+                    <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+                      {item.count}
+                    </span>
+                  </button>
+                ))}
+              </nav>
+              <label className="block pb-2 sm:w-64 sm:shrink-0">
+                <span className="sr-only">Search appointments</span>
+                <input
+                  type="search"
+                  value={bookingQuery}
+                  onChange={(e) => setBookingQuery(e.target.value)}
+                  placeholder="Search name, phone, email…"
+                  className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </label>
+            </div>
             {bookingTab === 'pending' ? (
               bookings.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
                   No requests yet.
                 </p>
+              ) : pendingRows.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
+                  No appointments match “{bookingQuery.trim()}”.
+                </p>
               ) : (
                 <ul className="space-y-3">
-                  {bookings.map((row) => (
+                  {pendingRows.map((row) => (
                     <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
                       <p className="font-medium">
                         {row.firstName} {row.lastName}
@@ -626,13 +686,18 @@ export function PortalApp() {
                   ))}
                 </ul>
               )
-            ) : confirmedBookings.length === 0 ? (
+            ) : bookingTab === 'confirmed' ? (
+              confirmedBookings.length === 0 ? (
               <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
                 No confirmed appointments yet.
               </p>
+            ) : confirmedRows.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
+                No appointments match “{bookingQuery.trim()}”.
+              </p>
             ) : (
               <ul className="space-y-3">
-                {confirmedBookings.map((row) => {
+                {confirmedRows.map((row) => {
                   const typeOptions = publishedServiceTypes(draft, row.serviceType)
                   const serviceOptions = publishedServiceLabels(
                     draft,
@@ -757,6 +822,45 @@ export function PortalApp() {
                           </button>
                         </div>
                       )}
+                    </li>
+                  )
+                })}
+              </ul>
+              )
+            ) : cancelledBookings.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
+                No cancelled appointments yet.
+              </p>
+            ) : cancelledRows.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
+                No appointments match “{bookingQuery.trim()}”.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {cancelledRows.map((row) => {
+                  const when =
+                    formatDublinSlot(row.startsAt) ||
+                    [row.preferredDate, row.preferredTime].filter(Boolean).join(' ') ||
+                    'Time not set'
+                  return (
+                    <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
+                      <p className="font-medium">
+                        {row.firstName} {row.lastName}
+                      </p>
+                      <p className="text-sm text-secondary">
+                        {row.phone} · {row.email}
+                      </p>
+                      <p className="text-sm">
+                        {when}
+                        {row.serviceType ? ` · ${row.serviceType}` : ''}
+                        {row.serviceLabel ? ` · ${row.serviceLabel}` : ''}
+                      </p>
+                      {row.locationLabel ? (
+                        <p className="text-sm text-secondary">{row.locationLabel}</p>
+                      ) : null}
+                      <p className="mt-2 text-xs font-medium text-[var(--text-dark)]/55">
+                        Cancelled
+                      </p>
                     </li>
                   )
                 })}
