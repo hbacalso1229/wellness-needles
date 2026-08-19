@@ -556,11 +556,25 @@ export function hoursUntil(isoUtc: string): number {
   return (new Date(isoUtc).getTime() - Date.now()) / 36e5
 }
 
-/** Initial 75, follow-up/package 45, otherwise 60. No schema change. */
-export function bookingDurationMinutes(serviceLabel?: string | null): number {
-  const label = (serviceLabel || '').toLowerCase()
-  if (label.includes('initial')) return 75
-  if (label.includes('follow') || label.includes('package')) return 45
+/** Initial 75, follow-up/package 45, otherwise 60. Overlay names use published durationMinutes. */
+export function bookingDurationMinutes(
+  serviceLabel?: string | null,
+  site?: SiteSnapshot | null
+): number {
+  const label = (serviceLabel || '').trim()
+  if (site?.pricing.serviceCopy && label) {
+    for (const key of Object.keys(site.pricing.serviceCopy) as Array<
+      keyof typeof site.pricing.serviceCopy
+    >) {
+      const copy = site.pricing.serviceCopy[key]
+      if (copy.name.trim().toLowerCase() === label.toLowerCase() && copy.durationMinutes > 0) {
+        return copy.durationMinutes
+      }
+    }
+  }
+  const lower = label.toLowerCase()
+  if (lower.includes('initial')) return 75
+  if (lower.includes('follow') || lower.includes('package')) return 45
   return 60
 }
 

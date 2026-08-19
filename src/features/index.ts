@@ -25,6 +25,7 @@ export {
   defaultPreferredDate,
   defaultPreferredTime,
   firstAvailableTimeRange,
+  visibleTimeRanges,
 } from './ui/TimeRangeCards'
 export { TravelPolicyNotice } from './ui/TravelPolicyNotice'
 export { SectionHeading } from './ui/SectionHeading'

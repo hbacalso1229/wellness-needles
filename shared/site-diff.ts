@@ -111,21 +111,25 @@ const FIELD_LABELS: Record<string, string> = {
   'pricing.inClinic.package5': 'In-clinic 5 sessions',
   'pricing.inClinic.package10': 'In-clinic 10 sessions',
   'pricing.inClinic.cupping': 'In-clinic cupping',
+  'pricing.inClinic.moxibustion': 'In-clinic moxibustion',
   'pricing.inClinicOriginal.initial': 'In-clinic initial original',
   'pricing.inClinicOriginal.followUp': 'In-clinic follow-up original',
   'pricing.inClinicOriginal.package5': 'In-clinic 5 sessions original',
   'pricing.inClinicOriginal.package10': 'In-clinic 10 sessions original',
   'pricing.inClinicOriginal.cupping': 'In-clinic cupping original',
+  'pricing.inClinicOriginal.moxibustion': 'In-clinic moxibustion original',
   'pricing.homeVisit.initial': 'Home visit initial',
   'pricing.homeVisit.followUp': 'Home visit follow-up',
   'pricing.homeVisit.package5': 'Home visit 5 sessions',
   'pricing.homeVisit.package10': 'Home visit 10 sessions',
   'pricing.homeVisit.cupping': 'Home visit cupping',
+  'pricing.homeVisit.moxibustion': 'Home visit moxibustion',
   'pricing.homeVisitOriginal.initial': 'Home visit initial original',
   'pricing.homeVisitOriginal.followUp': 'Home visit follow-up original',
   'pricing.homeVisitOriginal.package5': 'Home visit 5 sessions original',
   'pricing.homeVisitOriginal.package10': 'Home visit 10 sessions original',
   'pricing.homeVisitOriginal.cupping': 'Home visit cupping original',
+  'pricing.homeVisitOriginal.moxibustion': 'Home visit moxibustion original',
   'insuranceParagraphs.0': 'Insurance paragraph 1',
   'insuranceParagraphs.1': 'Insurance paragraph 2',
   'insuranceParagraphs.2': 'Insurance paragraph 3',
@@ -147,6 +151,9 @@ export function labelForFieldPath(fieldPath: string): string {
 
   const location = /^locations\.([^.]+)\.(.+)$/.exec(fieldPath)
   if (location) return `Location ${location[1]} ${location[2]}`
+
+  const serviceCopy = /^pricing\.serviceCopy\.(\w+)\.(.+)$/.exec(fieldPath)
+  if (serviceCopy) return `Service ${serviceCopy[1]} ${serviceCopy[2]}`
 
   return fieldPath.split('.').join(' · ')
 }

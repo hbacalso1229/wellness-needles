@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { RatingStars } from '../../../src/features/ui/RatingStars'
 import { CONDITION_MAX_LEN } from '../../../shared/review-rating'
+import { snapDateTimeLocalToQuarterHour } from '../../../shared/quarter-hour'
 import {
   euroPrice,
   formatHourLabel,
@@ -12,6 +13,12 @@ import {
   type WeekHours,
   type Weekday,
 } from '../../../shared/site-snapshot'
+import {
+  datetimeLocalFrom12,
+  datetimeLocalTo12,
+  hhmmTo12,
+  hour12ToHhmm,
+} from '../../../shared/twelve-hour'
 
 export const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
   ['Monday', 'monday'],
@@ -151,6 +158,116 @@ export function toHhmm(value: string, fallback: string): string {
   return `${match[1].padStart(2, '0')}:${match[2]}`
 }
 
+const HOUR_12_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
+const QUARTER_MINUTES = [0, 15, 30, 45] as const
+const selectClass = 'rounded-md border border-black/10 bg-white px-2 py-1 text-sm'
+
+function HourAmPmSelect({
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  value: string
+  onChange: (hhmm: string) => void
+  ariaLabel: string
+}) {
+  const clock = hhmmTo12(toHhmm(value, '09:00'))
+  return (
+    <span className="inline-flex items-center gap-1">
+      <select
+        className={selectClass}
+        aria-label={`${ariaLabel} hour`}
+        value={clock.hour}
+        onChange={(e) => onChange(hour12ToHhmm(Number(e.target.value), clock.ampm, 0))}
+      >
+        {HOUR_12_OPTIONS.map((hour) => (
+          <option key={hour} value={hour}>
+            {hour}
+          </option>
+        ))}
+      </select>
+      <select
+        className={selectClass}
+        aria-label={`${ariaLabel} AM or PM`}
+        value={clock.ampm}
+        onChange={(e) =>
+          onChange(hour12ToHhmm(clock.hour, e.target.value === 'PM' ? 'PM' : 'AM', 0))
+        }
+      >
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+    </span>
+  )
+}
+
+export function DublinStartPicker({
+  value,
+  onChange,
+  label = 'Exact start',
+}: {
+  value: string
+  onChange: (next: string) => void
+  label?: string
+}) {
+  const parts = datetimeLocalTo12(value ? snapDateTimeLocalToQuarterHour(value) : '')
+  const commit = (patch: Partial<typeof parts>) => {
+    const next = { ...parts, ...patch }
+    if (!next.date) {
+      onChange('')
+      return
+    }
+    onChange(snapDateTimeLocalToQuarterHour(datetimeLocalFrom12(next)))
+  }
+  return (
+    <label className="text-sm">
+      {label}
+      <span className="mt-1 flex flex-wrap items-center gap-2">
+        <input
+          type="date"
+          className={`${selectClass} [color-scheme:light]`}
+          aria-label={`${label} date`}
+          value={parts.date}
+          onChange={(e) => commit({ date: e.target.value })}
+        />
+        <select
+          className={selectClass}
+          aria-label={`${label} hour`}
+          value={parts.hour}
+          onChange={(e) => commit({ hour: Number(e.target.value) })}
+        >
+          {HOUR_12_OPTIONS.map((hour) => (
+            <option key={hour} value={hour}>
+              {hour}
+            </option>
+          ))}
+        </select>
+        <select
+          className={selectClass}
+          aria-label={`${label} minutes`}
+          value={parts.minute}
+          onChange={(e) => commit({ minute: Number(e.target.value) })}
+        >
+          {QUARTER_MINUTES.map((minute) => (
+            <option key={minute} value={minute}>
+              {String(minute).padStart(2, '0')}
+            </option>
+          ))}
+        </select>
+        <select
+          className={selectClass}
+          aria-label={`${label} AM or PM`}
+          value={parts.ampm}
+          onChange={(e) => commit({ ampm: e.target.value === 'PM' ? 'PM' : 'AM' })}
+        >
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </span>
+    </label>
+  )
+}
+
 export function HoursEditor({
   hours,
   onChange,
@@ -244,24 +361,18 @@ export function HoursEditor({
                   </label>
                   {open ? (
                     <>
-                      <input
-                        type="time"
-                        step={60}
-                        className="rounded-md border border-black/10 px-2 py-1 text-sm"
-                        aria-label={`${label} opens`}
+                      <HourAmPmSelect
+                        ariaLabel={`${label} opens`}
                         value={toHhmm(row.open, '09:00')}
-                        onChange={(e) => setDay(day, { open: toHhmm(e.target.value, row.open) })}
+                        onChange={(next) => setDay(day, { open: next })}
                       />
                       <span className="text-[var(--text-dark)]/40" aria-hidden>
                         →
                       </span>
-                      <input
-                        type="time"
-                        step={60}
-                        className="rounded-md border border-black/10 px-2 py-1 text-sm"
-                        aria-label={`${label} closes`}
+                      <HourAmPmSelect
+                        ariaLabel={`${label} closes`}
                         value={toHhmm(row.close, '20:00')}
-                        onChange={(e) => setDay(day, { close: toHhmm(e.target.value, row.close) })}
+                        onChange={(next) => setDay(day, { close: next })}
                       />
                     </>
                   ) : (

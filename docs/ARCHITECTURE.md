@@ -92,7 +92,9 @@ stateDiagram-v2
 
 `starts_at` is UTC ISO for the exact Europe/Dublin slot. `remind_at` is 09:00 Europe/Dublin on the **calendar day before** `starts_at`. Combined Confirm (already `remind_at <= now`) sets reminder sent flags so the Worker does not send again.
 
-Duration on the ICS block (no schema column): Initial **75**, follow-up or package **45**, else **60**.
+Duration on the ICS block (no schema column): published `pricing.serviceCopy.durationMinutes` when the service name matches, otherwise Initial **75**, follow-up or package **45**, else **60**.
+
+Overlay-on `/bookings/` catalog uses portal Pricing copy (name, description, duration) plus Cupping and Moxibustion on/off. Preferred-time cards clip Morning 9–12 / Afternoon 12–4 / Evening 4–close to that weekday’s published hours and show **12-hour AM/PM**. Overlay-off keeps baked `booking-catalog.ts` and Evening 4–7. `BOOKABLE_PRICE_KEYS` stays the four appointment types (not Cupping or Moxibustion).
 
 ## Confirm pipeline
 
@@ -193,8 +195,11 @@ Not built: same-day reminder.
 | `functions/_lib/email-brand.ts` | www thank-you, portal/Worker notify | Colours, rows, pills, maps, location parse (Celbridge street `56 The Orchard, Oldtown Mill`) |
 | `functions/_lib/notify.ts` | Portal Confirm/Reschedule/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
 | `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule API | 15-minute snap + Dublin datetime-local |
+| `shared/twelve-hour.ts` | Portal hours + Confirm/Reschedule pickers | 12-hour AM/PM UI; stored values stay 24-hour |
+| `shared/preferred-time-windows.ts` | www booking form | Clip preferred-time cards to published hours |
 | `shared/booking-options.ts` | Portal Confirmed tab, Reschedule API | Allowed service/location catalogs |
-| `shared/site-snapshot.ts` | www overlay, portal Settings | Published clinic JSON |
+| `shared/site-snapshot.ts` | www overlay, portal Settings | Published clinic JSON (`serviceCopy`, cupping/moxibustion flags) |
+| `src/lib/overlay-public.ts` | www `/bookings/` | Overlay catalog names, prices, add-on flags |
 
 Unit tests: `npm run test:unit`.
 

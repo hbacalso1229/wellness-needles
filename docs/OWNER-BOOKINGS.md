@@ -44,7 +44,7 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 
 1. Open **Appointments** in the portal (`https://portal.wellnessneedles.ie`).
 2. Open the request. You will see the patient’s name, phone, email, preferred day/time window, and whether they asked for SMS. Use search on Pending, Confirmed, or Cancelled to find someone by name, phone, or email.
-3. **Confirm** if you can take them. Enter the exact start time (Ireland time, 15-minute steps). That is the time they will be told. A calendar invite also goes to the patient and to `info@` (Zoho). You do not type the slot into Zoho by hand.
+3. **Confirm** if you can take them. Enter the exact start in **12-hour Ireland time** (15-minute steps). That is the time they will be told. A calendar invite also goes to the patient and to `info@` (Zoho). You do not type the slot into Zoho by hand.
 4. **Reschedule** from the **Confirmed** tab if you need a new Ireland time, service, or clinic. The patient gets an “Appointment updated” email and a replacement calendar invite. Zoho gets the same invite.
 5. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too. The row moves to the **Cancelled** tab so you can look it up. You cannot restore it from there.
 
@@ -57,7 +57,7 @@ Confirm and day-before reminder emails are a scannable card (first name only in 
 
 You do not send the reminder yourself. After a normal Confirm, the patient is reminded automatically the **calendar day before** the appointment (from 9:00am Ireland time).
 
-The calendar block is Initial **75 minutes**, Follow-up or package **45 minutes**, anything else **60 minutes**. In Zoho Mail, open the invite and **Add** it to Calendar if it does not appear on its own (Calendar must be on for `info@`).
+The calendar block uses the duration published in Pricing when the service name matches. Otherwise it is Initial **75 minutes**, Follow-up or package **45 minutes**, anything else **60 minutes**. Patient Morning / Afternoon / Evening windows on the website follow your published hours (Ireland 12-hour). Confirm still sets the exact time. In Zoho Mail, open the invite and **Add** it to Calendar if it does not appear on its own (Calendar must be on for `info@`).
 
 ## What the patient gets
 

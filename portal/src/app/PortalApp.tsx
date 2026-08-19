@@ -9,9 +9,11 @@ import {
   createSiteInsurer,
   parseSiteSnapshot,
   BOOKABLE_PRICE_KEYS,
+  DEFAULT_SERVICE_COPY,
   isBookablePriceKey,
   type PriceList,
   type PricingExtra,
+  type ServiceCopyItem,
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
 import {
@@ -35,6 +37,7 @@ import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import {
   Card,
   CompactEuroField,
+  DublinStartPicker,
   HoursEditor,
   OnOffSwitch,
   PageHeader,
@@ -114,6 +117,7 @@ const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
   ['package5', '5-Session Package'],
   ['package10', '10-Session Package'],
   ['cupping', 'Cupping'],
+  ['moxibustion', 'Moxibustion'],
 ]
 
 function originalKind(
@@ -647,21 +651,10 @@ export function PortalApp() {
                       </p>
                       {confirmId === row.id ? (
                         <div className="mt-3 flex flex-wrap items-end gap-2">
-                          <label className="text-sm">
-                            Exact start
-                            <input
-                              type="datetime-local"
-                              step={900}
-                              className="mt-1 block rounded border px-2 py-1"
-                              value={startsAtLocal}
-                              onChange={(e) =>
-                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                              }
-                              onBlur={(e) =>
-                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                              }
-                            />
-                          </label>
+                          <DublinStartPicker
+                            value={startsAtLocal}
+                            onChange={setStartsAtLocal}
+                          />
                           <button
                             type="button"
                             className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
@@ -732,21 +725,10 @@ export function PortalApp() {
                       </p>
                       {rescheduleId === row.id ? (
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <label className="text-sm">
-                            Exact start
-                            <input
-                              type="datetime-local"
-                              step={900}
-                              className="mt-1 block w-full rounded border px-2 py-1"
-                              value={startsAtLocal}
-                              onChange={(e) =>
-                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                              }
-                              onBlur={(e) =>
-                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                              }
-                            />
-                          </label>
+                          <DublinStartPicker
+                            value={startsAtLocal}
+                            onChange={setStartsAtLocal}
+                          />
                           <label className="text-sm">
                             Visit type
                             <select
@@ -950,14 +932,16 @@ export function PortalApp() {
                 value={newReviewCondition}
                 onChange={(e) => setNewReviewCondition(e.target.value)}
               />
-              <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+              <label className="block w-full text-xs font-medium text-[var(--text-dark)]/60">
                 Review date
-                <input
-                  className="mt-1 w-full min-h-11 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[var(--text-dark)] [color-scheme:light]"
-                  type="date"
-                  value={newReviewDate}
-                  onChange={(e) => setNewReviewDate(e.target.value)}
-                />
+                <span className="mt-1 block w-full">
+                  <input
+                    className="box-border min-h-11 w-full min-w-0 max-w-none rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[var(--text-dark)] [color-scheme:light] [&::-webkit-date-and-time-value]:min-w-full [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:w-full"
+                    type="date"
+                    value={newReviewDate}
+                    onChange={(e) => setNewReviewDate(e.target.value)}
+                  />
+                </span>
               </label>
               <input
                 className="w-full rounded border px-2 py-1"
@@ -1129,6 +1113,20 @@ export function PortalApp() {
                       const itemOn = draft.pricing[itemsKey][key]
                       const isBookable = isBookablePriceKey(key)
                       const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
+                      const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
+                      const isFreeTextPrice = key === 'moxibustion'
+                      const patchCopy = (patch: Partial<ServiceCopyItem>) =>
+                        setDraft({
+                          ...draft,
+                          pricing: {
+                            ...draft.pricing,
+                            serviceCopy: {
+                              ...DEFAULT_SERVICE_COPY,
+                              ...draft.pricing.serviceCopy,
+                              [key]: { ...copy, ...patch },
+                            },
+                          },
+                        })
                       return (
                         <div
                           key={key}
@@ -1152,33 +1150,116 @@ export function PortalApp() {
                               }}
                             />
                           </div>
+                          <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                            Name
+                            <input
+                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                              value={copy.name}
+                              onChange={(e) => patchCopy({ name: e.target.value })}
+                            />
+                          </label>
+                          <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                            Description
+                            <input
+                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                              value={copy.description}
+                              onChange={(e) => patchCopy({ description: e.target.value })}
+                            />
+                          </label>
+                          {isBookable ? (
+                            <div className="mb-2 flex flex-wrap items-end gap-2">
+                              <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
+                                Duration
+                                <input
+                                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                                  value={copy.duration}
+                                  onChange={(e) => patchCopy({ duration: e.target.value })}
+                                />
+                              </label>
+                              <label className="block w-28 text-xs font-medium text-[var(--text-dark)]/60">
+                                Minutes
+                                <input
+                                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                                  type="number"
+                                  min={15}
+                                  max={180}
+                                  step={15}
+                                  value={copy.durationMinutes || ''}
+                                  onChange={(e) =>
+                                    patchCopy({
+                                      durationMinutes: Number(e.target.value) || 0,
+                                    })
+                                  }
+                                />
+                              </label>
+                            </div>
+                          ) : null}
                           <div className="flex flex-wrap items-end gap-2">
-                            <CompactEuroField
-                              label="Original"
-                              value={original}
-                              onChange={(next) =>
-                                setDraft({
-                                  ...draft,
-                                  pricing: {
-                                    ...draft.pricing,
-                                    [origKey]: { ...draft.pricing[origKey], [key]: next },
-                                  },
-                                })
-                              }
-                            />
-                            <CompactEuroField
-                              label="Discounted"
-                              value={discounted}
-                              onChange={(next) =>
-                                setDraft({
-                                  ...draft,
-                                  pricing: {
-                                    ...draft.pricing,
-                                    [kind]: { ...draft.pricing[kind], [key]: next },
-                                  },
-                                })
-                              }
-                            />
+                            {isFreeTextPrice ? (
+                              <>
+                                <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
+                                  Original
+                                  <input
+                                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                                    value={original}
+                                    onChange={(e) =>
+                                      setDraft({
+                                        ...draft,
+                                        pricing: {
+                                          ...draft.pricing,
+                                          [origKey]: { ...draft.pricing[origKey], [key]: e.target.value },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </label>
+                                <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
+                                  Price
+                                  <input
+                                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                                    value={discounted}
+                                    onChange={(e) =>
+                                      setDraft({
+                                        ...draft,
+                                        pricing: {
+                                          ...draft.pricing,
+                                          [kind]: { ...draft.pricing[kind], [key]: e.target.value },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </label>
+                              </>
+                            ) : (
+                              <>
+                                <CompactEuroField
+                                  label="Original"
+                                  value={original}
+                                  onChange={(next) =>
+                                    setDraft({
+                                      ...draft,
+                                      pricing: {
+                                        ...draft.pricing,
+                                        [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                      },
+                                    })
+                                  }
+                                />
+                                <CompactEuroField
+                                  label="Discounted"
+                                  value={discounted}
+                                  onChange={(next) =>
+                                    setDraft({
+                                      ...draft,
+                                      pricing: {
+                                        ...draft.pricing,
+                                        [kind]: { ...draft.pricing[kind], [key]: next },
+                                      },
+                                    })
+                                  }
+                                />
+                              </>
+                            )}
                             {off ? (
                               <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
                                 {off}

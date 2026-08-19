@@ -140,7 +140,7 @@ docs/
 
 ## Booking prices
 
-In-clinic and home visit **must stay on different prices**. Overlay-off (and API fallback) reads [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts). Overlay-on reads portal Pricing after Publish.
+In-clinic and home visit **must stay on different prices**. Overlay-off (and API fallback) reads [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts). Overlay-on reads portal Pricing after Publish (euro amounts, names, descriptions, durations, Cupping and Moxibustion on/off). Moxibustion defaults to **Free (if required)** until you change it.
 
 | Service | In clinic | Home visit |
 |---------|-----------|------------|
