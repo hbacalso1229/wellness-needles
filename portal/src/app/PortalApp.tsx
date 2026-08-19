@@ -1291,142 +1291,159 @@ export function PortalApp() {
         {tab === 'settings' && (
           <section className="space-y-5">
             <Card>
-              <div className="space-y-3">
-              <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={draft.websiteOverlayEnabled}
-                  onChange={(e) =>
-                    setDraft({ ...draft, websiteOverlayEnabled: e.target.checked })
-                  }
-                />
-                <span>
-                  Show portal changes on the public website. If the live site looks wrong,
-                  uncheck this and Publish — the website returns to the original baked
-                  content. Fetch failures also keep the baked site automatically.
-                </span>
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={draft.features.bookingFormEnabled}
-                  onChange={(e) => {
-                    const on = e.target.checked
-                    setDraft({
-                      ...draft,
-                      features: {
-                        ...draft.features,
-                        bookingFormEnabled: on,
-                        ...(on
-                          ? { calendlyEnabled: false, freshaEnabled: false }
-                          : {}),
-                      },
-                    })
-                  }}
-                />
-                Booking form
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={draft.features.calendlyEnabled}
-                  onChange={(e) => {
-                    const on = e.target.checked
-                    setDraft({
-                      ...draft,
-                      features: {
-                        ...draft.features,
-                        calendlyEnabled: on,
-                        ...(on
-                          ? { bookingFormEnabled: false, freshaEnabled: false }
-                          : {}),
-                      },
-                    })
-                  }}
-                />
-                Calendly
-              </label>
-              {draft.features.calendlyEnabled ? (
-                <div className="ml-6 space-y-2">
-                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
-                    Scheduling URL
-                    <input
-                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-                      value={draft.calendly.schedulingUrl}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          calendly: { ...draft.calendly, schedulingUrl: e.target.value },
-                        })
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Public website overlay</p>
+                    <p className="mt-1 text-sm text-[var(--text-dark)]/65">
+                      Show portal changes on the public website. If the live site looks
+                      wrong, turn this off and Publish — the website returns to the original
+                      baked content. Fetch failures also keep the baked site automatically.
+                    </p>
+                  </div>
+                  <OnOffSwitch
+                    checked={draft.websiteOverlayEnabled}
+                    ariaLabel={
+                      draft.websiteOverlayEnabled
+                        ? 'Turn off public website overlay'
+                        : 'Turn on public website overlay'
+                    }
+                    onChange={(enabled) =>
+                      setDraft({ ...draft, websiteOverlayEnabled: enabled })
+                    }
+                  />
+                </div>
+                <div className="space-y-3 border-t border-black/[0.06] pt-4">
+                  <p className="text-sm font-medium">Booking method</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm">Booking form</p>
+                    <OnOffSwitch
+                      checked={draft.features.bookingFormEnabled}
+                      ariaLabel={
+                        draft.features.bookingFormEnabled
+                          ? 'Turn off booking form'
+                          : 'Turn on booking form'
                       }
-                    />
-                  </label>
-                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
-                    Initial consultation URL
-                    <input
-                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-                      value={draft.calendly.initialConsultationUrl}
-                      onChange={(e) =>
+                      onChange={(on) =>
                         setDraft({
                           ...draft,
-                          calendly: {
-                            ...draft.calendly,
-                            initialConsultationUrl: e.target.value,
+                          features: {
+                            ...draft.features,
+                            bookingFormEnabled: on,
+                            ...(on ? { calendlyEnabled: false, freshaEnabled: false } : {}),
                           },
                         })
                       }
                     />
-                  </label>
-                  <label className="block text-xs font-medium text-[var(--text-dark)]/60">
-                    Follow-up URL
-                    <input
-                      className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-                      value={draft.calendly.followUpUrl}
-                      onChange={(e) =>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm">Calendly</p>
+                    <OnOffSwitch
+                      checked={draft.features.calendlyEnabled}
+                      ariaLabel={
+                        draft.features.calendlyEnabled
+                          ? 'Turn off Calendly'
+                          : 'Turn on Calendly'
+                      }
+                      onChange={(on) =>
                         setDraft({
                           ...draft,
-                          calendly: { ...draft.calendly, followUpUrl: e.target.value },
+                          features: {
+                            ...draft.features,
+                            calendlyEnabled: on,
+                            ...(on
+                              ? { bookingFormEnabled: false, freshaEnabled: false }
+                              : {}),
+                          },
                         })
                       }
                     />
-                  </label>
+                  </div>
+                  {draft.features.calendlyEnabled ? (
+                    <div className="space-y-2 pl-1">
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Scheduling URL
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={draft.calendly.schedulingUrl}
+                          onChange={(e) =>
+                            setDraft({
+                              ...draft,
+                              calendly: { ...draft.calendly, schedulingUrl: e.target.value },
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Initial consultation URL
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={draft.calendly.initialConsultationUrl}
+                          onChange={(e) =>
+                            setDraft({
+                              ...draft,
+                              calendly: {
+                                ...draft.calendly,
+                                initialConsultationUrl: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Follow-up URL
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                          value={draft.calendly.followUpUrl}
+                          onChange={(e) =>
+                            setDraft({
+                              ...draft,
+                              calendly: { ...draft.calendly, followUpUrl: e.target.value },
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                  ) : null}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm">Fresha</p>
+                    <OnOffSwitch
+                      checked={draft.features.freshaEnabled}
+                      ariaLabel={
+                        draft.features.freshaEnabled
+                          ? 'Turn off Fresha'
+                          : 'Turn on Fresha'
+                      }
+                      onChange={(on) =>
+                        setDraft({
+                          ...draft,
+                          features: {
+                            ...draft.features,
+                            freshaEnabled: on,
+                            ...(on
+                              ? { bookingFormEnabled: false, calendlyEnabled: false }
+                              : {}),
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  {draft.features.freshaEnabled ? (
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Booking URL
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={draft.fresha.bookingUrl}
+                        onChange={(e) =>
+                          setDraft({
+                            ...draft,
+                            fresha: { ...draft.fresha, bookingUrl: e.target.value },
+                          })
+                        }
+                      />
+                    </label>
+                  ) : null}
                 </div>
-              ) : null}
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={draft.features.freshaEnabled}
-                  onChange={(e) => {
-                    const on = e.target.checked
-                    setDraft({
-                      ...draft,
-                      features: {
-                        ...draft.features,
-                        freshaEnabled: on,
-                        ...(on
-                          ? { bookingFormEnabled: false, calendlyEnabled: false }
-                          : {}),
-                      },
-                    })
-                  }}
-                />
-                Fresha
-              </label>
-              {draft.features.freshaEnabled ? (
-                <label className="ml-6 block text-xs font-medium text-[var(--text-dark)]/60">
-                  Booking URL
-                  <input
-                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-                    value={draft.fresha.bookingUrl}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        fresha: { ...draft.fresha, bookingUrl: e.target.value },
-                      })
-                    }
-                  />
-                </label>
-              ) : null}
               </div>
             </Card>
             <UnsavedBar
