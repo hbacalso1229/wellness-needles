@@ -1,5 +1,6 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
 import {
+  bookingDurationMinutes,
   dublinLocalToUtcIso,
   formatDublin,
   remindAtMorningBefore,
@@ -22,6 +23,7 @@ type BookingRow = {
   email: string
   phone: string
   location_label: string | null
+  service_label: string | null
   preferred_date: string | null
   preferred_time: string | null
   starts_at: string | null
@@ -61,6 +63,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     const kind = combined ? 'combined' : 'confirm'
     const whenLabel = formatDublin(startsAt)
     const smsOptIn = Boolean(row.sms_opt_in) && site.features.smsEnabled
+    const patientName = `${row.first_name} ${row.last_name}`.trim()
     const sent = await sendPatientBookingMessage({
       env: context.env,
       kind,
@@ -70,6 +73,10 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       whenLabel,
       locationLabel: row.location_label || '',
       site,
+      bookingId: row.id,
+      patientName,
+      startsAtIso: startsAt,
+      durationMinutes: bookingDurationMinutes(row.service_label),
     })
 
     await context.env.DB.prepare(
@@ -111,6 +118,10 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       whenLabel,
       locationLabel: row.location_label || '',
       site,
+      bookingId: row.id,
+      patientName: `${row.first_name} ${row.last_name}`.trim(),
+      startsAtIso: wasConfirmed && row.starts_at ? row.starts_at : undefined,
+      durationMinutes: bookingDurationMinutes(row.service_label),
     })
     await context.env.DB.prepare(
       `UPDATE bookings SET
