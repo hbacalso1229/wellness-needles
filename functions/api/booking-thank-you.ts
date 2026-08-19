@@ -4,6 +4,31 @@
  * From: info@wellnessneedles.ie (domain verified in Resend).
  */
 
+import {
+  BAKED_LOCATIONS,
+  HEADING,
+  PRIMARY,
+  ROW_BORDER,
+  SANS,
+  SECONDARY,
+  SERIF,
+  SITE,
+  TEXT,
+  TEXT_LABEL,
+  TEXT_MUTED,
+  asLocationRow,
+  brandedLink,
+  escapeHtml,
+  fullWidthPill,
+  iconImg,
+  leafDivider,
+  mapsHref,
+  orDivider,
+  row,
+  visitTypeDisplay,
+  type KnownLocation,
+} from '../_lib/email-brand'
+
 type PagesFunction<Env = unknown> = (context: {
   request: Request
   env: Env
@@ -34,7 +59,6 @@ type Env = {
 }
 
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
-const SITE = 'https://www.wellnessneedles.ie'
 const PHONE_DISPLAY = '+353 86 054 3085'
 const PHONE_HREF = 'tel:+353860543085'
 const EMAIL_HREF =
@@ -55,14 +79,6 @@ function formatDisplayDate(isoDate: string): string {
     month: 'long',
     year: 'numeric',
   })
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
 }
 
 function collapseSpaces(value: string): string {
@@ -97,82 +113,6 @@ function joinPersonName(firstName: string, lastName: string): string {
   return collapseRepeatedFullName(`${first} ${last}`)
 }
 
-/** Site tokens — keep the email visually aligned with /bookings/thank-you. */
-const PRIMARY = '#2d5016'
-const SECONDARY = '#4a7c2a'
-const GOLD = '#d4af37'
-const HEADING = '#1B3B2B'
-const TEXT = '#2a2a28'
-/** text-dark at 70% / 65% / 50% on white — email clients ignore CSS opacity. */
-const TEXT_MUTED = '#6a6a69'
-const TEXT_DETAIL = '#757573'
-const TEXT_LABEL = '#959594'
-const ROW_BORDER = '#d4e4cc'
-const BADGE_BG = '#f2f7f0'
-const BADGE_BORDER = '#c5dcb8'
-const SANS = "Arial,Helvetica,sans-serif"
-const SERIF = "Georgia,'Times New Roman',serif"
-
-function iconUrl(name: string): string {
-  return `${SITE}/email/${name}.png`
-}
-
-function iconImg(name: string, size: number): string {
-  return `<img src="${iconUrl(name)}" alt="" width="${size}" height="${size}" style="display:block;width:${size}px;height:${size}px;border:0;margin:0 auto;" />`
-}
-
-/** Stop mail apps painting auto-detected email/phone/address in default blue. */
-function brandedLink(href: string, label: string, color: string, extra = ''): string {
-  const html = escapeHtml(label).replace(/\n/g, '<br />')
-  return `<a href="${href}" style="color:${color} !important;text-decoration:none !important;${extra}">${html}</a>`
-}
-
-function displayCounty(county: string): string {
-  return county.replace(/^Co\.(?=\S)/, 'Co. ')
-}
-
-type KnownLocation = {
-  label: string
-  street: string
-  city: string
-  county: string
-  postcode: string
-  full?: string
-}
-
-const BAKED_LOCATIONS: KnownLocation[] = [
-  {
-    label: 'Celbridge',
-    street: '56 The Orchard Oldtown Mill',
-    city: 'Celbridge',
-    county: 'Co.Kildare',
-    postcode: 'W23 K603',
-  },
-  {
-    label: 'Carlow',
-    street: '16 Kennedy St',
-    city: 'Graigue',
-    county: 'Carlow',
-    postcode: 'R93 H2X8',
-  },
-]
-
-function asLocationRow(value: unknown): KnownLocation | null {
-  if (!value || typeof value !== 'object') return null
-  const row = value as Record<string, unknown>
-  if (row.enabled === false) return null
-  const label = typeof row.label === 'string' ? row.label.trim() : ''
-  if (!label) return null
-  return {
-    label,
-    street: typeof row.street === 'string' ? row.street : '',
-    city: typeof row.city === 'string' ? row.city : '',
-    county: typeof row.county === 'string' ? row.county : '',
-    postcode: typeof row.postcode === 'string' ? row.postcode : '',
-    full: typeof row.full === 'string' ? row.full : undefined,
-  }
-}
-
 async function publishedLocations(env: Env): Promise<KnownLocation[]> {
   try {
     const fromKv = await env.SITE_CACHE?.get('public:site:v1', 'text')
@@ -192,171 +132,6 @@ async function publishedLocations(env: Env): Promise<KnownLocation[]> {
   } catch {
     return BAKED_LOCATIONS
   }
-}
-
-/** Keep in sync with src/lib/format-location-display.ts */
-function parseLocationDisplay(
-  locationLabel: string,
-  known: KnownLocation[] = BAKED_LOCATIONS
-): { town: string; address: string } | null {
-  const trimmed = locationLabel.trim()
-  if (!trimmed) return null
-  const loc = known.find(
-    (item) =>
-      trimmed === item.label ||
-      trimmed.startsWith(`${item.label} —`) ||
-      Boolean(item.full && trimmed === item.full)
-  )
-  if (loc) {
-    return {
-      town: loc.label,
-      address: [
-        loc.street,
-        `${loc.city}, ${displayCounty(loc.county)}`,
-        loc.postcode,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-    }
-  }
-  const dash = trimmed.indexOf(' — ')
-  if (dash !== -1) {
-    return {
-      town: trimmed.slice(0, dash),
-      address: trimmed.slice(dash + 3),
-    }
-  }
-  return { town: '', address: trimmed }
-}
-
-function visitTypeDisplay(
-  serviceType: string,
-  locationLabel?: string,
-  known: KnownLocation[] = BAKED_LOCATIONS
-): { value: string; address?: string } {
-  const parsed = locationLabel ? parseLocationDisplay(locationLabel, known) : null
-  if (!parsed) return { value: serviceType }
-  if (parsed.town) {
-    return { value: `${serviceType} — ${parsed.town}`, address: parsed.address }
-  }
-  return { value: serviceType, address: parsed.address }
-}
-
-function mapsHref(query: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
-}
-
-function goldBar(): string {
-  return `
-    <table role="presentation" width="32" cellspacing="0" cellpadding="0" style="width:32px;border-collapse:collapse;">
-      <tr>
-        <td height="2" style="height:2px;line-height:2px;font-size:0;background-color:${GOLD};border-radius:999px;">&nbsp;</td>
-      </tr>
-    </table>`
-}
-
-function leafDivider(): string {
-  return `
-    <table role="presentation" cellspacing="0" cellpadding="0">
-      <tr>
-        <td valign="middle" width="32" style="width:32px;padding:0 8px 0 0;">${goldBar()}</td>
-        <td valign="middle" style="padding:0;">${iconImg('leaf', 14)}</td>
-        <td valign="middle" width="32" style="width:32px;padding:0 0 0 8px;">${goldBar()}</td>
-      </tr>
-    </table>`
-}
-
-function row(
-  icon: string,
-  label: string,
-  value: string,
-  detail?: { text: string; href?: string }
-): string {
-  let detailHtml = ''
-  if (detail?.text) {
-    const inner = detail.href
-      ? brandedLink(detail.href, detail.text, TEXT_DETAIL)
-      : escapeHtml(detail.text)
-    detailHtml = `<div style="margin-top:4px;font-family:${SANS};font-size:13px;line-height:1.35;color:${TEXT_DETAIL};">${inner}</div>`
-  }
-  return `
-    <tr>
-      <td style="padding:10px 12px;border:1px solid ${ROW_BORDER};border-radius:12px;background:#ffffff;">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-          <tr>
-            <td valign="top" width="32" style="width:32px;padding-top:2px;padding-right:12px;">
-              <table role="presentation" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td width="32" height="32" align="center" valign="middle" bgcolor="${BADGE_BG}" style="width:32px;height:32px;border:1px solid ${BADGE_BORDER};border-radius:999px;background-color:${BADGE_BG};">
-                    ${iconImg(icon, 16)}
-                  </td>
-                </tr>
-              </table>
-            </td>
-            <td valign="top" style="text-align:left;">
-              <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT_LABEL};font-weight:500;">${escapeHtml(label)}</div>
-              <div style="margin-top:2px;font-family:${SANS};font-size:15px;font-weight:600;color:${TEXT};line-height:1.35;">${escapeHtml(value)}</div>
-              ${detailHtml}
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr><td style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>`
-}
-
-/** Full-width pill — table cell is the button so Gmail cannot shrink to the label. */
-function fullWidthPill(
-  href: string,
-  label: string,
-  variant: 'gold' | 'outline',
-  icon: 'phone' | 'mail'
-): string {
-  const gold = variant === 'gold'
-  const tdStyle = gold
-    ? `width:100%;background-color:${GOLD};border-radius:999px;padding:10px 16px;`
-    : `width:100%;background-color:#ffffff;border:2px solid ${PRIMARY};border-radius:999px;padding:8px 16px;`
-  const labelStyle = [
-    `font-family:${SANS}`,
-    'font-size:14px',
-    gold ? 'font-weight:700' : 'font-weight:500',
-    `color:${PRIMARY}`,
-    'text-decoration:none',
-    'line-height:1.25',
-  ].join(';')
-  return `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:separate;">
-      <tr>
-        <td width="100%" align="center" bgcolor="${gold ? GOLD : '#ffffff'}" style="${tdStyle}">
-          <a href="${href}" style="display:block;width:100%;text-decoration:none;color:${PRIMARY};">
-            <table role="presentation" cellspacing="0" cellpadding="0" align="center">
-              <tr>
-                <td valign="middle" style="padding-right:6px;">${iconImg(icon, 16)}</td>
-                <td valign="middle" style="${labelStyle}">${label}</td>
-              </tr>
-            </table>
-          </a>
-        </td>
-      </tr>
-    </table>`
-}
-
-function orDivider(): string {
-  // Nested 1px border — same-row background-color cells stretch to the "Or" label height in Gmail.
-  const hairline = `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;">
-      <tr>
-        <td height="1" style="height:1px;line-height:1px;font-size:1px;mso-line-height-rule:exactly;border-top:1px solid ${ROW_BORDER};">&nbsp;</td>
-      </tr>
-    </table>`
-  return `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin:10px 0;">
-      <tr>
-        <td width="42%" valign="middle" style="padding:0;font-size:0;line-height:0;">${hairline}</td>
-        <td width="16%" align="center" valign="middle" style="font-family:${SANS};font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:${SECONDARY};white-space:nowrap;padding:0 8px;">Or</td>
-        <td width="42%" valign="middle" style="padding:0;font-size:0;line-height:0;">${hairline}</td>
-      </tr>
-    </table>`
 }
 
 function buildHtml(

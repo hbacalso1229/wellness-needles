@@ -1,16 +1,22 @@
 import type { PagesEnv } from './http'
 import type { SiteSnapshot } from '../../shared/site-snapshot'
+import {
+  BAKED_LOCATIONS,
+  asLocationRow,
+  directionsHref,
+  twoColPills,
+  emailShell,
+  escapeHtml,
+  firstNameOnly,
+  fullWidthPill,
+  googleCalendarTemplateUrl,
+  parseLocationDisplay,
+  row,
+  type KnownLocation,
+} from './email-brand'
 
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
 const ORGANIZER_EMAIL = 'info@wellnessneedles.ie'
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
 
 type CalendarInvite = {
   method: 'REQUEST' | 'CANCEL'
@@ -119,6 +125,164 @@ export function formatDublin(isoUtc: string): string {
   }).format(date)
 }
 
+export function formatDublinDate(isoUtc: string): string {
+  const date = new Date(isoUtc)
+  if (Number.isNaN(date.getTime())) return isoUtc
+  return new Intl.DateTimeFormat('en-IE', {
+    timeZone: 'Europe/Dublin',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
+export function formatDublinTime(isoUtc: string): string {
+  const date = new Date(isoUtc)
+  if (Number.isNaN(date.getTime())) return isoUtc
+  return new Intl.DateTimeFormat('en-IE', {
+    timeZone: 'Europe/Dublin',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date)
+}
+
+function knownLocationsFromSite(site: SiteSnapshot): KnownLocation[] {
+  const fromSite = (site.locations || [])
+    .map((loc) => asLocationRow(loc))
+    .filter((item): item is KnownLocation => Boolean(item))
+  return fromSite.length ? fromSite : BAKED_LOCATIONS
+}
+
+function appointmentCopy(options: {
+  kind: BookingMessageKind
+  firstName: string
+  clinic: string
+  dateLabel: string
+  timeLabel: string
+  locationText: string
+  phone: string
+}): { title: string; introHtml: string; introText: string; subject: string; sms: string } {
+  const hello = options.firstName
+    ? `Hi ${options.firstName}, we look forward to seeing you.`
+    : 'We look forward to seeing you.'
+  if (options.kind === 'confirm') {
+    return {
+      subject: `${options.clinic} — appointment confirmed`,
+      title: 'Appointment confirmed',
+      introHtml: escapeHtml(hello),
+      introText: hello,
+      sms: `Confirmed ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+    }
+  }
+  if (options.kind === 'combined') {
+    return {
+      subject: 'Confirmed, see you then',
+      title: 'See you then',
+      introHtml: escapeHtml(hello),
+      introText: hello,
+      sms: `Confirmed — see you ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+    }
+  }
+  return {
+    subject: 'Reminder — your appointment is tomorrow',
+    title: 'Reminder for tomorrow',
+    introHtml: escapeHtml(hello),
+    introText: hello,
+    sms: `Reminder ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. See you then.`,
+  }
+}
+
+function buildAppointmentEmail(options: {
+  kind: 'confirm' | 'combined' | 'reminder'
+  clinic: string
+  firstName: string
+  dateLabel: string
+  timeLabel: string
+  locationLabel: string
+  site: SiteSnapshot
+  startsAtIso?: string
+  durationMinutes: number
+}): { html: string; text: string; subject: string; sms: string } {
+  const known = knownLocationsFromSite(options.site)
+  const parsed = parseLocationDisplay(options.locationLabel, known)
+  const town = parsed?.town || ''
+  const address = parsed?.address || options.locationLabel || 'the clinic'
+  const mapsQuery = parsed?.mapsQuery || address.replace(/\n/g, ' ')
+  const mapsUrl = directionsHref(mapsQuery, parsed?.directionsUrl)
+  const phoneHref = options.site.phone.href || `tel:${options.site.phone.displayText.replace(/\s/g, '')}`
+  const phone = options.site.phone.displayText
+  const copy = appointmentCopy({
+    kind: options.kind,
+    firstName: options.firstName,
+    clinic: options.clinic,
+    dateLabel: options.dateLabel,
+    timeLabel: options.timeLabel,
+    locationText: town || address.replace(/\n/g, ', '),
+    phone,
+  })
+  const calendarUrl = options.startsAtIso
+    ? googleCalendarTemplateUrl({
+        title: `${options.clinic} appointment`,
+        startsAtIso: options.startsAtIso,
+        durationMinutes: options.durationMinutes,
+        details: copy.introText,
+        location: mapsQuery,
+      })
+    : null
+
+  const rowsHtml = [
+    row('calendar', 'Date', options.dateLabel),
+    row('clock', 'Time', options.timeLabel),
+    row('map-pin', 'Location', address),
+  ].join('')
+
+  const pair = calendarUrl
+    ? twoColPills(
+        { href: calendarUrl, label: 'Add to Calendar', variant: 'gold', icon: 'calendar' },
+        { href: mapsUrl, label: 'Get Directions', variant: 'outline', icon: 'map-pin' }
+      )
+    : fullWidthPill(mapsUrl, 'Get Directions', 'outline', 'map-pin')
+  const actionBlocks = [
+    pair,
+    `<div style="height:10px;font-size:0;line-height:0;">&nbsp;</div>`,
+    fullWidthPill(phoneHref, 'Call Wellness Needles', 'outline', 'phone'),
+  ].join('')
+
+  const html = emailShell({
+    title: copy.title,
+    introHtml: copy.introHtml,
+    rowsHtml,
+    actionsHtml: `<div style="margin-top:8px;">${actionBlocks}</div>`,
+    footerNote:
+      options.kind === 'reminder' || !calendarUrl
+        ? undefined
+        : 'A calendar invite is also attached for Apple and Outlook.',
+  })
+
+  const textLines = [
+    copy.title,
+    '',
+    copy.introText,
+    '',
+    `Date`,
+    options.dateLabel,
+    '',
+    `Time`,
+    options.timeLabel,
+    '',
+    `Location`,
+    address,
+    '',
+    calendarUrl ? `Add to Calendar: ${calendarUrl}` : '',
+    `Get Directions: ${mapsUrl}`,
+    `Call Wellness Needles: ${phone}`,
+  ].filter((line) => line !== undefined)
+
+  return { html, text: textLines.join('\n'), subject: copy.subject, sms: copy.sms }
+}
+
 export type BookingMessageKind = 'confirm' | 'combined' | 'reminder' | 'cancel-pending' | 'cancel-confirmed'
 
 export async function sendPatientBookingMessage(options: {
@@ -132,6 +296,7 @@ export async function sendPatientBookingMessage(options: {
   site: SiteSnapshot
   bookingId?: string
   patientName?: string
+  firstName?: string
   startsAtIso?: string
   durationMinutes?: number
 }): Promise<{ email: boolean; sms: boolean }> {
@@ -140,27 +305,136 @@ export async function sendPatientBookingMessage(options: {
   const loc = options.locationLabel || 'the clinic'
   const phone = options.site.phone.displayText
   const clinicEmail = options.site.email.address.trim() || ORGANIZER_EMAIL
+  const greetingName = firstNameOnly(options.firstName || options.patientName || '')
+  const dateLabel = options.startsAtIso ? formatDublinDate(options.startsAtIso) : when
+  const timeLabel = options.startsAtIso ? formatDublinTime(options.startsAtIso) : ''
+  const durationMinutes = options.durationMinutes || 60
+  const cardKind =
+    options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'reminder'
+      ? options.kind
+      : null
 
   let subject = `${clinic} booking`
   let text = ''
-  if (options.kind === 'confirm') {
-    subject = `${clinic} — appointment confirmed`
-    text = `Your appointment is confirmed for ${when} at ${loc}. See you then. Call ${phone} if you need us.`
-  } else if (options.kind === 'combined') {
-    subject = `${clinic} — confirmed, see you then`
-    text = `Your appointment is confirmed — see you ${when} at ${loc}. Call ${phone} if you need us.`
-  } else if (options.kind === 'reminder') {
-    subject = `${clinic} — reminder for tomorrow`
-    text = `Reminder: your appointment is ${when} at ${loc}. See you then.`
+  let html = ''
+  let smsBody = ''
+
+  if (cardKind) {
+    const card = buildAppointmentEmail({
+      kind: cardKind,
+      clinic,
+      firstName: greetingName,
+      dateLabel,
+      timeLabel: timeLabel || when,
+      locationLabel: loc,
+      site: options.site,
+      startsAtIso: options.startsAtIso,
+      durationMinutes,
+    })
+    subject = card.subject
+    text = card.text
+    html = card.html
+    smsBody = card.sms
   } else if (options.kind === 'cancel-pending') {
     subject = `${clinic} — we could not confirm this request`
     text = `We could not confirm this appointment request${when ? ` (${when})` : ''}. Please call ${phone} or email ${options.site.email.address} to rebook.`
+    html = `<p>${escapeHtml(text)}</p>`
+    smsBody = text
   } else {
     subject = `${clinic} — appointment cancelled`
     text = `Your appointment on ${when} at ${loc} has been cancelled. Call ${phone} to rebook.`
+    html = `<p>${escapeHtml(text)}</p>`
+    smsBody = text
   }
 
-  const html = `<p>${escapeHtml(text)}</p>`
+  const attachIcs =
+    (options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'cancel-confirmed') &&
+    Boolean(options.bookingId && options.startsAtIso)
+  const icsBody = attachIcs
+    ? buildBookingIcs({
+        method: options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST',
+        uid: options.bookingId || '',
+        startsAtIso: options.startsAtIso || '',
+        durationMinutes,
+        summary: `${clinic} — ${options.patientName || 'appointment'}`,
+        description: text,
+        location: loc,
+        attendeeName: options.patientName || options.toEmail,
+        attendeeEmail: options.toEmail,
+        organizerName: clinic,
+        organizerEmail: clinicEmail,
+      })
+    : null
+  const ics = icsBody
+    ? {
+        method: (options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST') as 'REQUEST' | 'CANCEL',
+        body: icsBody,
+      }
+    : undefined
+
+  const sendWithOptionalIcs = async (
+    to: string,
+    mailSubject: string,
+    mailHtml: string,
+    mailText: string,
+    cc?: string
+  ): Promise<boolean> => {
+    if (ics) {
+      const withIcs = await sendResend(
+        options.env.RESEND_API_KEY,
+        to,
+        mailSubject,
+        mailHtml,
+        mailText,
+        { cc, ics }
+      )
+      if (withIcs) return true
+    }
+    return sendResend(options.env.RESEND_API_KEY, to, mailSubject, mailHtml, mailText, {
+      cc: ics ? undefined : cc,
+    })
+  }
+
+  const emailOk = await sendWithOptionalIcs(
+    options.toEmail,
+    subject,
+    html,
+    text,
+    ics ? clinicEmail : undefined
+  )
+
+  if (emailOk && ics) {
+    const clinicIsPatient =
+      clinicEmail.toLowerCase() === options.toEmail.trim().toLowerCase()
+    if (!clinicIsPatient) {
+      const clinicSubject = `${clinic} — calendar: ${options.patientName || options.toEmail}`
+      const clinicText = `${text}\n\nPortal booking ${options.bookingId || ''}.`
+      const clinicWithIcs = await sendResend(
+        options.env.RESEND_API_KEY,
+        clinicEmail,
+        clinicSubject,
+        html,
+        clinicText,
+        { ics }
+      )
+      if (!clinicWithIcs) {
+        await sendResend(
+          options.env.RESEND_API_KEY,
+          clinicEmail,
+          clinicSubject,
+          html,
+          clinicText
+        )
+      }
+    }
+  }
+
+  let smsOk = false
+  if (options.smsOptIn && options.site.features.smsEnabled) {
+    smsOk = await sendTwilio(options.env, options.toPhone, smsBody.slice(0, 160))
+  }
+  return { email: emailOk, sms: smsOk }
+}
   const attachIcs =
     (options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'cancel-confirmed') &&
     Boolean(options.bookingId && options.startsAtIso)

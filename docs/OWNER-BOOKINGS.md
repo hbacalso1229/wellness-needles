@@ -34,8 +34,14 @@ flowchart TD
 
 1. Open **Appointments** in the portal (`https://portal.wellnessneedles.ie`).
 2. Open the request. You will see the patient’s name, phone, email, preferred day/time window, and whether they asked for SMS.
-3. **Confirm** if you can take them. Enter the exact start time (Ireland time). That is the time they will be told. A calendar invite also goes to the patient and to `info@` (Zoho). You do not type the slot into Zoho by hand.
+3. **Confirm** if you can take them. Enter the exact start time (Ireland time, 15-minute steps). That is the time they will be told. A calendar invite also goes to the patient and to `info@` (Zoho). You do not type the slot into Zoho by hand.
 4. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too.
+
+Confirm and day-before reminder emails are a scannable card (first name only in the greeting):
+
+- Date, Time, and Location on separate rows
+- **Add to Calendar** and **Get Directions** on one row, **Call Wellness Needles** underneath
+- Attached invite for Apple/Outlook; Add to Calendar opens Google Calendar
 
 You do not send the reminder yourself. After a normal Confirm, the patient is reminded automatically the **calendar day before** the appointment (from 9:00am Ireland time).
 
@@ -43,16 +49,18 @@ The calendar block is Initial **75 minutes**, Follow-up or package **45 minutes*
 
 ## What the patient gets
 
-| When | Email they receive |
-|------|--------------------|
-| They submit the form | We received your request (not a confirmed slot) |
-| You Confirm in good time | Appointment confirmed, plus a calendar invite |
-| The day before | Reminder for tomorrow |
-| You Confirm late (day before after 9:00am, or same day) | One “see you then” message — no second reminder — plus a calendar invite |
-| You Cancel a new request | We could not confirm this request |
-| You Cancel a confirmed appointment | Appointment cancelled, plus a calendar cancel |
+| When | Email | Subject |
+|------|-------|---------|
+| They submit the form | Request received (not a confirmed slot) | Appointment request received — Wellness Needles |
+| You Confirm in good time | Appointment card + calendar invite | Wellness Needles — appointment confirmed |
+| You Confirm late (day before after 9:00am, or same day) | Same card — “See you then.” No second reminder | Confirmed, see you then |
+| The calendar day before, from 9:00am | Same card as a reminder (no extra calendar file) | Reminder — your appointment is tomorrow |
+| You Cancel a new request | We could not confirm this request | Wellness Needles — we could not confirm this request |
+| You Cancel a confirmed appointment | Appointment cancelled + calendar cancel | Wellness Needles — appointment cancelled |
 
-**SMS** is extra. It uses the same words as the email, and only if:
+Not sent today: same-day reminder, reschedule.
+
+**SMS** is extra. It is a short labeled text (not the HTML card), and only if:
 
 - Settings → **Patient SMS** is On, then **Publish**
 - the patient ticked the reminder box on the form

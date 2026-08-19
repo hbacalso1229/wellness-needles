@@ -1,4 +1,5 @@
 import {
+  bookingDurationMinutes,
   hoursUntil,
   sendPatientBookingMessage,
 } from '../../../functions/_lib/notify'
@@ -7,9 +8,11 @@ import type { PagesEnv } from '../../../functions/_lib/http'
 
 type BookingRow = {
   id: string
+  first_name: string
   email: string
   phone: string
   location_label: string | null
+  service_label: string | null
   starts_at: string
   sms_opt_in: number
   reminder_email_sent: number
@@ -21,7 +24,7 @@ const worker = {
     if (!env.DB) return
     const now = new Date().toISOString()
     const { results } = await env.DB.prepare(
-      `SELECT id, email, phone, location_label, starts_at, sms_opt_in,
+      `SELECT id, first_name, email, phone, location_label, service_label, starts_at, sms_opt_in,
               reminder_email_sent, reminder_sms_sent
        FROM bookings
        WHERE status = 'confirmed'
@@ -54,6 +57,11 @@ const worker = {
         whenLabel,
         locationLabel: row.location_label || '',
         site,
+        bookingId: row.id,
+        firstName: row.first_name,
+        patientName: row.first_name,
+        startsAtIso: row.starts_at,
+        durationMinutes: bookingDurationMinutes(row.service_label),
       })
       await env.DB.prepare(
         `UPDATE bookings SET reminder_email_sent = ?, reminder_sms_sent = ? WHERE id = ?`

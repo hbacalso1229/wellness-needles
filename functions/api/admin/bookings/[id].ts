@@ -75,6 +75,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       site,
       bookingId: row.id,
       patientName,
+      firstName: row.first_name,
       startsAtIso: startsAt,
       durationMinutes: bookingDurationMinutes(row.service_label),
     })
@@ -120,6 +121,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       site,
       bookingId: row.id,
       patientName: `${row.first_name} ${row.last_name}`.trim(),
+      firstName: row.first_name,
       startsAtIso: wasConfirmed && row.starts_at ? row.starts_at : undefined,
       durationMinutes: bookingDurationMinutes(row.service_label),
     })

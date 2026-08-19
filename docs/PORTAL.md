@@ -100,9 +100,9 @@ flowchart TD
 2. **Persist.** On clinic-email success, if overlay is on, the browser fire-and-forget posts to `/api/bff/booking-persist`. Persist failure does **not** block the clinic email.
 3. **Thank-you.** Resend `/api/booking-thank-you` is “request received”, not a confirmed appointment. Patient lands on `/bookings/thank-you/`.
 4. **Portal inbox.** D1 row `status = pending` with preferred date/time and `sms_opt_in`. Appointments shows Confirm / Cancel.
-5. **Confirm.** Owner sets an exact Europe/Dublin start. Sets `starts_at` and `remind_at` = 09:00 Dublin on the calendar day before. Before that window: confirmation email, Worker reminds later. Already in the window (day-before 09:00 or later, or appointment day): one combined “see you then”; cron does not send again. Confirm and combined attach `invite.ics` (`METHOD:REQUEST`) to the patient email, Cc `info@`, and send a clinic copy of the same UID so Zoho still gets it if self-CC is dropped. Duration: Initial 75 min, follow-up/package 45 min, else 60. ICS failure retries the email without the attachment.
-6. **Cancel.** Pending: “we could not confirm this request” (no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID.
-7. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. No ICS (would duplicate the calendar event).
+5. **Confirm.** Owner sets an exact Europe/Dublin start (portal picker snaps to 15-minute steps). Sets `starts_at` and `remind_at` = 09:00 Dublin on the calendar day before. Before that window: HTML appointment card + `invite.ics`; Worker reminds later. Already in the window: same card with heading “See you then.”; cron does not send again. Greeting is “Hi {first name}, we look forward to seeing you.” (does not repeat “confirmed”). Actions: Add to Calendar (Google template) and Get Directions on one row, Call Wellness Needles below. Cc `info@` plus a clinic copy of the same ICS UID if self-CC is dropped. Duration: Initial 75 min, follow-up/package 45 min, else 60. ICS failure retries the email without the attachment.
+6. **Cancel.** Pending: “we could not confirm this request” (plain text, no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID.
+7. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm; Google Calendar link only (no second ICS). There is no same-day reminder and no reschedule email.
 
 **SMS (optional, steps 5–7).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/cancel) and **Worker** (reminder). Same words as email (first 160 characters). SMS failure does not block email. www has no Twilio.
 
@@ -126,17 +126,21 @@ Submit-time **thank-you** (`/api/booking-thank-you`) is “request received”, 
 
 After owner **Confirm** (exact Europe/Dublin start):
 
-| Event | Email | SMS |
-|-------|-------|-----|
-| Confirm, still before 09:00 Dublin the calendar day before | Confirmation + calendar invite (Cc `info@` / Zoho) | Same, only if Patient SMS is on **and** the patient opted in |
-| Confirm on that day-before window, or on the appointment day | One combined “see you then” + calendar invite (no later reminder) | Same, if opted in |
-| 09:00 Dublin on the calendar day before (Cron Worker `*/15`) | Reminder (no ICS) | Same, if opted in |
-| Cancel pending request | Cancel notice (no ICS) | Same, if opted in |
-| Cancel confirmed appointment | Cancel notice + calendar cancel | Same, if opted in |
+| Event | Email | SMS | Subject |
+|-------|-------|-----|---------|
+| Confirm, still before 09:00 Dublin the calendar day before | Confirmation + calendar invite (Cc `info@` / Zoho) | Same, only if Patient SMS is on **and** the patient opted in | `Wellness Needles — appointment confirmed` |
+| Confirm on that day-before window, or on the appointment day | One combined “see you then” + calendar invite (no later reminder) | Same, if opted in | `Confirmed, see you then` |
+| 09:00 Dublin on the calendar day before (Cron Worker `*/15`) | Reminder (no ICS) | Same, if opted in | `Reminder — your appointment is tomorrow` |
+| Cancel pending request | Cancel notice (no ICS) | Same, if opted in | `Wellness Needles — we could not confirm this request` |
+| Cancel confirmed appointment | Cancel notice + calendar cancel | Same, if opted in | `Wellness Needles — appointment cancelled` |
 
 Example: confirmed Wednesday 14:00 Dublin → confirmation now; reminder Tuesday from 09:00.
 
-SMS uses the same words as email (first 160 characters). Failure must not block email. ICS failure must not block email. E2E never sends live email/SMS (`NEXT_PUBLIC_E2E`).
+SMS is a short labeled text (first 160 characters), not the HTML card. Failure must not block email. ICS failure must not block email. E2E never sends live email/SMS (`NEXT_PUBLIC_E2E`).
+
+Confirm / reminder HTML is the branded appointment card (same tokens as `/api/booking-thank-you`). Thank-you copy and layout are unchanged aside from sharing those helpers.
+
+Not implemented: same-day reminder subject, reschedule email.
 
 Zoho: Calendar must be on for `info@`. The owner may need to tap **Add** on the first invite. If From `info@` Cc `info@` is dropped as self-mail, the clinic still gets a second Resend to `info@` with the same UID.
 
@@ -149,3 +153,5 @@ Release deploys www with booking Functions (`booking-request`, `booking-thank-yo
 Go-live overlay: deploy with the kill switch `"true"`, confirm `https://www.wellnessneedles.ie/api/bff/site` is 200, then Publish overlay on in the portal.
 
 Go-live SMS: Twilio secrets on portal + Worker, redeploy both, Settings → Patient SMS On → Publish. Overlay stays on.
+
+Confirm/reminder card + calendar invite: deploy **portal** (Confirm/Cancel) and the **reminder Worker**. www is only required for the thank-you helper extract (`functions/_lib/email-brand.ts` imported by `/api/booking-thank-you`). Do not re-run D1 schema.

@@ -207,6 +207,19 @@ function looksLikeEircode(value: string): boolean {
   return /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(text)
 }
 
+/** Clinic slots are 15 minutes. datetime-local step is seconds. */
+function snapDateTimeLocalToQuarterHour(value: string): string {
+  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/.exec(value)
+  if (!match) return value
+  let hour = Number(match[2])
+  let minute = Math.round(Number(match[3]) / 15) * 15
+  if (minute === 60) {
+    minute = 0
+    hour = (hour + 1) % 24
+  }
+  return `${match[1]}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'include',
@@ -476,9 +489,12 @@ export function PortalApp() {
                           Exact start
                           <input
                             type="datetime-local"
+                            step={900}
                             className="mt-1 block rounded border px-2 py-1"
                             value={startsAtLocal}
-                            onChange={(e) => setStartsAtLocal(e.target.value)}
+                            onChange={(e) =>
+                              setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                            }
                           />
                         </label>
                         <button
