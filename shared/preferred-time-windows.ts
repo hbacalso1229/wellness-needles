@@ -22,7 +22,7 @@ const BAKED: ReadonlyArray<PreferredWindow> = [
     id: 'afternoon',
     label: 'Afternoon',
     window: '12:00 PM – 4:00 PM',
-    hint: 'Limited availability',
+    hint: 'Limited slots',
   },
   {
     id: 'evening',
@@ -40,7 +40,7 @@ const BUCKETS: ReadonlyArray<{
   end: number | 'close'
 }> = [
   { id: 'morning', label: 'Morning', hint: 'Most popular', start: 9 * 60, end: 12 * 60 },
-  { id: 'afternoon', label: 'Afternoon', hint: 'Limited availability', start: 12 * 60, end: 16 * 60 },
+  { id: 'afternoon', label: 'Afternoon', hint: 'Limited slots', start: 12 * 60, end: 16 * 60 },
   { id: 'evening', label: 'Evening', hint: 'Next available', start: 16 * 60, end: 'close' },
 ]
 

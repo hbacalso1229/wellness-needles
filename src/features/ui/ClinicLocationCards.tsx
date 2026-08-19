@@ -54,14 +54,14 @@ export function ClinicLocationCards({
               aria-label={location.label}
             />
             <span
-              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-8 w-8 items-center justify-center rounded-full ${
+              className={`booking-select-card__check pointer-events-none absolute top-2.5 right-2.5 z-0 flex h-6 w-6 items-center justify-center rounded-full ${
                 selected
-                  ? 'bg-primary text-cream opacity-100 shadow-md shadow-primary/35 ring-2 ring-white'
+                  ? 'bg-primary text-cream opacity-100'
                   : 'bg-transparent opacity-0'
               }`}
               aria-hidden
             >
-              <Check className="h-5 w-5" strokeWidth={3.5} />
+              <Check className="h-3.5 w-3.5" strokeWidth={3.5} />
             </span>
             <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
