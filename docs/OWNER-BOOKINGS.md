@@ -48,12 +48,12 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 4. **Reschedule** from the **Confirmed** tab if you need a new Ireland time, service, or clinic. The patient gets an “Appointment updated” email and a replacement calendar invite. Zoho gets the same invite.
 5. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too. The row moves to the **Cancelled** tab so you can look it up. You cannot restore it from there.
 
-Confirm and day-before reminder emails are a scannable card (first name only in the greeting: “Hi {name}, we look forward to seeing you.”):
+Confirm and day-before reminder emails are a scannable card (status line, then **See you soon/tomorrow, {name}!**, then “Hi {name}, we look forward to seeing you.”):
 
-- Date, Time, and Location on separate rows
+- Service, Date + Time, and Location
 - **Add to Calendar** and **Get Directions** on one row, **Call Wellness Needles** underneath
 - Confirm / last-minute / reschedule: attached invite for Apple/Outlook; Add to Calendar opens Google Calendar
-- Day-before reminder heading is **See you tomorrow** (no second calendar file)
+- Day-before reminder title is **See you tomorrow, {name}!** (no second calendar file)
 
 You do not send the reminder yourself. After a normal Confirm, the patient is reminded automatically the **calendar day before** the appointment (from 9:00am Ireland time).
 
@@ -65,9 +65,9 @@ The calendar block uses the duration published in Pricing when the service name 
 |------|-------|---------|
 | They submit the form | Request received (not a confirmed slot) | Appointment request received — Wellness Needles |
 | You Confirm in good time | Appointment card + calendar invite | Wellness Needles — appointment confirmed |
-| You Confirm late (day before after 9:00am, or same day) | Same card — “See you then.” No second reminder | Confirmed, see you then |
-| You Reschedule a confirmed appointment | Same card — “Appointment updated” + replacement invite | Wellness Needles — appointment updated |
-| The calendar day before, from 9:00am | Same card as a reminder, heading “See you tomorrow” (no extra calendar file) | Reminder — your appointment is tomorrow |
+| You Confirm late (day before after 9:00am, or same day) | Same card — “See you soon, {name}!” No second reminder | Confirmed, see you then |
+| You Reschedule a confirmed appointment | Same card — “See you soon, {name}!” + replacement invite | Wellness Needles — appointment updated |
+| The calendar day before, from 9:00am | Same card as a reminder, “See you tomorrow, {name}!” (no extra calendar file) | Reminder — your appointment is tomorrow |
 | You Cancel a new request | We could not confirm this request | Wellness Needles — we could not confirm this request |
 | You Cancel a confirmed appointment | Appointment cancelled + calendar cancel | Wellness Needles — appointment cancelled |
 

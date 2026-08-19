@@ -60,6 +60,7 @@ const worker = {
         bookingId: row.id,
         firstName: row.first_name,
         patientName: row.first_name,
+        serviceLabel: row.service_label || undefined,
         startsAtIso: row.starts_at,
         durationMinutes: bookingDurationMinutes(row.service_label, site),
       })

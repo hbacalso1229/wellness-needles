@@ -169,14 +169,14 @@ If the new `remind_at` is still in the future, reminder flags are cleared so the
 | Event | HTML | ICS | Clinic |
 |-------|------|-----|--------|
 | Submit thank-you | Request received (www `/api/booking-thank-you`) | None | Request already arrived via Web3Forms |
-| Confirm (still before day-before 09:00) | Card, heading **Appointment confirmed** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | `waitUntil` copy, same UID |
-| Combined (day-before after 09:00, or same day) | Card, heading **See you then** | Same REQUEST SEQUENCE 0 | Same |
-| Reschedule | Card, heading **Appointment updated** | Same UID, **SEQUENCE = ics_sequence + 1** | Same |
-| Reminder (Worker) | Card, heading **See you tomorrow** | **None** | None |
+| Confirm (still before day-before 09:00) | Card, status **Appointment confirmed**, title **See you soon, {first}!** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | `waitUntil` copy, same UID |
+| Combined (day-before after 09:00, or same day) | Same card (inbox subject still `Confirmed, see you then`) | Same REQUEST SEQUENCE 0 | Same |
+| Reschedule | Card, status **Appointment updated**, title **See you soon, {first}!** | Same UID, **SEQUENCE = ics_sequence + 1** | Same |
+| Reminder (Worker) | Card, status **Your appointment is tomorrow**, title **See you tomorrow, {first}!** | **None** | None |
 | Cancel pending | Plain notice | None | None |
 | Cancel confirmed | Plain notice | `METHOD:CANCEL` same UID, SEQUENCE = `ics_sequence + 1` (still **1** if never rescheduled) | `waitUntil` copy |
 
-Card layout (confirm / combined / reminder / reschedule): greeting `Hi {first name}, we look forward to seeing you.` Date, Time, Location rows. **Add to Calendar** (Google template) + **Get Directions** on one row, **Call Wellness Needles** below. Footer on confirm/combined/reschedule: calendar invite attached for Apple/Outlook.
+Card layout (confirm / combined / reminder / reschedule): status line, then personal title, then greeting `Hi {first name}, we look forward to seeing you.` Service, Date + Time, Location. **Add to Calendar** (Google template) + **Get Directions** on one row, **Call Wellness Needles** below. Footer on confirm/combined/reschedule: calendar invite attached for Apple/Outlook.
 
 ICS attach failure retries the patient email without the file. The clinic still gets the dedicated `waitUntil` copy when patient mail succeeded.
 

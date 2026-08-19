@@ -71,27 +71,31 @@ describe('appointment copy', () => {
   it('uses distinct confirm subject and heading', () => {
     const copy = appointmentCopy({ ...base, kind: 'confirm' })
     assert.equal(copy.subject, 'Wellness Needles — appointment confirmed')
-    assert.equal(copy.title, 'Appointment confirmed')
+    assert.equal(copy.status, 'Appointment confirmed')
+    assert.equal(copy.title, 'See you soon, Aoife!')
     assert.equal(copy.introText, 'Hi Aoife, we look forward to seeing you.')
   })
 
   it('uses last-minute combined wording', () => {
     const copy = appointmentCopy({ ...base, kind: 'combined' })
     assert.equal(copy.subject, 'Confirmed, see you then')
-    assert.equal(copy.title, 'See you then')
+    assert.equal(copy.status, 'Appointment confirmed')
+    assert.equal(copy.title, 'See you soon, Aoife!')
   })
 
   it('does not repeat Reminder in the heading', () => {
     const copy = appointmentCopy({ ...base, kind: 'reminder' })
     assert.equal(copy.subject, 'Reminder — your appointment is tomorrow')
-    assert.equal(copy.title, 'See you tomorrow')
+    assert.equal(copy.status, 'Your appointment is tomorrow')
+    assert.equal(copy.title, 'See you tomorrow, Aoife!')
     assert.notEqual(copy.title, copy.subject)
   })
 
   it('uses appointment updated copy for reschedule', () => {
     const copy = appointmentCopy({ ...base, kind: 'reschedule' })
     assert.equal(copy.subject, 'Wellness Needles — appointment updated')
-    assert.equal(copy.title, 'Appointment updated')
+    assert.equal(copy.status, 'Appointment updated')
+    assert.equal(copy.title, 'See you soon, Aoife!')
     assert.equal(copy.introText, 'Hi Aoife, we look forward to seeing you.')
     assert.match(copy.sms, /^Updated /)
   })
