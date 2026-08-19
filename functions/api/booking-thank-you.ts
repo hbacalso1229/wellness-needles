@@ -408,7 +408,7 @@ function buildHtml(
           </tr>
           <tr>
             <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${HEADING};text-align:center;">Thank you, ${escapeHtml(body.firstName)}!</h1>
+              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${TEXT};text-align:center;">Thank you, ${escapeHtml(body.firstName)}!</h1>
             </td>
           </tr>
           <tr>
