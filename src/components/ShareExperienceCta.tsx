@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { ArrowRight, ChevronDown, X } from 'lucide-react'
+import { ArrowRight, Check, ChevronDown, X } from 'lucide-react'
 import { getTurnstileSiteKey } from '@/lib/booking-features'
 import { HalfStarPicker } from '@/features/ui/RatingStars'
 import {
@@ -28,6 +28,22 @@ const fieldClass = (invalid?: boolean) =>
   `mt-1 w-full rounded-lg border px-3 py-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 ${
     invalid ? 'border-red-400' : 'border-accent/30'
   }`
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'iframe',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+function getFocusable(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (el) => el.getAttribute('aria-hidden') !== 'true' && el.getClientRects().length > 0
+  )
+}
 
 function TreatmentSelect({
   id,
@@ -217,22 +233,35 @@ type FieldKey = 'name' | 'rating' | 'body' | 'emphasis'
 
 export function ShareExperienceCta() {
   const [open, setOpen] = useState(false)
+  const openerRef = useRef<HTMLButtonElement>(null)
   return (
     <>
-      <button type="button" className={SHARE_CTA_CLASS} onClick={() => setOpen(true)}>
+      <button
+        ref={openerRef}
+        type="button"
+        className={SHARE_CTA_CLASS}
+        onClick={() => setOpen(true)}
+      >
         Share Your Experience
         <ArrowRight
           className="h-3.5 w-3.5 transition-transform duration-300 ease-out motion-safe:group-hover:translate-x-1"
           aria-hidden
         />
       </button>
-      {open ? <ShareExperienceModal onClose={() => setOpen(false)} /> : null}
+      {open ? <ShareExperienceModal onClose={() => setOpen(false)} openerRef={openerRef} /> : null}
     </>
   )
 }
 
-function ShareExperienceModal({ onClose }: { onClose: () => void }) {
+function ShareExperienceModal({
+  onClose,
+  openerRef,
+}: {
+  onClose: () => void
+  openerRef: RefObject<HTMLButtonElement | null>
+}) {
   const titleId = useId()
+  const descId = useId()
   const nameErrorId = useId()
   const ratingErrorId = useId()
   const bodyErrorId = useId()
@@ -241,6 +270,8 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
   const emphasisErrorId = useId()
   const treatmentId = useId()
   const closeRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
   const siteKey = getTurnstileSiteKey()
   const [name, setName] = useState('')
@@ -323,21 +354,49 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
     document.body.style.overflow = 'hidden'
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      if (confirmCloseRef.current) {
-        setConfirmClose(false)
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        if (confirmCloseRef.current) {
+          setConfirmClose(false)
+          return
+        }
+        requestCloseRef.current()
         return
       }
-      requestCloseRef.current()
+      if (event.key !== 'Tab') return
+      const root = dialogRef.current
+      if (!root) return
+      const focusable = getFocusable(root)
+      if (focusable.length === 0) {
+        event.preventDefault()
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+      if (event.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          event.preventDefault()
+          last.focus()
+        }
+      } else if (active === last || !root.contains(active)) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     document.addEventListener('keydown', onKeyDown)
     return () => {
       document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', onKeyDown)
+      openerRef.current?.focus({ preventScroll: true })
     }
-  }, [])
+  }, [openerRef])
+
+  useEffect(() => {
+    if (!done) return
+    titleRef.current?.focus({ preventScroll: true })
+  }, [done])
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -423,9 +482,11 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
       onClick={requestClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-describedby={done ? descId : undefined}
         className="relative flex max-h-[min(90dvh,42rem)] w-full max-w-md flex-col overflow-hidden rounded-xl border border-accent/20 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)] pointer-events-auto"
         onClick={(event) => event.stopPropagation()}
       >
@@ -434,33 +495,47 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
           type="button"
           onClick={requestClose}
           className="absolute right-1 top-1 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full text-secondary [@media(hover:hover)]:hover:bg-accent/15 [@media(hover:hover)]:hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          aria-label="Close review form"
+          aria-label="Close dialog"
         >
           <X className="h-4 w-4" strokeWidth={1.75} />
         </button>
-        <h2
-          id={titleId}
-          className="shrink-0 px-5 pt-5 pr-14 font-serif text-xl font-semibold text-[var(--text-dark)]"
-        >
-          Share your experience
-        </h2>
         {done ? (
-          <div className="px-5 pb-5 pt-4">
-            <p className="text-sm font-semibold text-primary">Review submitted ✓</p>
-            <p className="mt-2 text-sm text-secondary">
-              Thank you. Your review has been received and may appear on this page after the
-              clinic publishes it.
+          <div className="px-5 pb-5 pt-5 pr-14">
+            <span
+              className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary"
+              aria-hidden
+            >
+              <Check className="h-6 w-6 text-cream" strokeWidth={2.5} />
+            </span>
+            <h2
+              ref={titleRef}
+              id={titleId}
+              tabIndex={-1}
+              className="font-serif text-xl font-semibold text-primary outline-none"
+            >
+              Review submitted
+            </h2>
+            <p id={descId} className="mt-1.5 text-sm text-secondary">
+              Thank you. Your review has been submitted and will appear once the clinic publishes
+              it.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-4 w-full rounded-lg bg-primary py-3 text-sm font-semibold text-cream transition-colors duration-200 [@media(hover:hover)]:hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="mt-3 w-full rounded-lg bg-primary py-3 text-sm font-semibold text-cream transition-colors duration-200 [@media(hover:hover)]:hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              Close
+              Done
             </button>
           </div>
         ) : (
-          <form className="flex min-h-0 flex-1 flex-col" onSubmit={(e) => void submit(e)} noValidate>
+          <>
+            <h2
+              id={titleId}
+              className="shrink-0 px-5 pt-5 pr-14 font-serif text-xl font-semibold text-[var(--text-dark)]"
+            >
+              Share your experience
+            </h2>
+            <form className="flex min-h-0 flex-1 flex-col" onSubmit={(e) => void submit(e)} noValidate>
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-5 pt-4 [scrollbar-width:thin] [scrollbar-color:var(--accent-green)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--accent-green)] [&::-webkit-scrollbar-thumb]:hover:bg-[var(--secondary-green)]">
               <label className="block text-sm font-medium">
                 Your name{' '}
@@ -673,7 +748,8 @@ function ShareExperienceModal({ onClose }: { onClose: () => void }) {
                 </>
               )}
             </div>
-          </form>
+            </form>
+          </>
         )}
       </div>
     </div>,
