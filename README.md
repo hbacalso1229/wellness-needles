@@ -8,7 +8,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha come from portal Settings
-- Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → “Show portal changes on the public website” is published. API failure keeps the baked site. Details: [docs/PORTAL.md](docs/PORTAL.md)
+- Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → **Public website overlay** is published. API failure keeps the baked site. Patient SMS is a separate Settings switch (default off). Details: [docs/PORTAL.md](docs/PORTAL.md)
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
@@ -102,7 +102,7 @@ src/
     └── send-patient-thank-you.ts  # → Pages Function → Resend
 functions/api/                 # booking-* on www; public BFF when overlay kill switch is true. /api/admin never on www
 portal/                        # Owner UI static export
-workers/booking-reminders/     # 24h reminder cron
+workers/booking-reminders/     # Day-before reminder cron (09:00 Europe/Dublin)
 shared/                        # Site snapshot types/defaults
 d1/schema.sql
 docs/PORTAL.md
@@ -112,7 +112,7 @@ docs/PORTAL.md
 
 - Colors: `src/app/globals.css`
 - Baked clinic details / booking defaults: `src/lib/contact-config.ts` (used when overlay is off or the overlay API fails)
-- Live clinic details, hours, locations, prices, reviews: owner portal, then Publish (see [docs/PORTAL.md](docs/PORTAL.md))
+- Live clinic details, hours, locations, prices, reviews, insurance logos: owner portal, then Publish (see [docs/PORTAL.md](docs/PORTAL.md))
 - Booking prices when overlay is off: [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts)
 - Images: `public/`
 
@@ -139,7 +139,7 @@ In-clinic and home visit **must stay on different prices**. Overlay-off (and API
 
 Do not hand-write a Release for production. After CI is green on `main`, run **Create Production Release**. That workflow bumps the patch on the latest `v*` tag (`v1.1.3` → tag `v1.1.4`, title `Release v1.1.4`), fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog), then starts **Deploy — Production**. PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
 
-**Live booking rule:** enable only one of Fresha / Calendly / legacy form. Overlay-off uses `contact-config.ts`. Overlay-on uses portal Settings (then Publish).
+**Live booking rule:** enable only one of Fresha / Calendly / legacy form. Overlay-off uses `contact-config.ts`. Overlay-on uses portal Settings (then Publish). Patient SMS is off until Settings → Patient SMS is published on; Twilio secrets live on the portal and reminder Worker, not www.
 
 Overlay kill switch is `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/deploy-production.yml` (build **and** deploy). `"true"` allows www to fetch `/api/bff/site`. `"false"` restores baked www + booking Functions only. Do not set this in the Cloudflare dashboard. Off-ramps: [docs/PORTAL.md](docs/PORTAL.md).
 
@@ -150,7 +150,7 @@ Overlay kill switch is `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Staging |
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY_PRODUCTION` | Production Release (hCaptcha rollback) |
 | `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | Production Release |
-| `RESEND_API_KEY` | Pages Production secret (patient thank-you) |
+| `RESEND_API_KEY` | Pages Production secret (patient thank-you); also Worker `wellness-needles-reminders` (day-before email) |
 | `TURNSTILE_SECRET_KEY` | Pages Production secret (Turnstile siteverify) |
 | `WEB3FORMS_ACCESS_KEY` | Pages Production secret (clinic send via Function) |
 | `VERCEL_TOKEN` (+ related) | Staging |

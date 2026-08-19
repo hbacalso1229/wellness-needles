@@ -1323,6 +1323,28 @@ export function PortalApp() {
                     }
                   />
                 </div>
+                <div className="flex items-start justify-between gap-4 border-t border-black/[0.06] pt-4">
+                  <div>
+                    <p className="text-sm font-medium">Patient SMS</p>
+                    <p className="mt-1 text-sm text-[var(--text-dark)]/65">
+                      Show the text-me opt-in on the booking form and send confirm,
+                      day-before, and cancel texts when the patient ticks it. Email still
+                      sends if this is off. Needs Twilio on the portal and reminder worker.
+                    </p>
+                  </div>
+                  <OnOffSwitch
+                    checked={draft.features.smsEnabled}
+                    ariaLabel={
+                      draft.features.smsEnabled ? 'Turn off patient SMS' : 'Turn on patient SMS'
+                    }
+                    onChange={(smsEnabled) =>
+                      setDraft({
+                        ...draft,
+                        features: { ...draft.features, smsEnabled },
+                      })
+                    }
+                  />
+                </div>
                 <div className="space-y-3 border-t border-black/[0.06] pt-4">
                   <p className="text-sm font-medium">Booking method</p>
                   <div className="flex items-center justify-between gap-3">

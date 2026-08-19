@@ -101,6 +101,7 @@ const FIELD_LABELS: Record<string, string> = {
   'features.calendlyEnabled': 'Calendly',
   'features.bookingFormEnabled': 'Booking form',
   'features.freshaEnabled': 'Fresha',
+  'features.smsEnabled': 'Patient SMS',
   'calendly.schedulingUrl': 'Calendly scheduling URL',
   'calendly.initialConsultationUrl': 'Calendly initial URL',
   'calendly.followUpUrl': 'Calendly follow-up URL',

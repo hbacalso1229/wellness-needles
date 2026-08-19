@@ -121,10 +121,38 @@ export async function sendPatientBookingMessage(options: {
     text
   )
   let smsOk = false
-  if (options.smsOptIn) {
+  if (options.smsOptIn && options.site.features.smsEnabled) {
     smsOk = await sendTwilio(options.env, options.toPhone, text.slice(0, 160))
   }
   return { email: emailOk, sms: smsOk }
+}
+
+function dublinDateYmd(isoUtc: string): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Dublin',
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date(isoUtc))
+  const pick = (type: string) => parts.find((p) => p.type === type)?.value || '00'
+  return `${pick('year')}-${pick('month')}-${pick('day')}`
+}
+
+function shiftYmd(ymd: string, days: number): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d + days))
+  return dt.toISOString().slice(0, 10)
+}
+
+/** 09:00 Europe/Dublin on the calendar day before the appointment. */
+export function remindAtMorningBefore(startsAtIso: string): string {
+  return dublinLocalToUtcIso(shiftYmd(dublinDateYmd(startsAtIso), -1), '09:00')
+}
+
+export function reminderWindowStarted(remindAtIso: string, nowMs = Date.now()): boolean {
+  const at = new Date(remindAtIso).getTime()
+  return Number.isFinite(at) && nowMs >= at
 }
 
 /** Interpret YYYY-MM-DD + HH:mm as Europe/Dublin, return UTC ISO. */

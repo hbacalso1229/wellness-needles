@@ -50,7 +50,7 @@ const worker = {
         kind: 'reminder',
         toEmail: row.email,
         toPhone: row.phone,
-        smsOptIn: Boolean(row.sms_opt_in) && !row.reminder_sms_sent,
+        smsOptIn: Boolean(row.sms_opt_in) && site.features.smsEnabled && !row.reminder_sms_sent,
         whenLabel,
         locationLabel: row.location_label || '',
         site,
