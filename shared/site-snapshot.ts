@@ -129,6 +129,17 @@ export function createPricingExtra(kind: PricingExtraKind): PricingExtra {
   }
 }
 
+export function createSiteInsurer(sortOrder: number): SiteInsurer {
+  return {
+    id: `insurer-${crypto.randomUUID()}`,
+    name: 'New insurer',
+    href: '',
+    logo: '',
+    enabled: true,
+    sortOrder,
+  }
+}
+
 export type SiteSnapshot = {
   websiteOverlayEnabled: boolean
   clinicName: string
@@ -585,7 +596,9 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
     ? value.reviews.filter(isReviewShape)
     : SITE_DEFAULTS.reviews
   const insurers = Array.isArray(value.insurers)
-    ? value.insurers.filter(isInsurerShape)
+    ? value.insurers
+        .map((row, index) => parseSiteInsurer(row, index))
+        .filter((row): row is SiteInsurer => row !== null)
     : SITE_DEFAULTS.insurers
 
   const paragraphs = Array.isArray(value.insuranceParagraphs)
@@ -731,9 +744,21 @@ function isReviewShape(value: unknown): value is DefaultReview {
   )
 }
 
-function isInsurerShape(value: unknown): value is SiteInsurer {
-  if (!isRecord(value)) return false
-  return typeof value.id === 'string' && typeof value.name === 'string'
+function parseSiteInsurer(value: unknown, index: number): SiteInsurer | null {
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim()) return null
+  const name = typeof value.name === 'string' ? value.name.trim() : ''
+  const sortOrder =
+    typeof value.sortOrder === 'number' && Number.isFinite(value.sortOrder)
+      ? value.sortOrder
+      : index
+  return {
+    id: value.id.trim(),
+    name,
+    href: asString(value.href, ''),
+    logo: asString(value.logo, ''),
+    enabled: asBool(value.enabled, true),
+    sortOrder,
+  }
 }
 
 export function deepMergeSite(

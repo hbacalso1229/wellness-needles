@@ -498,19 +498,28 @@ export default function About() {
 
           <div className="mx-auto mt-8 max-w-3xl border-t border-accent/20 pt-8 md:mt-10 md:pt-10">
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:gap-x-8 sm:gap-y-5 md:gap-x-12 md:gap-y-6">
-              {shownInsurers.map((insurer) => (
-                <li key={'slug' in insurer ? insurer.slug : insurer.id}>
-                  <a
-                    href={insurer.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${insurer.name} website (opens in a new tab)`}
-                    className="inline-flex items-center justify-center opacity-90 transition-opacity duration-200 motion-safe:hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                  >
-                    <InsurerLogo name={insurer.name} logo={insurer.logo} />
-                  </a>
-                </li>
-              ))}
+              {shownInsurers.map((insurer) => {
+                const logo = <InsurerLogo name={insurer.name} logo={insurer.logo} />
+                const className =
+                  'inline-flex items-center justify-center opacity-90 transition-opacity duration-200 motion-safe:hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-white'
+                return (
+                  <li key={'slug' in insurer ? insurer.slug : insurer.id}>
+                    {insurer.href ? (
+                      <a
+                        href={insurer.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${insurer.name} website (opens in a new tab)`}
+                        className={className}
+                      >
+                        {logo}
+                      </a>
+                    ) : (
+                      <span className={className}>{logo}</span>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           </div>
         </div>

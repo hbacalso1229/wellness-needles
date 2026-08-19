@@ -6,6 +6,7 @@ import {
   buildHoursDisplay,
   composeLocation,
   createPricingExtra,
+  createSiteInsurer,
   parseSiteSnapshot,
   BOOKABLE_PRICE_KEYS,
   type PriceList,
@@ -931,28 +932,66 @@ export function PortalApp() {
                     onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
                   />
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-sm font-medium">Insurance</p>
-                  {draft.insurers.map((insurer, index) => (
-                    <div key={insurer.id} className="flex flex-wrap items-center gap-2 text-sm">
-                      <input
-                        className="rounded-md border border-black/10 px-2 py-1.5"
-                        value={insurer.name}
-                        onChange={(e) => {
-                          const insurers = [...draft.insurers]
-                          insurers[index] = { ...insurer, name: e.target.value }
-                          setDraft({ ...draft, insurers })
-                        }}
-                      />
-                      <OnOffSwitch
-                        checked={insurer.enabled}
-                        ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
-                        onChange={(enabled) => {
-                          const insurers = [...draft.insurers]
-                          insurers[index] = { ...insurer, enabled }
-                          setDraft({ ...draft, insurers })
-                        }}
-                      />
+                  {draft.insurers.map((insurer, index) => {
+                    const lastRow = draft.insurers.length <= 1
+                    const enabledCount = draft.insurers.filter((row) => row.enabled).length
+                    const lastEnabled = insurer.enabled && enabledCount <= 1
+                    return (
+                    <div
+                      key={insurer.id}
+                      className="space-y-2 border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                    >
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <input
+                          className="min-w-[10rem] flex-1 rounded-md border border-black/10 px-2 py-1.5"
+                          value={insurer.name}
+                          onChange={(e) => {
+                            const insurers = [...draft.insurers]
+                            insurers[index] = { ...insurer, name: e.target.value }
+                            setDraft({ ...draft, insurers })
+                          }}
+                        />
+                        <OnOffSwitch
+                          checked={insurer.enabled}
+                          disabled={lastEnabled}
+                          ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
+                          onChange={(enabled) => {
+                            if (!enabled && lastEnabled) return
+                            const insurers = [...draft.insurers]
+                            insurers[index] = { ...insurer, enabled }
+                            setDraft({ ...draft, insurers })
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-md px-2 py-1.5 text-sm text-[var(--text-dark)]/70 hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+                          disabled={lastRow}
+                          onClick={() => {
+                            if (lastRow) return
+                            setDraft({
+                              ...draft,
+                              insurers: draft.insurers.filter((row) => row.id !== insurer.id),
+                            })
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                        Website
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                          value={insurer.href}
+                          placeholder="https://"
+                          onChange={(e) => {
+                            const insurers = [...draft.insurers]
+                            insurers[index] = { ...insurer, href: e.target.value }
+                            setDraft({ ...draft, insurers })
+                          }}
+                        />
+                      </label>
                       <label className="text-xs text-[var(--text-dark)]/60">
                         Logo
                         <input
@@ -980,7 +1019,22 @@ export function PortalApp() {
                         />
                       </label>
                     </div>
-                  ))}
+                    )
+                  })}
+                  <button
+                    type="button"
+                    className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                    onClick={() => {
+                      const sortOrder =
+                        draft.insurers.reduce((max, row) => Math.max(max, row.sortOrder), -1) + 1
+                      setDraft({
+                        ...draft,
+                        insurers: [...draft.insurers, createSiteInsurer(sortOrder)],
+                      })
+                    }}
+                  >
+                    Add insurance
+                  </button>
                 </div>
               </div>
             </Card>
