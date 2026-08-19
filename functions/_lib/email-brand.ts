@@ -222,6 +222,39 @@ export function row(
     <tr><td style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>`
 }
 
+export function lightField(label: string, value: string): string {
+  const valueHtml = escapeHtml(value).replace(/\n/g, '<br />')
+  return `
+    <tr>
+      <td style="padding:0 0 14px;">
+        <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT_LABEL};font-weight:700;">${escapeHtml(label)}</div>
+        <div style="margin-top:3px;font-family:${SANS};font-size:15px;font-weight:400;color:${TEXT};line-height:1.35;">${valueHtml}</div>
+      </td>
+    </tr>`
+}
+
+export function lightFieldPair(
+  left: { label: string; value: string },
+  right: { label: string; value: string }
+): string {
+  const cell = (item: { label: string; value: string }, pad: string) => `
+            <td valign="top" width="50%" style="width:50%;padding:${pad};">
+              <div style="font-family:${SANS};font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:${TEXT_LABEL};font-weight:700;">${escapeHtml(item.label)}</div>
+              <div style="margin-top:3px;font-family:${SANS};font-size:15px;font-weight:400;color:${TEXT};line-height:1.35;">${escapeHtml(item.value).replace(/\n/g, '<br />')}</div>
+            </td>`
+  return `
+    <tr>
+      <td style="padding:0 0 14px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+          <tr>
+            ${cell(left, '0 8px 0 0')}
+            ${cell(right, '0 0 0 8px')}
+          </tr>
+        </table>
+      </td>
+    </tr>`
+}
+
 export type PillIcon = 'phone' | 'mail' | 'calendar' | 'map-pin'
 
 /** Full-width pill — table cell is the button so Gmail cannot shrink to the label. */
@@ -293,6 +326,7 @@ export function orDivider(): string {
 export function emailShell(options: {
   title: string
   introHtml: string
+  status?: string
   cardTitle?: string
   cardSubtitle?: string
   cardIcon?: string
@@ -301,6 +335,13 @@ export function emailShell(options: {
   footerNote?: string
 }): string {
   const logoUrl = `${SITE}/logo_wellness_transparent.png`
+  const statusRow = options.status
+    ? `<tr>
+            <td align="center" style="padding-bottom:16px;font-family:${SANS};font-size:12px;line-height:1.3;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:${PRIMARY};">
+              ${escapeHtml(options.status)}
+            </td>
+          </tr>`
+    : ''
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -321,9 +362,10 @@ export function emailShell(options: {
               </a>
             </td>
           </tr>
+          ${statusRow}
           <tr>
-            <td align="center" style="padding-bottom:8px;">
-              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.25;font-weight:700;color:${TEXT};text-align:center;">${escapeHtml(options.title)}</h1>
+            <td align="center" style="padding:0 28px 14px;">
+              <h1 style="margin:0;font-family:${SERIF};font-size:24px;line-height:1.35;font-weight:700;color:${TEXT};text-align:center;">${escapeHtml(options.title)}</h1>
             </td>
           </tr>
           <tr>
@@ -372,8 +414,6 @@ export function emailShell(options: {
           }
           <tr>
             <td align="center" style="padding-top:22px;font-family:${SANS};font-size:12px;line-height:1.5;color:${TEXT_LABEL};">
-              Wellness Needles
-              <br />
               <a href="${SITE}/" style="color:${SECONDARY};text-decoration:none;">wellnessneedles.ie</a>
             </td>
           </tr>

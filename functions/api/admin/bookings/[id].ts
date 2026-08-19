@@ -97,6 +97,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       bookingId: row.id,
       patientName,
       firstName: row.first_name,
+      serviceLabel: row.service_label || undefined,
       startsAtIso: startsAt,
       durationMinutes: bookingDurationMinutes(row.service_label, site),
     })
@@ -167,6 +168,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       bookingId: row.id,
       patientName,
       firstName: row.first_name,
+      serviceLabel,
       startsAtIso: startsAt,
       durationMinutes: bookingDurationMinutes(serviceLabel, site),
       icsSequence: nextSequence,

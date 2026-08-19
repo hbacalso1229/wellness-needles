@@ -10,8 +10,9 @@ import {
   firstNameOnly,
   fullWidthPill,
   googleCalendarTemplateUrl,
+  lightField,
+  lightFieldPair,
   parseLocationDisplay,
-  row,
   type KnownLocation,
 } from './email-brand'
 
@@ -182,14 +183,23 @@ export function appointmentCopy(options: {
   timeLabel: string
   locationText: string
   phone: string
-}): { title: string; introHtml: string; introText: string; subject: string; sms: string } {
+}): {
+  status: string
+  title: string
+  introHtml: string
+  introText: string
+  subject: string
+  sms: string
+} {
   const hello = options.firstName
     ? `Hi ${options.firstName}, we look forward to seeing you.`
     : 'We look forward to seeing you.'
+  const soon = options.firstName ? `See you soon, ${options.firstName}!` : ''
   if (options.kind === 'confirm') {
     return {
       subject: `${options.clinic} — appointment confirmed`,
-      title: 'Appointment confirmed',
+      status: 'Appointment confirmed',
+      title: soon || 'Appointment confirmed',
       introHtml: escapeHtml(hello),
       introText: hello,
       sms: `Confirmed ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
@@ -198,7 +208,8 @@ export function appointmentCopy(options: {
   if (options.kind === 'combined') {
     return {
       subject: 'Confirmed, see you then',
-      title: 'See you then',
+      status: 'Appointment confirmed',
+      title: soon || 'Appointment confirmed',
       introHtml: escapeHtml(hello),
       introText: hello,
       sms: `Confirmed — see you ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
@@ -207,7 +218,8 @@ export function appointmentCopy(options: {
   if (options.kind === 'reschedule') {
     return {
       subject: `${options.clinic} — appointment updated`,
-      title: 'Appointment updated',
+      status: 'Appointment updated',
+      title: soon || 'Appointment updated',
       introHtml: escapeHtml(hello),
       introText: hello,
       sms: `Updated ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
@@ -215,7 +227,10 @@ export function appointmentCopy(options: {
   }
   return {
     subject: 'Reminder — your appointment is tomorrow',
-    title: 'See you tomorrow',
+    status: 'Your appointment is tomorrow',
+    title: options.firstName
+      ? `See you tomorrow, ${options.firstName}!`
+      : 'See you tomorrow',
     introHtml: escapeHtml(hello),
     introText: hello,
     sms: `Reminder ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. See you then.`,
@@ -229,6 +244,7 @@ function buildAppointmentEmail(options: {
   dateLabel: string
   timeLabel: string
   locationLabel: string
+  serviceLabel?: string
   site: SiteSnapshot
   startsAtIso?: string
   durationMinutes: number
@@ -241,6 +257,7 @@ function buildAppointmentEmail(options: {
   const mapsUrl = directionsHref(mapsQuery, parsed?.directionsUrl)
   const phoneHref = options.site.phone.href || `tel:${options.site.phone.displayText.replace(/\s/g, '')}`
   const phone = options.site.phone.displayText
+  const service = (options.serviceLabel || '').trim()
   const copy = appointmentCopy({
     kind: options.kind,
     firstName: options.firstName,
@@ -261,9 +278,12 @@ function buildAppointmentEmail(options: {
     : null
 
   const rowsHtml = [
-    row('calendar', 'Date', options.dateLabel),
-    row('clock', 'Time', options.timeLabel),
-    row('map-pin', 'Location', address),
+    service ? lightField('Service', service) : '',
+    lightFieldPair(
+      { label: 'Date', value: options.dateLabel },
+      { label: 'Time', value: options.timeLabel }
+    ),
+    lightField('Location', address),
   ].join('')
 
   const pair = calendarUrl
@@ -279,8 +299,10 @@ function buildAppointmentEmail(options: {
   ].join('')
 
   const html = emailShell({
+    status: copy.status,
     title: copy.title,
     introHtml: copy.introHtml,
+    cardTitle: 'Your appointment',
     rowsHtml,
     actionsHtml: `<div style="margin-top:8px;">${actionBlocks}</div>`,
     footerNote:
@@ -290,10 +312,12 @@ function buildAppointmentEmail(options: {
   })
 
   const textLines = [
+    copy.status,
     copy.title,
     '',
     copy.introText,
     '',
+    ...(service ? ['Service', service, ''] : []),
     `Date`,
     options.dateLabel,
     '',
@@ -303,10 +327,10 @@ function buildAppointmentEmail(options: {
     `Location`,
     address,
     '',
-    calendarUrl ? `Add to Calendar: ${calendarUrl}` : '',
+    ...(calendarUrl ? [`Add to Calendar: ${calendarUrl}`] : []),
     `Get Directions: ${mapsUrl}`,
     `Call Wellness Needles: ${phone}`,
-  ].filter((line) => line !== undefined)
+  ]
 
   return { html, text: textLines.join('\n'), subject: copy.subject, sms: copy.sms }
 }
@@ -360,6 +384,7 @@ export async function sendPatientBookingMessage(options: {
   bookingId?: string
   patientName?: string
   firstName?: string
+  serviceLabel?: string
   startsAtIso?: string
   durationMinutes?: number
   icsSequence?: number
@@ -394,6 +419,7 @@ export async function sendPatientBookingMessage(options: {
       dateLabel,
       timeLabel: timeLabel || when,
       locationLabel: loc,
+      serviceLabel: options.serviceLabel,
       site: options.site,
       startsAtIso: options.startsAtIso,
       durationMinutes,
