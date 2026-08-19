@@ -128,6 +128,10 @@ function newestReview<T extends { reviewedAt: string }>(rows: T[]): T | null {
   return [...rows].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt))[0]
 }
 
+function fiveStarReviews<T extends { rating: number }>(rows: T[]): T[] {
+  return rows.filter((row) => row.rating === 5)
+}
+
 function mapApiReview(row: Record<string, unknown>): FeaturedReview | null {
   if (typeof row.name !== 'string' || typeof row.reviewedAt !== 'string') return null
   const excerpt =
@@ -174,12 +178,14 @@ function InsurerLogo({
 export default function About() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
   const { overlayEnabled, site } = useSiteOverlay()
-  const overlayNewest =
-    overlayEnabled && site.reviews.length > 0 ? newestReview(site.reviews) : null
+  const overlayOwnsReviews = overlayEnabled && site.reviews.length > 0
+  const overlayNewest = overlayOwnsReviews
+    ? newestReview(fiveStarReviews(site.reviews))
+    : null
   const [apiNewest, setApiNewest] = useState<FeaturedReview | null>(null)
 
   useEffect(() => {
-    if (overlayNewest) return
+    if (overlayOwnsReviews) return
     let cancelled = false
     fetch('/api/reviews', { headers: { Accept: 'application/json' } })
       .then(async (res) => {
@@ -190,7 +196,11 @@ export default function About() {
         if (cancelled) return
         const rows = Array.isArray(json.reviews) ? json.reviews : []
         setApiNewest(
-          newestReview(rows.map(mapApiReview).filter((row): row is FeaturedReview => Boolean(row)))
+          newestReview(
+            fiveStarReviews(
+              rows.map(mapApiReview).filter((row): row is FeaturedReview => Boolean(row)),
+            ),
+          ),
         )
       })
       .catch(() => {
@@ -199,9 +209,12 @@ export default function About() {
     return () => {
       cancelled = true
     }
-  }, [overlayNewest])
+  }, [overlayOwnsReviews])
 
-  const featured = overlayNewest ?? apiNewest ?? DEFAULT_REVIEWS[0]
+  const featured =
+    (overlayOwnsReviews ? overlayNewest : apiNewest) ??
+    newestReview(fiveStarReviews(DEFAULT_REVIEWS)) ??
+    DEFAULT_REVIEWS[0]
   const shownInsurers = overlayEnabled
     ? site.insurers.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder)
     : insurers
