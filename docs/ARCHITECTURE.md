@@ -169,7 +169,7 @@ If the new `remind_at` is still in the future, reminder flags are cleared so the
 | Event | HTML | ICS | Clinic |
 |-------|------|-----|--------|
 | Submit thank-you | Request received (www `/api/booking-thank-you`) | None | Request already arrived via Web3Forms |
-| Confirm (still before day-before 09:00) | Card, heading **Appointment confirmed** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | Cc + `waitUntil` copy, same UID |
+| Confirm (still before day-before 09:00) | Card, heading **Appointment confirmed** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | `waitUntil` copy, same UID |
 | Combined (day-before after 09:00, or same day) | Card, heading **See you then** | Same REQUEST SEQUENCE 0 | Same |
 | Reschedule | Card, heading **Appointment updated** | Same UID, **SEQUENCE = ics_sequence + 1** | Same |
 | Reminder (Worker) | Card, heading **See you tomorrow** | **None** | None |
@@ -178,9 +178,9 @@ If the new `remind_at` is still in the future, reminder flags are cleared so the
 
 Card layout (confirm / combined / reminder / reschedule): greeting `Hi {first name}, we look forward to seeing you.` Date, Time, Location rows. **Add to Calendar** (Google template) + **Get Directions** on one row, **Call Wellness Needles** below. Footer on confirm/combined/reschedule: calendar invite attached for Apple/Outlook.
 
-ICS attach failure retries the patient email without the file. If that retry runs, Cc on the patient mail may be omitted; the clinic still gets the dedicated `waitUntil` copy when patient mail succeeded.
+ICS attach failure retries the patient email without the file. The clinic still gets the dedicated `waitUntil` copy when patient mail succeeded.
 
-Zoho: Calendar on for `info@`. The first invite often needs **Add**. From `info@` Cc `info@` can be dropped as self-mail; that is why the second Resend exists.
+Zoho: Calendar on for `info@`. The first invite often needs **Add**. Patient mail is To-only (no Cc). Clinic calendar is the second Resend To `info@`.
 
 Rows confirmed **before** ICS shipped have no prior REQUEST. Later Cancel still sends CANCEL with today’s UID — it will not match an old calendar event.
 

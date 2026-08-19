@@ -450,8 +450,7 @@ export async function sendPatientBookingMessage(options: {
     to: string,
     mailSubject: string,
     mailHtml: string,
-    mailText: string,
-    cc?: string
+    mailText: string
   ): Promise<boolean> => {
     if (ics) {
       const withIcs = await sendResend(
@@ -460,22 +459,14 @@ export async function sendPatientBookingMessage(options: {
         mailSubject,
         mailHtml,
         mailText,
-        { cc, ics }
+        { ics }
       )
       if (withIcs) return true
     }
-    return sendResend(options.env.RESEND_API_KEY, to, mailSubject, mailHtml, mailText, {
-      cc: ics ? undefined : cc,
-    })
+    return sendResend(options.env.RESEND_API_KEY, to, mailSubject, mailHtml, mailText)
   }
 
-  const emailOk = await sendWithOptionalIcs(
-    options.toEmail,
-    subject,
-    html,
-    text,
-    ics ? clinicEmail : undefined
-  )
+  const emailOk = await sendWithOptionalIcs(options.toEmail, subject, html, text)
 
   const clinicCopy =
     emailOk &&
