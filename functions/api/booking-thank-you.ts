@@ -243,8 +243,6 @@ function buildHtml(
           </tr>
           <tr>
             <td align="center" style="padding-top:22px;font-family:${SANS};font-size:12px;line-height:1.5;color:${TEXT_LABEL};">
-              Wellness Needles
-              <br />
               <a href="${SITE}/" style="color:${SECONDARY};text-decoration:none;">wellnessneedles.ie</a>
             </td>
           </tr>

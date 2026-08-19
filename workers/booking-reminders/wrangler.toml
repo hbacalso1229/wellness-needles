@@ -8,4 +8,4 @@ crons = ["*/15 * * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "wellness-needles"
-database_id = "b54abe22-54d7-40b7-bc83-553d11ed18c7"
+database_id = "6964be22-541f-42d7-bce3-213d12e68bc7"
