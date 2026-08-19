@@ -46,6 +46,7 @@ import {
 } from './portal-ui'
 import { AddressSearch } from './AddressSearch'
 import { LocationPreview } from './LocationPreview'
+import { snapDateTimeLocalToQuarterHour } from '../../../shared/quarter-hour'
 
 type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 
@@ -207,19 +208,6 @@ function looksLikeEircode(value: string): boolean {
   return /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(text)
 }
 
-/** Clinic slots are 15 minutes. datetime-local step is seconds. */
-function snapDateTimeLocalToQuarterHour(value: string): string {
-  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/.exec(value)
-  if (!match) return value
-  let hour = Number(match[2])
-  let minute = Math.round(Number(match[3]) / 15) * 15
-  if (minute === 60) {
-    minute = 0
-    hour = (hour + 1) % 24
-  }
-  return `${match[1]}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-}
-
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'include',
@@ -376,10 +364,12 @@ export function PortalApp() {
 
   const confirmBooking = async (id: string) => {
     try {
+      const startsAt = snapDateTimeLocalToQuarterHour(startsAtLocal)
+      setStartsAtLocal(startsAt)
       await api(`/api/admin/bookings/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'confirm', startsAtLocal }),
+        body: JSON.stringify({ action: 'confirm', startsAtLocal: startsAt }),
       })
       setConfirmId(null)
       setStartsAtLocal('')
@@ -493,6 +483,9 @@ export function PortalApp() {
                             className="mt-1 block rounded border px-2 py-1"
                             value={startsAtLocal}
                             onChange={(e) =>
+                              setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                            }
+                            onBlur={(e) =>
                               setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
                             }
                           />

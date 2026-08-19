@@ -3,7 +3,8 @@
 Public site: `https://www.wellnessneedles.ie`  
 Owner portal: `https://portal.wellnessneedles.ie` (Cloudflare Access)
 
-How website bookings work for the clinic: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md).
+How website bookings work for the clinic: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md).  
+System architecture (runtimes, Confirm pipeline, ICS): [ARCHITECTURE.md](ARCHITECTURE.md).
 
 www stays on baked marketing content until **both** are true:
 
@@ -49,15 +50,16 @@ Do **not** change apex, www, or Zoho MX. Do **not** put Access on www.
 npm run dev                 # marketing site
 npm --prefix portal install
 npm --prefix portal run dev # portal UI on :3001 (APIs need wrangler pages dev)
+npm run test:unit           # ICS, Dublin times, duration, 15-minute snap
 ```
 
 ## How bookings work (clinic owner)
 
-Plain-language process: [docs/OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Appointments inbox, Confirm (exact Ireland time), automatic day-before reminder, optional SMS.
+Plain-language process: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Architecture: [ARCHITECTURE.md](ARCHITECTURE.md). Appointments inbox, Confirm (exact Ireland time), automatic day-before reminder, optional SMS.
 
 ## Patient booking request flow (technical)
 
-Overlay-on **website booking form** only. Calendly / Fresha / phone bookings do not enter the portal Appointments inbox.
+Overlay-on **website booking form** only. Calendly / Fresha / phone bookings do not enter the portal Appointments inbox. Runtimes and Confirm order: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```mermaid
 flowchart TD
@@ -68,13 +70,15 @@ flowchart TD
   thankYou[Patient thank-you email via Resend]
   page[Thank-you page]
   inbox[Portal Appointments inbox]
-  confirm[Owner Confirm with exact Dublin start]
+  confirm[Owner Confirm + 15-min Dublin start]
   cancel[Owner Cancel]
   combined{Already in reminder window?}
-  confirmMail[Confirm email]
-  combinedMail[Combined see-you-then email]
+  confirmMail[Patient card + invite.ics]
+  combinedMail[Patient see-you-then + invite.ics]
+  saveD1[D1 status confirmed]
+  clinicCopy[waitUntil clinic ICS to info@]
   cron[Reminder Worker every 15 min]
-  remindMail[Reminder email at 09:00 Dublin day before]
+  remindMail[Reminder card no ICS]
   smsGate{Patient SMS On and opted in?}
 
   patient --> captcha --> clinicEmail
@@ -84,10 +88,12 @@ flowchart TD
   inbox --> confirm
   inbox --> cancel
   confirm --> combined
-  combined -->|no| confirmMail
-  combined -->|yes| combinedMail
-  confirmMail --> cron --> remindMail
-  combinedMail -.->|skip cron reminder| done[Done]
+  combined -->|no| confirmMail --> saveD1
+  combined -->|yes| combinedMail --> saveD1
+  saveD1 --> clinicCopy
+  clinicCopy --> afterConfirm{Last-minute Confirm?}
+  afterConfirm -->|no| cron --> remindMail
+  afterConfirm -->|yes| done[Done]
   confirmMail --> smsGate
   combinedMail --> smsGate
   remindMail --> smsGate
@@ -96,13 +102,15 @@ flowchart TD
   smsGate -->|no| emailOnly[Email only]
 ```
 
+Patient SMS, when on, is sent with the patient email **before** D1 is updated. Clinic ICS is `waitUntil` **after** D1. Last-minute Confirm sets reminder flags so the Worker does not send again.
+
 1. **Patient request (www).** Preferred date/time window, not an exact slot. SMS checkbox only if overlay is on **and** Patient SMS is published on. Turnstile must pass, then clinic email (`/api/booking-request` → Web3Forms). If that fails, the patient sees unable-to-process; nothing is saved to the portal.
 2. **Persist.** On clinic-email success, if overlay is on, the browser fire-and-forget posts to `/api/bff/booking-persist`. Persist failure does **not** block the clinic email.
 3. **Thank-you.** Resend `/api/booking-thank-you` is “request received”, not a confirmed appointment. Patient lands on `/bookings/thank-you/`.
 4. **Portal inbox.** D1 row `status = pending` with preferred date/time and `sms_opt_in`. Appointments shows Confirm / Cancel.
-5. **Confirm.** Owner sets an exact Europe/Dublin start (portal picker snaps to 15-minute steps). Sets `starts_at` and `remind_at` = 09:00 Dublin on the calendar day before. Before that window: HTML appointment card + `invite.ics`; Worker reminds later. Already in the window: same card with heading “See you then.”; cron does not send again. Greeting is “Hi {first name}, we look forward to seeing you.” (does not repeat “confirmed”). Actions: Add to Calendar (Google template) and Get Directions on one row, Call Wellness Needles below. Cc `info@` plus a clinic copy of the same ICS UID if self-CC is dropped. Duration: Initial 75 min, follow-up/package 45 min, else 60. ICS failure retries the email without the attachment.
+5. **Confirm.** Owner sets an exact Europe/Dublin start (portal picker and API snap to 15-minute steps). Sets `starts_at` and `remind_at` = 09:00 Dublin on the calendar day before. Before that window: HTML appointment card + `invite.ics`; Worker reminds later. Already in the window: same card with heading “See you then.”; cron does not send again. Greeting is “Hi {first name}, we look forward to seeing you.” (does not repeat “confirmed”). Actions: Add to Calendar (Google template) and Get Directions on one row, Call Wellness Needles below. Patient email is awaited; D1 is updated next; clinic ICS copy is `waitUntil` after that so a slow `info@` send cannot leave the row pending. Cc `info@` plus that clinic copy of the same ICS UID if self-CC is dropped. Duration: Initial 75 min, follow-up/package 45 min, else 60. ICS failure retries the email without the attachment.
 6. **Cancel.** Pending: “we could not confirm this request” (plain text, no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID.
-7. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm; Google Calendar link only (no second ICS). There is no same-day reminder and no reschedule email.
+7. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm (heading “See you tomorrow”); Google Calendar link only (no second ICS). There is no same-day reminder and no reschedule email.
 
 **SMS (optional, steps 5–7).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/cancel) and **Worker** (reminder). Same words as email (first 160 characters). SMS failure does not block email. www has no Twilio.
 
@@ -110,7 +118,7 @@ flowchart TD
 
 ### Sequence diagrams
 
-Same style as the thank-you-email sequence (Patient → Site_bookings → Web3Forms → Zoho_info → Resend). Overlay-on production uses Turnstile, then adds D1 persist, portal Confirm/Cancel, day-before reminder, and optional Twilio.
+Same style as the thank-you-email sequence (Patient → Site_bookings → Web3Forms → Zoho_info → Resend). Overlay-on production uses Turnstile, then adds D1 persist, portal Confirm/Cancel, day-before reminder, and optional Twilio. Confirm order is patient mail → D1 → clinic ICS `waitUntil` ([ARCHITECTURE.md](ARCHITECTURE.md#confirm-pipeline)).
 
 ![Patient booking request sequence](booking-sequence-request.png)
 
@@ -118,7 +126,7 @@ Same style as the thank-you-email sequence (Patient → Site_bookings → Web3Fo
 
 ![Owner Cancel sequence](booking-sequence-cancel.png)
 
-Mermaid source: [booking-sequence-request.mmd](booking-sequence-request.mmd), [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd), [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd).
+Mermaid source: [booking-sequence-request.mmd](booking-sequence-request.mmd), [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd), [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd). System diagram: [architecture-system.mmd](architecture-system.mmd).
 
 ## Patient messages
 
@@ -126,13 +134,13 @@ Submit-time **thank-you** (`/api/booking-thank-you`) is “request received”, 
 
 After owner **Confirm** (exact Europe/Dublin start):
 
-| Event | Email | SMS | Subject |
-|-------|-------|-----|---------|
-| Confirm, still before 09:00 Dublin the calendar day before | Confirmation + calendar invite (Cc `info@` / Zoho) | Same, only if Patient SMS is on **and** the patient opted in | `Wellness Needles — appointment confirmed` |
-| Confirm on that day-before window, or on the appointment day | One combined “see you then” + calendar invite (no later reminder) | Same, if opted in | `Confirmed, see you then` |
-| 09:00 Dublin on the calendar day before (Cron Worker `*/15`) | Reminder (no ICS) | Same, if opted in | `Reminder — your appointment is tomorrow` |
-| Cancel pending request | Cancel notice (no ICS) | Same, if opted in | `Wellness Needles — we could not confirm this request` |
-| Cancel confirmed appointment | Cancel notice + calendar cancel | Same, if opted in | `Wellness Needles — appointment cancelled` |
+| Event | Email | Heading | SMS | Subject |
+|-------|-------|---------|-----|---------|
+| Confirm, still before 09:00 Dublin the calendar day before | Card + calendar invite (Cc `info@` / Zoho, then `waitUntil` clinic copy) | Appointment confirmed | Same, only if Patient SMS is on **and** the patient opted in | `Wellness Needles — appointment confirmed` |
+| Confirm on that day-before window, or on the appointment day | Same card + invite (no later reminder) | See you then | Same, if opted in | `Confirmed, see you then` |
+| 09:00 Dublin on the calendar day before (Cron Worker `*/15`) | Reminder card (no ICS) | See you tomorrow | Same, if opted in | `Reminder — your appointment is tomorrow` |
+| Cancel pending request | Cancel notice (no ICS) | — | Same, if opted in | `Wellness Needles — we could not confirm this request` |
+| Cancel confirmed appointment | Cancel notice + calendar cancel | — | Same, if opted in | `Wellness Needles — appointment cancelled` |
 
 Example: confirmed Wednesday 14:00 Dublin → confirmation now; reminder Tuesday from 09:00.
 
@@ -154,4 +162,4 @@ Go-live overlay: deploy with the kill switch `"true"`, confirm `https://www.well
 
 Go-live SMS: Twilio secrets on portal + Worker, redeploy both, Settings → Patient SMS On → Publish. Overlay stays on.
 
-Confirm/reminder card + calendar invite: deploy **portal** (Confirm/Cancel) and the **reminder Worker**. www is only required for the thank-you helper extract (`functions/_lib/email-brand.ts` imported by `/api/booking-thank-you`). Do not re-run D1 schema.
+Confirm/reminder card + calendar invite: deploy **portal** (Confirm/Cancel) and the **reminder Worker**. www is only required for the thank-you helper extract (`functions/_lib/email-brand.ts` imported by `/api/booking-thank-you`). Do not re-run D1 schema. Shared modules and deploy matrix: [ARCHITECTURE.md](ARCHITECTURE.md#shared-code).

@@ -2,10 +2,12 @@ import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_l
 import {
   bookingDurationMinutes,
   dublinLocalToUtcIso,
+  enqueueClinicCalendarCopy,
   formatDublin,
   remindAtMorningBefore,
   reminderWindowStarted,
   sendPatientBookingMessage,
+  snapDateTimeLocalToQuarterHour,
 } from '../../../_lib/notify'
 import { readPublishedSite } from '../../../_lib/site'
 
@@ -13,6 +15,7 @@ type PagesFunction<Env = unknown> = (context: {
   request: Request
   env: Env
   params: Record<string, string>
+  waitUntil?: (promise: Promise<unknown>) => void
 }) => Response | Promise<Response>
 
 type BookingRow = {
@@ -36,6 +39,10 @@ type BookingRow = {
   cancel_sms_sent: number
 }
 
+function sentFlags(sent: { email: boolean; sms: boolean }) {
+  return { email: sent.email, sms: sent.sms }
+}
+
 export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (!context.env.DB) return jsonResponse(503, { ok: false, error: 'no-db' })
   const id = context.params.id
@@ -52,8 +59,8 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   const site = await readPublishedSite(context.env)
 
   if (action === 'confirm') {
-    const local = asString(body?.startsAtLocal)
-    const match = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/.exec(local)
+    const local = snapDateTimeLocalToQuarterHour(asString(body?.startsAtLocal))
+    const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(local)
     if (!match) {
       return jsonResponse(400, { ok: false, error: 'startsAtLocal required (YYYY-MM-DDTHH:mm)' })
     }
@@ -102,7 +109,8 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
       )
       .run()
 
-    return jsonResponse(200, { ok: true, startsAt, combined, sent })
+    await enqueueClinicCalendarCopy(context.waitUntil, context.env, sent.clinicCopy)
+    return jsonResponse(200, { ok: true, startsAt, combined, sent: sentFlags(sent) })
   }
 
   if (action === 'cancel') {
@@ -138,7 +146,8 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
         id
       )
       .run()
-    return jsonResponse(200, { ok: true, sent })
+    await enqueueClinicCalendarCopy(context.waitUntil, context.env, sent.clinicCopy)
+    return jsonResponse(200, { ok: true, sent: sentFlags(sent) })
   }
 
   return jsonResponse(400, { ok: false, error: 'unknown-action' })

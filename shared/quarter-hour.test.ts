@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { snapDateTimeLocalToQuarterHour } from './quarter-hour'
+
+describe('snapDateTimeLocalToQuarterHour', () => {
+  it('keeps exact quarter hours', () => {
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:00'), '2026-08-19T14:00')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:15'), '2026-08-19T14:15')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:30'), '2026-08-19T14:30')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:45'), '2026-08-19T14:45')
+  })
+
+  it('rounds to the nearest 15 minutes', () => {
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:07'), '2026-08-19T14:00')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:08'), '2026-08-19T14:15')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:22'), '2026-08-19T14:15')
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:23'), '2026-08-19T14:30')
+  })
+
+  it('rolls 14:53 up to 15:00', () => {
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T14:53'), '2026-08-19T15:00')
+  })
+
+  it('rolls 23:53 up to midnight the next calendar day', () => {
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19T23:53'), '2026-08-20T00:00')
+  })
+
+  it('accepts a space separator from the API', () => {
+    assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19 14:07'), '2026-08-19T14:00')
+  })
+})

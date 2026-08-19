@@ -15,10 +15,12 @@ import {
   type KnownLocation,
 } from './email-brand'
 
+export { snapDateTimeLocalToQuarterHour } from '../../shared/quarter-hour'
+
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
 const ORGANIZER_EMAIL = 'info@wellnessneedles.ie'
 
-type CalendarInvite = {
+export type CalendarInvite = {
   method: 'REQUEST' | 'CANCEL'
   uid: string
   startsAtIso: string
@@ -31,6 +33,16 @@ type CalendarInvite = {
   organizerName: string
   organizerEmail: string
 }
+
+export type ClinicCalendarCopy = {
+  to: string
+  subject: string
+  html: string
+  text: string
+  ics: { method: 'REQUEST' | 'CANCEL'; body: string }
+}
+
+export type BookingMessageKind = 'confirm' | 'combined' | 'reminder' | 'cancel-pending' | 'cancel-confirmed'
 
 function utf8ToBase64(text: string): string {
   const bytes = new TextEncoder().encode(text)
@@ -155,7 +167,7 @@ function knownLocationsFromSite(site: SiteSnapshot): KnownLocation[] {
   return fromSite.length ? fromSite : BAKED_LOCATIONS
 }
 
-function appointmentCopy(options: {
+export function appointmentCopy(options: {
   kind: BookingMessageKind
   firstName: string
   clinic: string
@@ -187,7 +199,7 @@ function appointmentCopy(options: {
   }
   return {
     subject: 'Reminder — your appointment is tomorrow',
-    title: 'Reminder for tomorrow',
+    title: 'See you tomorrow',
     introHtml: escapeHtml(hello),
     introText: hello,
     sms: `Reminder ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. See you then.`,
@@ -283,7 +295,42 @@ function buildAppointmentEmail(options: {
   return { html, text: textLines.join('\n'), subject: copy.subject, sms: copy.sms }
 }
 
-export type BookingMessageKind = 'confirm' | 'combined' | 'reminder' | 'cancel-pending' | 'cancel-confirmed'
+export type BookingNotifyResult = {
+  email: boolean
+  sms: boolean
+  clinicCopy?: ClinicCalendarCopy
+}
+
+export async function sendClinicCalendarCopy(
+  env: PagesEnv,
+  copy: ClinicCalendarCopy
+): Promise<boolean> {
+  const withIcs = await sendResend(
+    env.RESEND_API_KEY,
+    copy.to,
+    copy.subject,
+    copy.html,
+    copy.text,
+    { ics: copy.ics }
+  )
+  if (withIcs) return true
+  return sendResend(env.RESEND_API_KEY, copy.to, copy.subject, copy.html, copy.text)
+}
+
+/** After D1 is saved: waitUntil so clinic copy cannot block Confirm, or await if waitUntil is missing. */
+export async function enqueueClinicCalendarCopy(
+  waitUntil: ((promise: Promise<unknown>) => void) | undefined,
+  env: PagesEnv,
+  copy: ClinicCalendarCopy | undefined
+): Promise<void> {
+  if (!copy) return
+  const task = sendClinicCalendarCopy(env, copy)
+  if (typeof waitUntil === 'function') {
+    waitUntil(task)
+    return
+  }
+  await task
+}
 
 export async function sendPatientBookingMessage(options: {
   env: PagesEnv
@@ -299,7 +346,7 @@ export async function sendPatientBookingMessage(options: {
   firstName?: string
   startsAtIso?: string
   durationMinutes?: number
-}): Promise<{ email: boolean; sms: boolean }> {
+}): Promise<BookingNotifyResult> {
   const clinic = options.site.clinicName
   const when = options.whenLabel
   const loc = options.locationLabel || 'the clinic'
@@ -403,125 +450,24 @@ export async function sendPatientBookingMessage(options: {
     ics ? clinicEmail : undefined
   )
 
-  if (emailOk && ics) {
-    const clinicIsPatient =
-      clinicEmail.toLowerCase() === options.toEmail.trim().toLowerCase()
-    if (!clinicIsPatient) {
-      const clinicSubject = `${clinic} — calendar: ${options.patientName || options.toEmail}`
-      const clinicText = `${text}\n\nPortal booking ${options.bookingId || ''}.`
-      const clinicWithIcs = await sendResend(
-        options.env.RESEND_API_KEY,
-        clinicEmail,
-        clinicSubject,
-        html,
-        clinicText,
-        { ics }
-      )
-      if (!clinicWithIcs) {
-        await sendResend(
-          options.env.RESEND_API_KEY,
-          clinicEmail,
-          clinicSubject,
+  const clinicCopy =
+    emailOk &&
+    ics &&
+    clinicEmail.toLowerCase() !== options.toEmail.trim().toLowerCase()
+      ? {
+          to: clinicEmail,
+          subject: `${clinic} — calendar: ${options.patientName || options.toEmail}`,
           html,
-          clinicText
-        )
-      }
-    }
-  }
+          text: `${text}\n\nPortal booking ${options.bookingId || ''}.`,
+          ics,
+        }
+      : undefined
 
   let smsOk = false
   if (options.smsOptIn && options.site.features.smsEnabled) {
     smsOk = await sendTwilio(options.env, options.toPhone, smsBody.slice(0, 160))
   }
-  return { email: emailOk, sms: smsOk }
-}
-  const attachIcs =
-    (options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'cancel-confirmed') &&
-    Boolean(options.bookingId && options.startsAtIso)
-  const icsBody = attachIcs
-    ? buildBookingIcs({
-        method: options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST',
-        uid: options.bookingId || '',
-        startsAtIso: options.startsAtIso || '',
-        durationMinutes: options.durationMinutes || 60,
-        summary: `${clinic} — ${options.patientName || 'appointment'}`,
-        description: text,
-        location: loc,
-        attendeeName: options.patientName || options.toEmail,
-        attendeeEmail: options.toEmail,
-        organizerName: clinic,
-        organizerEmail: clinicEmail,
-      })
-    : null
-  const ics = icsBody
-    ? {
-        method: (options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST') as 'REQUEST' | 'CANCEL',
-        body: icsBody,
-      }
-    : undefined
-
-  const sendWithOptionalIcs = async (
-    to: string,
-    mailSubject: string,
-    mailHtml: string,
-    mailText: string,
-    cc?: string
-  ): Promise<boolean> => {
-    if (ics) {
-      const withIcs = await sendResend(
-        options.env.RESEND_API_KEY,
-        to,
-        mailSubject,
-        mailHtml,
-        mailText,
-        { cc, ics }
-      )
-      if (withIcs) return true
-    }
-    return sendResend(options.env.RESEND_API_KEY, to, mailSubject, mailHtml, mailText, {
-      cc: ics ? undefined : cc,
-    })
-  }
-
-  const emailOk = await sendWithOptionalIcs(
-    options.toEmail,
-    subject,
-    html,
-    text,
-    ics ? clinicEmail : undefined
-  )
-
-  if (emailOk && ics) {
-    const clinicIsPatient =
-      clinicEmail.toLowerCase() === options.toEmail.trim().toLowerCase()
-    if (!clinicIsPatient) {
-      const clinicSubject = `${clinic} — calendar: ${options.patientName || options.toEmail}`
-      const clinicText = `${text}\n\nPortal booking ${options.bookingId || ''}.`
-      const clinicWithIcs = await sendResend(
-        options.env.RESEND_API_KEY,
-        clinicEmail,
-        clinicSubject,
-        html,
-        clinicText,
-        { ics }
-      )
-      if (!clinicWithIcs) {
-        await sendResend(
-          options.env.RESEND_API_KEY,
-          clinicEmail,
-          clinicSubject,
-          html,
-          clinicText
-        )
-      }
-    }
-  }
-
-  let smsOk = false
-  if (options.smsOptIn && options.site.features.smsEnabled) {
-    smsOk = await sendTwilio(options.env, options.toPhone, text.slice(0, 160))
-  }
-  return { email: emailOk, sms: smsOk }
+  return { email: emailOk, sms: smsOk, clinicCopy }
 }
 
 function dublinDateYmd(isoUtc: string): string {
@@ -616,7 +562,7 @@ function toIcsUtc(iso: string): string {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
 }
 
-function icsUid(bookingId: string): string {
+export function icsUid(bookingId: string): string {
   return `${bookingId.replace(/[^A-Za-z0-9-]/g, '')}@wellnessneedles.ie`
 }
 
