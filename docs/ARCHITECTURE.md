@@ -88,7 +88,7 @@ stateDiagram-v2
 |--------|--------|------|
 | `pending` | Appointments → Pending | Thank-you already sent at submit. Confirm or Cancel next. |
 | `confirmed` | Appointments → Confirmed | Patient card + `invite.ics`. Reschedule sends **Appointment updated** + replacement ICS (`SEQUENCE` + 1). Day-before reminder unless already in the reminder window. |
-| `cancelled` | Leaves both lists | Pending: could not confirm (no ICS). Confirmed: cancel notice + `METHOD:CANCEL` at `ics_sequence + 1`. |
+| `cancelled` | Appointments → Cancelled (look-up only) | Pending: could not confirm (no ICS). Confirmed: cancel notice + `METHOD:CANCEL` at `ics_sequence + 1`. No restore. |
 
 `starts_at` is UTC ISO for the exact Europe/Dublin slot. `remind_at` is 09:00 Europe/Dublin on the **calendar day before** `starts_at`. Combined Confirm (already `remind_at <= now`) sets reminder sent flags so the Worker does not send again.
 

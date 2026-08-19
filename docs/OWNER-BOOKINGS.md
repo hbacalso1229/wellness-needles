@@ -43,10 +43,10 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 ## What you do
 
 1. Open **Appointments** in the portal (`https://portal.wellnessneedles.ie`).
-2. Open the request. You will see the patient’s name, phone, email, preferred day/time window, and whether they asked for SMS.
+2. Open the request. You will see the patient’s name, phone, email, preferred day/time window, and whether they asked for SMS. Use search on Pending, Confirmed, or Cancelled to find someone by name, phone, or email.
 3. **Confirm** if you can take them. Enter the exact start time (Ireland time, 15-minute steps). That is the time they will be told. A calendar invite also goes to the patient and to `info@` (Zoho). You do not type the slot into Zoho by hand.
 4. **Reschedule** from the **Confirmed** tab if you need a new Ireland time, service, or clinic. The patient gets an “Appointment updated” email and a replacement calendar invite. Zoho gets the same invite.
-5. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too.
+5. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too. The row moves to the **Cancelled** tab so you can look it up. You cannot restore it from there.
 
 Confirm and day-before reminder emails are a scannable card (first name only in the greeting: “Hi {name}, we look forward to seeing you.”):
 
