@@ -85,9 +85,7 @@ export function usePublicContact() {
     hoursDisplay: overlayEnabled
       ? site.hoursDisplay
       : contactConfig.businessInfo.hoursDisplay,
-    emergencyNote: overlayEnabled
-      ? site.emergencyNote
-      : contactConfig.businessInfo.emergencyNote,
+    emergencyNote: contactConfig.businessInfo.emergencyNote,
     hours: overlayEnabled ? site.hours : null,
     locations: overlayEnabled
       ? publicLocationsOrBaked(site.locations)

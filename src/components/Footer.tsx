@@ -9,10 +9,8 @@ import { useSiteOverlay } from '@/lib/site-overlay'
 export default function Footer() {
   const { overlayEnabled, site } = useSiteOverlay()
   const clinicName = overlayEnabled ? site.clinicName : contactConfig.businessInfo.name
-  const tagline = overlayEnabled ? site.tagline : contactConfig.businessInfo.tagline
-  const description = overlayEnabled
-    ? site.description
-    : contactConfig.businessInfo.description
+  const tagline = contactConfig.businessInfo.tagline
+  const description = contactConfig.businessInfo.description
   const facebookUrl = overlayEnabled
     ? site.social.facebookUrl
     : contactConfig.socialMedia.facebook.url

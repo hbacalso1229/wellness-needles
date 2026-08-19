@@ -931,24 +931,6 @@ export function PortalApp() {
                     onChange={(e) => setDraft({ ...draft, clinicName: e.target.value })}
                   />
                 </label>
-                <label className="block text-sm font-medium">
-                  Footer tagline
-                  <textarea
-                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                    rows={2}
-                    value={draft.tagline}
-                    onChange={(e) => setDraft({ ...draft, tagline: e.target.value })}
-                  />
-                </label>
-                <label className="block text-sm font-medium">
-                  Footer description
-                  <textarea
-                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                    rows={3}
-                    value={draft.description}
-                    onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                  />
-                </label>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Insurance</p>
                   {draft.insurers.map((insurer, index) => (
@@ -998,24 +980,6 @@ export function PortalApp() {
                         />
                       </label>
                     </div>
-                  ))}
-                  <p className="text-xs font-medium text-[var(--text-dark)]/60">About page copy</p>
-                  {draft.insuranceParagraphs.map((paragraph, index) => (
-                    <textarea
-                      key={index}
-                      className="w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-                      rows={2}
-                      value={paragraph}
-                      onChange={(e) => {
-                        const insuranceParagraphs: [string, string, string] = [
-                          draft.insuranceParagraphs[0],
-                          draft.insuranceParagraphs[1],
-                          draft.insuranceParagraphs[2],
-                        ]
-                        insuranceParagraphs[index] = e.target.value
-                        setDraft({ ...draft, insuranceParagraphs })
-                      }}
-                    />
                   ))}
                 </div>
               </div>
@@ -1266,14 +1230,6 @@ export function PortalApp() {
                   })
                 }
               />
-              <label className="mt-4 block text-sm font-medium">
-                Emergency note
-                <input
-                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                  value={draft.emergencyNote}
-                  onChange={(e) => setDraft({ ...draft, emergencyNote: e.target.value })}
-                />
-              </label>
             </Card>
             <UnsavedBar
               dirty={dirty}

@@ -205,7 +205,6 @@ export default function About() {
   const shownInsurers = overlayEnabled
     ? site.insurers.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder)
     : insurers
-  const insuranceCopy = overlayEnabled ? site.insuranceParagraphs : null
 
   return (
     <div className="min-h-screen">
@@ -486,11 +485,11 @@ export default function About() {
             className="mb-3 text-center md:mb-4"
           />
           <div className="mx-auto space-y-2 text-center text-base leading-[1.7] text-[var(--text-dark)]/70 md:space-y-3">
-            {(insuranceCopy ?? [
+            {[
               'We are a registered professional acupuncture clinic',
               'You may be able to claim acupuncture treatment through your health insurance, depending on your provider and level of cover.',
               'Please check with your insurer before your appointment. We will provide a receipt for your claim after treatment.',
-            ]).map((para) => (
+            ].map((para) => (
               <p key={para} className="lg:whitespace-nowrap">
                 {para}
               </p>
