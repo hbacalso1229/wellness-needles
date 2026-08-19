@@ -123,7 +123,7 @@ export function ServiceSelectionCards({
                     ) : null}
                   </div>
                 </div>
-                <div className="mb-2 flex items-center text-sm text-secondary">
+                <div className="mb-2 flex items-center text-sm font-semibold text-secondary">
                   <Clock className="mr-1 h-4 w-4 shrink-0" aria-hidden />
                   {service.duration}
                 </div>
