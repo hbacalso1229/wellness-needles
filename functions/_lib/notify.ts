@@ -15,7 +15,7 @@ import {
   type KnownLocation,
 } from './email-brand'
 
-export { snapDateTimeLocalToQuarterHour } from '../../shared/quarter-hour'
+export { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from '../../shared/quarter-hour'
 
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
 const ORGANIZER_EMAIL = 'info@wellnessneedles.ie'
@@ -32,6 +32,7 @@ export type CalendarInvite = {
   attendeeEmail: string
   organizerName: string
   organizerEmail: string
+  sequence?: number
 }
 
 export type ClinicCalendarCopy = {
@@ -42,7 +43,13 @@ export type ClinicCalendarCopy = {
   ics: { method: 'REQUEST' | 'CANCEL'; body: string }
 }
 
-export type BookingMessageKind = 'confirm' | 'combined' | 'reminder' | 'cancel-pending' | 'cancel-confirmed'
+export type BookingMessageKind =
+  | 'confirm'
+  | 'combined'
+  | 'reminder'
+  | 'reschedule'
+  | 'cancel-pending'
+  | 'cancel-confirmed'
 
 function utf8ToBase64(text: string): string {
   const bytes = new TextEncoder().encode(text)
@@ -197,6 +204,15 @@ export function appointmentCopy(options: {
       sms: `Confirmed — see you ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
     }
   }
+  if (options.kind === 'reschedule') {
+    return {
+      subject: `${options.clinic} — appointment updated`,
+      title: 'Appointment updated',
+      introHtml: escapeHtml(hello),
+      introText: hello,
+      sms: `Updated ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+    }
+  }
   return {
     subject: 'Reminder — your appointment is tomorrow',
     title: 'See you tomorrow',
@@ -207,7 +223,7 @@ export function appointmentCopy(options: {
 }
 
 function buildAppointmentEmail(options: {
-  kind: 'confirm' | 'combined' | 'reminder'
+  kind: 'confirm' | 'combined' | 'reminder' | 'reschedule'
   clinic: string
   firstName: string
   dateLabel: string
@@ -346,6 +362,7 @@ export async function sendPatientBookingMessage(options: {
   firstName?: string
   startsAtIso?: string
   durationMinutes?: number
+  icsSequence?: number
 }): Promise<BookingNotifyResult> {
   const clinic = options.site.clinicName
   const when = options.whenLabel
@@ -357,7 +374,10 @@ export async function sendPatientBookingMessage(options: {
   const timeLabel = options.startsAtIso ? formatDublinTime(options.startsAtIso) : ''
   const durationMinutes = options.durationMinutes || 60
   const cardKind =
-    options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'reminder'
+    options.kind === 'confirm' ||
+    options.kind === 'combined' ||
+    options.kind === 'reminder' ||
+    options.kind === 'reschedule'
       ? options.kind
       : null
 
@@ -395,11 +415,17 @@ export async function sendPatientBookingMessage(options: {
   }
 
   const attachIcs =
-    (options.kind === 'confirm' || options.kind === 'combined' || options.kind === 'cancel-confirmed') &&
+    (options.kind === 'confirm' ||
+      options.kind === 'combined' ||
+      options.kind === 'reschedule' ||
+      options.kind === 'cancel-confirmed') &&
     Boolean(options.bookingId && options.startsAtIso)
+  const icsMethod = options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST'
+  const icsSequence =
+    options.icsSequence ?? (icsMethod === 'CANCEL' ? 1 : 0)
   const icsBody = attachIcs
     ? buildBookingIcs({
-        method: options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST',
+        method: icsMethod,
         uid: options.bookingId || '',
         startsAtIso: options.startsAtIso || '',
         durationMinutes,
@@ -410,11 +436,12 @@ export async function sendPatientBookingMessage(options: {
         attendeeEmail: options.toEmail,
         organizerName: clinic,
         organizerEmail: clinicEmail,
+        sequence: icsSequence,
       })
     : null
   const ics = icsBody
     ? {
-        method: (options.kind === 'cancel-confirmed' ? 'CANCEL' : 'REQUEST') as 'REQUEST' | 'CANCEL',
+        method: icsMethod as 'REQUEST' | 'CANCEL',
         body: icsBody,
       }
     : undefined
@@ -574,7 +601,8 @@ export function buildBookingIcs(invite: CalendarInvite): string | null {
   const dtStamp = toIcsUtc(new Date().toISOString())
   const method = invite.method
   const status = method === 'CANCEL' ? 'CANCELLED' : 'CONFIRMED'
-  const sequence = method === 'CANCEL' ? 1 : 0
+  const sequence =
+    invite.sequence ?? (method === 'CANCEL' ? 1 : 0)
   const organizer = invite.organizerEmail.trim() || ORGANIZER_EMAIL
   const attendee = invite.attendeeEmail.trim()
   if (!attendee) return null

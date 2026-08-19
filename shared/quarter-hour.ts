@@ -21,3 +21,20 @@ export function snapDateTimeLocalToQuarterHour(value: string): string {
   const ymd = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   return `${ymd}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
+
+/** UTC ISO → `YYYY-MM-DDTHH:mm` in Europe/Dublin for datetime-local. */
+export function utcIsoToDublinDateTimeLocal(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Dublin',
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatToParts(date)
+  const pick = (type: string) => parts.find((p) => p.type === type)?.value || '00'
+  return `${pick('year')}-${pick('month')}-${pick('day')}T${pick('hour')}:${pick('minute')}`
+}

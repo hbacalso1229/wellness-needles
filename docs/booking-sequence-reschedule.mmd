@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  participant Owner
+  participant Portal
+  participant D1
+  participant Reminders
+  participant Resend
+  participant Zoho_info
+  participant Twilio
+  participant Patient
+
+  Owner->>Portal: Reschedule + new Ireland start, service, location
+  Portal->>Resend: Appointment updated + invite.ics SEQUENCE plus 1
+  Resend->>Patient: Updated card + replacement calendar invite
+  opt Patient SMS On and opted in
+    Portal->>Twilio: Same text SMS
+    Twilio->>Patient: SMS
+  end
+  Portal->>D1: starts_at remind_at service location ics_sequence
+  Portal-->>Owner: 200
+  Portal->>Resend: clinic copy waitUntil same UID
+  Resend->>Zoho_info: clinic calendar update
+  opt New slot still before day-before 09:00
+    Reminders->>D1: confirmed where remind_at is due
+    Reminders->>Resend: Reminder for the new day before
+    Resend->>Patient: Reminder email See you tomorrow
+  end

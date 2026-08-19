@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { snapDateTimeLocalToQuarterHour } from './quarter-hour'
+import { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from './quarter-hour'
 
 describe('snapDateTimeLocalToQuarterHour', () => {
   it('keeps exact quarter hours', () => {
@@ -27,5 +27,12 @@ describe('snapDateTimeLocalToQuarterHour', () => {
 
   it('accepts a space separator from the API', () => {
     assert.equal(snapDateTimeLocalToQuarterHour('2026-08-19 14:07'), '2026-08-19T14:00')
+  })
+})
+
+describe('utcIsoToDublinDateTimeLocal', () => {
+  it('round-trips winter and summer Dublin slots', () => {
+    assert.equal(utcIsoToDublinDateTimeLocal('2026-01-14T14:00:00.000Z'), '2026-01-14T14:00')
+    assert.equal(utcIsoToDublinDateTimeLocal('2026-07-15T13:00:00.000Z'), '2026-07-15T14:00')
   })
 })

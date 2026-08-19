@@ -67,6 +67,14 @@ describe('appointment copy', () => {
     assert.equal(copy.title, 'See you tomorrow')
     assert.notEqual(copy.title, copy.subject)
   })
+
+  it('uses appointment updated copy for reschedule', () => {
+    const copy = appointmentCopy({ ...base, kind: 'reschedule' })
+    assert.equal(copy.subject, 'Wellness Needles — appointment updated')
+    assert.equal(copy.title, 'Appointment updated')
+    assert.equal(copy.introText, 'Hi Aoife, we look forward to seeing you.')
+    assert.match(copy.sms, /^Updated /)
+  })
 })
 
 describe('ICS', () => {
@@ -102,5 +110,24 @@ describe('ICS', () => {
 
   it('returns null without an attendee', () => {
     assert.equal(buildBookingIcs({ ...invite, method: 'REQUEST', attendeeEmail: '  ' }), null)
+  })
+
+  it('defaults REQUEST to SEQUENCE 0 and CANCEL to 1', () => {
+    const request = buildBookingIcs({ ...invite, method: 'REQUEST' })
+    const cancel = buildBookingIcs({ ...invite, method: 'CANCEL' })
+    assert.match(request || '', /SEQUENCE:0/)
+    assert.match(cancel || '', /SEQUENCE:1/)
+  })
+
+  it('bumps SEQUENCE on reschedule then cancel', () => {
+    const first = buildBookingIcs({ ...invite, method: 'REQUEST', sequence: 0 })
+    const updated = buildBookingIcs({ ...invite, method: 'REQUEST', sequence: 1 })
+    const second = buildBookingIcs({ ...invite, method: 'REQUEST', sequence: 2 })
+    const cancel = buildBookingIcs({ ...invite, method: 'CANCEL', sequence: 3 })
+    assert.match(first || '', /SEQUENCE:0/)
+    assert.match(updated || '', /SEQUENCE:1/)
+    assert.match(second || '', /SEQUENCE:2/)
+    assert.match(cancel || '', /SEQUENCE:3/)
+    assert.match(updated || '', /UID:booking-abc123@wellnessneedles.ie/)
   })
 })

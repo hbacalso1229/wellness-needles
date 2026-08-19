@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { SITE_DEFAULTS } from './site-snapshot'
+import {
+  isAllowedLocation,
+  isAllowedService,
+  isAllowedServiceType,
+  publishedLocationOptions,
+  publishedServiceLabels,
+} from './booking-options'
+
+describe('booking options', () => {
+  it('keeps the current location even if later unpublished', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      locations: SITE_DEFAULTS.locations.map((loc) =>
+        loc.label === 'Carlow' ? { ...loc, enabled: false } : loc
+      ),
+    }
+    const current = 'Carlow — 16 Kennedy St, Graigue, Carlow, R93 H2X8'
+    assert.equal(isAllowedLocation(site, current, current), true)
+    assert.ok(publishedLocationOptions(site, current).includes(current))
+    assert.equal(isAllowedLocation(site, 'Nowhere'), false)
+  })
+
+  it('keeps the current service if the catalog later drops it', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        inClinicItems: {
+          ...SITE_DEFAULTS.pricing.inClinicItems,
+          package10: false,
+        },
+      },
+    }
+    const current = 'Treatment Package (10 sessions)'
+    assert.equal(isAllowedService(site, 'In Clinic', current, current), true)
+    assert.ok(publishedServiceLabels(site, 'In Clinic', current).includes(current))
+  })
+
+  it('accepts published In Clinic / Home Visit types', () => {
+    assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'In Clinic'), true)
+    assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Home Visit'), true)
+    assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Phone'), false)
+    assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Phone', 'Phone'), true)
+  })
+})

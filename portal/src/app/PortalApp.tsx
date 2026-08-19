@@ -46,9 +46,16 @@ import {
 } from './portal-ui'
 import { AddressSearch } from './AddressSearch'
 import { LocationPreview } from './LocationPreview'
-import { snapDateTimeLocalToQuarterHour } from '../../../shared/quarter-hour'
+import { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from '../../../shared/quarter-hour'
+import {
+  SERVICE_TYPE_IN_CLINIC,
+  publishedLocationOptions,
+  publishedServiceLabels,
+  publishedServiceTypes,
+} from '../../../shared/booking-options'
 
 type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
+type BookingInboxTab = 'pending' | 'confirmed'
 
 type BookingRow = {
   id: string
@@ -58,8 +65,10 @@ type BookingRow = {
   phone: string
   serviceType?: string
   locationLabel?: string
+  serviceLabel?: string
   preferredDate?: string
   preferredTime?: string
+  startsAt?: string
   smsOptIn?: number
   createdAt?: string
 }
@@ -208,6 +217,22 @@ function looksLikeEircode(value: string): boolean {
   return /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(text)
 }
 
+function formatDublinSlot(iso?: string): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return iso
+  return new Intl.DateTimeFormat('en-IE', {
+    timeZone: 'Europe/Dublin',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date)
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     credentials: 'include',
@@ -243,10 +268,16 @@ export function PortalApp() {
   const [publishing, setPublishing] = useState(false)
   const [publishSuccess, setPublishSuccess] = useState(false)
   const [bookings, setBookings] = useState<BookingRow[]>([])
+  const [confirmedBookings, setConfirmedBookings] = useState<BookingRow[]>([])
+  const [bookingTab, setBookingTab] = useState<BookingInboxTab>('pending')
   const [reviews, setReviews] = useState<ReviewRow[]>([])
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [rescheduleId, setRescheduleId] = useState<string | null>(null)
   const [startsAtLocal, setStartsAtLocal] = useState('')
+  const [rescheduleServiceType, setRescheduleServiceType] = useState(SERVICE_TYPE_IN_CLINIC)
+  const [rescheduleLocation, setRescheduleLocation] = useState('')
+  const [rescheduleService, setRescheduleService] = useState('')
   const [newReviewName, setNewReviewName] = useState('')
   const [newReviewRating, setNewReviewRating] = useState<number | null>(null)
   const [newReviewCondition, setNewReviewCondition] = useState('')
@@ -280,6 +311,10 @@ export function PortalApp() {
       }
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
       setBookings(inbox.bookings || [])
+      const confirmed = await api<{ bookings: BookingRow[] }>(
+        '/api/admin/bookings?status=confirmed'
+      )
+      setConfirmedBookings(confirmed.bookings || [])
       const allReviews = await api<{ reviews: ReviewRow[] }>('/api/admin/reviews?status=all')
       const rows = allReviews.reviews || []
       setReviews(rows)
@@ -372,6 +407,7 @@ export function PortalApp() {
         body: JSON.stringify({ action: 'confirm', startsAtLocal: startsAt }),
       })
       setConfirmId(null)
+      setRescheduleId(null)
       setStartsAtLocal('')
       show('Booking confirmed')
       await load()
@@ -388,9 +424,46 @@ export function PortalApp() {
         body: JSON.stringify({ action: 'cancel' }),
       })
       show('Cancel notice sent')
+      setConfirmId(null)
+      setRescheduleId(null)
       await load()
     } catch (error) {
       show(error instanceof Error ? error.message : 'Cancel failed')
+    }
+  }
+
+  const openReschedule = (row: BookingRow) => {
+    setConfirmId(null)
+    setRescheduleId(row.id)
+    setStartsAtLocal(
+      snapDateTimeLocalToQuarterHour(utcIsoToDublinDateTimeLocal(row.startsAt || ''))
+    )
+    setRescheduleServiceType(row.serviceType || SERVICE_TYPE_IN_CLINIC)
+    setRescheduleLocation(row.locationLabel || '')
+    setRescheduleService(row.serviceLabel || '')
+  }
+
+  const rescheduleBooking = async (id: string) => {
+    try {
+      const startsAt = snapDateTimeLocalToQuarterHour(startsAtLocal)
+      setStartsAtLocal(startsAt)
+      await api(`/api/admin/bookings/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reschedule',
+          startsAtLocal: startsAt,
+          serviceType: rescheduleServiceType,
+          locationLabel: rescheduleLocation,
+          serviceLabel: rescheduleService,
+        }),
+      })
+      setRescheduleId(null)
+      setStartsAtLocal('')
+      show('Appointment updated')
+      await load()
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Reschedule failed')
     }
   }
 
@@ -451,73 +524,241 @@ export function PortalApp() {
         {tab === 'appointments' && (
           <section className="space-y-4">
             <PageHeader
-              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start.`}
+              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start. Reschedule confirmed slots from the Confirmed tab.`}
             />
-            {bookings.length === 0 ? (
+            <nav className="flex gap-1 border-b border-black/[0.08]">
+              {(
+                [
+                  { id: 'pending', label: 'Pending', count: bookings.length },
+                  { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setBookingTab(item.id)
+                    setConfirmId(null)
+                    setRescheduleId(null)
+                  }}
+                  className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+                    bookingTab === item.id
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                  <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+                    {item.count}
+                  </span>
+                </button>
+              ))}
+            </nav>
+            {bookingTab === 'pending' ? (
+              bookings.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
+                  No requests yet.
+                </p>
+              ) : (
+                <ul className="space-y-3">
+                  {bookings.map((row) => (
+                    <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
+                      <p className="font-medium">
+                        {row.firstName} {row.lastName}
+                      </p>
+                      <p className="text-sm text-secondary">
+                        {row.phone} · {row.email}
+                      </p>
+                      <p className="text-sm">
+                        {row.serviceType} · {row.preferredDate} {row.preferredTime}
+                      </p>
+                      <p className="text-xs text-secondary">
+                        SMS opt-in: {row.smsOptIn ? 'yes' : 'no'}
+                      </p>
+                      {confirmId === row.id ? (
+                        <div className="mt-3 flex flex-wrap items-end gap-2">
+                          <label className="text-sm">
+                            Exact start
+                            <input
+                              type="datetime-local"
+                              step={900}
+                              className="mt-1 block rounded border px-2 py-1"
+                              value={startsAtLocal}
+                              onChange={(e) =>
+                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                              }
+                              onBlur={(e) =>
+                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                              }
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            onClick={() => void confirmBooking(row.id)}
+                          >
+                            Confirm
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            onClick={() => {
+                              setRescheduleId(null)
+                              setConfirmId(row.id)
+                            }}
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                            onClick={() => void cancelBooking(row.id)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : confirmedBookings.length === 0 ? (
               <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
-                No requests yet.
+                No confirmed appointments yet.
               </p>
             ) : (
               <ul className="space-y-3">
-                {bookings.map((row) => (
-                  <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                    <p className="font-medium">
-                      {row.firstName} {row.lastName}
-                    </p>
-                    <p className="text-sm text-secondary">
-                      {row.phone} · {row.email}
-                    </p>
-                    <p className="text-sm">
-                      {row.serviceType} · {row.preferredDate} {row.preferredTime}
-                    </p>
-                    <p className="text-xs text-secondary">
-                      SMS opt-in: {row.smsOptIn ? 'yes' : 'no'}
-                    </p>
-                    {confirmId === row.id ? (
-                      <div className="mt-3 flex flex-wrap items-end gap-2">
-                        <label className="text-sm">
-                          Exact start
-                          <input
-                            type="datetime-local"
-                            step={900}
-                            className="mt-1 block rounded border px-2 py-1"
-                            value={startsAtLocal}
-                            onChange={(e) =>
-                              setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                            }
-                            onBlur={(e) =>
-                              setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
-                            }
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                          onClick={() => void confirmBooking(row.id)}
-                        >
-                          Confirm
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          type="button"
-                          className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                          onClick={() => setConfirmId(row.id)}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
-                          onClick={() => void cancelBooking(row.id)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    )}
-                  </li>
-                ))}
+                {confirmedBookings.map((row) => {
+                  const typeOptions = publishedServiceTypes(draft, row.serviceType)
+                  const serviceOptions = publishedServiceLabels(
+                    draft,
+                    rescheduleId === row.id ? rescheduleServiceType : row.serviceType || '',
+                    row.serviceLabel
+                  )
+                  const locationOptions = publishedLocationOptions(draft, row.locationLabel)
+                  return (
+                    <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
+                      <p className="font-medium">
+                        {row.firstName} {row.lastName}
+                      </p>
+                      <p className="text-sm text-secondary">
+                        {row.phone} · {row.email}
+                      </p>
+                      <p className="text-sm">
+                        {formatDublinSlot(row.startsAt) || 'Time not set'} · {row.serviceType} ·{' '}
+                        {row.serviceLabel}
+                      </p>
+                      <p className="text-sm text-secondary">{row.locationLabel}</p>
+                      <p className="text-xs text-secondary">
+                        SMS opt-in: {row.smsOptIn ? 'yes' : 'no'}
+                      </p>
+                      {rescheduleId === row.id ? (
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                          <label className="text-sm">
+                            Exact start
+                            <input
+                              type="datetime-local"
+                              step={900}
+                              className="mt-1 block w-full rounded border px-2 py-1"
+                              value={startsAtLocal}
+                              onChange={(e) =>
+                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                              }
+                              onBlur={(e) =>
+                                setStartsAtLocal(snapDateTimeLocalToQuarterHour(e.target.value))
+                              }
+                            />
+                          </label>
+                          <label className="text-sm">
+                            Visit type
+                            <select
+                              className="mt-1 block w-full rounded border px-2 py-1"
+                              value={rescheduleServiceType}
+                              onChange={(e) => {
+                                const next = e.target.value
+                                setRescheduleServiceType(next)
+                                const labels = publishedServiceLabels(draft, next, null)
+                                if (!labels.includes(rescheduleService)) {
+                                  setRescheduleService(labels[0] || '')
+                                }
+                              }}
+                            >
+                              {typeOptions.map((item) => (
+                                <option key={item} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="text-sm">
+                            Service
+                            <select
+                              className="mt-1 block w-full rounded border px-2 py-1"
+                              value={rescheduleService}
+                              onChange={(e) => setRescheduleService(e.target.value)}
+                            >
+                              {serviceOptions.map((item) => (
+                                <option key={item} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="text-sm sm:col-span-2">
+                            Location
+                            <select
+                              className="mt-1 block w-full rounded border px-2 py-1"
+                              value={rescheduleLocation}
+                              onChange={(e) => setRescheduleLocation(e.target.value)}
+                            >
+                              {locationOptions.map((item) => (
+                                <option key={item} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <div className="flex gap-2 sm:col-span-2">
+                            <button
+                              type="button"
+                              className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                              onClick={() => void rescheduleBooking(row.id)}
+                            >
+                              Save new time
+                            </button>
+                            <button
+                              type="button"
+                              className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                              onClick={() => setRescheduleId(null)}
+                            >
+                              Back
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            onClick={() => openReschedule(row)}
+                          >
+                            Reschedule
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                            onClick={() => void cancelBooking(row.id)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </section>

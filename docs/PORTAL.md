@@ -27,7 +27,7 @@ Do not set this in the Cloudflare dashboard — `NEXT_PUBLIC_*` is baked at buil
 |--------|---------|----------------------|
 | Public website overlay | off until you turn it on | www uses portal hours, contact, pricing, locations, insurers, booking mode |
 | Booking form / Calendly / Fresha | one channel required | mutually exclusive |
-| Patient SMS | **off** | Shows the booking-form text opt-in and allows Twilio on confirm / day-before reminder / cancel. Email still sends when this is off. |
+| Patient SMS | **off** | Shows the booking-form text opt-in and allows Twilio on confirm / reschedule / day-before reminder / cancel. Email still sends when this is off. |
 
 Footer tagline, footer description, emergency note, and About insurance paragraphs are not edited in the portal (baked copy). Clinic name, hours, locations, insurance **logos** (add / remove / website URL), and pricing are.
 
@@ -55,7 +55,7 @@ npm run test:unit           # ICS, Dublin times, duration, 15-minute snap
 
 ## How bookings work (clinic owner)
 
-Plain-language process: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Architecture: [ARCHITECTURE.md](ARCHITECTURE.md). Appointments inbox, Confirm (exact Ireland time), automatic day-before reminder, optional SMS.
+Plain-language process: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Architecture: [ARCHITECTURE.md](ARCHITECTURE.md). Appointments inbox, Confirm (exact Ireland time), Reschedule on Confirmed, automatic day-before reminder, optional SMS.
 
 ## Patient booking request flow (technical)
 
@@ -107,26 +107,29 @@ Patient SMS, when on, is sent with the patient email **before** D1 is updated. C
 1. **Patient request (www).** Preferred date/time window, not an exact slot. SMS checkbox only if overlay is on **and** Patient SMS is published on. Turnstile must pass, then clinic email (`/api/booking-request` → Web3Forms). If that fails, the patient sees unable-to-process; nothing is saved to the portal.
 2. **Persist.** On clinic-email success, if overlay is on, the browser fire-and-forget posts to `/api/bff/booking-persist`. Persist failure does **not** block the clinic email.
 3. **Thank-you.** Resend `/api/booking-thank-you` is “request received”, not a confirmed appointment. Patient lands on `/bookings/thank-you/`.
-4. **Portal inbox.** D1 row `status = pending` with preferred date/time and `sms_opt_in`. Appointments shows Confirm / Cancel.
+4. **Portal inbox.** D1 row `status = pending` with preferred date/time and `sms_opt_in`. Appointments → **Pending** shows Confirm / Cancel. After Confirm, the row moves to **Confirmed** (Reschedule / Cancel).
 5. **Confirm.** Owner sets an exact Europe/Dublin start (portal picker and API snap to 15-minute steps). Sets `starts_at` and `remind_at` = 09:00 Dublin on the calendar day before. Before that window: HTML appointment card + `invite.ics`; Worker reminds later. Already in the window: same card with heading “See you then.”; cron does not send again. Greeting is “Hi {first name}, we look forward to seeing you.” (does not repeat “confirmed”). Actions: Add to Calendar (Google template) and Get Directions on one row, Call Wellness Needles below. Patient email is awaited; D1 is updated next; clinic ICS copy is `waitUntil` after that so a slow `info@` send cannot leave the row pending. Cc `info@` plus that clinic copy of the same ICS UID if self-CC is dropped. Duration: Initial 75 min, follow-up/package 45 min, else 60. ICS failure retries the email without the attachment.
-6. **Cancel.** Pending: “we could not confirm this request” (plain text, no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID.
-7. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm (heading “See you tomorrow”); Google Calendar link only (no second ICS). There is no same-day reminder and no reschedule email.
+6. **Reschedule.** Confirmed rows only. `{ action: 'reschedule', startsAtLocal, serviceType, locationLabel, serviceLabel }`. Same 15-minute snap. Same notify order (patient mail → D1 → `waitUntil` clinic ICS). Heading **Appointment updated**. ICS same UID, `SEQUENCE = ics_sequence + 1`. Current service/location stay valid if later unpublished. Recomputes `remind_at`; clears reminder flags if the new slot is still before the day-before window, otherwise sets them so the Worker does not send again.
+7. **Cancel.** Pending: “we could not confirm this request” (plain text, no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID and `SEQUENCE = ics_sequence + 1` (still 1 if never rescheduled).
+8. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm (heading “See you tomorrow”); Google Calendar link only (no second ICS). There is no same-day reminder.
 
-**SMS (optional, steps 5–7).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/cancel) and **Worker** (reminder). Same words as email (first 160 characters). SMS failure does not block email. www has no Twilio.
+**SMS (optional, steps 5–8).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/reschedule/cancel) and **Worker** (reminder). Same words as email (first 160 characters). SMS failure does not block email. www has no Twilio.
 
-**Gates.** Overlay off: Turnstile + clinic email + thank-you still run; **no** D1 persist, **no** portal card. Patient SMS off: checkbox hidden; confirm/cancel/reminder stay email-only.
+**Gates.** Overlay off: Turnstile + clinic email + thank-you still run; **no** D1 persist, **no** portal card. Patient SMS off: checkbox hidden; confirm/reschedule/cancel/reminder stay email-only.
 
 ### Sequence diagrams
 
-Same style as the thank-you-email sequence (Patient → Site_bookings → Web3Forms → Zoho_info → Resend). Overlay-on production uses Turnstile, then adds D1 persist, portal Confirm/Cancel, day-before reminder, and optional Twilio. Confirm order is patient mail → D1 → clinic ICS `waitUntil` ([ARCHITECTURE.md](ARCHITECTURE.md#confirm-pipeline)).
+Same style as the thank-you-email sequence (Patient → Site_bookings → Web3Forms → Zoho_info → Resend). Overlay-on production uses Turnstile, then adds D1 persist, portal Confirm/Reschedule/Cancel, day-before reminder, and optional Twilio. Confirm and Reschedule order is patient mail → D1 → clinic ICS `waitUntil` ([ARCHITECTURE.md](ARCHITECTURE.md#confirm-pipeline)).
 
 ![Patient booking request sequence](booking-sequence-request.png)
 
 ![Owner Confirm, reminder, optional SMS](booking-sequence-confirm.png)
 
+![Owner Reschedule sequence](booking-sequence-reschedule.png)
+
 ![Owner Cancel sequence](booking-sequence-cancel.png)
 
-Mermaid source: [booking-sequence-request.mmd](booking-sequence-request.mmd), [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd), [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd). System diagram: [architecture-system.mmd](architecture-system.mmd).
+Mermaid source: [booking-sequence-request.mmd](booking-sequence-request.mmd), [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd), [booking-sequence-reschedule.mmd](booking-sequence-reschedule.mmd), [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd). System diagram: [architecture-system.mmd](architecture-system.mmd).
 
 ## Patient messages
 
@@ -138,6 +141,7 @@ After owner **Confirm** (exact Europe/Dublin start):
 |-------|-------|---------|-----|---------|
 | Confirm, still before 09:00 Dublin the calendar day before | Card + calendar invite (Cc `info@` / Zoho, then `waitUntil` clinic copy) | Appointment confirmed | Same, only if Patient SMS is on **and** the patient opted in | `Wellness Needles — appointment confirmed` |
 | Confirm on that day-before window, or on the appointment day | Same card + invite (no later reminder) | See you then | Same, if opted in | `Confirmed, see you then` |
+| Reschedule confirmed appointment | Same card + replacement invite (`SEQUENCE` + 1) | Appointment updated | Same, if opted in | `Wellness Needles — appointment updated` |
 | 09:00 Dublin on the calendar day before (Cron Worker `*/15`) | Reminder card (no ICS) | See you tomorrow | Same, if opted in | `Reminder — your appointment is tomorrow` |
 | Cancel pending request | Cancel notice (no ICS) | — | Same, if opted in | `Wellness Needles — we could not confirm this request` |
 | Cancel confirmed appointment | Cancel notice + calendar cancel | — | Same, if opted in | `Wellness Needles — appointment cancelled` |
@@ -148,7 +152,7 @@ SMS is a short labeled text (first 160 characters), not the HTML card. Failure m
 
 Confirm / reminder HTML is the branded appointment card (same tokens as `/api/booking-thank-you`). Thank-you copy and layout are unchanged aside from sharing those helpers.
 
-Not implemented: same-day reminder subject, reschedule email.
+Not implemented: same-day reminder subject.
 
 Zoho: Calendar must be on for `info@`. The owner may need to tap **Add** on the first invite. If From `info@` Cc `info@` is dropped as self-mail, the clinic still gets a second Resend to `info@` with the same UID.
 
@@ -162,4 +166,4 @@ Go-live overlay: deploy with the kill switch `"true"`, confirm `https://www.well
 
 Go-live SMS: Twilio secrets on portal + Worker, redeploy both, Settings → Patient SMS On → Publish. Overlay stays on.
 
-Confirm/reminder card + calendar invite: deploy **portal** (Confirm/Cancel) and the **reminder Worker**. www is only required for the thank-you helper extract (`functions/_lib/email-brand.ts` imported by `/api/booking-thank-you`). Do not re-run D1 schema. Shared modules and deploy matrix: [ARCHITECTURE.md](ARCHITECTURE.md#shared-code).
+Confirm / Reschedule / reminder card + calendar invite: deploy **portal** (Confirm/Reschedule/Cancel). Run [d1/alter-bookings-ics-sequence.sql](../d1/alter-bookings-ics-sequence.sql) **once** on D1 `wellness-needles` **before** that portal deploy. Do not re-run full `d1/schema.sql`. www is only required for the thank-you helper extract (`functions/_lib/email-brand.ts`). Worker unchanged. Shared modules and deploy matrix: [ARCHITECTURE.md](ARCHITECTURE.md#shared-code).

@@ -10,7 +10,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha come from portal Settings
 - Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → **Public website overlay** is published. API failure keeps the baked site. Patient SMS is a separate Settings switch (default off). Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Owner process: [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md). Portal ops: [docs/PORTAL.md](docs/PORTAL.md).
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
-- Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`). Overlay Confirm / combined / day-before reminder use the same branded card (date, time, location, Add to Calendar, Get Directions, Call Wellness Needles) plus a calendar invite on Confirm. Subjects and headings: [docs/PORTAL.md](docs/PORTAL.md#patient-messages)
+- Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`). Overlay Confirm / combined / reschedule / day-before reminder use the same branded card (date, time, location, Add to Calendar, Get Directions, Call Wellness Needles) plus a calendar invite on Confirm and Reschedule. Subjects and headings: [docs/PORTAL.md](docs/PORTAL.md#patient-messages)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
 - SEO-ready meta tags and semantic HTML
 
@@ -82,7 +82,7 @@ Optional UI mode: `npm run test:e2e:ui`.
 
 | Doc | Audience |
 |-----|----------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtimes (www, portal, D1, KV, Worker), Confirm pipeline (patient email → D1 → clinic ICS `waitUntil`), shared modules |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtimes (www, portal, D1, KV, Worker), Confirm/Reschedule pipeline (patient email → D1 → clinic ICS `waitUntil`), shared modules |
 | [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md) | Clinic-owner process |
 | [docs/PORTAL.md](docs/PORTAL.md) | Overlay, Settings, sequence diagrams, deploy |
 | [docs/CAPTCHA_ROLLBACK.md](docs/CAPTCHA_ROLLBACK.md) | Turnstile ↔ hCaptcha without a new Release |
@@ -114,14 +114,16 @@ src/
 functions/
 ├── _lib/
 │   ├── email-brand.ts         # Shared thank-you / confirm HTML tokens
-│   └── notify.ts              # Confirm / reminder / cancel + ICS
+│   └── notify.ts              # Confirm / reschedule / reminder / cancel + ICS
 ├── api/                       # booking-* on www; public BFF when overlay kill switch is true. /api/admin never on www
 portal/                        # Owner UI static export
 workers/booking-reminders/     # Day-before reminder cron (09:00 Europe/Dublin)
 shared/
 ├── site-snapshot.ts           # Published overlay JSON
-└── quarter-hour.ts            # Confirm slot snap :00/:15/:30/:45
+├── quarter-hour.ts            # Confirm/reschedule slot snap :00/:15/:30/:45
+└── booking-options.ts         # Allowed service/location catalogs
 d1/schema.sql
+d1/alter-bookings-ics-sequence.sql
 docs/
 ├── ARCHITECTURE.md
 ├── PORTAL.md

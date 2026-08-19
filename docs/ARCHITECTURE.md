@@ -7,11 +7,11 @@ System shape for the public site, owner portal, and website-form bookings. Clini
 | Piece | Where | Role |
 |-------|--------|------|
 | www | Cloudflare Pages `wellness-needles` → `www.wellnessneedles.ie` | Static Next export + booking/thank-you Functions. Public BFF only when the overlay kill switch is `"true"`. |
-| Portal | Cloudflare Pages `wellness-needles-portal` → `portal.wellnessneedles.ie` | Owner UI behind Access. `/api/admin` lives **only** here. Confirm, Cancel, Publish overlay, Patient SMS switch. |
+| Portal | Cloudflare Pages `wellness-needles-portal` → `portal.wellnessneedles.ie` | Owner UI behind Access. `/api/admin` lives **only** here. Confirm, Reschedule, Cancel, Publish overlay, Patient SMS switch. |
 | Reminders | Worker `wellness-needles-reminders` cron `*/15` | Day-before reminder email (and SMS if enabled). No ICS. |
 | D1 `wellness-needles` | EU, binding `DB` | Bookings, reviews, site draft/published JSON, publish history. Bound on **www, portal, and Worker**. |
 | KV `SITE_CACHE` | Binding `SITE_CACHE` | Published site snapshot for www overlay. Portal writes; www reads. Not required on the Worker. |
-| Resend | Secret `RESEND_API_KEY` on www, portal, Worker | From `Wellness Needles <info@wellnessneedles.ie>`. Thank-you, confirm, combined, reminder, cancel. |
+| Resend | Secret `RESEND_API_KEY` on www, portal, Worker | From `Wellness Needles <info@wellnessneedles.ie>`. Thank-you, confirm, combined, reschedule, reminder, cancel. |
 | Web3Forms | Browser after Turnstile | Clinic copy of the **request** to `info@`. Not the confirmed slot. |
 | Twilio | Portal + Worker only | Optional patient SMS. Never on www. |
 
@@ -49,7 +49,7 @@ flowchart LR
   Portal --> D1
   Portal --> KV
   WWW -->|overlay on: /api/bff/site| KV
-  Portal -->|Confirm Cancel| Resend
+  Portal -->|Confirm Reschedule Cancel| Resend
   Resend --> Zoho
   Worker --> D1
   Worker --> Resend
@@ -80,14 +80,15 @@ stateDiagram-v2
   [*] --> pending: overlay persist after clinic email succeeds
   pending --> confirmed: owner Confirm + exact Dublin start
   pending --> cancelled: owner Cancel
+  confirmed --> confirmed: owner Reschedule
   confirmed --> cancelled: owner Cancel after Confirm
 ```
 
 | Status | Inbox | Mail |
 |--------|--------|------|
-| `pending` | Appointments list | Thank-you already sent at submit. Confirm or Cancel next. |
-| `confirmed` | Leaves pending list | Patient card + `invite.ics`. Day-before reminder unless Confirm was already in the reminder window. |
-| `cancelled` | Leaves pending list | Pending: could not confirm (no ICS). Confirmed: cancel notice + `METHOD:CANCEL`. |
+| `pending` | Appointments → Pending | Thank-you already sent at submit. Confirm or Cancel next. |
+| `confirmed` | Appointments → Confirmed | Patient card + `invite.ics`. Reschedule sends **Appointment updated** + replacement ICS (`SEQUENCE` + 1). Day-before reminder unless already in the reminder window. |
+| `cancelled` | Leaves both lists | Pending: could not confirm (no ICS). Confirmed: cancel notice + `METHOD:CANCEL` at `ics_sequence + 1`. |
 
 `starts_at` is UTC ISO for the exact Europe/Dublin slot. `remind_at` is 09:00 Europe/Dublin on the **calendar day before** `starts_at`. Combined Confirm (already `remind_at <= now`) sets reminder sent flags so the Worker does not send again.
 
@@ -127,18 +128,53 @@ Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-
 
 Cancel uses the same order: patient mail → D1 `cancelled` → `waitUntil` clinic CANCEL copy when the row was already confirmed.
 
+## Reschedule pipeline
+
+Same order as Confirm. Owner opens Appointments → **Confirmed**, picks a new Europe/Dublin start (15-minute snap), service, and location. Current service/location remain valid even if later unpublished.
+
+![Reschedule pipeline](architecture-reschedule-pipeline.png)
+
+```mermaid
+flowchart TD
+  start[Owner Reschedule + new Dublin start service location]
+  mail[Await Appointment updated + invite.ics SEQUENCE plus 1]
+  sms{Patient SMS On and opted in?}
+  twilio[Await Twilio SMS]
+  d1[UPDATE starts_at remind_at service location ics_sequence]
+  ok[HTTP 200 to portal]
+  clinic[waitUntil clinic ICS copy to info@]
+  window{New slot still before day-before 09:00?}
+  cron[Worker later: reminder card, no ICS]
+  skip[Skip cron: reminder flags set]
+
+  start --> mail --> sms
+  sms -->|yes| twilio --> d1
+  sms -->|no| d1
+  d1 --> ok --> clinic
+  clinic --> window
+  window -->|yes still time| cron
+  window -->|no last minute| skip
+```
+
+Mermaid source: [architecture-reschedule-pipeline.mmd](architecture-reschedule-pipeline.mmd). Numbered sequence: [booking-sequence-reschedule.mmd](booking-sequence-reschedule.mmd).
+
+`POST /api/admin/bookings/:id` `{ action: 'reschedule', startsAtLocal, serviceType, locationLabel, serviceLabel }` — confirmed rows only. Confirm body stays `{ action: 'confirm', startsAtLocal }`.
+
+If the new `remind_at` is still in the future, reminder flags are cleared so the Worker can send. If already in the window, flags are set and there is no extra “See you tomorrow”.
+
 ## Email and calendar
 
 | Event | HTML | ICS | Clinic |
 |-------|------|-----|--------|
 | Submit thank-you | Request received (www `/api/booking-thank-you`) | None | Request already arrived via Web3Forms |
-| Confirm (still before day-before 09:00) | Card, heading **Appointment confirmed** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` | Cc + `waitUntil` copy, same UID |
-| Combined (day-before after 09:00, or same day) | Card, heading **See you then** | Same REQUEST | Same |
+| Confirm (still before day-before 09:00) | Card, heading **Appointment confirmed** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | Cc + `waitUntil` copy, same UID |
+| Combined (day-before after 09:00, or same day) | Card, heading **See you then** | Same REQUEST SEQUENCE 0 | Same |
+| Reschedule | Card, heading **Appointment updated** | Same UID, **SEQUENCE = ics_sequence + 1** | Same |
 | Reminder (Worker) | Card, heading **See you tomorrow** | **None** | None |
 | Cancel pending | Plain notice | None | None |
-| Cancel confirmed | Plain notice | `METHOD:CANCEL` same UID | `waitUntil` copy |
+| Cancel confirmed | Plain notice | `METHOD:CANCEL` same UID, SEQUENCE = `ics_sequence + 1` (still **1** if never rescheduled) | `waitUntil` copy |
 
-Card layout (confirm / combined / reminder): greeting `Hi {first name}, we look forward to seeing you.` Date, Time, Location rows. **Add to Calendar** (Google template) + **Get Directions** on one row, **Call Wellness Needles** below. Footer on confirm/combined: calendar invite attached for Apple/Outlook.
+Card layout (confirm / combined / reminder / reschedule): greeting `Hi {first name}, we look forward to seeing you.` Date, Time, Location rows. **Add to Calendar** (Google template) + **Get Directions** on one row, **Call Wellness Needles** below. Footer on confirm/combined/reschedule: calendar invite attached for Apple/Outlook.
 
 ICS attach failure retries the patient email without the file. If that retry runs, Cc on the patient mail may be omitted; the clinic still gets the dedicated `waitUntil` copy when patient mail succeeded.
 
@@ -146,15 +182,18 @@ Zoho: Calendar on for `info@`. The first invite often needs **Add**. From `info@
 
 Rows confirmed **before** ICS shipped have no prior REQUEST. Later Cancel still sends CANCEL with today’s UID — it will not match an old calendar event.
 
-Not built: same-day reminder, reschedule (`SEQUENCE` is 0 on REQUEST and 1 on CANCEL only).
+`bookings.ics_sequence` defaults to `0`. Confirm does not write it. Each reschedule increments it. Do not re-run full `d1/schema.sql` to add the column — use [d1/alter-bookings-ics-sequence.sql](../d1/alter-bookings-ics-sequence.sql) once **before** deploying portal Reschedule.
+
+Not built: same-day reminder.
 
 ## Shared code
 
 | Module | Used by | Purpose |
 |--------|---------|---------|
 | `functions/_lib/email-brand.ts` | www thank-you, portal/Worker notify | Colours, rows, pills, maps, location parse (Celbridge street `56 The Orchard, Oldtown Mill`) |
-| `functions/_lib/notify.ts` | Portal Confirm/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
-| `shared/quarter-hour.ts` | Portal UI, Confirm API (re-exported from notify) | 15-minute snap |
+| `functions/_lib/notify.ts` | Portal Confirm/Reschedule/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
+| `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule API | 15-minute snap + Dublin datetime-local |
+| `shared/booking-options.ts` | Portal Confirmed tab, Reschedule API | Allowed service/location catalogs |
 | `shared/site-snapshot.ts` | www overlay, portal Settings | Published clinic JSON |
 
 Unit tests: `npm run test:unit`.
@@ -166,6 +205,7 @@ Unit tests: `npm run test:unit`.
 | Clinic owner | [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md) | Owner flowchart + [owner-booking-process.mmd](owner-booking-process.mmd) |
 | Technical request | [PORTAL.md](PORTAL.md#patient-booking-request-flow-technical) | [booking-sequence-request.mmd](booking-sequence-request.mmd) |
 | Technical Confirm / reminder | same | [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd) |
+| Technical Reschedule | same | [booking-sequence-reschedule.mmd](booking-sequence-reschedule.mmd) |
 | Technical Cancel | same | [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd) |
 
 Request persist is fire-and-forget after Web3Forms success. Persist failure does not block the clinic email. Thank-you is “request received”, not a slot.
@@ -174,7 +214,7 @@ Request persist is fire-and-forget after Web3Forms success. Persist failure does
 
 | Change | Deploy |
 |--------|--------|
-| Confirm / Cancel card + ICS + snap | **Portal** |
+| Confirm / Reschedule / Cancel card + ICS + snap | **Portal** (run D1 `ALTER` for `ics_sequence` first) |
 | Day-before reminder card | **Worker** `wellness-needles-reminders` |
 | Thank-you / `email-brand.ts` | **www** (production Release) |
 | Overlay kill switch | `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/deploy-production.yml` (build **and** deploy), then Release. Not the Cloudflare dashboard. |

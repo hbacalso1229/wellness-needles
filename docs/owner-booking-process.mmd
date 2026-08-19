@@ -11,6 +11,8 @@ flowchart TD
   seeYou[Patient gets one see-you-then plus calendar invite]
   cancelled[Patient is told it was not booked]
   zoho[Zoho also gets the calendar invite]
+  later{Need to move the slot?}
+  updated[Patient gets appointment updated plus new invite]
 
   request --> received
   request --> inbox
@@ -20,4 +22,8 @@ flowchart TD
   tooSoon -->|No: still time| confirmed --> zoho
   confirmed --> reminder
   tooSoon -->|Yes: last minute| seeYou --> zoho
+  confirmed --> later
+  seeYou --> later
+  later -->|Reschedule in Confirmed tab| updated --> zoho
+  updated --> reminder
   decide -->|Cancel| cancelled
