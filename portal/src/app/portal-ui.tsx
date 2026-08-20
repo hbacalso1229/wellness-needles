@@ -78,7 +78,7 @@ function BookingDetailRow({ label, value }: { label: string; value?: string | nu
       <span className="block text-xs font-medium uppercase tracking-wide text-[var(--text-dark)]/50">
         {label}
       </span>
-      <span className="mt-0.5 block whitespace-pre-line text-sm text-[var(--text-dark)]">{text}</span>
+      <span className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)]">{text}</span>
     </p>
   )
 }
@@ -121,15 +121,17 @@ export function BookingCardDetails({
       {when.trim() ? (
         <p className="text-sm font-semibold text-[var(--text-dark)]">{when}</p>
       ) : null}
-      <div className="grid gap-2 sm:grid-cols-2">
-        <BookingDetailRow label="Phone" value={phone} />
-        <BookingDetailRow label="Email" value={email} />
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+        <div className="min-w-0 space-y-2">
+          <BookingDetailRow label="Phone" value={phone} />
+          <BookingDetailRow label="Email" value={email} />
+        </div>
+        <div className="min-w-0 space-y-2">
+          <BookingDetailRow label="Service" value={serviceLabel} />
+          <BookingDetailRow label="Visit" value={serviceType} />
+        </div>
       </div>
-      <div className="space-y-2">
-        <BookingDetailRow label="Service" value={serviceLabel} />
-        <BookingDetailRow label="Visit" value={serviceType} />
-        <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
-      </div>
+      <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
       {smsOptIn === undefined ? null : (
         <p className="text-xs text-[var(--text-dark)]/55">SMS opt-in: {smsOptIn ? 'yes' : 'no'}</p>
       )}
