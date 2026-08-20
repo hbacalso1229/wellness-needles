@@ -1389,11 +1389,6 @@ export default function BookingForm() {
                       className="min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-[var(--text-dark)] outline-none focus:ring-0"
                     />
                   </div>
-                  {lockIrelandPhone && !fieldErrorMessage('phone') ? (
-                    <p className="mt-1.5 text-xs text-[var(--text-dark)]/55">
-                      Country locked to Ireland (+353)
-                    </p>
-                  ) : null}
                   <FieldInlineError id="phone-error" message={fieldErrorMessage('phone')} />
                 </div>
               </div>
