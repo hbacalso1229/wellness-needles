@@ -47,6 +47,7 @@ import {
   ReviewStatusTabs,
   UnsavedBar,
   discountPercentLabel,
+  formatYmdDisplay,
   snapshotsEqual,
   type ReviewStatusTab,
 } from './portal-ui'
@@ -263,6 +264,13 @@ function formatDublinSlot(iso?: string): string {
     minute: '2-digit',
     hour12: true,
   }).format(date)
+}
+
+function formatPreferredWhen(date?: string, time?: string): string {
+  const day = (date || '').trim()
+  const window = (time || '').trim()
+  const pretty = day ? formatYmdDisplay(day) : ''
+  return [pretty, window].filter(Boolean).join(' ')
 }
 
 function dublinTodayYmd(): string {
@@ -642,7 +650,7 @@ export function PortalApp() {
                       <BookingCardDetails
                         firstName={row.firstName}
                         lastName={row.lastName}
-                        when={[row.preferredDate, row.preferredTime].filter(Boolean).join(' ')}
+                        when={formatPreferredWhen(row.preferredDate, row.preferredTime)}
                         phone={row.phone}
                         email={row.email}
                         serviceLabel={row.serviceLabel}
@@ -829,7 +837,7 @@ export function PortalApp() {
                 {cancelledRows.map((row) => {
                   const when =
                     formatDublinSlot(row.startsAt) ||
-                    [row.preferredDate, row.preferredTime].filter(Boolean).join(' ') ||
+                    formatPreferredWhen(row.preferredDate, row.preferredTime) ||
                     'Time not set'
                   return (
                     <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
@@ -843,7 +851,7 @@ export function PortalApp() {
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
                       />
-                      <p className="mt-2 text-xs font-medium text-[var(--text-dark)]/55">
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/55">
                         Cancelled
                       </p>
                     </li>
@@ -1148,8 +1156,9 @@ export function PortalApp() {
                           </label>
                           <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
                             Description
-                            <input
-                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                            <textarea
+                              rows={3}
+                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
                               value={copy.description}
                               onChange={(e) => patchCopy({ description: e.target.value })}
                             />
@@ -1269,8 +1278,9 @@ export function PortalApp() {
                           </div>
                           <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
                             Description
-                            <input
-                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                            <textarea
+                              rows={3}
+                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
                               value={extra.description}
                               onChange={(e) =>
                                 patchExtra(extra.id, { description: e.target.value })

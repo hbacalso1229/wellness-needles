@@ -78,9 +78,18 @@ function BookingDetailRow({ label, value }: { label: string; value?: string | nu
       <span className="block text-xs font-medium uppercase tracking-wide text-[var(--text-dark)]/50">
         {label}
       </span>
-      <span className="mt-0.5 block text-sm text-[var(--text-dark)]">{text}</span>
+      <span className="mt-0.5 block whitespace-pre-line text-sm text-[var(--text-dark)]">{text}</span>
     </p>
   )
+}
+
+function formatLocationLines(label?: string): string {
+  const text = (label || '').trim()
+  if (!text) return ''
+  const spaced = text.replace(/Co\.(?=\S)/g, 'Co. ')
+  const dash = spaced.indexOf(' — ')
+  if (dash === -1) return spaced
+  return `${spaced.slice(0, dash)}\n${spaced.slice(dash + 3)}`
 }
 
 export function BookingCardDetails({
@@ -112,12 +121,14 @@ export function BookingCardDetails({
       {when.trim() ? (
         <p className="text-sm font-semibold text-[var(--text-dark)]">{when}</p>
       ) : null}
-      <div className="space-y-2">
+      <div className="grid gap-2 sm:grid-cols-2">
         <BookingDetailRow label="Phone" value={phone} />
         <BookingDetailRow label="Email" value={email} />
+      </div>
+      <div className="space-y-2">
         <BookingDetailRow label="Service" value={serviceLabel} />
         <BookingDetailRow label="Visit" value={serviceType} />
-        <BookingDetailRow label="Location" value={locationLabel} />
+        <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
       </div>
       {smsOptIn === undefined ? null : (
         <p className="text-xs text-[var(--text-dark)]/55">SMS opt-in: {smsOptIn ? 'yes' : 'no'}</p>
@@ -262,7 +273,7 @@ function HourAmPmSelect({
   )
 }
 
-function formatYmdDisplay(ymd: string): string {
+export function formatYmdDisplay(ymd: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd)
   if (!match) return ymd
   const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
