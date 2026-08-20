@@ -1125,7 +1125,7 @@ export function PortalApp() {
                       return (
                         <div
                           key={key}
-                          className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                          className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
                         >
                           <div className="mb-2 flex items-center justify-between gap-2">
                             <p className="text-sm font-medium">{label}</p>
@@ -1235,7 +1235,7 @@ export function PortalApp() {
                       return (
                         <div
                           key={extra.id}
-                          className="border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                          className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
                         >
                           <div className="mb-2 flex items-center justify-between gap-2">
                             <input
