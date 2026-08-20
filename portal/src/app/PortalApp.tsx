@@ -40,6 +40,7 @@ import {
   DublinStartPicker,
   FullWidthDateField,
   HoursEditor,
+  BookingCardDetails,
   OnOffSwitch,
   PageHeader,
   ReviewCard,
@@ -638,18 +639,17 @@ export function PortalApp() {
                 <ul className="space-y-3">
                   {pendingRows.map((row) => (
                     <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                      <p className="font-medium">
-                        {row.firstName} {row.lastName}
-                      </p>
-                      <p className="text-sm text-secondary">
-                        {row.phone} · {row.email}
-                      </p>
-                      <p className="text-sm">
-                        {row.serviceType} · {row.preferredDate} {row.preferredTime}
-                      </p>
-                      <p className="text-xs text-secondary">
-                        SMS opt-in: {row.smsOptIn ? 'yes' : 'no'}
-                      </p>
+                      <BookingCardDetails
+                        firstName={row.firstName}
+                        lastName={row.lastName}
+                        when={[row.preferredDate, row.preferredTime].filter(Boolean).join(' ')}
+                        phone={row.phone}
+                        email={row.email}
+                        serviceLabel={row.serviceLabel}
+                        serviceType={row.serviceType}
+                        locationLabel={row.locationLabel}
+                        smsOptIn={row.smsOptIn}
+                      />
                       {confirmId === row.id ? (
                         <div className="mt-3 flex flex-wrap items-end gap-2">
                           <DublinStartPicker
@@ -710,20 +710,17 @@ export function PortalApp() {
                   const locationOptions = publishedLocationOptions(draft, row.locationLabel)
                   return (
                     <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                      <p className="font-medium">
-                        {row.firstName} {row.lastName}
-                      </p>
-                      <p className="text-sm text-secondary">
-                        {row.phone} · {row.email}
-                      </p>
-                      <p className="text-sm">
-                        {formatDublinSlot(row.startsAt) || 'Time not set'} · {row.serviceType} ·{' '}
-                        {row.serviceLabel}
-                      </p>
-                      <p className="text-sm text-secondary">{row.locationLabel}</p>
-                      <p className="text-xs text-secondary">
-                        SMS opt-in: {row.smsOptIn ? 'yes' : 'no'}
-                      </p>
+                      <BookingCardDetails
+                        firstName={row.firstName}
+                        lastName={row.lastName}
+                        when={formatDublinSlot(row.startsAt) || 'Time not set'}
+                        phone={row.phone}
+                        email={row.email}
+                        serviceLabel={row.serviceLabel}
+                        serviceType={row.serviceType}
+                        locationLabel={row.locationLabel}
+                        smsOptIn={row.smsOptIn}
+                      />
                       {rescheduleId === row.id ? (
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           <DublinStartPicker
@@ -836,20 +833,16 @@ export function PortalApp() {
                     'Time not set'
                   return (
                     <li key={row.id} className="rounded-xl border border-accent/20 bg-white p-4">
-                      <p className="font-medium">
-                        {row.firstName} {row.lastName}
-                      </p>
-                      <p className="text-sm text-secondary">
-                        {row.phone} · {row.email}
-                      </p>
-                      <p className="text-sm">
-                        {when}
-                        {row.serviceType ? ` · ${row.serviceType}` : ''}
-                        {row.serviceLabel ? ` · ${row.serviceLabel}` : ''}
-                      </p>
-                      {row.locationLabel ? (
-                        <p className="text-sm text-secondary">{row.locationLabel}</p>
-                      ) : null}
+                      <BookingCardDetails
+                        firstName={row.firstName}
+                        lastName={row.lastName}
+                        when={when}
+                        phone={row.phone}
+                        email={row.email}
+                        serviceLabel={row.serviceLabel}
+                        serviceType={row.serviceType}
+                        locationLabel={row.locationLabel}
+                      />
                       <p className="mt-2 text-xs font-medium text-[var(--text-dark)]/55">
                         Cancelled
                       </p>

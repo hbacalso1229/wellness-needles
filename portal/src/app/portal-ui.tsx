@@ -70,6 +70,62 @@ export function Card({
   )
 }
 
+function BookingDetailRow({ label, value }: { label: string; value?: string | null }) {
+  const text = (value || '').trim()
+  if (!text) return null
+  return (
+    <p>
+      <span className="block text-xs font-medium uppercase tracking-wide text-[var(--text-dark)]/50">
+        {label}
+      </span>
+      <span className="mt-0.5 block text-sm text-[var(--text-dark)]">{text}</span>
+    </p>
+  )
+}
+
+export function BookingCardDetails({
+  firstName,
+  lastName,
+  when,
+  phone,
+  email,
+  serviceLabel,
+  serviceType,
+  locationLabel,
+  smsOptIn,
+}: {
+  firstName: string
+  lastName: string
+  when: string
+  phone?: string
+  email?: string
+  serviceLabel?: string
+  serviceType?: string
+  locationLabel?: string
+  smsOptIn?: number
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-base font-semibold text-[var(--text-dark)]">
+        {firstName} {lastName}
+      </p>
+      {when.trim() ? (
+        <p className="text-sm font-semibold text-[var(--text-dark)]">{when}</p>
+      ) : null}
+      <div className="space-y-2">
+        <BookingDetailRow label="Phone" value={phone} />
+        <BookingDetailRow label="Email" value={email} />
+        <BookingDetailRow label="Service" value={serviceLabel} />
+        <BookingDetailRow label="Visit" value={serviceType} />
+        <BookingDetailRow label="Location" value={locationLabel} />
+      </div>
+      {smsOptIn === undefined ? null : (
+        <p className="text-xs text-[var(--text-dark)]/55">SMS opt-in: {smsOptIn ? 'yes' : 'no'}</p>
+      )}
+    </div>
+  )
+}
+
 export function OnOffSwitch({
   checked,
   disabled,
