@@ -28,6 +28,7 @@ Do not set this in the Cloudflare dashboard — `NEXT_PUBLIC_*` is baked at buil
 | Public website overlay | off until you turn it on | www uses portal hours, contact, pricing, locations, insurers, booking mode |
 | Booking form / Calendly / Fresha | one channel required | mutually exclusive |
 | Patient SMS | **off** | Shows the booking-form **Appointment reminders** checkbox (text me appointment updates) and allows Twilio on confirm / reschedule / day-before reminder / cancel. Email still sends when this is off. |
+| Booking maintenance | **off** | Non-dismissable “Online Appointment Requests Unavailable” modal on `/bookings` (Need help card inside). Overlay must be on. Turn off and Publish to restore online booking. |
 
 Footer tagline, footer description, emergency note, and About insurance paragraphs are not edited in the portal (baked copy). Clinic name, hours, locations, insurance **logos** (add / remove / website URL), and pricing (including names, descriptions, durations, Cupping, and Moxibustion) are. Hours and Confirm/Reschedule exact-start pickers are **12-hour AM/PM**; stored values stay 24-hour `HH:mm` / `YYYY-MM-DDTHH:mm`.
 

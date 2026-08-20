@@ -17,6 +17,7 @@ import { usePublicContact } from '@/lib/site-overlay'
 import { overlayCatalogOrNull, joinLocationLabels } from '@/lib/overlay-public'
 import CalendlyEmbed, { buildCalendlyUrl } from '@/components/CalendlyEmbed'
 import BookingForm from '@/components/BookingForm'
+import { BookingMaintenanceModal } from '@/components/BookingMaintenanceModal'
 import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import {
   getFreshaOpenAttrs,
@@ -37,6 +38,8 @@ export default function Bookings() {
   const { overlayEnabled, site, phoneHref, phoneText, emailHref, locations } = usePublicContact()
   const catalog = overlayEnabled ? overlayCatalogOrNull(site) : null
   const { features } = useBookingFeatures()
+  const bookingMaintenance =
+    overlayEnabled && Boolean(site.features.bookingMaintenanceEnabled)
   const bookingFormEnabled = features.bookingFormEnabled
   const calendlyEnabled = features.calendlyEnabled
   const freshaEnabled = features.freshaEnabled
@@ -483,6 +486,7 @@ export default function Bookings() {
           </div>
         </div>
       </section>
+      <BookingMaintenanceModal open={bookingMaintenance} />
     </div>
   )
 }
