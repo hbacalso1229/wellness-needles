@@ -1148,8 +1148,9 @@ export function PortalApp() {
                           </label>
                           <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
                             Description
-                            <input
-                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                            <textarea
+                              rows={3}
+                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
                               value={copy.description}
                               onChange={(e) => patchCopy({ description: e.target.value })}
                             />
@@ -1269,8 +1270,9 @@ export function PortalApp() {
                           </div>
                           <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
                             Description
-                            <input
-                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                            <textarea
+                              rows={3}
+                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
                               value={extra.description}
                               onChange={(e) =>
                                 patchExtra(extra.id, { description: e.target.value })
