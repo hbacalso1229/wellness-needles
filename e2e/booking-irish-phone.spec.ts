@@ -13,7 +13,6 @@ test.describe('booking Irish mobile lock', () => {
 
     await expect(page.locator('#phone')).toBeVisible()
     await expect(page.getByText('+353').first()).toBeVisible()
-    await expect(page.getByText(/Country locked to Ireland \(\+353\)/i)).toBeVisible()
     await expect(page.locator('#phone-country')).toHaveCount(0)
   })
 

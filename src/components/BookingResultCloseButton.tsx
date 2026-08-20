@@ -6,7 +6,7 @@ import { ChevronLeft, X } from 'lucide-react'
 const closeButtonClassName =
   'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[var(--text-dark)]/25 bg-white text-[var(--text-dark)] shadow-sm transition-[transform,color,background-color,border-color] duration-200 hover:border-[var(--text-dark)]/45 hover:bg-white hover:text-[var(--text-dark)] motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white'
 
-const backLinkClassName =
+export const backLinkClassName =
   'inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-dark)]/70 no-underline transition-colors hover:text-[var(--text-dark)] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-dark)]/30 focus-visible:ring-offset-2'
 
 /** Fixed top-right X — mobile only (full-screen result pages; no site header). */
