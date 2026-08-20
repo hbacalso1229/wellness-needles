@@ -1345,7 +1345,7 @@ export function PortalApp() {
                     return (
                     <div
                       key={insurer.id}
-                      className="space-y-2 border-b border-black/[0.06] pb-3 last:border-0 last:pb-0"
+                      className="space-y-2 rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
                     >
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         <input
@@ -1450,7 +1450,7 @@ export function PortalApp() {
                   return (
                     <div
                       key={loc.id}
-                      className="space-y-2 border-b border-black/[0.06] pb-4 last:border-0 last:pb-0"
+                      className="space-y-2 rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
                     >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium">{loc.label || 'Location'}</p>
