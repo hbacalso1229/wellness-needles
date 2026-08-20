@@ -26,16 +26,17 @@ export function BookingMaintenanceModal({ open }: { open: boolean }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] isolate grid place-items-center overflow-y-auto bg-black/50 p-4"
+      className="fixed inset-0 z-[300] isolate overflow-y-auto bg-black/50 !transition-none"
       role="presentation"
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descId}
-        className="relative z-10 w-full max-w-sm rounded-xl border border-accent/20 bg-white px-4 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
-      >
+      <div className="flex min-h-full items-center justify-center p-4 !transition-none">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          aria-describedby={descId}
+          className="relative z-10 w-full max-w-sm rounded-xl border border-accent/20 bg-white px-4 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
+        >
         <h2
           id={titleId}
           className="font-serif text-xl font-bold leading-snug text-[var(--text-dark)] sm:text-2xl"
@@ -51,6 +52,7 @@ export function BookingMaintenanceModal({ open }: { open: boolean }) {
           inconvenience.
         </p>
         <BookingResultHelpCard className="!mt-0 max-w-none" />
+        </div>
       </div>
     </div>,
     document.body
