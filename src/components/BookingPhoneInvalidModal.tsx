@@ -63,18 +63,20 @@ export function BookingPhoneInvalidModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] isolate grid place-items-center overflow-y-auto bg-black/50 p-4"
+      data-testid="booking-phone-invalid-backdrop"
+      className="fixed inset-0 z-[300] isolate overflow-y-auto bg-black/50 !transition-none"
       role="presentation"
       onClick={onClose}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descId}
-        className="relative z-10 w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-white px-4 pb-5 pt-4 text-center shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <div className="flex min-h-full items-center justify-center p-4 !transition-none">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          aria-describedby={descId}
+          className="relative z-10 w-full max-w-sm overflow-y-auto rounded-xl border border-accent/20 bg-white px-4 pb-5 pt-4 text-center shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
+          onClick={(event) => event.stopPropagation()}
+        >
         <button
           type="button"
           onClick={onClose}
@@ -171,6 +173,7 @@ export function BookingPhoneInvalidModal({
               We reply within 24 hours
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>,

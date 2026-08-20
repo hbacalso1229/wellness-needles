@@ -57,7 +57,9 @@ test.describe('booking Irish mobile lock', () => {
     })
     await expect(dialog).toBeVisible()
 
-    await page.locator('[role="presentation"]').click({ position: { x: 8, y: 8 } })
+    await page.getByTestId('booking-phone-invalid-backdrop').click({
+      position: { x: 8, y: 8 },
+    })
     await expect(dialog).toHaveCount(0)
 
     await phone.focus()
