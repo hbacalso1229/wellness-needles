@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { RatingStars } from '../../../src/features/ui/RatingStars'
 import { CONDITION_MAX_LEN } from '../../../shared/review-rating'
@@ -102,6 +102,9 @@ export function BookingCardDetails({
   serviceType,
   locationLabel,
   smsOptIn,
+  open,
+  onToggle,
+  children,
 }: {
   firstName: string
   lastName: string
@@ -112,31 +115,58 @@ export function BookingCardDetails({
   serviceType?: string
   locationLabel?: string
   smsOptIn?: number
+  open: boolean
+  onToggle: () => void
+  children?: ReactNode
 }) {
+  const panelId = useId()
   return (
-    <div className="space-y-1">
-      <p className="text-base font-semibold text-[var(--text-dark)]">
-        {firstName} {lastName}
-      </p>
-      {when.trim() ? (
-        <p className="text-sm font-semibold text-[var(--text-dark)]">{when}</p>
-      ) : null}
-      <div className="space-y-4 pt-3">
-        <div className="grid grid-cols-2 gap-x-3">
-          <div className="min-w-0 space-y-4">
-            <BookingDetailRow label="Phone" value={phone} />
-            <BookingDetailRow label="Email" value={email} />
+    <div>
+      <button
+        type="button"
+        className="flex w-full items-start justify-between gap-3 text-left"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={onToggle}
+      >
+        <span className="min-w-0">
+          <span className="block text-base font-semibold text-[var(--text-dark)]">
+            {firstName} {lastName}
+          </span>
+          {when.trim() ? (
+            <span className="mt-0.5 block text-sm font-semibold text-[var(--text-dark)]">
+              {when}
+            </span>
+          ) : null}
+        </span>
+        <ChevronDown
+          className={`mt-0.5 h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div id={panelId}>
+          <div className="space-y-4 pt-3">
+            <div className="grid grid-cols-2 gap-x-3">
+              <div className="min-w-0 space-y-4">
+                <BookingDetailRow label="Phone" value={phone} />
+                <BookingDetailRow label="Email" value={email} />
+              </div>
+              <div className="min-w-0 space-y-4">
+                <BookingDetailRow label="Service" value={serviceLabel} />
+                <BookingDetailRow label="Visit" value={serviceType} />
+              </div>
+            </div>
+            <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
+            {smsOptIn === undefined ? null : (
+              <BookingDetailRow label="SMS opt-in" value={smsOptIn ? 'YES' : 'NO'} />
+            )}
           </div>
-          <div className="min-w-0 space-y-4">
-            <BookingDetailRow label="Service" value={serviceLabel} />
-            <BookingDetailRow label="Visit" value={serviceType} />
-          </div>
+          {children}
         </div>
-        <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
-        {smsOptIn === undefined ? null : (
-          <BookingDetailRow label="SMS opt-in" value={smsOptIn ? 'YES' : 'NO'} />
-        )}
-      </div>
+      ) : null}
     </div>
   )
 }

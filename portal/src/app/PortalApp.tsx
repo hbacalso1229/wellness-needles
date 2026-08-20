@@ -325,6 +325,7 @@ export function PortalApp() {
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [rescheduleId, setRescheduleId] = useState<string | null>(null)
+  const [openBookingId, setOpenBookingId] = useState<string | null>(null)
   const [startsAtLocal, setStartsAtLocal] = useState('')
   const [rescheduleServiceType, setRescheduleServiceType] = useState(SERVICE_TYPE_IN_CLINIC)
   const [rescheduleLocation, setRescheduleLocation] = useState('')
@@ -423,6 +424,13 @@ export function PortalApp() {
     () => cancelledBookings.filter((row) => bookingMatchesQuery(row, bookingQuery)),
     [cancelledBookings, bookingQuery]
   )
+  const openAppointmentId = confirmId ?? rescheduleId ?? openBookingId
+  const toggleBooking = (id: string) => {
+    if (confirmId === id || rescheduleId === id) return
+    setConfirmId(null)
+    setRescheduleId(null)
+    setOpenBookingId((prev) => (prev === id ? null : id))
+  }
   const lastPublish = history[0]
     ? { at: history[0].changedAt, by: history[0].changedBy }
     : null
@@ -609,6 +617,7 @@ export function PortalApp() {
                       setBookingTab(item.id)
                       setConfirmId(null)
                       setRescheduleId(null)
+                      setOpenBookingId(null)
                     }}
                     className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
                       bookingTab === item.id
@@ -657,7 +666,9 @@ export function PortalApp() {
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
                         smsOptIn={row.smsOptIn}
-                      />
+                        open={openAppointmentId === row.id}
+                        onToggle={() => toggleBooking(row.id)}
+                      >
                       {confirmId === row.id ? (
                         <div className="mt-3 flex flex-wrap items-end gap-2">
                           <DublinStartPicker
@@ -693,6 +704,7 @@ export function PortalApp() {
                           </button>
                         </div>
                       )}
+                      </BookingCardDetails>
                     </li>
                   ))}
                 </ul>
@@ -728,7 +740,9 @@ export function PortalApp() {
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
                         smsOptIn={row.smsOptIn}
-                      />
+                        open={openAppointmentId === row.id}
+                        onToggle={() => toggleBooking(row.id)}
+                      >
                       {rescheduleId === row.id ? (
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           <DublinStartPicker
@@ -819,6 +833,7 @@ export function PortalApp() {
                           </button>
                         </div>
                       )}
+                      </BookingCardDetails>
                     </li>
                   )
                 })}
@@ -850,10 +865,13 @@ export function PortalApp() {
                         serviceLabel={row.serviceLabel}
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
-                      />
+                        open={openAppointmentId === row.id}
+                        onToggle={() => toggleBooking(row.id)}
+                      >
                       <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/55">
                         Cancelled
                       </p>
+                      </BookingCardDetails>
                     </li>
                   )
                 })}
