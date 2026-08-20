@@ -232,20 +232,27 @@ export function FullWidthDateField({
     <label className="block w-full text-xs font-medium text-[var(--text-dark)]/60">
       {label}
       <span className="relative mt-1 block w-full min-w-0">
-        <span
-          aria-hidden
-          className="flex w-full min-w-0 items-center rounded border bg-white px-2 py-1 text-[var(--text-dark)]"
-        >
-          {formatYmdDisplay(value) || 'Select date'}
-        </span>
         <input
           type="date"
           aria-label={label}
-          className="absolute inset-0 z-10 h-full w-full min-w-0 cursor-pointer opacity-0 [color-scheme:light]"
+          className="relative z-10 w-full min-w-0 cursor-pointer rounded border bg-white px-2 py-1 text-transparent [color-scheme:light] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
           value={value}
           max={max}
           onChange={(e) => onChange(e.target.value)}
+          onClick={(e) => {
+            try {
+              e.currentTarget.showPicker()
+            } catch {
+              /* already open, or the browser has no picker */
+            }
+          }}
         />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-20 flex items-center px-2 text-[var(--text-dark)]"
+        >
+          {formatYmdDisplay(value) || 'Select date'}
+        </span>
       </span>
     </label>
   )
