@@ -1752,6 +1752,30 @@ export function PortalApp() {
                     }
                   />
                 </div>
+                <div className="flex items-start justify-between gap-4 border-t border-black/[0.06] pt-4">
+                  <div>
+                    <p className="text-sm font-medium">Booking maintenance</p>
+                    <p className="mt-1 text-sm text-[var(--text-dark)]/65">
+                      Show an Under maintenance message on the public booking page until
+                      you turn this off. Patients can call or email from Need help in the
+                      modal.
+                    </p>
+                  </div>
+                  <OnOffSwitch
+                    checked={draft.features.bookingMaintenanceEnabled}
+                    ariaLabel={
+                      draft.features.bookingMaintenanceEnabled
+                        ? 'Turn off booking maintenance'
+                        : 'Turn on booking maintenance'
+                    }
+                    onChange={(bookingMaintenanceEnabled) =>
+                      setDraft({
+                        ...draft,
+                        features: { ...draft.features, bookingMaintenanceEnabled },
+                      })
+                    }
+                  />
+                </div>
                 <div className="space-y-3 border-t border-black/[0.06] pt-4">
                   <p className="text-sm font-medium">Booking method</p>
                   <div className="flex items-center justify-between gap-3">

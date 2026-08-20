@@ -233,6 +233,7 @@ export type SiteSnapshot = {
     bookingFormEnabled: boolean
     freshaEnabled: boolean
     smsEnabled: boolean
+    bookingMaintenanceEnabled: boolean
   }
   calendly: {
     schedulingUrl: string
@@ -335,6 +336,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     bookingFormEnabled: true,
     freshaEnabled: false,
     smsEnabled: false,
+    bookingMaintenanceEnabled: false,
   },
   calendly: {
     schedulingUrl: 'https://calendly.com/hbacalso1229/scheduled-booking',
@@ -771,6 +773,10 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
         SITE_DEFAULTS.features.freshaEnabled
       ),
       smsEnabled: asBool(value.features.smsEnabled, SITE_DEFAULTS.features.smsEnabled),
+      bookingMaintenanceEnabled: asBool(
+        value.features.bookingMaintenanceEnabled,
+        SITE_DEFAULTS.features.bookingMaintenanceEnabled
+      ),
     },
     calendly: {
       schedulingUrl: asString(
