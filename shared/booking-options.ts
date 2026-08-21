@@ -114,6 +114,7 @@ export function publishedServiceLabels(
   const labels: string[] = []
   if (categoryOn) {
     for (const key of BOOKABLE_PRICE_KEYS) {
+      if (site.pricing.removedItems?.includes(key)) continue
       if (items[key]) {
         const name = site.pricing.serviceCopy?.[key]?.name?.trim()
         labels.push(name || BOOKABLE_SERVICE_NAMES[key])

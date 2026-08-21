@@ -12,7 +12,11 @@ import {
   DEFAULT_SERVICE_COPY,
   isBookableExtraKind,
   isBookablePriceKey,
+  isBuiltinServiceKey,
+  isPriceItemRemoved,
   mergePricingExtras,
+  parseRemovedPriceItems,
+  remainingServiceCount,
   splitUnifiedPricingExtras,
   type PriceList,
   type PricingExtraKind,
@@ -178,10 +182,25 @@ function bookableOnCount(
   const items = pricing[itemsKind(kind)]
   const extras = pricing[extrasKind(kind)]
   return (
-    BOOKABLE_PRICE_KEYS.filter((key) => items[key]).length +
+    BOOKABLE_PRICE_KEYS.filter(
+      (key) => !isPriceItemRemoved(pricing.removedItems, key) && items[key]
+    ).length +
     extras.filter(
       (row) => isBookableExtraKind(row.kind) && row.enabled && Boolean(row.price.trim())
     ).length
+  )
+}
+
+function DeleteCardButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className="rounded-md px-2 py-1.5 text-sm text-[var(--text-dark)]/70 hover:bg-black/[0.04]"
+      aria-label={`Delete ${label}`}
+      onClick={onClick}
+    >
+      Delete
+    </button>
   )
 }
 
@@ -201,6 +220,7 @@ function UnifiedExtrasEditor({
     draft.pricing.inClinicExtras,
     draft.pricing.homeVisitExtras
   )
+  const serviceCount = remainingServiceCount(draft.pricing)
   const writeExtras = (rows: UnifiedPricingExtra[]) => {
     const { inClinicExtras, homeVisitExtras } = splitUnifiedPricingExtras(rows)
     setDraft((current) => ({
@@ -223,6 +243,8 @@ function UnifiedExtrasEditor({
             (draft.pricing.homeVisitEnabled &&
               Boolean(extra.homeVisit.price.trim()) &&
               countBookable(draft.pricing, 'homeVisit') <= 1))
+        const lastService = extra.kind === 'service' && serviceCount <= 1
+        const heading = extra.name.trim() || extraKindLabel(extra.kind)
         return (
           <div
             key={extra.id}
@@ -231,21 +253,31 @@ function UnifiedExtrasEditor({
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <p className="text-base font-semibold text-[var(--text-dark)]">
-                  {extra.name.trim() || extraKindLabel(extra.kind)}
+                  {heading}
                 </p>
                 <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
                   {extraKindLabel(extra.kind)}
                 </span>
               </div>
-              <OnOffSwitch
-                checked={extra.enabled}
-                disabled={lastBookable}
-                ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
-                onChange={(enabled) => {
-                  if (!enabled && lastBookable) return
-                  patchUnified(extra.id, { enabled })
-                }}
-              />
+              <div className="flex items-center gap-3">
+                {lastService ? null : (
+                  <DeleteCardButton
+                    label={heading}
+                    onClick={() =>
+                      writeExtras(unifiedExtras.filter((row) => row.id !== extra.id))
+                    }
+                  />
+                )}
+                <OnOffSwitch
+                  checked={extra.enabled}
+                  disabled={lastBookable}
+                  ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
+                  onChange={(enabled) => {
+                    if (!enabled && lastBookable) return
+                    patchUnified(extra.id, { enabled })
+                  }}
+                />
+              </div>
             </div>
             <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
               Type
@@ -253,9 +285,11 @@ function UnifiedExtrasEditor({
                 className="mt-1 w-full rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm font-normal"
                 value={extra.kind}
                 aria-label={`${extra.name || 'Item'} type`}
-                onChange={(e) =>
-                  patchUnified(extra.id, { kind: e.target.value as PricingExtraKind })
-                }
+                onChange={(e) => {
+                  const kind = e.target.value as PricingExtraKind
+                  if (lastService && kind !== 'service') return
+                  patchUnified(extra.id, { kind })
+                }}
               >
                 {EXTRA_KIND_OPTIONS.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -1382,7 +1416,9 @@ export function PortalApp() {
               </div>
             </div>
             <div className="space-y-4">
-              {PRICE_ROWS.map(([key, label]) => {
+              {PRICE_ROWS.filter(
+                ([key]) => !isPriceItemRemoved(draft.pricing.removedItems, key)
+              ).map(([key, label]) => {
                 const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
                 const isBookable = isBookablePriceKey(key)
                 const itemOn =
@@ -1395,6 +1431,8 @@ export function PortalApp() {
                     (draft.pricing.homeVisitEnabled &&
                       draft.pricing.homeVisitItems[key] &&
                       bookableOnCount(draft.pricing, 'homeVisit') <= 1))
+                const lastService =
+                  isBuiltinServiceKey(key) && remainingServiceCount(draft.pricing) <= 1
                 const patchCopy = (patch: Partial<ServiceCopyItem>) =>
                   setDraft({
                     ...draft,
@@ -1407,6 +1445,21 @@ export function PortalApp() {
                       },
                     },
                   })
+                const deleteBuiltIn = () => {
+                  if (lastService) return
+                  setDraft({
+                    ...draft,
+                    pricing: {
+                      ...draft.pricing,
+                      removedItems: parseRemovedPriceItems([
+                        ...(draft.pricing.removedItems ?? []),
+                        key,
+                      ]),
+                      inClinicItems: { ...draft.pricing.inClinicItems, [key]: false },
+                      homeVisitItems: { ...draft.pricing.homeVisitItems, [key]: false },
+                    },
+                  })
+                }
                 return (
                   <div
                     key={key}
@@ -1419,22 +1472,27 @@ export function PortalApp() {
                           {priceRowKindLabel(key)}
                         </span>
                       </div>
-                      <OnOffSwitch
-                        checked={itemOn}
-                        disabled={lastBookable}
-                        ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
-                        onChange={(enabled) => {
-                          if (!enabled && lastBookable) return
-                          setDraft({
-                            ...draft,
-                            pricing: {
-                              ...draft.pricing,
-                              inClinicItems: { ...draft.pricing.inClinicItems, [key]: enabled },
-                              homeVisitItems: { ...draft.pricing.homeVisitItems, [key]: enabled },
-                            },
-                          })
-                        }}
-                      />
+                      <div className="flex items-center gap-3">
+                        {lastService ? null : (
+                          <DeleteCardButton label={label} onClick={deleteBuiltIn} />
+                        )}
+                        <OnOffSwitch
+                          checked={itemOn}
+                          disabled={lastBookable}
+                          ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
+                          onChange={(enabled) => {
+                            if (!enabled && lastBookable) return
+                            setDraft({
+                              ...draft,
+                              pricing: {
+                                ...draft.pricing,
+                                inClinicItems: { ...draft.pricing.inClinicItems, [key]: enabled },
+                                homeVisitItems: { ...draft.pricing.homeVisitItems, [key]: enabled },
+                              },
+                            })
+                          }}
+                        />
+                      </div>
                     </div>
                     <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
                       Name
