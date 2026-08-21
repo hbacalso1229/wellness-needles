@@ -2,7 +2,7 @@
 
 import { Leaf, Heart, Brain, Target, Zap, Circle, ArrowRight, Activity, Eye, MessageCircle, Scan, Sprout, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
-import { HeroSection, SectionHeading, glassGreenBandClassName } from '../../features'
+import { HeroSection, SectionHeading, glassGreenBandClassName, glassGreenPanelClassName } from '../../features'
 import { BookingSection } from '../../features/home/BookingSection'
 
 const sectionTitleClassName =
@@ -186,7 +186,9 @@ export default function ChineseMedicine() {
                 <p>
                   We don&apos;t just treat symptoms — we listen, observe, and understand the whole you.
                 </p>
-                <blockquote className="border-l-[3px] border-gold pl-4 font-serif text-lg font-medium italic leading-relaxed text-[var(--text-dark)] md:pl-5 md:text-xl">
+                <blockquote
+                  className={`${glassGreenPanelClassName} border-l-[3px] border-l-gold px-3 py-2 font-serif text-lg font-medium italic leading-relaxed text-[var(--text-dark)] shadow-[0_12px_32px_-14px_rgba(27,59,43,0.22)] md:text-xl`}
+                >
                   “Healing happens when the body, mind, and spirit are in balance.”
                 </blockquote>
                 <p>
