@@ -6,6 +6,7 @@ import {
   bookingDurationMinutes,
   buildBookingIcs,
   dublinLocalToUtcIso,
+  formatDublinSmsDate,
   icsUid,
   remindAtMorningBefore,
   reminderWindowStarted,
@@ -63,10 +64,12 @@ describe('appointment copy', () => {
     firstName: 'Aoife',
     clinic: 'Wellness Needles',
     dateLabel: 'Wednesday 19 August 2026',
+    smsDateLabel: 'Wednesday 19 August',
     timeLabel: '2:00 pm',
     locationText: 'Celbridge',
     phone: '01 234 5678',
   }
+  const smsWhen = 'Wednesday 19 August at 2:00 pm in Celbridge'
 
   it('uses distinct confirm subject and heading', () => {
     const copy = appointmentCopy({ ...base, kind: 'confirm' })
@@ -74,6 +77,7 @@ describe('appointment copy', () => {
     assert.equal(copy.status, 'Appointment confirmed')
     assert.equal(copy.title, 'See you soon, Aoife!')
     assert.equal(copy.introText, 'Hi Aoife, we look forward to seeing you.')
+    assert.equal(copy.sms, `Confirmed: ${smsWhen}. Call 01 234 5678`)
   })
 
   it('uses last-minute combined wording', () => {
@@ -81,6 +85,7 @@ describe('appointment copy', () => {
     assert.equal(copy.subject, 'Confirmed, see you then')
     assert.equal(copy.status, 'Appointment confirmed')
     assert.equal(copy.title, 'See you soon, Aoife!')
+    assert.equal(copy.sms, `Confirmed — see you ${smsWhen}. Call 01 234 5678`)
   })
 
   it('does not repeat Reminder in the heading', () => {
@@ -89,6 +94,10 @@ describe('appointment copy', () => {
     assert.equal(copy.status, 'Your appointment is tomorrow')
     assert.equal(copy.title, 'See you tomorrow, Aoife!')
     assert.notEqual(copy.title, copy.subject)
+    assert.equal(
+      copy.sms,
+      `Just a reminder: your appointment is ${smsWhen}. See you then!`
+    )
   })
 
   it('uses appointment updated copy for reschedule', () => {
@@ -97,7 +106,13 @@ describe('appointment copy', () => {
     assert.equal(copy.status, 'Appointment updated')
     assert.equal(copy.title, 'See you soon, Aoife!')
     assert.equal(copy.introText, 'Hi Aoife, we look forward to seeing you.')
-    assert.match(copy.sms, /^Updated /)
+    assert.equal(copy.sms, `Updated: ${smsWhen}. Call 01 234 5678`)
+  })
+})
+
+describe('formatDublinSmsDate', () => {
+  it('omits the year', () => {
+    assert.equal(formatDublinSmsDate('2026-08-20T08:00:00.000Z'), 'Thursday 20 August')
   })
 })
 

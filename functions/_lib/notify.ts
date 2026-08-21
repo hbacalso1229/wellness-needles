@@ -168,6 +168,20 @@ export function formatDublinTime(isoUtc: string): string {
   }).format(date)
 }
 
+/** Weekday + day + month, no year — short enough for SMS. */
+export function formatDublinSmsDate(isoUtc: string): string {
+  const date = new Date(isoUtc)
+  if (Number.isNaN(date.getTime())) return isoUtc
+  return new Intl.DateTimeFormat('en-IE', {
+    timeZone: 'Europe/Dublin',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+    .format(date)
+    .replace(',', '')
+}
+
 function knownLocationsFromSite(site: SiteSnapshot): KnownLocation[] {
   const fromSite = (site.locations || [])
     .map((loc) => asLocationRow(loc))
@@ -183,6 +197,7 @@ export function appointmentCopy(options: {
   timeLabel: string
   locationText: string
   phone: string
+  smsDateLabel?: string
 }): {
   status: string
   title: string
@@ -195,6 +210,7 @@ export function appointmentCopy(options: {
     ? `Hi ${options.firstName}, we look forward to seeing you.`
     : 'We look forward to seeing you.'
   const soon = options.firstName ? `See you soon, ${options.firstName}!` : ''
+  const smsWhen = `${options.smsDateLabel || options.dateLabel} at ${options.timeLabel} in ${options.locationText}`
   if (options.kind === 'confirm') {
     return {
       subject: `${options.clinic} — appointment confirmed`,
@@ -202,7 +218,7 @@ export function appointmentCopy(options: {
       title: soon || 'Appointment confirmed',
       introHtml: escapeHtml(hello),
       introText: hello,
-      sms: `Confirmed ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+      sms: `Confirmed: ${smsWhen}. Call ${options.phone}`,
     }
   }
   if (options.kind === 'combined') {
@@ -212,7 +228,7 @@ export function appointmentCopy(options: {
       title: soon || 'Appointment confirmed',
       introHtml: escapeHtml(hello),
       introText: hello,
-      sms: `Confirmed — see you ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+      sms: `Confirmed — see you ${smsWhen}. Call ${options.phone}`,
     }
   }
   if (options.kind === 'reschedule') {
@@ -222,7 +238,7 @@ export function appointmentCopy(options: {
       title: soon || 'Appointment updated',
       introHtml: escapeHtml(hello),
       introText: hello,
-      sms: `Updated ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. Call ${options.phone}`,
+      sms: `Updated: ${smsWhen}. Call ${options.phone}`,
     }
   }
   return {
@@ -233,7 +249,7 @@ export function appointmentCopy(options: {
       : 'See you tomorrow',
     introHtml: escapeHtml(hello),
     introText: hello,
-    sms: `Reminder ${options.dateLabel} ${options.timeLabel} at ${options.locationText}. See you then.`,
+    sms: `Just a reminder: your appointment is ${smsWhen}. See you then!`,
   }
 }
 
@@ -266,6 +282,9 @@ function buildAppointmentEmail(options: {
     timeLabel: options.timeLabel,
     locationText: town || address.replace(/\n/g, ', '),
     phone,
+    smsDateLabel: options.startsAtIso
+      ? formatDublinSmsDate(options.startsAtIso)
+      : options.dateLabel,
   })
   const calendarUrl = options.startsAtIso
     ? googleCalendarTemplateUrl({
