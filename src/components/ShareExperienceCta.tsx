@@ -715,11 +715,7 @@ function ShareExperienceModal({
                       <Turnstile
                         ref={turnstileRef}
                         siteKey={siteKey}
-                        options={{
-                          size: 'flexible',
-                          theme: 'light',
-                          appearance: 'interaction-only',
-                        }}
+                        options={{ size: 'flexible', theme: 'light' }}
                         onSuccess={(next) => setToken(next)}
                         onExpire={() => setToken('')}
                         onError={() => {
