@@ -701,6 +701,8 @@ export function ReviewCard({
   body,
   tagValue,
   emphasisValue,
+  open,
+  onToggle,
   onTagChange,
   onEmphasisChange,
   onSuggestEmphasis,
@@ -719,6 +721,8 @@ export function ReviewCard({
   body: string
   tagValue: string
   emphasisValue: string
+  open: boolean
+  onToggle: () => void
   onTagChange: (next: string) => void
   onEmphasisChange: (next: string) => void
   onSuggestEmphasis: () => void
@@ -728,6 +732,7 @@ export function ReviewCard({
   onUnpublish: () => void
   onRestore: () => void
 }) {
+  const panelId = useId()
   const phrase = emphasisValue.trim()
   const phraseError =
     phrase && !body.includes(phrase)
@@ -740,112 +745,132 @@ export function ReviewCard({
 
   return (
     <article className="flex h-full flex-col rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="font-medium text-[var(--text-dark)]">{name}</p>
-        <RatingStars rating={rating} />
-      </div>
-      {bucket === 'rejected' && condition ? (
-        <p className="mt-1 text-xs text-secondary">{condition}</p>
-      ) : null}
-      <p className="mt-1 text-xs text-secondary">
-        {reviewedAt || ''}
-        {source ? ` · ${source}` : ''}
-      </p>
-      <p className="mt-3 flex-1 text-sm italic leading-relaxed text-[var(--text-dark)]/80">
-        {body}
-      </p>
-      {bucket === 'pending' || bucket === 'confirmed' ? (
-        <div className="mt-3 space-y-2 border-t border-black/[0.06] pt-3">
-          <label className="block text-xs font-medium text-[var(--text-dark)]/60">
-            Treatment tag
-            <input
-              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
-              maxLength={CONDITION_MAX_LEN}
-              value={tagValue}
-              onChange={(e) => onTagChange(e.target.value)}
-            />
-          </label>
-          <label className="block text-xs font-medium text-[var(--text-dark)]/60">
-            Phrase to highlight
-            <input
-              className={`mt-1 w-full rounded-md border px-2 py-1.5 text-sm ${
-                phraseError ? 'border-red-400' : 'border-black/10'
-              }`}
-              value={emphasisValue}
-              onChange={(e) => onEmphasisChange(e.target.value)}
-              aria-invalid={Boolean(phraseError) || undefined}
-            />
-          </label>
-          {phraseError ? (
-            <p className="text-sm text-red-700" role="alert">
-              {phraseError}
-            </p>
+      <button
+        type="button"
+        className="flex w-full items-start justify-between gap-3 text-left"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={onToggle}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-start justify-between gap-2">
+            <span className="font-medium text-[var(--text-dark)]">{name}</span>
+            <RatingStars rating={rating} />
+          </span>
+          {bucket === 'rejected' && condition ? (
+            <span className="mt-1 block text-xs text-secondary">{condition}</span>
           ) : null}
-          <button
-            type="button"
-            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-            onClick={onSuggestEmphasis}
-          >
-            Suggest from review
-          </button>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-              onClick={saveEdits}
-            >
-              Save tag & highlight
-            </button>
-            {bucket === 'pending' ? (
-              <>
-                <button
-                  type="button"
-                  className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
-                  onClick={() => {
-                    if (phraseError) return
-                    onConfirm()
-                  }}
-                >
-                  Confirm
-                </button>
+          <span className="mt-1 block text-xs text-secondary">
+            {reviewedAt || ''}
+            {source ? ` · ${source}` : ''}
+          </span>
+        </span>
+        <ChevronDown
+          className={`mt-0.5 h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div id={panelId}>
+          <p className="mt-3 flex-1 text-sm italic leading-relaxed text-[var(--text-dark)]/80">
+            {body}
+          </p>
+          {bucket === 'pending' || bucket === 'confirmed' ? (
+            <div className="mt-3 space-y-2 border-t border-black/[0.06] pt-3">
+              <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                Treatment tag
+                <input
+                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                  maxLength={CONDITION_MAX_LEN}
+                  value={tagValue}
+                  onChange={(e) => onTagChange(e.target.value)}
+                />
+              </label>
+              <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                Phrase to highlight
+                <input
+                  className={`mt-1 w-full rounded-md border px-2 py-1.5 text-sm ${
+                    phraseError ? 'border-red-400' : 'border-black/10'
+                  }`}
+                  value={emphasisValue}
+                  onChange={(e) => onEmphasisChange(e.target.value)}
+                  aria-invalid={Boolean(phraseError) || undefined}
+                />
+              </label>
+              {phraseError ? (
+                <p className="text-sm text-red-700" role="alert">
+                  {phraseError}
+                </p>
+              ) : null}
+              <button
+                type="button"
+                className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                onClick={onSuggestEmphasis}
+              >
+                Suggest from review
+              </button>
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                  onClick={onReject}
+                  onClick={saveEdits}
                 >
-                  Reject
+                  Save tag & highlight
                 </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                  onClick={onUnpublish}
-                >
-                  Unpublish
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                  onClick={onReject}
-                >
-                  Reject
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      ) : null}
-      {bucket === 'rejected' ? (
-        <div className="mt-3 border-t border-black/[0.06] pt-3">
-          <button
-            type="button"
-            className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-            onClick={onRestore}
-          >
-            Restore
-          </button>
+                {bucket === 'pending' ? (
+                  <>
+                    <button
+                      type="button"
+                      className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
+                      onClick={() => {
+                        if (phraseError) return
+                        onConfirm()
+                      }}
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      onClick={onReject}
+                    >
+                      Reject
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      onClick={onUnpublish}
+                    >
+                      Unpublish
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      onClick={onReject}
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : null}
+          {bucket === 'rejected' ? (
+            <div className="mt-3 border-t border-black/[0.06] pt-3">
+              <button
+                type="button"
+                className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                onClick={onRestore}
+              >
+                Restore
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </article>
