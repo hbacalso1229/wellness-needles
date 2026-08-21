@@ -4,7 +4,7 @@ import {
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
 import { jsonResponse, readJsonBody, type PagesEnv } from '../../_lib/http'
-import { publishSite, readDraftSite, saveDraftSite } from '../../_lib/site'
+import { publishSite, readDraftSite, readPublishedSite, saveDraftSite } from '../../_lib/site'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -13,8 +13,14 @@ type PagesFunction<Env = unknown> = (context: {
 }) => Response | Promise<Response>
 
 export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
-  const draft = await readDraftSite(context.env)
-  return jsonResponse(200, draft)
+  const [draft, published] = await Promise.all([
+    readDraftSite(context.env),
+    readPublishedSite(context.env),
+  ])
+  // Top-level snapshot fields keep the live portal load path working
+  // (`parseSiteSnapshot(site)`). Nested draft/published let Save draft vs
+  // Publish compare against www without changing prices until Publish.
+  return jsonResponse(200, { ...draft, draft, published })
 }
 
 export const onRequestPut: PagesFunction<PagesEnv> = async (context) => {
