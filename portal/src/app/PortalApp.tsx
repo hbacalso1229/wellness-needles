@@ -191,15 +191,24 @@ function bookableOnCount(
   )
 }
 
-function DeleteCardButton({ label, onClick }: { label: string; onClick: () => void }) {
+function RemoveCardButton({
+  label,
+  onClick,
+  disabled,
+}: {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+}) {
   return (
     <button
       type="button"
-      className="rounded-md px-2 py-1.5 text-sm text-[var(--text-dark)]/70 hover:bg-black/[0.04]"
-      aria-label={`Delete ${label}`}
+      className="rounded-full bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
+      aria-label={`Remove ${label}`}
+      disabled={disabled}
       onClick={onClick}
     >
-      Delete
+      Remove
     </button>
   )
 }
@@ -260,14 +269,6 @@ function UnifiedExtrasEditor({
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                {lastService ? null : (
-                  <DeleteCardButton
-                    label={heading}
-                    onClick={() =>
-                      writeExtras(unifiedExtras.filter((row) => row.id !== extra.id))
-                    }
-                  />
-                )}
                 <OnOffSwitch
                   checked={extra.enabled}
                   disabled={lastBookable}
@@ -277,6 +278,14 @@ function UnifiedExtrasEditor({
                     patchUnified(extra.id, { enabled })
                   }}
                 />
+                {lastService ? null : (
+                  <RemoveCardButton
+                    label={heading}
+                    onClick={() =>
+                      writeExtras(unifiedExtras.filter((row) => row.id !== extra.id))
+                    }
+                  />
+                )}
               </div>
             </div>
             <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
@@ -1473,9 +1482,6 @@ export function PortalApp() {
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
-                        {lastService ? null : (
-                          <DeleteCardButton label={label} onClick={deleteBuiltIn} />
-                        )}
                         <OnOffSwitch
                           checked={itemOn}
                           disabled={lastBookable}
@@ -1492,6 +1498,9 @@ export function PortalApp() {
                             })
                           }}
                         />
+                        {lastService ? null : (
+                          <RemoveCardButton label={label} onClick={deleteBuiltIn} />
+                        )}
                       </div>
                     </div>
                     <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
@@ -1644,9 +1653,8 @@ export function PortalApp() {
                             setDraft({ ...draft, insurers })
                           }}
                         />
-                        <button
-                          type="button"
-                          className="rounded-md px-2 py-1.5 text-sm text-[var(--text-dark)]/70 hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+                        <RemoveCardButton
+                          label={insurer.name || 'insurer'}
                           disabled={lastRow}
                           onClick={() => {
                             if (lastRow) return
@@ -1655,9 +1663,7 @@ export function PortalApp() {
                               insurers: draft.insurers.filter((row) => row.id !== insurer.id),
                             })
                           }}
-                        >
-                          Remove
-                        </button>
+                        />
                       </div>
                       <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                         Website
