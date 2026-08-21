@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { SITE_DEFAULTS } from './site-snapshot'
+import { SITE_DEFAULTS, mergePricingExtras, splitUnifiedPricingExtras } from './site-snapshot'
 import {
   isAllowedLocation,
   isAllowedService,
@@ -116,5 +116,43 @@ describe('booking options', () => {
     assert.ok(labels.includes('Fertility treatment'))
     assert.ok(labels.includes('Wellness bundle'))
     assert.equal(labels.some((item) => /heat lamp/i.test(item)), false)
+  })
+})
+
+describe('mergePricingExtras', () => {
+  it('pairs clinic and home extras by id and writes both arrays', () => {
+    const clinic = [
+      {
+        id: 'extra-1',
+        kind: 'service' as const,
+        name: 'Fertility treatment',
+        price: '€90',
+        original: '€120',
+        description: 'One to one',
+        enabled: true,
+        durationMinutes: 75,
+      },
+    ]
+    const visit = [
+      {
+        id: 'extra-1',
+        kind: 'service' as const,
+        name: 'Fertility treatment',
+        price: '€140',
+        original: '',
+        description: 'One to one',
+        enabled: true,
+        durationMinutes: 75,
+      },
+    ]
+    const merged = mergePricingExtras(clinic, visit)
+    assert.equal(merged.length, 1)
+    assert.equal(merged[0].inClinic.price, '€90')
+    assert.equal(merged[0].homeVisit.price, '€140')
+    const split = splitUnifiedPricingExtras(merged)
+    assert.equal(split.inClinicExtras[0].id, 'extra-1')
+    assert.equal(split.homeVisitExtras[0].id, 'extra-1')
+    assert.equal(split.inClinicExtras[0].price, '€90')
+    assert.equal(split.homeVisitExtras[0].price, '€140')
   })
 })

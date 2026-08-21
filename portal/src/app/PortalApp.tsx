@@ -1,22 +1,24 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   SITE_DEFAULTS,
   buildHoursDisplay,
   composeLocation,
-  createPricingExtra,
+  createUnifiedPricingExtra,
   createSiteInsurer,
   parseSiteSnapshot,
   BOOKABLE_PRICE_KEYS,
   DEFAULT_SERVICE_COPY,
   isBookableExtraKind,
   isBookablePriceKey,
+  mergePricingExtras,
+  splitUnifiedPricingExtras,
   type PriceList,
-  type PricingExtra,
   type PricingExtraKind,
   type ServiceCopyItem,
   type SiteSnapshot,
+  type UnifiedPricingExtra,
 } from '../../../shared/site-snapshot'
 import {
   DEFAULT_PHONE_COUNTRY_ID,
@@ -177,7 +179,183 @@ function bookableOnCount(
   const extras = pricing[extrasKind(kind)]
   return (
     BOOKABLE_PRICE_KEYS.filter((key) => items[key]).length +
-    extras.filter((row) => isBookableExtraKind(row.kind) && row.enabled).length
+    extras.filter(
+      (row) => isBookableExtraKind(row.kind) && row.enabled && Boolean(row.price.trim())
+    ).length
+  )
+}
+
+function UnifiedExtrasEditor({
+  draft,
+  setDraft,
+  bookableOnCount: countBookable,
+}: {
+  draft: SiteSnapshot
+  setDraft: Dispatch<SetStateAction<SiteSnapshot>>
+  bookableOnCount: (
+    pricing: SiteSnapshot['pricing'],
+    kind: 'inClinic' | 'homeVisit'
+  ) => number
+}) {
+  const unifiedExtras = mergePricingExtras(
+    draft.pricing.inClinicExtras,
+    draft.pricing.homeVisitExtras
+  )
+  const writeExtras = (rows: UnifiedPricingExtra[]) => {
+    const { inClinicExtras, homeVisitExtras } = splitUnifiedPricingExtras(rows)
+    setDraft((current) => ({
+      ...current,
+      pricing: { ...current.pricing, inClinicExtras, homeVisitExtras },
+    }))
+  }
+  const patchUnified = (id: string, patch: Partial<UnifiedPricingExtra>) =>
+    writeExtras(unifiedExtras.map((row) => (row.id === id ? { ...row, ...patch } : row)))
+
+  return (
+    <div className="space-y-3">
+      {unifiedExtras.map((extra) => {
+        const lastBookable =
+          extra.enabled &&
+          isBookableExtraKind(extra.kind) &&
+          ((draft.pricing.inClinicEnabled &&
+            Boolean(extra.inClinic.price.trim()) &&
+            countBookable(draft.pricing, 'inClinic') <= 1) ||
+            (draft.pricing.homeVisitEnabled &&
+              Boolean(extra.homeVisit.price.trim()) &&
+              countBookable(draft.pricing, 'homeVisit') <= 1))
+        return (
+          <div
+            key={extra.id}
+            className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+          >
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <p className="text-base font-semibold text-[var(--text-dark)]">
+                  {extra.name.trim() || extraKindLabel(extra.kind)}
+                </p>
+                <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
+                  {extraKindLabel(extra.kind)}
+                </span>
+              </div>
+              <OnOffSwitch
+                checked={extra.enabled}
+                disabled={lastBookable}
+                ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
+                onChange={(enabled) => {
+                  if (!enabled && lastBookable) return
+                  patchUnified(extra.id, { enabled })
+                }}
+              />
+            </div>
+            <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+              Type
+              <select
+                className="mt-1 w-full rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm font-normal"
+                value={extra.kind}
+                aria-label={`${extra.name || 'Item'} type`}
+                onChange={(e) =>
+                  patchUnified(extra.id, { kind: e.target.value as PricingExtraKind })
+                }
+              >
+                {EXTRA_KIND_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+              Name
+              <input
+                className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                value={extra.name}
+                onChange={(e) => patchUnified(extra.id, { name: e.target.value })}
+              />
+            </label>
+            <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+              Description
+              <textarea
+                rows={3}
+                className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                value={extra.description}
+                onChange={(e) => patchUnified(extra.id, { description: e.target.value })}
+              />
+            </label>
+            {extra.kind === 'service' ? (
+              <DurationMinutesField
+                value={extra.durationMinutes || 0}
+                onChange={(durationMinutes) => patchUnified(extra.id, { durationMinutes })}
+              />
+            ) : null}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(['inClinic', 'homeVisit'] as const).map((channel) => {
+                const prices = extra[channel]
+                const off = discountPercentLabel(prices.original, prices.price)
+                const categoryOn = draft.pricing[categoryEnabledKind(channel)]
+                return (
+                  <div
+                    key={channel}
+                    className={`rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3 ${
+                      categoryOn ? '' : 'opacity-50'
+                    }`}
+                  >
+                    <p className="mb-2 text-xs font-medium text-[var(--text-dark)]/60">
+                      {channel === 'inClinic' ? 'In clinic' : 'Home visit'}
+                    </p>
+                    <div className="space-y-2">
+                      <CompactEuroField
+                        label="Original"
+                        emphasis="muted"
+                        value={prices.original}
+                        onChange={(next) =>
+                          patchUnified(extra.id, {
+                            [channel]: { ...prices, original: next },
+                          })
+                        }
+                      />
+                      <CompactEuroField
+                        label="Discounted"
+                        emphasis="strong"
+                        value={prices.price}
+                        onChange={(next) =>
+                          patchUnified(extra.id, {
+                            [channel]: { ...prices, price: next },
+                          })
+                        }
+                      />
+                      {off ? <p className="text-xs text-primary">{off}</p> : null}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+      <div className="flex flex-wrap gap-2 pt-1">
+        <button
+          type="button"
+          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('service')])}
+        >
+          Add service
+        </button>
+        <button
+          type="button"
+          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('package')])}
+        >
+          Add package
+        </button>
+        <button
+          type="button"
+          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('addon')])}
+        >
+          Add add-on
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -1347,158 +1525,16 @@ export function PortalApp() {
                 )
               })}
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(['inClinic', 'homeVisit'] as const).map((kind) => {
-                const extrasKey = extrasKind(kind)
-                const enabledKey = categoryEnabledKind(kind)
-                const categoryOn = draft.pricing[enabledKey]
-                const extras = draft.pricing[extrasKey]
-                const orderedExtras = [
-                  ...extras.filter((row) => row.kind === 'service'),
-                  ...extras.filter((row) => row.kind === 'package'),
-                  ...extras.filter((row) => row.kind === 'addon'),
-                ]
-                const bookable = bookableOnCount(draft.pricing, kind)
-                const patchExtras = (next: PricingExtra[]) =>
-                  setDraft({
-                    ...draft,
-                    pricing: { ...draft.pricing, [extrasKey]: next },
-                  })
-                const patchExtra = (id: string, patch: Partial<PricingExtra>) =>
-                  patchExtras(extras.map((row) => (row.id === id ? { ...row, ...patch } : row)))
-                return (
-                  <Card
-                    key={kind}
-                    title={
-                      kind === 'inClinic'
-                        ? 'In clinic services, packages & add-ons'
-                        : 'Home visit services, packages & add-ons'
-                    }
-                  >
-                    <p className="mb-3 text-xs text-[var(--text-dark)]/55">
-                      Services and packages show as booking options. Add-ons show under Popular
-                      add-ons.
-                    </p>
-                    <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
-                      {orderedExtras.map((extra) => {
-                        const off = discountPercentLabel(extra.original, extra.price)
-                        const lastBookable =
-                          categoryOn &&
-                          isBookableExtraKind(extra.kind) &&
-                          extra.enabled &&
-                          bookable <= 1
-                        return (
-                          <div
-                            key={extra.id}
-                            className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
-                          >
-                            <div className="mb-2 flex items-center justify-between gap-2">
-                              <input
-                                className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
-                                value={extra.name}
-                                aria-label={`${extraKindLabel(extra.kind)} name`}
-                                onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
-                              />
-                              <OnOffSwitch
-                                checked={extra.enabled}
-                                disabled={lastBookable}
-                                showLabel={false}
-                                ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
-                                onChange={(enabled) => {
-                                  if (!enabled && lastBookable) return
-                                  patchExtra(extra.id, { enabled })
-                                }}
-                              />
-                            </div>
-                            <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
-                              Type
-                              <select
-                                className="mt-1 w-full rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm font-normal"
-                                value={extra.kind}
-                                aria-label={`${extra.name || 'Item'} type`}
-                                onChange={(e) => {
-                                  const nextKind = e.target.value as PricingExtraKind
-                                  patchExtra(extra.id, { kind: nextKind })
-                                }}
-                              >
-                                {EXTRA_KIND_OPTIONS.map((option) => (
-                                  <option key={option.id} value={option.id}>
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                            {extra.kind === 'service' ? (
-                              <DurationMinutesField
-                                value={extra.durationMinutes || 0}
-                                onChange={(durationMinutes) =>
-                                  patchExtra(extra.id, { durationMinutes })
-                                }
-                              />
-                            ) : null}
-                            <div className="space-y-2">
-                              <CompactEuroField
-                                label="Original"
-                                emphasis="muted"
-                                value={extra.original}
-                                onChange={(next) => patchExtra(extra.id, { original: next })}
-                              />
-                              <CompactEuroField
-                                label="Discounted"
-                                emphasis="strong"
-                                value={extra.price}
-                                onChange={(next) => patchExtra(extra.id, { price: next })}
-                              />
-                              {off ? (
-                                <p className="text-xs text-primary">{off}</p>
-                              ) : null}
-                            </div>
-                            <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
-                              Description
-                              <textarea
-                                rows={3}
-                                className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                                value={extra.description}
-                                onChange={(e) =>
-                                  patchExtra(extra.id, { description: e.target.value })
-                                }
-                              />
-                            </label>
-                          </div>
-                        )
-                      })}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        <button
-                          type="button"
-                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                          onClick={() =>
-                            patchExtras([...extras, createPricingExtra('service')])
-                          }
-                        >
-                          Add service
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                          onClick={() =>
-                            patchExtras([...extras, createPricingExtra('package')])
-                          }
-                        >
-                          Add package
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                          onClick={() => patchExtras([...extras, createPricingExtra('addon')])}
-                        >
-                          Add add-on
-                        </button>
-                      </div>
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
+            <Card title="More services, packages & add-ons">
+              <p className="mb-3 text-xs text-[var(--text-dark)]/55">
+                Services and packages show as booking options. Add-ons show under Popular add-ons.
+              </p>
+              <UnifiedExtrasEditor
+                draft={draft}
+                setDraft={setDraft}
+                bookableOnCount={bookableOnCount}
+              />
+            </Card>
             {unsavedBar}
           </section>
         )}

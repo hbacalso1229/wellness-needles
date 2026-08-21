@@ -161,6 +161,114 @@ export function createPricingExtra(kind: PricingExtraKind): PricingExtra {
   }
 }
 
+export type UnifiedPricingExtra = {
+  id: string
+  kind: PricingExtraKind
+  name: string
+  description: string
+  enabled: boolean
+  durationMinutes: number
+  inClinic: { price: string; original: string }
+  homeVisit: { price: string; original: string }
+}
+
+function extraNameKey(name: string): string {
+  return name.trim().toLowerCase()
+}
+
+export function mergePricingExtras(
+  clinic: PricingExtra[],
+  visit: PricingExtra[]
+): UnifiedPricingExtra[] {
+  const visitById = new Map(visit.map((row) => [row.id, row]))
+  const visitByName = new Map(
+    visit
+      .filter((row) => extraNameKey(row.name))
+      .map((row) => [extraNameKey(row.name), row])
+  )
+  const usedVisit = new Set<string>()
+  const merged: UnifiedPricingExtra[] = []
+
+  for (const clinicRow of clinic) {
+    const visitRow =
+      visitById.get(clinicRow.id) ||
+      (extraNameKey(clinicRow.name) ? visitByName.get(extraNameKey(clinicRow.name)) : undefined)
+    if (visitRow) usedVisit.add(visitRow.id)
+    merged.push({
+      id: clinicRow.id,
+      kind: clinicRow.kind,
+      name: clinicRow.name,
+      description: clinicRow.description,
+      enabled: clinicRow.enabled,
+      durationMinutes: clinicRow.durationMinutes,
+      inClinic: { price: clinicRow.price, original: clinicRow.original },
+      homeVisit: {
+        price: visitRow?.price ?? '',
+        original: visitRow?.original ?? '',
+      },
+    })
+  }
+
+  for (const visitRow of visit) {
+    if (usedVisit.has(visitRow.id)) continue
+    merged.push({
+      id: visitRow.id,
+      kind: visitRow.kind,
+      name: visitRow.name,
+      description: visitRow.description,
+      enabled: visitRow.enabled,
+      durationMinutes: visitRow.durationMinutes,
+      inClinic: { price: '', original: '' },
+      homeVisit: { price: visitRow.price, original: visitRow.original },
+    })
+  }
+
+  const rank = (kind: PricingExtraKind) =>
+    kind === 'service' ? 0 : kind === 'package' ? 1 : 2
+  return merged.sort((a, b) => rank(a.kind) - rank(b.kind))
+}
+
+function channelExtraFromUnified(
+  row: UnifiedPricingExtra,
+  channel: 'inClinic' | 'homeVisit'
+): PricingExtra {
+  const prices = row[channel]
+  return {
+    id: row.id,
+    kind: row.kind,
+    name: row.name,
+    description: row.description,
+    enabled: row.enabled,
+    durationMinutes: row.durationMinutes,
+    price: prices.price,
+    original: prices.original,
+  }
+}
+
+export function splitUnifiedPricingExtras(rows: UnifiedPricingExtra[]): {
+  inClinicExtras: PricingExtra[]
+  homeVisitExtras: PricingExtra[]
+} {
+  return {
+    inClinicExtras: rows.map((row) => channelExtraFromUnified(row, 'inClinic')),
+    homeVisitExtras: rows.map((row) => channelExtraFromUnified(row, 'homeVisit')),
+  }
+}
+
+export function createUnifiedPricingExtra(kind: PricingExtraKind): UnifiedPricingExtra {
+  const base = createPricingExtra(kind)
+  return {
+    id: base.id,
+    kind: base.kind,
+    name: base.name,
+    description: base.description,
+    enabled: base.enabled,
+    durationMinutes: base.durationMinutes,
+    inClinic: { price: '', original: '' },
+    homeVisit: { price: '', original: '' },
+  }
+}
+
 export function createSiteInsurer(sortOrder: number): SiteInsurer {
   return {
     id: `insurer-${crypto.randomUUID()}`,
