@@ -17,7 +17,7 @@ import {
 
 const OTHER = 'Other'
 const TREATMENT_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
-  { value: '', label: 'No theme' },
+  { value: '', label: 'None' },
   ...TREATMENT_TAG_PRESETS.map((tag) => ({ value: tag, label: tag })),
   { value: OTHER, label: OTHER },
 ]
@@ -70,8 +70,8 @@ function TreatmentSelect({
   )
   const isPlaceholder = value === ''
   const triggerLabel = isPlaceholder
-    ? 'Optional — choose a theme'
-    : (TREATMENT_OPTIONS[selectedIndex]?.label ?? 'Optional — choose a theme')
+    ? 'Select a treatment'
+    : (TREATMENT_OPTIONS[selectedIndex]?.label ?? 'Select a treatment')
 
   activeIndexRef.current = activeIndex
 
@@ -539,7 +539,7 @@ function ShareExperienceModal({
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-5 pt-4 [scrollbar-width:thin] [scrollbar-color:var(--accent-green)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--accent-green)] [&::-webkit-scrollbar-thumb]:hover:bg-[var(--secondary-green)]">
               <label className="block text-sm font-medium">
                 Your name{' '}
-                <span className="text-primary" aria-hidden>
+                <span className="text-red-600" aria-hidden>
                   *
                 </span>
                 <span className="sr-only"> (required)</span>
@@ -566,8 +566,8 @@ function ShareExperienceModal({
 
               <div>
                 <p className="text-sm font-medium">
-                  Rating{' '}
-                  <span className="text-primary" aria-hidden>
+                  How would you rate your experience?{' '}
+                  <span className="text-red-600" aria-hidden>
                     *
                   </span>
                   <span className="sr-only"> (required)</span>
@@ -576,6 +576,7 @@ function ShareExperienceModal({
                   <HalfStarPicker
                     value={rating}
                     invalid={Boolean(fieldErrors.rating)}
+                    emptyHint="Select a rating from 1–5 stars."
                     onChange={(next) => {
                       setRating(next)
                       setFieldError('rating', undefined)
@@ -591,7 +592,8 @@ function ShareExperienceModal({
 
               <div>
                 <label htmlFor={treatmentId} className="block text-sm font-medium">
-                  Treatment
+                  Treatment{' '}
+                  <span className="font-normal text-secondary">· optional</span>
                 </label>
                 <TreatmentSelect id={treatmentId} value={preset} onChange={setPreset} />
               </div>
@@ -609,7 +611,7 @@ function ShareExperienceModal({
 
               <label className="block text-sm font-medium">
                 Your review{' '}
-                <span className="text-primary" aria-hidden>
+                <span className="text-red-600" aria-hidden>
                   *
                 </span>
                 <span className="sr-only"> (required)</span>
@@ -618,6 +620,7 @@ function ShareExperienceModal({
                   rows={4}
                   value={body}
                   maxLength={REVIEW_BODY_MAX_LEN}
+                  placeholder="Tell us about your experience..."
                   onChange={(e) => {
                     const next = e.target.value
                     setBody(next)
@@ -657,11 +660,12 @@ function ShareExperienceModal({
               </div>
 
               <label className="block pb-1 text-sm font-medium">
-                Phrase to highlight{' '}
+                Highlight from your experience{' '}
                 <span className="font-normal text-secondary">· optional</span>
                 <input
                   className={fieldClass(Boolean(fieldErrors.emphasis))}
                   value={emphasis}
+                  placeholder="Add a short phrase you'd like us to highlight"
                   onChange={(e) => {
                     const next = e.target.value
                     setEmphasis(next)
@@ -679,7 +683,7 @@ function ShareExperienceModal({
                 />
               </label>
               <p id={emphasisHelpId} className="-mt-2 pb-1 text-xs leading-relaxed text-secondary">
-                Optional — leave blank and we’ll choose a phrase for you.
+                Leave blank and we’ll choose a phrase for you.
               </p>
               {fieldErrors.emphasis ? (
                 <p id={emphasisErrorId} className="-mt-2 text-sm text-red-700" role="alert">
@@ -715,11 +719,7 @@ function ShareExperienceModal({
                       <Turnstile
                         ref={turnstileRef}
                         siteKey={siteKey}
-                        options={{
-                          size: 'flexible',
-                          theme: 'light',
-                          appearance: 'interaction-only',
-                        }}
+                        options={{ size: 'flexible', theme: 'light' }}
                         onSuccess={(next) => setToken(next)}
                         onExpire={() => setToken('')}
                         onError={() => {
@@ -743,7 +743,7 @@ function ShareExperienceModal({
                     disabled={sending}
                     className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-cream transition-colors duration-200 [@media(hover:hover)]:hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 [@media(hover:hover)]:disabled:hover:bg-primary"
                   >
-                    {sending ? 'Sending…' : 'Send review'}
+                    {sending ? 'Sharing…' : 'Share my experience'}
                   </button>
                 </>
               )}

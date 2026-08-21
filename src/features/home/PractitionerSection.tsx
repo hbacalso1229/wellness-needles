@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BadgeCheck, GraduationCap, School, ArrowRight, type LucideIcon } from 'lucide-react'
 import { SectionHeading } from '../ui/SectionHeading'
-import { sectionGreenCtaClassName } from '../ui/CTAButton'
+import { sectionGreenCtaClassName, glassGreenPanelClassName } from '../ui/CTAButton'
 
 const credentials: { label: string; icon: LucideIcon }[] = [
   { label: 'Registered Acupuncturist', icon: BadgeCheck },
@@ -73,7 +73,9 @@ export function PractitionerSection() {
                 person.
               </p>
 
-              <blockquote className="rounded-lg border-l-[3px] border-gold bg-accent/10 px-3 py-2 text-left">
+              <blockquote
+                className={`${glassGreenPanelClassName} border-l-[3px] border-l-gold px-3 py-2 text-left shadow-[0_12px_32px_-14px_rgba(27,59,43,0.22)]`}
+              >
                 <p className="font-serif text-base font-medium italic leading-relaxed text-[var(--text-dark)]">
                   “Always listening first, then treating the root.”
                 </p>
