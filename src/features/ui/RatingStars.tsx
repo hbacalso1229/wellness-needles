@@ -78,10 +78,12 @@ export function HalfStarPicker({
   value,
   onChange,
   invalid = false,
+  emptyHint = 'Select 1 to 5 stars. Half stars allowed.',
 }: {
   value: number | null
   onChange: (next: number) => void
   invalid?: boolean
+  emptyHint?: string
 }) {
   const [preview, setPreview] = useState<number | null>(null)
   const shown = preview ?? value
@@ -234,7 +236,7 @@ export function HalfStarPicker({
       </div>
       <p className="mt-1 text-sm text-secondary" aria-live="polite">
         {shown == null
-          ? 'Select 1 to 5 stars. Half stars allowed.'
+          ? emptyHint
           : `${formatStarRating(shown)} out of 5`}
       </p>
     </div>
