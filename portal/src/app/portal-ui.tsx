@@ -221,39 +221,81 @@ export function CompactEuroField({
   label,
   value,
   onChange,
-  hint,
+  emphasis = 'muted',
 }: {
   label: string
   value: string
   onChange: (next: string) => void
-  hint?: string
+  emphasis?: 'muted' | 'strong'
 }) {
   const digits = priceDigits(value)
   const display =
     !digits || digits === '.' || (Number(digits) === 0 && !digits.endsWith('.'))
       ? '0.00'
       : digits
+  const strong = emphasis === 'strong'
   return (
-    <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
+    <label
+      className={`block min-w-0 text-xs font-medium ${
+        strong ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]/45'
+      }`}
+    >
       {label}
-      <span className="mt-1 flex items-center gap-2">
-        <span className="flex min-w-0 flex-1 rounded-md border border-black/10 bg-white">
-          <span className="select-none px-2 py-1.5 text-sm text-[var(--text-dark)]/45" aria-hidden>
-            €
-          </span>
-          <input
-            className="min-w-0 flex-1 rounded-r-md border-0 px-2 py-1.5 text-sm outline-none"
-            inputMode="decimal"
-            pattern="[0-9]*[.]?[0-9]{0,2}"
-            autoComplete="off"
-            aria-label={`${label} in euro`}
-            value={display}
-            onChange={(e) => onChange(euroPrice(e.target.value))}
-          />
+      <span
+        className={`mt-1 flex min-w-0 rounded-md border bg-white ${
+          strong ? 'border-black/15' : 'border-black/10'
+        }`}
+      >
+        <span
+          className={`select-none px-2 py-1.5 ${
+            strong ? 'text-base text-[var(--text-dark)]/55' : 'text-sm text-[var(--text-dark)]/40'
+          }`}
+          aria-hidden
+        >
+          €
         </span>
-        {hint ? (
-          <span className="shrink-0 text-xs font-normal text-[var(--text-dark)]/45">{hint}</span>
-        ) : null}
+        <input
+          className={`min-w-0 flex-1 rounded-r-md border-0 px-2 py-1.5 outline-none ${
+            strong
+              ? 'text-base font-semibold text-[var(--text-dark)]'
+              : 'text-sm text-[var(--text-dark)]/70'
+          }`}
+          inputMode="decimal"
+          pattern="[0-9]*[.]?[0-9]{0,2}"
+          autoComplete="off"
+          aria-label={`${label} in euro`}
+          value={display}
+          onChange={(e) => onChange(euroPrice(e.target.value))}
+        />
+      </span>
+    </label>
+  )
+}
+
+export function DurationMinutesField({
+  value,
+  onChange,
+}: {
+  value: number
+  onChange: (minutes: number) => void
+}) {
+  return (
+    <label className="mb-3 block w-36 text-xs font-medium text-[var(--text-dark)]/60">
+      Duration
+      <span className="mt-1 flex rounded-md border border-black/10 bg-white">
+        <input
+          className="min-w-0 flex-1 rounded-l-md border-0 px-2 py-1.5 text-sm outline-none"
+          type="number"
+          min={15}
+          max={180}
+          step={15}
+          aria-label="Duration in minutes"
+          value={value || ''}
+          onChange={(e) => onChange(Number(e.target.value) || 0)}
+        />
+        <span className="select-none px-2 py-1.5 text-sm text-[var(--text-dark)]/45" aria-hidden>
+          min
+        </span>
       </span>
     </label>
   )
@@ -598,6 +640,7 @@ export function UnsavedBar({
   lastPublishedBy,
   unsavedDetail,
   unpublishedDetail,
+  successDetail,
   onDiscard,
   onSaveDraft,
   onPublish,
@@ -612,27 +655,29 @@ export function UnsavedBar({
   lastPublishedBy: string | null
   unsavedDetail: string
   unpublishedDetail: string
+  successDetail: string
   onDiscard: () => void
   onSaveDraft: () => void
   onPublish: () => void
 }) {
   if (!dirty && !unpublished && !success && !lastPublishedAt) return null
   const busy = saving || publishing
+  const showSuccess = success && !dirty
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/[0.06] bg-[#f4f2ec]/95 px-4 py-3 backdrop-blur">
       <div className="mx-auto max-w-5xl space-y-2">
-        {lastPublishedAt ? (
+        {lastPublishedAt && !showSuccess ? (
           <p className="text-xs text-[var(--text-dark)]/55">
             Last published: {formatLastPublished(lastPublishedAt)}
             {` · Published by: ${lastPublishedBy || 'Admin'}`}
           </p>
         ) : null}
-        {success && !dirty ? (
+        {showSuccess ? (
           <div className="rounded-lg border border-accent/30 bg-white px-4 py-3">
-            <p className="text-sm font-semibold text-primary">Published successfully</p>
+            <p className="text-sm font-semibold text-primary">Published just now</p>
             <p className="text-sm text-[var(--text-dark)]/65">
               {overlayEnabled
-                ? 'Your changes are now live.'
+                ? successDetail
                 : 'Saved. The public website overlay is still off, so www has not changed.'}
             </p>
           </div>
