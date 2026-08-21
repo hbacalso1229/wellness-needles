@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { SITE_DEFAULTS, mergePricingExtras, splitUnifiedPricingExtras } from './site-snapshot'
+import { SITE_DEFAULTS, mergePricingExtras, parseSiteSnapshot, remainingServiceCount, splitUnifiedPricingExtras } from './site-snapshot'
 import {
   isAllowedLocation,
   isAllowedService,
@@ -154,5 +154,88 @@ describe('mergePricingExtras', () => {
     assert.equal(split.homeVisitExtras[0].id, 'extra-1')
     assert.equal(split.inClinicExtras[0].price, '€90')
     assert.equal(split.homeVisitExtras[0].price, '€140')
+  })
+})
+
+describe('removed pricing items', () => {
+  it('defaults removedItems to empty and ignores unknown keys', () => {
+    const without = parseSiteSnapshot({
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        removedItems: undefined,
+      },
+    })
+    assert.ok(without)
+    assert.deepEqual(without.pricing.removedItems, [])
+
+    const parsed = parseSiteSnapshot({
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        removedItems: ['initial', 'not-a-key', 'cupping', 12],
+      },
+    })
+    assert.ok(parsed)
+    assert.deepEqual(parsed.pricing.removedItems, ['initial', 'cupping'])
+  })
+
+  it('counts remaining services across built-in rows and extras', () => {
+    assert.equal(remainingServiceCount(SITE_DEFAULTS.pricing), 2)
+
+    const afterInitial = {
+      ...SITE_DEFAULTS.pricing,
+      removedItems: ['initial' as const],
+    }
+    assert.equal(remainingServiceCount(afterInitial), 1)
+
+    const extrasOnly = {
+      ...SITE_DEFAULTS.pricing,
+      removedItems: ['initial' as const, 'followUp' as const],
+      inClinicExtras: [
+        {
+          id: 'extra-svc',
+          kind: 'service' as const,
+          name: 'Fertility treatment',
+          price: '€90',
+          original: '',
+          description: '',
+          enabled: true,
+          durationMinutes: 75,
+        },
+        {
+          id: 'extra-pkg',
+          kind: 'package' as const,
+          name: 'Wellness bundle',
+          price: '€200',
+          original: '',
+          description: '',
+          enabled: true,
+          durationMinutes: 45,
+        },
+      ],
+      homeVisitExtras: [],
+    }
+    assert.equal(remainingServiceCount(extrasOnly), 1)
+  })
+
+  it('omits removed built-in services from published labels', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        removedItems: ['initial' as const],
+        inClinicItems: {
+          ...SITE_DEFAULTS.pricing.inClinicItems,
+          initial: false,
+        },
+      },
+    }
+    const labels = publishedServiceLabels(site, 'In Clinic')
+    assert.equal(
+      labels.some((item) => /initial/i.test(item)),
+      false
+    )
+    assert.ok(labels.some((item) => /follow-up|follow.up/i.test(item)))
   })
 })

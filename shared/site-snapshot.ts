@@ -137,6 +137,31 @@ export function isBookablePriceKey(key: PriceItemKey): key is BookablePriceKey {
   return (BOOKABLE_PRICE_KEYS as readonly PriceItemKey[]).includes(key)
 }
 
+export const BUILTIN_SERVICE_KEYS = ['initial', 'followUp'] as const satisfies readonly PriceItemKey[]
+
+export function isBuiltinServiceKey(key: PriceItemKey): boolean {
+  return (BUILTIN_SERVICE_KEYS as readonly PriceItemKey[]).includes(key)
+}
+
+export function parseRemovedPriceItems(value: unknown): PriceItemKey[] {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<PriceItemKey>()
+  for (const item of value) {
+    if (typeof item !== 'string') continue
+    if ((PRICE_ITEM_KEYS as readonly string[]).includes(item)) {
+      seen.add(item as PriceItemKey)
+    }
+  }
+  return PRICE_ITEM_KEYS.filter((key) => seen.has(key))
+}
+
+export function isPriceItemRemoved(
+  removedItems: readonly PriceItemKey[] | undefined,
+  key: PriceItemKey
+): boolean {
+  return Boolean(removedItems?.includes(key))
+}
+
 export function defaultPriceItemFlags(packagesEnabled: boolean): PriceListEnabled {
   return {
     initial: true,
@@ -269,6 +294,19 @@ export function createUnifiedPricingExtra(kind: PricingExtraKind): UnifiedPricin
   }
 }
 
+export function remainingServiceCount(pricing: {
+  removedItems?: readonly PriceItemKey[]
+  inClinicExtras: PricingExtra[]
+  homeVisitExtras: PricingExtra[]
+}): number {
+  const removed = new Set(pricing.removedItems ?? [])
+  const builtIn = BUILTIN_SERVICE_KEYS.filter((key) => !removed.has(key)).length
+  const extras = mergePricingExtras(pricing.inClinicExtras, pricing.homeVisitExtras).filter(
+    (row) => row.kind === 'service'
+  ).length
+  return builtIn + extras
+}
+
 export function createSiteInsurer(sortOrder: number): SiteInsurer {
   return {
     id: `insurer-${crypto.randomUUID()}`,
@@ -385,6 +423,7 @@ export type SiteSnapshot = {
     homeVisitItems: PriceListEnabled
     inClinicExtras: PricingExtra[]
     homeVisitExtras: PricingExtra[]
+    removedItems: PriceItemKey[]
     serviceCopy: ServiceCopy
   }
   insuranceParagraphs: [string, string, string]
@@ -517,6 +556,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     homeVisitItems: defaultPriceItemFlags(false),
     inClinicExtras: [],
     homeVisitExtras: [],
+    removedItems: [],
     serviceCopy: DEFAULT_SERVICE_COPY,
   },
   insuranceParagraphs: [
@@ -975,6 +1015,7 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       ),
       inClinicExtras: parsePricingExtras(value.pricing.inClinicExtras),
       homeVisitExtras: parsePricingExtras(value.pricing.homeVisitExtras),
+      removedItems: parseRemovedPriceItems(value.pricing.removedItems),
       serviceCopy: parseServiceCopy(value.pricing.serviceCopy),
     },
     insuranceParagraphs: [
@@ -1048,6 +1089,7 @@ export function deepMergeSite(
       homeVisitExtras: incoming.pricing.homeVisitExtras.length
         ? incoming.pricing.homeVisitExtras
         : defaults.pricing.homeVisitExtras,
+      removedItems: incoming.pricing.removedItems,
       serviceCopy: {
         ...defaults.pricing.serviceCopy,
         ...incoming.pricing.serviceCopy,
