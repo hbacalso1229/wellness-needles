@@ -38,6 +38,7 @@ import {
   Card,
   CompactEuroField,
   DublinStartPicker,
+  DurationMinutesField,
   FullWidthDateField,
   HoursEditor,
   BookingCardDetails,
@@ -598,6 +599,11 @@ export function PortalApp() {
           ? 'Publish to update prices on your booking page.'
           : 'Publish to update the live website.'
       }
+      successDetail={
+        tab === 'pricing'
+          ? 'Your booking page is showing the latest prices.'
+          : 'Your changes are now live.'
+      }
       onDiscard={discard}
       onSaveDraft={() => void saveDraft()}
       onPublish={() => void publish()}
@@ -1141,42 +1147,56 @@ export function PortalApp() {
             <PageHeader
               description="Manage the prices shown on your booking page. Update clinic and home-visit pricing, then publish your changes when you're ready."
             />
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(['inClinic', 'homeVisit'] as const).map((kind) => {
-                const enabledKey = categoryEnabledKind(kind)
-                const categoryOn = draft.pricing[enabledKey]
-                const otherOn =
-                  kind === 'inClinic'
-                    ? draft.pricing.homeVisitEnabled
-                    : draft.pricing.inClinicEnabled
-                const lastCategory = categoryOn && !otherOn
-                return (
-                  <Card
-                    key={kind}
-                    title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
-                    action={
-                      <OnOffSwitch
-                        checked={categoryOn}
-                        disabled={lastCategory}
-                        showLabel={false}
-                        ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
-                        onChange={(enabled) => {
-                          if (!enabled && lastCategory) return
-                          setDraft({
-                            ...draft,
-                            pricing: { ...draft.pricing, [enabledKey]: enabled },
-                          })
-                        }}
-                      />
-                    }
-                  />
-                )
-              })}
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold tracking-wide text-[var(--text-dark)]">
+                Booking channels
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                  const enabledKey = categoryEnabledKind(kind)
+                  const categoryOn = draft.pricing[enabledKey]
+                  const otherOn =
+                    kind === 'inClinic'
+                      ? draft.pricing.homeVisitEnabled
+                      : draft.pricing.inClinicEnabled
+                  const lastCategory = categoryOn && !otherOn
+                  return (
+                    <Card
+                      key={kind}
+                      title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                      action={
+                        <OnOffSwitch
+                          checked={categoryOn}
+                          disabled={lastCategory}
+                          ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
+                          onChange={(enabled) => {
+                            if (!enabled && lastCategory) return
+                            setDraft({
+                              ...draft,
+                              pricing: { ...draft.pricing, [enabledKey]: enabled },
+                            })
+                          }}
+                        />
+                      }
+                    />
+                  )
+                })}
+              </div>
             </div>
             <div className="space-y-4">
               {PRICE_ROWS.map(([key, label]) => {
                 const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
                 const isBookable = isBookablePriceKey(key)
+                const itemOn =
+                  draft.pricing.inClinicItems[key] || draft.pricing.homeVisitItems[key]
+                const lastBookable =
+                  isBookable &&
+                  ((draft.pricing.inClinicEnabled &&
+                    draft.pricing.inClinicItems[key] &&
+                    bookableOnCount(draft.pricing, 'inClinic') <= 1) ||
+                    (draft.pricing.homeVisitEnabled &&
+                      draft.pricing.homeVisitItems[key] &&
+                      bookableOnCount(draft.pricing, 'homeVisit') <= 1))
                 const patchCopy = (patch: Partial<ServiceCopyItem>) =>
                   setDraft({
                     ...draft,
@@ -1195,44 +1215,23 @@ export function PortalApp() {
                     className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
                   >
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-sm font-medium">{label}</p>
-                      <div className="flex flex-wrap items-center gap-4">
-                        {(['inClinic', 'homeVisit'] as const).map((kind) => {
-                          const itemsKey = itemsKind(kind)
-                          const enabledKey = categoryEnabledKind(kind)
-                          const categoryOn = draft.pricing[enabledKey]
-                          const itemOn = draft.pricing[itemsKey][key]
-                          const lastBookable =
-                            categoryOn &&
-                            isBookable &&
-                            itemOn &&
-                            bookableOnCount(draft.pricing, kind) <= 1
-                          return (
-                            <label
-                              key={kind}
-                              className="flex items-center gap-2 text-xs text-[var(--text-dark)]/60"
-                            >
-                              {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
-                              <OnOffSwitch
-                                checked={itemOn}
-                                disabled={lastBookable || !categoryOn}
-                                showLabel={false}
-                                ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
-                                onChange={(enabled) => {
-                                  if (!enabled && lastBookable) return
-                                  setDraft({
-                                    ...draft,
-                                    pricing: {
-                                      ...draft.pricing,
-                                      [itemsKey]: { ...draft.pricing[itemsKey], [key]: enabled },
-                                    },
-                                  })
-                                }}
-                              />
-                            </label>
-                          )
-                        })}
-                      </div>
+                      <p className="text-base font-semibold text-[var(--text-dark)]">{label}</p>
+                      <OnOffSwitch
+                        checked={itemOn}
+                        disabled={lastBookable}
+                        ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
+                        onChange={(enabled) => {
+                          if (!enabled && lastBookable) return
+                          setDraft({
+                            ...draft,
+                            pricing: {
+                              ...draft.pricing,
+                              inClinicItems: { ...draft.pricing.inClinicItems, [key]: enabled },
+                              homeVisitItems: { ...draft.pricing.homeVisitItems, [key]: enabled },
+                            },
+                          })
+                        }}
+                      />
                     </div>
                     <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
                       Name
@@ -1252,30 +1251,18 @@ export function PortalApp() {
                       />
                     </label>
                     {isBookable ? (
-                      <label className="mb-3 block w-36 text-xs font-medium text-[var(--text-dark)]/60">
-                        Duration
-                        <input
-                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                          type="number"
-                          min={15}
-                          max={180}
-                          step={15}
-                          value={copy.durationMinutes || ''}
-                          onChange={(e) => {
-                            const durationMinutes = Number(e.target.value) || 0
-                            patchCopy({
-                              durationMinutes,
-                              duration:
-                                key === 'package5' || key === 'package10'
-                                  ? copy.duration.trim() || 'Multiple visits'
-                                  : durationPhrase(durationMinutes),
-                            })
-                          }}
-                        />
-                        <span className="mt-1 block text-xs font-normal text-[var(--text-dark)]/45">
-                          {durationPhrase(copy.durationMinutes || 0)}
-                        </span>
-                      </label>
+                      <DurationMinutesField
+                        value={copy.durationMinutes || 0}
+                        onChange={(durationMinutes) =>
+                          patchCopy({
+                            durationMinutes,
+                            duration:
+                              key === 'package5' || key === 'package10'
+                                ? copy.duration.trim() || 'Multiple visits'
+                                : durationPhrase(durationMinutes),
+                          })
+                        }
+                      />
                     ) : null}
                     <div className="grid gap-3 sm:grid-cols-2">
                       {(['inClinic', 'homeVisit'] as const).map((kind) => {
@@ -1294,9 +1281,10 @@ export function PortalApp() {
                             <p className="mb-2 text-xs font-medium text-[var(--text-dark)]/60">
                               {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
                             </p>
-                            <div className="flex flex-wrap items-end gap-2">
+                            <div className="space-y-2">
                               <CompactEuroField
                                 label="Original"
+                                emphasis="muted"
                                 value={original}
                                 onChange={(next) =>
                                   setDraft({
@@ -1310,8 +1298,8 @@ export function PortalApp() {
                               />
                               <CompactEuroField
                                 label={key === 'moxibustion' ? 'Price' : 'Discounted'}
+                                emphasis="strong"
                                 value={discounted}
-                                hint={off ? `· ${off}` : undefined}
                                 onChange={(next) =>
                                   setDraft({
                                     ...draft,
@@ -1322,6 +1310,9 @@ export function PortalApp() {
                                   })
                                 }
                               />
+                              {off ? (
+                                <p className="text-xs text-primary">{off}</p>
+                              ) : null}
                             </div>
                           </div>
                         )
@@ -1388,18 +1379,22 @@ export function PortalApp() {
                             <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
                               {extra.kind === 'package' ? 'Package' : 'Add-on'}
                             </p>
-                            <div className="flex flex-wrap items-end gap-2">
+                            <div className="space-y-2">
                               <CompactEuroField
                                 label="Original"
+                                emphasis="muted"
                                 value={extra.original}
                                 onChange={(next) => patchExtra(extra.id, { original: next })}
                               />
                               <CompactEuroField
                                 label="Discounted"
+                                emphasis="strong"
                                 value={extra.price}
-                                hint={off ? `· ${off}` : undefined}
                                 onChange={(next) => patchExtra(extra.id, { price: next })}
                               />
+                              {off ? (
+                                <p className="text-xs text-primary">{off}</p>
+                              ) : null}
                             </div>
                             <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
                               Description
