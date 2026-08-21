@@ -203,7 +203,7 @@ function RemoveCardButton({
   return (
     <button
       type="button"
-      className="rounded-full bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
+      className="inline-flex shrink-0 text-sm font-medium text-red-600 underline underline-offset-2 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:no-underline"
       aria-label={`Remove ${label}`}
       disabled={disabled}
       onClick={onClick}
@@ -259,16 +259,16 @@ function UnifiedExtrasEditor({
             key={extra.id}
             className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <p className="text-base font-semibold text-[var(--text-dark)]">
+            <div className="mb-3 flex flex-nowrap items-center justify-between gap-2 sm:gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <p className="min-w-0 text-base font-semibold text-[var(--text-dark)]">
                   {heading}
                 </p>
-                <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
+                <span className="shrink-0 rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
                   {extraKindLabel(extra.kind)}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex shrink-0 flex-nowrap items-center gap-2 sm:gap-3">
                 <OnOffSwitch
                   checked={extra.enabled}
                   disabled={lastBookable}
@@ -1474,14 +1474,14 @@ export function PortalApp() {
                     key={key}
                     className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
                   >
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex min-w-0 flex-wrap items-center gap-2">
-                        <p className="text-base font-semibold text-[var(--text-dark)]">{label}</p>
-                        <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
+                    <div className="mb-3 flex flex-nowrap items-center justify-between gap-2 sm:gap-3">
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <p className="min-w-0 text-base font-semibold text-[var(--text-dark)]">{label}</p>
+                        <span className="shrink-0 rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
                           {priceRowKindLabel(key)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex shrink-0 flex-nowrap items-center gap-2 sm:gap-3">
                         <OnOffSwitch
                           checked={itemOn}
                           disabled={lastBookable}
@@ -1632,9 +1632,9 @@ export function PortalApp() {
                       key={insurer.id}
                       className="space-y-2 rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
                     >
-                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <div className="flex flex-nowrap items-center gap-2 text-sm">
                         <input
-                          className="min-w-[10rem] flex-1 rounded-md border border-black/10 px-2 py-1.5"
+                          className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1.5"
                           value={insurer.name}
                           onChange={(e) => {
                             const insurers = [...draft.insurers]
@@ -1642,28 +1642,30 @@ export function PortalApp() {
                             setDraft({ ...draft, insurers })
                           }}
                         />
-                        <OnOffSwitch
-                          checked={insurer.enabled}
-                          disabled={lastEnabled}
-                          ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
-                          onChange={(enabled) => {
-                            if (!enabled && lastEnabled) return
-                            const insurers = [...draft.insurers]
-                            insurers[index] = { ...insurer, enabled }
-                            setDraft({ ...draft, insurers })
-                          }}
-                        />
-                        <RemoveCardButton
-                          label={insurer.name || 'insurer'}
-                          disabled={lastRow}
-                          onClick={() => {
-                            if (lastRow) return
-                            setDraft({
-                              ...draft,
-                              insurers: draft.insurers.filter((row) => row.id !== insurer.id),
-                            })
-                          }}
-                        />
+                        <div className="flex shrink-0 flex-nowrap items-center gap-2">
+                          <OnOffSwitch
+                            checked={insurer.enabled}
+                            disabled={lastEnabled}
+                            ariaLabel={`${insurer.enabled ? 'Disable' : 'Enable'} ${insurer.name || 'insurer'}`}
+                            onChange={(enabled) => {
+                              if (!enabled && lastEnabled) return
+                              const insurers = [...draft.insurers]
+                              insurers[index] = { ...insurer, enabled }
+                              setDraft({ ...draft, insurers })
+                            }}
+                          />
+                          <RemoveCardButton
+                            label={insurer.name || 'insurer'}
+                            disabled={lastRow}
+                            onClick={() => {
+                              if (lastRow) return
+                              setDraft({
+                                ...draft,
+                                insurers: draft.insurers.filter((row) => row.id !== insurer.id),
+                              })
+                            }}
+                          />
+                        </div>
                       </div>
                       <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                         Website
