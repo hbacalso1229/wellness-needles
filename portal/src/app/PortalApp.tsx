@@ -47,6 +47,7 @@ import {
   ReviewStatusTabs,
   UnsavedBar,
   discountPercentLabel,
+  durationPhrase,
   formatYmdDisplay,
   snapshotsEqual,
   type ReviewStatusTab,
@@ -314,6 +315,8 @@ export function PortalApp() {
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState<SiteSnapshot>(SITE_DEFAULTS)
   const [baseline, setBaseline] = useState<SiteSnapshot>(SITE_DEFAULTS)
+  const [published, setPublished] = useState<SiteSnapshot>(SITE_DEFAULTS)
+  const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishSuccess, setPublishSuccess] = useState(false)
   const [bookings, setBookings] = useState<BookingRow[]>([])
@@ -355,13 +358,15 @@ export function PortalApp() {
     try {
       const me = await api<{ email: string }>('/api/admin/me')
       setEmail(me.email)
-      const site = await api<SiteSnapshot>('/api/admin/site')
-      const parsed = parseSiteSnapshot(site)
-      if (parsed) {
-        setDraft(parsed)
-        setBaseline(parsed)
-        setPhoneCountryId(inferPhoneCountry(parsed.phone).id)
+      const site = await api<{ draft?: unknown; published?: unknown }>('/api/admin/site')
+      const parsedDraft = parseSiteSnapshot(site.draft ?? site)
+      const parsedPublished = parseSiteSnapshot(site.published) ?? parsedDraft
+      if (parsedDraft) {
+        setDraft(parsedDraft)
+        setBaseline(parsedDraft)
+        setPhoneCountryId(inferPhoneCountry(parsedDraft.phone).id)
       }
+      if (parsedPublished) setPublished(parsedPublished)
       const inbox = await api<{ bookings: BookingRow[] }>('/api/admin/bookings?status=pending')
       setBookings(inbox.bookings || [])
       const confirmed = await api<{ bookings: BookingRow[] }>(
@@ -396,6 +401,10 @@ export function PortalApp() {
   }, [load])
 
   const dirty = useMemo(() => snapshotsEqual(draft, baseline) === false, [draft, baseline])
+  const unpublished = useMemo(
+    () => snapshotsEqual(baseline, published) === false,
+    [baseline, published]
+  )
   const reviewCounts = useMemo(
     () => ({
       pending: reviews.filter((row) => reviewBucket(row.status) === 'pending').length,
@@ -448,6 +457,7 @@ export function PortalApp() {
         body: JSON.stringify(draft),
       })
       setBaseline(draft)
+      setPublished(draft)
       setPublishSuccess(true)
       window.setTimeout(() => setPublishSuccess(false), 6000)
       await load()
@@ -462,6 +472,24 @@ export function PortalApp() {
     setDraft(baseline)
     setPhoneCountryId(inferPhoneCountry(baseline.phone).id)
     setPublishSuccess(false)
+  }
+
+  const saveDraft = async () => {
+    setSaving(true)
+    try {
+      await api('/api/admin/site?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      })
+      setBaseline(draft)
+      setPublishSuccess(false)
+      show('Draft saved')
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Could not save draft')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const postReview = async (
@@ -549,6 +577,32 @@ export function PortalApp() {
   const logout = () => {
     window.location.href = '/cdn-cgi/access/logout'
   }
+
+  const unsavedBar = (
+    <UnsavedBar
+      dirty={dirty}
+      unpublished={unpublished}
+      saving={saving}
+      publishing={publishing}
+      success={publishSuccess}
+      overlayEnabled={draft.websiteOverlayEnabled}
+      lastPublishedAt={lastPublish?.at ?? null}
+      lastPublishedBy={lastPublish?.by ?? null}
+      unsavedDetail={
+        tab === 'pricing'
+          ? 'Your booking page still shows the previous prices.'
+          : 'The live website still shows the last published version.'
+      }
+      unpublishedDetail={
+        tab === 'pricing'
+          ? 'Publish to update prices on your booking page.'
+          : 'Publish to update the live website.'
+      }
+      onDiscard={discard}
+      onSaveDraft={() => void saveDraft()}
+      onPublish={() => void publish()}
+    />
+  )
 
   return (
     <div className="min-h-screen">
@@ -1089,9 +1143,6 @@ export function PortalApp() {
             />
             <div className="grid gap-4 sm:grid-cols-2">
               {(['inClinic', 'homeVisit'] as const).map((kind) => {
-                const origKey = originalKind(kind)
-                const extrasKey = extrasKind(kind)
-                const itemsKey = itemsKind(kind)
                 const enabledKey = categoryEnabledKind(kind)
                 const categoryOn = draft.pricing[enabledKey]
                 const otherOn =
@@ -1099,6 +1150,192 @@ export function PortalApp() {
                     ? draft.pricing.homeVisitEnabled
                     : draft.pricing.inClinicEnabled
                 const lastCategory = categoryOn && !otherOn
+                return (
+                  <Card
+                    key={kind}
+                    title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                    action={
+                      <OnOffSwitch
+                        checked={categoryOn}
+                        disabled={lastCategory}
+                        showLabel={false}
+                        ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
+                        onChange={(enabled) => {
+                          if (!enabled && lastCategory) return
+                          setDraft({
+                            ...draft,
+                            pricing: { ...draft.pricing, [enabledKey]: enabled },
+                          })
+                        }}
+                      />
+                    }
+                  />
+                )
+              })}
+            </div>
+            <div className="space-y-4">
+              {PRICE_ROWS.map(([key, label]) => {
+                const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
+                const isBookable = isBookablePriceKey(key)
+                const patchCopy = (patch: Partial<ServiceCopyItem>) =>
+                  setDraft({
+                    ...draft,
+                    pricing: {
+                      ...draft.pricing,
+                      serviceCopy: {
+                        ...DEFAULT_SERVICE_COPY,
+                        ...draft.pricing.serviceCopy,
+                        [key]: { ...copy, ...patch },
+                      },
+                    },
+                  })
+                return (
+                  <div
+                    key={key}
+                    className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                  >
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm font-medium">{label}</p>
+                      <div className="flex flex-wrap items-center gap-4">
+                        {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                          const itemsKey = itemsKind(kind)
+                          const enabledKey = categoryEnabledKind(kind)
+                          const categoryOn = draft.pricing[enabledKey]
+                          const itemOn = draft.pricing[itemsKey][key]
+                          const lastBookable =
+                            categoryOn &&
+                            isBookable &&
+                            itemOn &&
+                            bookableOnCount(draft.pricing, kind) <= 1
+                          return (
+                            <label
+                              key={kind}
+                              className="flex items-center gap-2 text-xs text-[var(--text-dark)]/60"
+                            >
+                              {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                              <OnOffSwitch
+                                checked={itemOn}
+                                disabled={lastBookable || !categoryOn}
+                                showLabel={false}
+                                ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
+                                onChange={(enabled) => {
+                                  if (!enabled && lastBookable) return
+                                  setDraft({
+                                    ...draft,
+                                    pricing: {
+                                      ...draft.pricing,
+                                      [itemsKey]: { ...draft.pricing[itemsKey], [key]: enabled },
+                                    },
+                                  })
+                                }}
+                              />
+                            </label>
+                          )
+                        })}
+                      </div>
+                    </div>
+                    <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                      Name
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                        value={copy.name}
+                        onChange={(e) => patchCopy({ name: e.target.value })}
+                      />
+                    </label>
+                    <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                      Description
+                      <textarea
+                        rows={3}
+                        className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                        value={copy.description}
+                        onChange={(e) => patchCopy({ description: e.target.value })}
+                      />
+                    </label>
+                    {isBookable ? (
+                      <label className="mb-3 block w-36 text-xs font-medium text-[var(--text-dark)]/60">
+                        Duration
+                        <input
+                          className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                          type="number"
+                          min={15}
+                          max={180}
+                          step={15}
+                          value={copy.durationMinutes || ''}
+                          onChange={(e) => {
+                            const durationMinutes = Number(e.target.value) || 0
+                            patchCopy({
+                              durationMinutes,
+                              duration:
+                                key === 'package5' || key === 'package10'
+                                  ? copy.duration.trim() || 'Multiple visits'
+                                  : durationPhrase(durationMinutes),
+                            })
+                          }}
+                        />
+                        <span className="mt-1 block text-xs font-normal text-[var(--text-dark)]/45">
+                          {durationPhrase(copy.durationMinutes || 0)}
+                        </span>
+                      </label>
+                    ) : null}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                        const origKey = originalKind(kind)
+                        const original = draft.pricing[origKey][key]
+                        const discounted = draft.pricing[kind][key]
+                        const off = discountPercentLabel(original, discounted)
+                        const categoryOn = draft.pricing[categoryEnabledKind(kind)]
+                        return (
+                          <div
+                            key={kind}
+                            className={`rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3 ${
+                              categoryOn ? '' : 'opacity-50'
+                            }`}
+                          >
+                            <p className="mb-2 text-xs font-medium text-[var(--text-dark)]/60">
+                              {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
+                            </p>
+                            <div className="flex flex-wrap items-end gap-2">
+                              <CompactEuroField
+                                label="Original"
+                                value={original}
+                                onChange={(next) =>
+                                  setDraft({
+                                    ...draft,
+                                    pricing: {
+                                      ...draft.pricing,
+                                      [origKey]: { ...draft.pricing[origKey], [key]: next },
+                                    },
+                                  })
+                                }
+                              />
+                              <CompactEuroField
+                                label={key === 'moxibustion' ? 'Price' : 'Discounted'}
+                                value={discounted}
+                                hint={off ? `· ${off}` : undefined}
+                                onChange={(next) =>
+                                  setDraft({
+                                    ...draft,
+                                    pricing: {
+                                      ...draft.pricing,
+                                      [kind]: { ...draft.pricing[kind], [key]: next },
+                                    },
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(['inClinic', 'homeVisit'] as const).map((kind) => {
+                const extrasKey = extrasKind(kind)
+                const enabledKey = categoryEnabledKind(kind)
+                const categoryOn = draft.pricing[enabledKey]
                 const extras = draft.pricing[extrasKey]
                 const packageExtras = extras.filter((row) => row.kind === 'package')
                 const addonExtras = extras.filter((row) => row.kind === 'addon')
@@ -1111,243 +1348,97 @@ export function PortalApp() {
                 const patchExtra = (id: string, patch: Partial<PricingExtra>) =>
                   patchExtras(extras.map((row) => (row.id === id ? { ...row, ...patch } : row)))
                 return (
-                <Card
-                  key={kind}
-                  title={kind === 'inClinic' ? 'In clinic' : 'Home visit'}
-                  action={
-                    <OnOffSwitch
-                      checked={categoryOn}
-                      disabled={lastCategory}
-                      ariaLabel={`${categoryOn ? 'Disable' : 'Enable'} ${kind === 'inClinic' ? 'in clinic' : 'home visit'}`}
-                      onChange={(enabled) => {
-                        if (!enabled && lastCategory) return
-                        setDraft({
-                          ...draft,
-                          pricing: { ...draft.pricing, [enabledKey]: enabled },
-                        })
-                      }}
-                    />
-                  }
-                >
-                  <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
-                    {PRICE_ROWS.map(([key, label]) => {
-                      const original = draft.pricing[origKey][key]
-                      const discounted = draft.pricing[kind][key]
-                      const off = discountPercentLabel(original, discounted)
-                      const itemOn = draft.pricing[itemsKey][key]
-                      const isBookable = isBookablePriceKey(key)
-                      const lastBookable = categoryOn && isBookable && itemOn && bookable <= 1
-                      const copy = draft.pricing.serviceCopy?.[key] ?? DEFAULT_SERVICE_COPY[key]
-                      const patchCopy = (patch: Partial<ServiceCopyItem>) =>
-                        setDraft({
-                          ...draft,
-                          pricing: {
-                            ...draft.pricing,
-                            serviceCopy: {
-                              ...DEFAULT_SERVICE_COPY,
-                              ...draft.pricing.serviceCopy,
-                              [key]: { ...copy, ...patch },
-                            },
-                          },
-                        })
-                      return (
-                        <div
-                          key={key}
-                          className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
-                        >
-                          <div className="mb-2 flex items-center justify-between gap-2">
-                            <p className="text-sm font-medium">{label}</p>
-                            <OnOffSwitch
-                              checked={itemOn}
-                              disabled={lastBookable}
-                              ariaLabel={`${itemOn ? 'Disable' : 'Enable'} ${label}`}
-                              onChange={(enabled) => {
-                                if (!enabled && lastBookable) return
-                                setDraft({
-                                  ...draft,
-                                  pricing: {
-                                    ...draft.pricing,
-                                    [itemsKey]: { ...draft.pricing[itemsKey], [key]: enabled },
-                                  },
-                                })
-                              }}
-                            />
-                          </div>
-                          <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
-                            Name
-                            <input
-                              className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                              value={copy.name}
-                              onChange={(e) => patchCopy({ name: e.target.value })}
-                            />
-                          </label>
-                          <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
-                            Description
-                            <textarea
-                              rows={3}
-                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                              value={copy.description}
-                              onChange={(e) => patchCopy({ description: e.target.value })}
-                            />
-                          </label>
-                          {isBookable ? (
-                            <div className="mb-2 flex flex-wrap items-end gap-2">
-                              <label className="block min-w-0 flex-1 text-xs font-medium text-[var(--text-dark)]/60">
-                                Duration
-                                <input
-                                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                                  value={copy.duration}
-                                  onChange={(e) => patchCopy({ duration: e.target.value })}
-                                />
-                              </label>
-                              <label className="block w-28 text-xs font-medium text-[var(--text-dark)]/60">
-                                Minutes
-                                <input
-                                  className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                                  type="number"
-                                  min={15}
-                                  max={180}
-                                  step={15}
-                                  value={copy.durationMinutes || ''}
-                                  onChange={(e) =>
-                                    patchCopy({
-                                      durationMinutes: Number(e.target.value) || 0,
-                                    })
-                                  }
-                                />
-                              </label>
+                  <Card
+                    key={kind}
+                    title={kind === 'inClinic' ? 'In clinic extras' : 'Home visit extras'}
+                  >
+                    <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
+                      {[...packageExtras, ...addonExtras].map((extra) => {
+                        const off = discountPercentLabel(extra.original, extra.price)
+                        const lastBookable =
+                          categoryOn &&
+                          extra.kind === 'package' &&
+                          extra.enabled &&
+                          bookable <= 1
+                        return (
+                          <div
+                            key={extra.id}
+                            className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
+                          >
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                              <input
+                                className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
+                                value={extra.name}
+                                aria-label={
+                                  extra.kind === 'package' ? 'Package name' : 'Add-on name'
+                                }
+                                onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
+                              />
+                              <OnOffSwitch
+                                checked={extra.enabled}
+                                disabled={lastBookable}
+                                showLabel={false}
+                                ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
+                                onChange={(enabled) => {
+                                  if (!enabled && lastBookable) return
+                                  patchExtra(extra.id, { enabled })
+                                }}
+                              />
                             </div>
-                          ) : null}
-                          <div className="flex flex-wrap items-end gap-2">
-                            <CompactEuroField
-                              label="Original"
-                              value={original}
-                              onChange={(next) =>
-                                setDraft({
-                                  ...draft,
-                                  pricing: {
-                                    ...draft.pricing,
-                                    [origKey]: { ...draft.pricing[origKey], [key]: next },
-                                  },
-                                })
-                              }
-                            />
-                            <CompactEuroField
-                              label={key === 'moxibustion' ? 'Price' : 'Discounted'}
-                              value={discounted}
-                              onChange={(next) =>
-                                setDraft({
-                                  ...draft,
-                                  pricing: {
-                                    ...draft.pricing,
-                                    [kind]: { ...draft.pricing[kind], [key]: next },
-                                  },
-                                })
-                              }
-                            />
-                            {off ? (
-                              <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
-                                {off}
-                              </span>
-                            ) : null}
+                            <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
+                              {extra.kind === 'package' ? 'Package' : 'Add-on'}
+                            </p>
+                            <div className="flex flex-wrap items-end gap-2">
+                              <CompactEuroField
+                                label="Original"
+                                value={extra.original}
+                                onChange={(next) => patchExtra(extra.id, { original: next })}
+                              />
+                              <CompactEuroField
+                                label="Discounted"
+                                value={extra.price}
+                                hint={off ? `· ${off}` : undefined}
+                                onChange={(next) => patchExtra(extra.id, { price: next })}
+                              />
+                            </div>
+                            <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                              Description
+                              <textarea
+                                rows={3}
+                                className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
+                                value={extra.description}
+                                onChange={(e) =>
+                                  patchExtra(extra.id, { description: e.target.value })
+                                }
+                              />
+                            </label>
                           </div>
-                        </div>
-                      )
-                    })}
-                    {[...packageExtras, ...addonExtras].map((extra) => {
-                      const off = discountPercentLabel(extra.original, extra.price)
-                      const lastBookable =
-                        categoryOn &&
-                        extra.kind === 'package' &&
-                        extra.enabled &&
-                        bookable <= 1
-                      return (
-                        <div
-                          key={extra.id}
-                          className="rounded-md border border-black/[0.06] bg-[#faf9f6] px-3 py-3"
+                        )
+                      })}
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                          onClick={() =>
+                            patchExtras([...extras, createPricingExtra('package')])
+                          }
                         >
-                          <div className="mb-2 flex items-center justify-between gap-2">
-                            <input
-                              className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
-                              value={extra.name}
-                              aria-label={extra.kind === 'package' ? 'Package name' : 'Add-on name'}
-                              onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
-                            />
-                            <OnOffSwitch
-                              checked={extra.enabled}
-                              disabled={lastBookable}
-                              ariaLabel={`${extra.enabled ? 'Disable' : 'Enable'} ${extra.name || extra.kind}`}
-                              onChange={(enabled) => {
-                                if (!enabled && lastBookable) return
-                                patchExtra(extra.id, { enabled })
-                              }}
-                            />
-                          </div>
-                          <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
-                            {extra.kind === 'package' ? 'Package' : 'Add-on'}
-                          </p>
-                          <div className="flex flex-wrap items-end gap-2">
-                            <CompactEuroField
-                              label="Original"
-                              value={extra.original}
-                              onChange={(next) => patchExtra(extra.id, { original: next })}
-                            />
-                            <CompactEuroField
-                              label="Discounted"
-                              value={extra.price}
-                              onChange={(next) => patchExtra(extra.id, { price: next })}
-                            />
-                            {off ? (
-                              <span className="mb-1.5 shrink-0 text-xs font-medium text-secondary">
-                                {off}
-                              </span>
-                            ) : null}
-                          </div>
-                          <label className="mt-2 block text-xs font-medium text-[var(--text-dark)]/60">
-                            Description
-                            <textarea
-                              rows={3}
-                              className="mt-1 w-full min-h-[4.5rem] resize-y rounded-md border border-black/10 px-2 py-1.5 text-sm font-normal"
-                              value={extra.description}
-                              onChange={(e) =>
-                                patchExtra(extra.id, { description: e.target.value })
-                              }
-                            />
-                          </label>
-                        </div>
-                      )
-                    })}
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <button
-                        type="button"
-                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                        onClick={() => patchExtras([...extras, createPricingExtra('package')])}
-                      >
-                        Add package
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
-                        onClick={() => patchExtras([...extras, createPricingExtra('addon')])}
-                      >
-                        Add add-on
-                      </button>
+                          Add package
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                          onClick={() => patchExtras([...extras, createPricingExtra('addon')])}
+                        >
+                          Add add-on
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
                 )
               })}
             </div>
-            <UnsavedBar
-              dirty={dirty}
-              publishing={publishing}
-              success={publishSuccess}
-              overlayEnabled={draft.websiteOverlayEnabled}
-              lastPublishedAt={lastPublish?.at ?? null}
-              lastPublishedBy={lastPublish?.by ?? null}
-              onDiscard={discard}
-              onPublish={() => void publish()}
-            />
+            {unsavedBar}
           </section>
         )}
 
@@ -1719,16 +1810,7 @@ export function PortalApp() {
                 }
               />
             </Card>
-            <UnsavedBar
-              dirty={dirty}
-              publishing={publishing}
-              success={publishSuccess}
-              overlayEnabled={draft.websiteOverlayEnabled}
-              lastPublishedAt={lastPublish?.at ?? null}
-              lastPublishedBy={lastPublish?.by ?? null}
-              onDiscard={discard}
-              onPublish={() => void publish()}
-            />
+            {unsavedBar}
           </section>
         )}
 
@@ -1936,16 +2018,7 @@ export function PortalApp() {
                 </div>
               </div>
             </Card>
-            <UnsavedBar
-              dirty={dirty}
-              publishing={publishing}
-              success={publishSuccess}
-              overlayEnabled={draft.websiteOverlayEnabled}
-              lastPublishedAt={lastPublish?.at ?? null}
-              lastPublishedBy={lastPublish?.by ?? null}
-              onDiscard={discard}
-              onPublish={() => void publish()}
-            />
+            {unsavedBar}
           </section>
         )}
 
