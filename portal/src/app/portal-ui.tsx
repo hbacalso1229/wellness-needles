@@ -790,12 +790,16 @@ export function ReviewCard({
               </label>
               <label className="block text-xs font-medium text-[var(--text-dark)]/60">
                 Phrase to highlight
-                <input
-                  className={`mt-1 w-full rounded-md border px-2 py-1.5 text-sm ${
+                <textarea
+                  className={`mt-1 w-full resize-y rounded-md border px-2 py-1.5 text-sm ${
                     phraseError ? 'border-red-400' : 'border-black/10'
                   }`}
+                  rows={3}
                   value={emphasisValue}
-                  onChange={(e) => onEmphasisChange(e.target.value)}
+                  onChange={(e) => onEmphasisChange(e.target.value.replace(/\r?\n/g, ' '))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.preventDefault()
+                  }}
                   aria-invalid={Boolean(phraseError) || undefined}
                 />
               </label>
