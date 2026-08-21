@@ -114,7 +114,7 @@ Patient SMS, when on, is sent with the patient email **before** D1 is updated. C
 7. **Cancel.** Pending: “we could not confirm this request” (plain text, no ICS). Already confirmed: “appointment cancelled” plus `METHOD:CANCEL` with the same UID and `SEQUENCE = ics_sequence + 1` (still 1 if never rescheduled). The row then appears on Appointments → **Cancelled** (name, contact, slot; no actions).
 8. **Day-before reminder.** Worker `wellness-needles-reminders` (`*/15`) emails confirmed rows where `remind_at <= now` and `reminder_email_sent = 0`. Same HTML card as Confirm (status “Your appointment is tomorrow”, title “See you tomorrow, {first}!”); Google Calendar link only (no second ICS). There is no same-day reminder.
 
-**SMS (optional, steps 5–8).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/reschedule/cancel) and **Worker** (reminder). Same words as email (first 160 characters). SMS failure does not block email. www has no Twilio.
+**SMS (optional, steps 5–8).** Twilio only if Patient SMS is published on, the patient opted in, and Twilio secrets are on **portal** (confirm/reschedule/cancel) and **Worker** (reminder). Short texts (first 160 characters), date without year: Confirm `Confirmed: {date} at {time} in {location}. Call {phone}`; combined `Confirmed — see you {date} at {time} in {location}. Call {phone}`; reschedule `Updated: {date} at {time} in {location}. Call {phone}`; reminder `Just a reminder: your appointment is {date} at {time} in {location}. See you then!`. SMS failure does not block email. www has no Twilio.
 
 **Gates.** Overlay off: Turnstile + clinic email + thank-you still run; **no** D1 persist, **no** portal card. Patient SMS off: checkbox hidden; confirm/reschedule/cancel/reminder stay email-only.
 
@@ -149,7 +149,7 @@ After owner **Confirm** (exact Europe/Dublin start):
 
 Example: confirmed Wednesday 14:00 Dublin → confirmation now; reminder Tuesday from 09:00.
 
-SMS is a short labeled text (first 160 characters), not the HTML card. Failure must not block email. ICS failure must not block email. E2E never sends live email/SMS (`NEXT_PUBLIC_E2E`).
+SMS is a short labeled text (first 160 characters), not the HTML card. Confirm / combined / reschedule / reminder templates are listed above. Failure must not block email. ICS failure must not block email. E2E never sends live email/SMS (`NEXT_PUBLIC_E2E`).
 
 Confirm / reminder HTML is the branded appointment card (same tokens as `/api/booking-thank-you`). Thank-you copy and layout are unchanged aside from sharing those helpers.
 
