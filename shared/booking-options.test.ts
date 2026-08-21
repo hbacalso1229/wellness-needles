@@ -72,4 +72,49 @@ describe('booking options', () => {
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Phone'), false)
     assert.equal(isAllowedServiceType(SITE_DEFAULTS, 'Phone', 'Phone'), true)
   })
+
+  it('lists extra services and packages but not add-ons', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        inClinicExtras: [
+          {
+            id: 'extra-svc',
+            kind: 'service' as const,
+            name: 'Fertility treatment',
+            price: '€90',
+            original: '',
+            description: '',
+            enabled: true,
+            durationMinutes: 75,
+          },
+          {
+            id: 'extra-pkg',
+            kind: 'package' as const,
+            name: 'Wellness bundle',
+            price: '€200',
+            original: '',
+            description: '',
+            enabled: true,
+            durationMinutes: 45,
+          },
+          {
+            id: 'extra-add',
+            kind: 'addon' as const,
+            name: 'Heat lamp',
+            price: '€10',
+            original: '',
+            description: '',
+            enabled: true,
+            durationMinutes: 0,
+          },
+        ],
+      },
+    }
+    const labels = publishedServiceLabels(site, 'In Clinic')
+    assert.ok(labels.includes('Fertility treatment'))
+    assert.ok(labels.includes('Wellness bundle'))
+    assert.equal(labels.some((item) => /heat lamp/i.test(item)), false)
+  })
 })

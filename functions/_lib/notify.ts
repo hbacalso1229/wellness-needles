@@ -607,6 +607,20 @@ export function bookingDurationMinutes(
         return copy.durationMinutes
       }
     }
+    const extras = [
+      ...(site.pricing.inClinicExtras ?? []),
+      ...(site.pricing.homeVisitExtras ?? []),
+    ]
+    for (const extra of extras) {
+      if (
+        extra.enabled &&
+        extra.kind !== 'addon' &&
+        extra.name.trim().toLowerCase() === label.toLowerCase() &&
+        extra.durationMinutes > 0
+      ) {
+        return extra.durationMinutes
+      }
+    }
   }
   const lower = label.toLowerCase()
   if (lower.includes('initial')) return 75

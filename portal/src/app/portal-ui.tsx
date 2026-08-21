@@ -280,11 +280,11 @@ export function DurationMinutesField({
   onChange: (minutes: number) => void
 }) {
   return (
-    <label className="mb-3 block w-36 text-xs font-medium text-[var(--text-dark)]/60">
+    <label className="mb-3 block text-xs font-medium text-[var(--text-dark)]/60">
       Duration
-      <span className="mt-1 flex rounded-md border border-black/10 bg-white">
+      <span className="mt-1 flex items-center gap-2">
         <input
-          className="min-w-0 flex-1 rounded-l-md border-0 px-2 py-1.5 text-sm outline-none"
+          className="w-24 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm outline-none"
           type="number"
           min={15}
           max={180}
@@ -293,24 +293,13 @@ export function DurationMinutesField({
           value={value || ''}
           onChange={(e) => onChange(Number(e.target.value) || 0)}
         />
-        <span className="select-none px-2 py-1.5 text-sm text-[var(--text-dark)]/45" aria-hidden>
-          min
-        </span>
+        <span className="shrink-0 text-sm font-normal text-[var(--text-dark)]/45">min</span>
       </span>
     </label>
   )
 }
 
-export function durationPhrase(minutes: number): string {
-  const n = Math.max(0, Math.round(Number(minutes) || 0))
-  if (n < 60) return n === 1 ? '1 minute' : `${n} minutes`
-  const hours = Math.floor(n / 60)
-  const rest = n % 60
-  const hourText = hours === 1 ? '1 hour' : `${hours} hours`
-  if (rest === 0) return hourText
-  const minText = rest === 1 ? '1 minute' : `${rest} minutes`
-  return `${hourText} ${minText}`
-}
+export { durationPhrase } from '../../../shared/site-snapshot'
 
 export function discountPercentLabel(original: string, discounted: string): string | null {
   const orig = Number(priceDigits(original))

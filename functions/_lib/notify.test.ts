@@ -39,6 +39,28 @@ describe('bookingDurationMinutes', () => {
     assert.equal(bookingDurationMinutes('Return visit', site), 50)
     assert.equal(bookingDurationMinutes('Follow-up', site), 45)
   })
+
+  it('uses extra durationMinutes when the service name matches', () => {
+    const site = {
+      ...SITE_DEFAULTS,
+      pricing: {
+        ...SITE_DEFAULTS.pricing,
+        inClinicExtras: [
+          {
+            id: 'extra-svc',
+            kind: 'service' as const,
+            name: 'Fertility treatment',
+            price: '€90',
+            original: '',
+            description: '',
+            enabled: true,
+            durationMinutes: 90,
+          },
+        ],
+      },
+    }
+    assert.equal(bookingDurationMinutes('Fertility treatment', site), 90)
+  })
 })
 
 describe('Dublin slot conversion', () => {

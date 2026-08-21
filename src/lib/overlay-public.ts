@@ -1,6 +1,7 @@
 import {
   DEFAULT_SERVICE_COPY,
   defaultPriceItemFlags,
+  durationPhrase,
   formatHourLabel,
   pricesDiffer,
   type PriceItemKey,
@@ -95,13 +96,16 @@ function applyAddOnPrices(
 }
 
 function extraToService(extra: PricingExtra): BookingCatalogService | null {
-  if (extra.kind !== 'package' || !isFilledExtra(extra)) return null
+  if ((extra.kind !== 'package' && extra.kind !== 'service') || !isFilledExtra(extra)) return null
   const price = extra.price.trim()
   const original = extra.original.trim()
   return {
     id: extra.id,
     name: extra.name.trim(),
-    duration: 'Multiple visits',
+    duration:
+      extra.kind === 'package'
+        ? 'Multiple visits'
+        : durationPhrase(extra.durationMinutes || 60),
     price,
     originalPrice: pricesDiffer(original, price) ? original : undefined,
     description: extra.description.trim() || extra.name.trim(),
