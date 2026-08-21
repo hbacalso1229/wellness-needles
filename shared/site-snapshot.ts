@@ -81,7 +81,7 @@ export type PriceItemKey = keyof PriceList
 
 export type PriceListEnabled = Record<PriceItemKey, boolean>
 
-export type PricingExtraKind = 'package' | 'addon'
+export type PricingExtraKind = 'service' | 'package' | 'addon'
 
 export type PricingExtra = {
   id: string
@@ -91,6 +91,28 @@ export type PricingExtra = {
   original: string
   description: string
   enabled: boolean
+  durationMinutes: number
+}
+
+export function isBookableExtraKind(kind: PricingExtraKind): boolean {
+  return kind === 'service' || kind === 'package'
+}
+
+export function defaultExtraDurationMinutes(kind: PricingExtraKind): number {
+  if (kind === 'service') return 60
+  if (kind === 'package') return 45
+  return 0
+}
+
+export function durationPhrase(minutes: number): string {
+  const n = Math.max(0, Math.round(Number(minutes) || 0))
+  if (n < 60) return n === 1 ? '1 minute' : `${n} minutes`
+  const hours = Math.floor(n / 60)
+  const rest = n % 60
+  const hourText = hours === 1 ? '1 hour' : `${hours} hours`
+  if (rest === 0) return hourText
+  const minText = rest === 1 ? '1 minute' : `${rest} minutes`
+  return `${hourText} ${minText}`
 }
 
 export const PRICE_ITEM_KEYS: readonly PriceItemKey[] = [
@@ -130,11 +152,12 @@ export function createPricingExtra(kind: PricingExtraKind): PricingExtra {
   return {
     id: `extra-${crypto.randomUUID()}`,
     kind,
-    name: kind === 'package' ? 'New package' : 'New add-on',
+    name: kind === 'service' ? 'New service' : kind === 'package' ? 'New package' : 'New add-on',
     price: '',
     original: '',
     description: '',
     enabled: true,
+    durationMinutes: defaultExtraDurationMinutes(kind),
   }
 }
 
@@ -619,9 +642,15 @@ function parsePriceItemFlags(value: unknown, packagesEnabled: boolean): PriceLis
 function parsePricingExtra(value: unknown): PricingExtra | null {
   if (!isRecord(value) || typeof value.id !== 'string' || !value.id.trim()) return null
   const kind: PricingExtraKind | null =
-    value.kind === 'package' || value.kind === 'addon' ? value.kind : null
+    value.kind === 'service' || value.kind === 'package' || value.kind === 'addon'
+      ? value.kind
+      : null
   if (!kind) return null
   const id = value.id.trim()
+  const minutes =
+    typeof value.durationMinutes === 'number' && Number.isFinite(value.durationMinutes)
+      ? value.durationMinutes
+      : defaultExtraDurationMinutes(kind)
   return {
     id: id.startsWith('extra-') ? id : `extra-${id}`,
     kind,
@@ -630,6 +659,7 @@ function parsePricingExtra(value: unknown): PricingExtra | null {
     original: typeof value.original === 'string' ? value.original.trim() : '',
     description: typeof value.description === 'string' ? value.description.trim() : '',
     enabled: asBool(value.enabled, true),
+    durationMinutes: minutes,
   }
 }
 

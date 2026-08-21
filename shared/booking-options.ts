@@ -1,5 +1,6 @@
 import {
   BOOKABLE_PRICE_KEYS,
+  isBookableExtraKind,
   type BookablePriceKey,
   type SiteSnapshot,
 } from './site-snapshot'
@@ -119,7 +120,9 @@ export function publishedServiceLabels(
       }
     }
     for (const extra of extras) {
-      if (extra.enabled && extra.name.trim()) labels.push(extra.name.trim())
+      if (extra.enabled && isBookableExtraKind(extra.kind) && extra.name.trim()) {
+        labels.push(extra.name.trim())
+      }
     }
   }
   const cur = (current || '').trim()

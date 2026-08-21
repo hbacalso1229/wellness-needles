@@ -10,9 +10,11 @@ import {
   parseSiteSnapshot,
   BOOKABLE_PRICE_KEYS,
   DEFAULT_SERVICE_COPY,
+  isBookableExtraKind,
   isBookablePriceKey,
   type PriceList,
   type PricingExtra,
+  type PricingExtraKind,
   type ServiceCopyItem,
   type SiteSnapshot,
 } from '../../../shared/site-snapshot'
@@ -125,10 +127,28 @@ const PRICE_ROWS: ReadonlyArray<[keyof PriceList, string]> = [
   ['moxibustion', 'Moxibustion'],
 ]
 
+function priceRowKindLabel(key: keyof PriceList): 'Service' | 'Package' | 'Add-on' {
+  if (key === 'cupping' || key === 'moxibustion') return 'Add-on'
+  if (key === 'package5' || key === 'package10') return 'Package'
+  return 'Service'
+}
+
 function originalKind(
   kind: 'inClinic' | 'homeVisit'
 ): 'inClinicOriginal' | 'homeVisitOriginal' {
   return kind === 'inClinic' ? 'inClinicOriginal' : 'homeVisitOriginal'
+}
+
+const EXTRA_KIND_OPTIONS: ReadonlyArray<{ id: PricingExtraKind; label: string }> = [
+  { id: 'service', label: 'Service' },
+  { id: 'package', label: 'Package' },
+  { id: 'addon', label: 'Add-on' },
+]
+
+function extraKindLabel(kind: PricingExtraKind): string {
+  if (kind === 'service') return 'Service'
+  if (kind === 'package') return 'Package'
+  return 'Add-on'
 }
 
 function extrasKind(
@@ -157,7 +177,7 @@ function bookableOnCount(
   const extras = pricing[extrasKind(kind)]
   return (
     BOOKABLE_PRICE_KEYS.filter((key) => items[key]).length +
-    extras.filter((row) => row.kind === 'package' && row.enabled).length
+    extras.filter((row) => isBookableExtraKind(row.kind) && row.enabled).length
   )
 }
 
@@ -1151,7 +1171,7 @@ export function PortalApp() {
               <h2 className="text-sm font-semibold tracking-wide text-[var(--text-dark)]">
                 Booking channels
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {(['inClinic', 'homeVisit'] as const).map((kind) => {
                   const enabledKey = categoryEnabledKind(kind)
                   const categoryOn = draft.pricing[enabledKey]
@@ -1215,7 +1235,12 @@ export function PortalApp() {
                     className="rounded-lg border border-black/[0.08] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
                   >
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-base font-semibold text-[var(--text-dark)]">{label}</p>
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <p className="text-base font-semibold text-[var(--text-dark)]">{label}</p>
+                        <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
+                          {priceRowKindLabel(key)}
+                        </span>
+                      </div>
                       <OnOffSwitch
                         checked={itemOn}
                         disabled={lastBookable}
@@ -1328,8 +1353,11 @@ export function PortalApp() {
                 const enabledKey = categoryEnabledKind(kind)
                 const categoryOn = draft.pricing[enabledKey]
                 const extras = draft.pricing[extrasKey]
-                const packageExtras = extras.filter((row) => row.kind === 'package')
-                const addonExtras = extras.filter((row) => row.kind === 'addon')
+                const orderedExtras = [
+                  ...extras.filter((row) => row.kind === 'service'),
+                  ...extras.filter((row) => row.kind === 'package'),
+                  ...extras.filter((row) => row.kind === 'addon'),
+                ]
                 const bookable = bookableOnCount(draft.pricing, kind)
                 const patchExtras = (next: PricingExtra[]) =>
                   setDraft({
@@ -1341,14 +1369,22 @@ export function PortalApp() {
                 return (
                   <Card
                     key={kind}
-                    title={kind === 'inClinic' ? 'In clinic extras' : 'Home visit extras'}
+                    title={
+                      kind === 'inClinic'
+                        ? 'In clinic services, packages & add-ons'
+                        : 'Home visit services, packages & add-ons'
+                    }
                   >
+                    <p className="mb-3 text-xs text-[var(--text-dark)]/55">
+                      Services and packages show as booking options. Add-ons show under Popular
+                      add-ons.
+                    </p>
                     <div className={`space-y-3 ${categoryOn ? '' : 'opacity-50'}`}>
-                      {[...packageExtras, ...addonExtras].map((extra) => {
+                      {orderedExtras.map((extra) => {
                         const off = discountPercentLabel(extra.original, extra.price)
                         const lastBookable =
                           categoryOn &&
-                          extra.kind === 'package' &&
+                          isBookableExtraKind(extra.kind) &&
                           extra.enabled &&
                           bookable <= 1
                         return (
@@ -1360,9 +1396,7 @@ export function PortalApp() {
                               <input
                                 className="min-w-0 flex-1 rounded-md border border-black/10 px-2 py-1 text-sm font-medium"
                                 value={extra.name}
-                                aria-label={
-                                  extra.kind === 'package' ? 'Package name' : 'Add-on name'
-                                }
+                                aria-label={`${extraKindLabel(extra.kind)} name`}
                                 onChange={(e) => patchExtra(extra.id, { name: e.target.value })}
                               />
                               <OnOffSwitch
@@ -1376,9 +1410,32 @@ export function PortalApp() {
                                 }}
                               />
                             </div>
-                            <p className="mb-2 text-[11px] text-[var(--text-dark)]/45">
-                              {extra.kind === 'package' ? 'Package' : 'Add-on'}
-                            </p>
+                            <label className="mb-2 block text-xs font-medium text-[var(--text-dark)]/60">
+                              Type
+                              <select
+                                className="mt-1 w-full rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm font-normal"
+                                value={extra.kind}
+                                aria-label={`${extra.name || 'Item'} type`}
+                                onChange={(e) => {
+                                  const nextKind = e.target.value as PricingExtraKind
+                                  patchExtra(extra.id, { kind: nextKind })
+                                }}
+                              >
+                                {EXTRA_KIND_OPTIONS.map((option) => (
+                                  <option key={option.id} value={option.id}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            {extra.kind === 'service' ? (
+                              <DurationMinutesField
+                                value={extra.durationMinutes || 0}
+                                onChange={(durationMinutes) =>
+                                  patchExtra(extra.id, { durationMinutes })
+                                }
+                              />
+                            ) : null}
                             <div className="space-y-2">
                               <CompactEuroField
                                 label="Original"
@@ -1411,6 +1468,15 @@ export function PortalApp() {
                         )
                       })}
                       <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                          onClick={() =>
+                            patchExtras([...extras, createPricingExtra('service')])
+                          }
+                        >
+                          Add service
+                        </button>
                         <button
                           type="button"
                           className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
