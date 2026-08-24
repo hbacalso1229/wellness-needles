@@ -1,5 +1,6 @@
 import { contactConfig } from '@/lib/contact-config'
 import { isAdminUiEnabled } from '@/lib/admin-ui'
+import { isValidEmailFormat } from '../../shared/email-check'
 import type { SiteSnapshot } from '../../shared/site-snapshot'
 
 export type BookingFeatureFlags = {
@@ -229,7 +230,7 @@ export function isValidFreshaBookingUrl(url: string): boolean {
 }
 
 export function isValidEmailAddress(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+  return isValidEmailFormat(value)
 }
 
 function readCalendlyUrl(value: unknown, fallback: string): string {

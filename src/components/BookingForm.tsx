@@ -35,6 +35,7 @@ import {
   normalizeNameParts,
   splitFullName,
 } from '@/lib/person-name'
+import { checkEmailLocal, emailCheckMessage } from '../../shared/email-check'
 import {
   OptionalAddOns,
   ClinicLocationCards,
@@ -72,6 +73,41 @@ function isProductionSiteHost(): boolean {
   if (typeof window === 'undefined') return false
   const host = window.location.hostname.toLowerCase()
   return host === 'www.wellnessneedles.ie' || host === 'wellnessneedles.ie'
+}
+
+function skipRemoteEmailCheck(): boolean {
+  return isLocalDevHost() || process.env.NEXT_PUBLIC_E2E === 'true'
+}
+
+function localEmailError(value: string): string | null {
+  if (!value.trim()) return 'Please enter your email address.'
+  const result = checkEmailLocal(value)
+  if (result.ok) return null
+  return emailCheckMessage(result)
+}
+
+async function lookupEmailDeliverability(email: string): Promise<string | null> {
+  if (skipRemoteEmailCheck()) return null
+  try {
+    const response = await fetch('/api/booking-email-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    if (!response.ok) return null
+    const data = (await response.json()) as {
+      ok?: boolean
+      reason?: 'format' | 'typo' | 'mx'
+      suggestion?: string
+    }
+    if (data.ok) return null
+    if (data.reason === 'format' || data.reason === 'typo' || data.reason === 'mx') {
+      return emailCheckMessage({ reason: data.reason, suggestion: data.suggestion })
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 const STEPS: BookingStepperStep[] = [
@@ -226,12 +262,6 @@ function focusFirstInvalidField(fields: FieldErrorKey[]) {
   })
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function isValidEmail(value: string): boolean {
-  return EMAIL_PATTERN.test(value.trim())
-}
-
 
 export default function BookingForm() {
   const { features } = useBookingFeatures()
@@ -239,6 +269,7 @@ export default function BookingForm() {
   const [smsOptIn, setSmsOptIn] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [emailCheckBusy, setEmailCheckBusy] = useState(false)
   const [toast, setToast] = useState<{
     message: string | string[]
     variant: 'success' | 'error'
@@ -615,9 +646,12 @@ export default function BookingForm() {
       if (!formData.email.trim()) {
         fields.push('email')
         messages.push('Please enter your email address.')
-      } else if (!isValidEmail(formData.email)) {
-        fields.push('email')
-        messages.push('Please enter a valid email address.')
+      } else {
+        const emailError = localEmailError(formData.email)
+        if (emailError) {
+          fields.push('email')
+          messages.push(emailError)
+        }
       }
       if (!formData.phone.trim()) {
         fields.push('phone')
@@ -649,7 +683,7 @@ export default function BookingForm() {
     return null
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     // Belt-and-braces: never advance with a closed day still selected.
     if (currentStep === 2 && isClosedBookingDate(selectedDate, hours)) {
       const openDate = nextOpenBookingDate(selectedDate, hours)
@@ -669,6 +703,18 @@ export default function BookingForm() {
     if (error) {
       reportValidationErrors(error)
       return
+    }
+    if (currentStep === 3) {
+      setEmailCheckBusy(true)
+      try {
+        const remote = await lookupEmailDeliverability(formData.email)
+        if (remote) {
+          reportValidationErrors({ fields: ['email'], messages: [remote] })
+          return
+        }
+      } finally {
+        setEmailCheckBusy(false)
+      }
     }
     clearAllFieldErrors()
     setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1))
@@ -707,6 +753,16 @@ export default function BookingForm() {
     if (error) {
       reportValidationErrors(error)
       return
+    }
+    setEmailCheckBusy(true)
+    try {
+      const remote = await lookupEmailDeliverability(formData.email)
+      if (remote) {
+        reportValidationErrors({ fields: ['email'], messages: [remote] })
+        return
+      }
+    } finally {
+      setEmailCheckBusy(false)
     }
 
     const selectedServiceDetails = services.find((s) => s.id === selectedService)
@@ -957,9 +1013,10 @@ export default function BookingForm() {
         onBack={handleBack}
         onNext={handleNext}
         onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
+        isSubmitting={isSubmitting || emailCheckBusy}
         submitLabel="Request appointment"
         nextDisabled={
+          emailCheckBusy ||
           (currentStep === 0 && !selectedLocation) ||
           (currentStep === 1 && !selectedService) ||
           (currentStep === 2 &&
@@ -1304,6 +1361,19 @@ export default function BookingForm() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={() => {
+                      void (async () => {
+                        const local = localEmailError(formData.email)
+                        if (local) {
+                          reportValidationErrors({ fields: ['email'], messages: [local] })
+                          return
+                        }
+                        const remote = await lookupEmailDeliverability(formData.email)
+                        if (remote) {
+                          reportValidationErrors({ fields: ['email'], messages: [remote] })
+                        }
+                      })()
+                    }}
                     placeholder="Enter your email address"
                     aria-invalid={hasFieldError('email')}
                     aria-describedby={
