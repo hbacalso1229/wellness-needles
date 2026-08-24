@@ -11,6 +11,11 @@ import {
 } from './notify'
 import { isValidEmailFormat } from '../../shared/email-check'
 import {
+  isValidBookingPhone,
+  matchPhoneCountry,
+} from '../../shared/irish-phone'
+import { isDublinDateTimeLocalPast } from '../../shared/quarter-hour'
+import {
   isAllowedLocation,
   isAllowedService,
   isAllowedServiceType,
@@ -67,9 +72,18 @@ export function validateCreateBookingInput(
   if (!input.firstName.trim() || !input.lastName.trim()) return 'name-required'
   if (!isValidEmailFormat(input.email)) return 'email-required'
   if (!input.phone.trim()) return 'phone-required'
+  const phoneCountry = matchPhoneCountry(input.phone)
+  if (
+    !isValidBookingPhone(input.phone, phoneCountry, {
+      strictIrishMobile: phoneCountry.id === 'IE',
+    })
+  ) {
+    return 'invalid-phone'
+  }
   if (!parseConfirmStartsAtLocal(input.startsAtLocal)) {
     return 'startsAtLocal required (YYYY-MM-DDTHH:mm)'
   }
+  if (isDublinDateTimeLocalPast(input.startsAtLocal)) return 'starts-in-past'
   if (!isAllowedServiceType(site, input.serviceType)) return 'invalid-service-type'
   if (!isAllowedLocation(site, input.locationLabel)) return 'invalid-location'
   if (!isAllowedService(site, input.serviceType, input.serviceLabel)) {
@@ -93,6 +107,9 @@ export async function confirmBookingRow(options: {
   const parsed = parseConfirmStartsAtLocal(options.startsAtLocal)
   if (!parsed) {
     return { ok: false, error: 'startsAtLocal required (YYYY-MM-DDTHH:mm)' }
+  }
+  if (isDublinDateTimeLocalPast(parsed.local)) {
+    return { ok: false, error: 'starts-in-past' }
   }
   const startsAt = dublinLocalToUtcIso(parsed.ymd, parsed.hm)
   const remindAt = remindAtMorningBefore(startsAt)
