@@ -87,7 +87,20 @@ export function Card({
   )
 }
 
-function BookingDetailRow({ label, value }: { label: string; value?: string | null }) {
+function telHref(phone: string): string | null {
+  const href = `tel:${phone.trim().replace(/[^\d+]/g, '')}`
+  return /^tel:\+?\d{7,}$/.test(href) ? href : null
+}
+
+function BookingDetailRow({
+  label,
+  value,
+  href,
+}: {
+  label: string
+  value?: string | null
+  href?: string | null
+}) {
   const text = (value || '').trim()
   if (!text) return null
   return (
@@ -95,7 +108,19 @@ function BookingDetailRow({ label, value }: { label: string; value?: string | nu
       <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/50">
         {label}
       </span>
-      <span className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)]">{text}</span>
+      {href ? (
+        <a
+          href={href}
+          className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)] underline"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {text}
+        </a>
+      ) : (
+        <span className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)]">
+          {text}
+        </span>
+      )}
     </p>
   )
 }
@@ -168,7 +193,7 @@ export function BookingCardDetails({
           <div className="space-y-4 pt-3">
             <div className="grid grid-cols-2 gap-x-3">
               <div className="min-w-0 space-y-4">
-                <BookingDetailRow label="Phone" value={phone} />
+                <BookingDetailRow label="Phone" value={phone} href={phone ? telHref(phone) : null} />
                 <BookingDetailRow label="Email" value={email} />
               </div>
               <div className="min-w-0 space-y-4">
