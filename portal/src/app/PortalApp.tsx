@@ -983,8 +983,8 @@ export function PortalApp() {
             <PageHeader
               description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
             />
-            <div className="flex flex-col gap-2 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
-              <nav className="flex gap-1 overflow-x-auto">
+            <div className="flex flex-col gap-3 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
+              <nav className="order-2 flex gap-1 overflow-x-auto sm:order-1">
                 {(
                   [
                     { id: 'pending', label: 'Pending', count: bookings.length },
@@ -1014,15 +1014,15 @@ export function PortalApp() {
                   </button>
                 ))}
               </nav>
-              <div className="flex flex-col gap-2 pb-2 sm:flex-row sm:items-center">
+              <div className="order-1 flex items-center gap-2 sm:order-2">
                 <button
                   type="button"
-                  className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                  className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm text-white"
                   onClick={openAddAppointment}
                 >
                   Add appointment
                 </button>
-                <label className="block sm:w-64 sm:shrink-0">
+                <label className="min-w-0 flex-1 sm:w-64 sm:shrink-0 sm:flex-none">
                   <span className="sr-only">Search appointments</span>
                   <input
                     type="search"

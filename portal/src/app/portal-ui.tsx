@@ -87,7 +87,20 @@ export function Card({
   )
 }
 
-function BookingDetailRow({ label, value }: { label: string; value?: string | null }) {
+function telHref(phone: string): string | null {
+  const href = `tel:${phone.trim().replace(/[^\d+]/g, '')}`
+  return /^tel:\+?\d{7,}$/.test(href) ? href : null
+}
+
+function BookingDetailRow({
+  label,
+  value,
+  href,
+}: {
+  label: string
+  value?: string | null
+  href?: string | null
+}) {
   const text = (value || '').trim()
   if (!text) return null
   return (
@@ -95,7 +108,19 @@ function BookingDetailRow({ label, value }: { label: string; value?: string | nu
       <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/50">
         {label}
       </span>
-      <span className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)]">{text}</span>
+      {href ? (
+        <a
+          href={href}
+          className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)] underline"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {text}
+        </a>
+      ) : (
+        <span className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)]">
+          {text}
+        </span>
+      )}
     </p>
   )
 }
@@ -168,7 +193,7 @@ export function BookingCardDetails({
           <div className="space-y-4 pt-3">
             <div className="grid grid-cols-2 gap-x-3">
               <div className="min-w-0 space-y-4">
-                <BookingDetailRow label="Phone" value={phone} />
+                <BookingDetailRow label="Phone" value={phone} href={phone ? telHref(phone) : null} />
                 <BookingDetailRow label="Email" value={email} />
               </div>
               <div className="min-w-0 space-y-4">
@@ -617,10 +642,10 @@ export function AddAppointmentPanel({
             onChange={(e) => onChange({ ...values, email: e.target.value })}
           />
         </label>
-        <label className="text-sm">
+        <label className="min-w-0 text-sm sm:col-span-2">
           Phone
           <span
-            className={`mt-1 flex overflow-hidden rounded border bg-white ${
+            className={`relative mt-1 flex min-w-0 rounded-md border bg-white ${
               phoneError ? 'border-red-500' : 'border-black/15'
             }`}
           >
@@ -636,10 +661,11 @@ export function AddAppointmentPanel({
             <input
               required
               type="tel"
-              inputMode={enforceIrishMobile ? 'numeric' : 'tel'}
+              inputMode="tel"
               autoComplete="tel-national"
+              aria-label="Phone number"
               placeholder={phoneCountry.placeholder}
-              className="min-w-0 flex-1 border-0 px-2 py-1 text-sm outline-none"
+              className="w-full min-w-0 flex-1 border-0 px-2 py-1.5 text-sm outline-none"
               value={formatLocalPhoneInput(values.phone, phoneCountry)}
               onChange={(e) => {
                 setPhoneError('')
