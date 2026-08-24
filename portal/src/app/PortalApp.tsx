@@ -929,7 +929,7 @@ export function PortalApp() {
   )
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-x-2.5">
@@ -980,60 +980,64 @@ export function PortalApp() {
 
         {tab === 'appointments' && (
           <section className="space-y-4">
-            <PageHeader
-              description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
-            />
-            <div className="flex flex-col gap-3 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
-              <nav className="order-2 flex gap-1 overflow-x-auto sm:order-1">
-                {(
-                  [
-                    { id: 'pending', label: 'Pending', count: bookings.length },
-                    { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
-                    { id: 'cancelled', label: 'Cancelled', count: cancelledBookings.length },
-                  ] as const
-                ).map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setBookingTab(item.id)
-                      setConfirmId(null)
-                      setRescheduleId(null)
-                      setOpenBookingId(null)
-                    }}
-                    className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
-                      bookingTab === item.id
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
-                    }`}
-                  >
-                    {item.label}
-                    <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
-                      {item.count}
-                    </span>
-                  </button>
-                ))}
-              </nav>
-              <div className="order-1 flex items-center gap-2 sm:order-2">
-                <button
-                  type="button"
-                  className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm text-white"
-                  onClick={openAddAppointment}
-                >
-                  Add appointment
-                </button>
-                <label className="min-w-0 flex-1 sm:w-64 sm:shrink-0 sm:flex-none">
-                  <span className="sr-only">Search appointments</span>
-                  <input
-                    type="search"
-                    value={bookingQuery}
-                    onChange={(e) => setBookingQuery(e.target.value)}
-                    placeholder="Search name, phone, email…"
-                    className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                  />
-                </label>
-              </div>
-            </div>
+            {addingAppointment ? null : (
+              <>
+                <PageHeader
+                  description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
+                />
+                <div className="flex flex-col gap-3 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
+                  <nav className="order-2 flex gap-1 overflow-x-auto sm:order-1">
+                    {(
+                      [
+                        { id: 'pending', label: 'Pending', count: bookings.length },
+                        { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
+                        { id: 'cancelled', label: 'Cancelled', count: cancelledBookings.length },
+                      ] as const
+                    ).map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setBookingTab(item.id)
+                          setConfirmId(null)
+                          setRescheduleId(null)
+                          setOpenBookingId(null)
+                        }}
+                        className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+                          bookingTab === item.id
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+                        }`}
+                      >
+                        {item.label}
+                        <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+                          {item.count}
+                        </span>
+                      </button>
+                    ))}
+                  </nav>
+                  <div className="order-1 flex items-center gap-2 sm:order-2">
+                    <button
+                      type="button"
+                      className="shrink-0 rounded-full bg-primary px-3 py-2.5 text-sm text-white sm:py-1.5"
+                      onClick={openAddAppointment}
+                    >
+                      Add appointment
+                    </button>
+                    <label className="min-w-0 flex-1 sm:w-64 sm:shrink-0 sm:flex-none">
+                      <span className="sr-only">Search appointments</span>
+                      <input
+                        type="search"
+                        value={bookingQuery}
+                        onChange={(e) => setBookingQuery(e.target.value)}
+                        placeholder="Search name, phone, email…"
+                        className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
             {addingAppointment ? (
               <AddAppointmentPanel
                 values={addAppointment}
@@ -1060,8 +1064,7 @@ export function PortalApp() {
                 onSubmit={() => void createAppointment()}
                 onCancel={() => setAddingAppointment(false)}
               />
-            ) : null}
-            {bookingTab === 'pending' ? (
+            ) : bookingTab === 'pending' ? (
               bookings.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">
                   No requests yet.

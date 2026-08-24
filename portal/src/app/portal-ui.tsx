@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { RatingStars } from '../../../src/features/ui/RatingStars'
 import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
@@ -375,7 +375,8 @@ export function toHhmm(value: string, fallback: string): string {
 
 const HOUR_12_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
 const QUARTER_MINUTES = [0, 15, 30, 45] as const
-const selectClass = 'rounded-md border border-black/10 bg-white px-2 py-1 text-sm'
+const selectClass =
+  'rounded-md border border-black/10 bg-white px-2 py-2 text-base sm:py-1 sm:text-sm'
 
 function HourAmPmSelect({
   value,
@@ -489,50 +490,52 @@ export function DublinStartPicker({
     onChange(snapDateTimeLocalToQuarterHour(datetimeLocalFrom12(next)))
   }
   return (
-    <label className="text-sm">
+    <label className="block min-w-0 text-sm">
       {label}
-      <span className="mt-1 flex flex-wrap items-center gap-2">
+      <span className="mt-1 flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           type="date"
           min={minDate}
-          className={`${selectClass} [color-scheme:light]`}
+          className={`${selectClass} w-full min-w-0 max-w-full [color-scheme:light] sm:w-auto`}
           aria-label={`${label} date`}
           value={parts.date}
           onChange={(e) => commit({ date: e.target.value })}
         />
-        <select
-          className={selectClass}
-          aria-label={`${label} hour`}
-          value={parts.hour}
-          onChange={(e) => commit({ hour: Number(e.target.value) })}
-        >
-          {HOUR_12_OPTIONS.map((hour) => (
-            <option key={hour} value={hour}>
-              {hour}
-            </option>
-          ))}
-        </select>
-        <select
-          className={selectClass}
-          aria-label={`${label} minutes`}
-          value={parts.minute}
-          onChange={(e) => commit({ minute: Number(e.target.value) })}
-        >
-          {QUARTER_MINUTES.map((minute) => (
-            <option key={minute} value={minute}>
-              {String(minute).padStart(2, '0')}
-            </option>
-          ))}
-        </select>
-        <select
-          className={selectClass}
-          aria-label={`${label} AM or PM`}
-          value={parts.ampm}
-          onChange={(e) => commit({ ampm: e.target.value === 'PM' ? 'PM' : 'AM' })}
-        >
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
+        <span className="flex min-w-0 items-center gap-2">
+          <select
+            className={selectClass}
+            aria-label={`${label} hour`}
+            value={parts.hour}
+            onChange={(e) => commit({ hour: Number(e.target.value) })}
+          >
+            {HOUR_12_OPTIONS.map((hour) => (
+              <option key={hour} value={hour}>
+                {hour}
+              </option>
+            ))}
+          </select>
+          <select
+            className={selectClass}
+            aria-label={`${label} minutes`}
+            value={parts.minute}
+            onChange={(e) => commit({ minute: Number(e.target.value) })}
+          >
+            {QUARTER_MINUTES.map((minute) => (
+              <option key={minute} value={minute}>
+                {String(minute).padStart(2, '0')}
+              </option>
+            ))}
+          </select>
+          <select
+            className={selectClass}
+            aria-label={`${label} AM or PM`}
+            value={parts.ampm}
+            onChange={(e) => commit({ ampm: e.target.value === 'PM' ? 'PM' : 'AM' })}
+          >
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
+        </span>
       </span>
     </label>
   )
@@ -569,12 +572,18 @@ export function AddAppointmentPanel({
   onSubmit: () => void
   onCancel: () => void
 }) {
-  const fieldClass = 'mt-1 block w-full rounded border px-2 py-1 text-sm'
+  const fieldClass =
+    'mt-1 block w-full min-w-0 max-w-full rounded border px-2 py-2 text-base sm:py-1 sm:text-sm'
+  const formRef = useRef<HTMLFormElement>(null)
   const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
   const [phoneError, setPhoneError] = useState('')
   const [startError, setStartError] = useState('')
   const phoneCountry = getPhoneCountry(phoneCountryId)
   const enforceIrishMobile = phoneCountry.id === 'IE'
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [])
 
   useEffect(() => {
     if (!values.phone && !values.firstName && !values.lastName && !values.email) {
@@ -586,7 +595,8 @@ export function AddAppointmentPanel({
 
   return (
     <form
-      className="rounded-xl border border-accent/20 bg-white p-4"
+      ref={formRef}
+      className="min-w-0 scroll-mt-32 overflow-x-hidden rounded-xl border border-accent/20 bg-white p-4 pb-28 sm:pb-4"
       onSubmit={(e) => {
         e.preventDefault()
         const phone = values.phone.trim()
@@ -626,7 +636,7 @@ export function AddAppointmentPanel({
         Phone or walk-in. Confirm sends the same card and calendar invite as a website
         request.
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2">
         <label className="text-sm">
           First name
           <input
@@ -681,7 +691,7 @@ export function AddAppointmentPanel({
               autoComplete="tel-national"
               aria-label="Phone number"
               placeholder={phoneCountry.placeholder}
-              className="w-full min-w-0 flex-1 border-0 px-2 py-1.5 text-sm outline-none"
+              className="w-full min-w-0 flex-1 border-0 px-2 py-2 text-base outline-none sm:py-1.5 sm:text-sm"
               value={formatLocalPhoneInput(values.phone, phoneCountry)}
               onChange={(e) => {
                 setPhoneError('')
@@ -693,7 +703,7 @@ export function AddAppointmentPanel({
             <span className="mt-1 block text-xs text-red-600">{phoneError}</span>
           ) : null}
         </label>
-        <div>
+        <div className="min-w-0">
           <DublinStartPicker
             value={values.startsAtLocal}
             onChange={(startsAtLocal) => {
@@ -733,7 +743,7 @@ export function AddAppointmentPanel({
             ))}
           </select>
         </label>
-        <label className="text-sm sm:col-span-2">
+        <label className="min-w-0 text-sm sm:col-span-2">
           Location
           <select
             className={fieldClass}
@@ -755,7 +765,7 @@ export function AddAppointmentPanel({
           />
           Patient asked for SMS
         </label>
-        <div className="flex gap-2 sm:col-span-2">
+        <div className="fixed inset-x-0 bottom-0 z-20 flex flex-wrap gap-2 border-t border-black/[0.08] bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:col-span-2 sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
           <button
             type="submit"
             disabled={busy}
