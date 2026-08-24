@@ -92,6 +92,25 @@ function telHref(phone: string): string | null {
   return /^tel:\+?\d{7,}$/.test(href) ? href : null
 }
 
+function mailtoHref(email: string): string | null {
+  const trimmed = email.trim()
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) ? `mailto:${trimmed}` : null
+}
+
+function formatLocationLines(label?: string): string {
+  const text = (label || '').trim()
+  if (!text) return ''
+  const spaced = text.replace(/Co\.(?=\S)/g, 'Co. ')
+  const dash = spaced.indexOf(' — ')
+  if (dash === -1) return spaced
+  return `${spaced.slice(0, dash)}\n${spaced.slice(dash + 3)}`
+}
+
+function mapsSearchHref(label?: string): string | null {
+  const query = formatLocationLines(label).replace(/\s+/g, ' ').trim()
+  return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : null
+}
+
 function BookingDetailRow({
   label,
   value,
@@ -103,6 +122,7 @@ function BookingDetailRow({
 }) {
   const text = (value || '').trim()
   if (!text) return null
+  const isExternal = /^https?:\/\//i.test(href || '')
   return (
     <p>
       <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/50">
@@ -112,6 +132,7 @@ function BookingDetailRow({
         <a
           href={href}
           className="mt-0.5 block break-words whitespace-pre-line text-sm text-[var(--text-dark)] underline"
+          {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           onClick={(event) => event.stopPropagation()}
         >
           {text}
@@ -123,15 +144,6 @@ function BookingDetailRow({
       )}
     </p>
   )
-}
-
-function formatLocationLines(label?: string): string {
-  const text = (label || '').trim()
-  if (!text) return ''
-  const spaced = text.replace(/Co\.(?=\S)/g, 'Co. ')
-  const dash = spaced.indexOf(' — ')
-  if (dash === -1) return spaced
-  return `${spaced.slice(0, dash)}\n${spaced.slice(dash + 3)}`
 }
 
 export function BookingCardDetails({
@@ -194,14 +206,18 @@ export function BookingCardDetails({
             <div className="grid grid-cols-2 gap-x-3">
               <div className="min-w-0 space-y-4">
                 <BookingDetailRow label="Phone" value={phone} href={phone ? telHref(phone) : null} />
-                <BookingDetailRow label="Email" value={email} />
+                <BookingDetailRow label="Email" value={email} href={email ? mailtoHref(email) : null} />
               </div>
               <div className="min-w-0 space-y-4">
                 <BookingDetailRow label="Service" value={serviceLabel} />
                 <BookingDetailRow label="Visit" value={serviceType} />
               </div>
             </div>
-            <BookingDetailRow label="Location" value={formatLocationLines(locationLabel)} />
+            <BookingDetailRow
+              label="Location"
+              value={formatLocationLines(locationLabel)}
+              href={mapsSearchHref(locationLabel)}
+            />
             {smsOptIn === undefined ? null : (
               <BookingDetailRow label="SMS opt-in" value={smsOptIn ? 'YES' : 'NO'} />
             )}
