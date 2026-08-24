@@ -34,10 +34,10 @@ export function PhoneCountrySelect({ value, onChange }: PhoneCountrySelectProps)
   }, [open])
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    <div ref={rootRef} className="relative flex-none">
       <button
         type="button"
-        className="flex h-full max-w-[13.5rem] items-center gap-2 border-r bg-white px-2 py-1 text-left text-sm"
+        className="inline-flex max-w-[13.5rem] items-center gap-2 border-r bg-white px-2 py-1.5 text-left text-sm"
         aria-label="Country code"
         aria-haspopup="listbox"
         aria-expanded={open}

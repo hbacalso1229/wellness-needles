@@ -617,10 +617,10 @@ export function AddAppointmentPanel({
             onChange={(e) => onChange({ ...values, email: e.target.value })}
           />
         </label>
-        <label className="text-sm">
+        <label className="min-w-0 text-sm sm:col-span-2">
           Phone
           <span
-            className={`mt-1 flex overflow-hidden rounded border bg-white ${
+            className={`relative mt-1 flex min-w-0 rounded-md border bg-white ${
               phoneError ? 'border-red-500' : 'border-black/15'
             }`}
           >
@@ -636,10 +636,11 @@ export function AddAppointmentPanel({
             <input
               required
               type="tel"
-              inputMode={enforceIrishMobile ? 'numeric' : 'tel'}
+              inputMode="tel"
               autoComplete="tel-national"
+              aria-label="Phone number"
               placeholder={phoneCountry.placeholder}
-              className="min-w-0 flex-1 border-0 px-2 py-1 text-sm outline-none"
+              className="w-full min-w-0 flex-1 border-0 px-2 py-1.5 text-sm outline-none"
               value={formatLocalPhoneInput(values.phone, phoneCountry)}
               onChange={(e) => {
                 setPhoneError('')
