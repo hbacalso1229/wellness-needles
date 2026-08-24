@@ -2,8 +2,8 @@
 
 | Doc | Audience |
 |-----|----------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Runtimes, Confirm/Reschedule pipeline, ICS, shared modules |
-| [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md) | Clinic-owner process |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Runtimes, Confirm/Add appointment/Reschedule pipeline, ICS, shared modules |
+| [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md) | Clinic-owner process (website Pending + phone/walk-in Add appointment) |
 | [PORTAL.md](PORTAL.md) | Overlay, Settings, sequence diagrams, deploy |
 | [CAPTCHA_ROLLBACK.md](CAPTCHA_ROLLBACK.md) | Turnstile ↔ hCaptcha |
 

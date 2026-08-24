@@ -479,6 +479,171 @@ export function DublinStartPicker({
   )
 }
 
+export type AddAppointmentValues = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  serviceType: string
+  locationLabel: string
+  serviceLabel: string
+  startsAtLocal: string
+  smsOptIn: boolean
+}
+
+export function AddAppointmentPanel({
+  values,
+  typeOptions,
+  serviceOptions,
+  locationOptions,
+  busy,
+  onChange,
+  onSubmit,
+  onCancel,
+}: {
+  values: AddAppointmentValues
+  typeOptions: string[]
+  serviceOptions: string[]
+  locationOptions: string[]
+  busy: boolean
+  onChange: (next: AddAppointmentValues) => void
+  onSubmit: () => void
+  onCancel: () => void
+}) {
+  const fieldClass = 'mt-1 block w-full rounded border px-2 py-1 text-sm'
+  return (
+    <form
+      className="rounded-xl border border-accent/20 bg-white p-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit()
+      }}
+    >
+      <h2 className="text-sm font-semibold tracking-wide text-[var(--text-dark)]">
+        Add appointment
+      </h2>
+      <p className="mt-1 text-sm text-[var(--text-dark)]/65">
+        Phone or walk-in. Confirm sends the same card and calendar invite as a website
+        request.
+      </p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <label className="text-sm">
+          First name
+          <input
+            required
+            autoComplete="given-name"
+            className={fieldClass}
+            value={values.firstName}
+            onChange={(e) => onChange({ ...values, firstName: e.target.value })}
+          />
+        </label>
+        <label className="text-sm">
+          Last name
+          <input
+            required
+            autoComplete="family-name"
+            className={fieldClass}
+            value={values.lastName}
+            onChange={(e) => onChange({ ...values, lastName: e.target.value })}
+          />
+        </label>
+        <label className="text-sm">
+          Email
+          <input
+            required
+            type="email"
+            autoComplete="email"
+            className={fieldClass}
+            value={values.email}
+            onChange={(e) => onChange({ ...values, email: e.target.value })}
+          />
+        </label>
+        <label className="text-sm">
+          Phone
+          <input
+            required
+            type="tel"
+            autoComplete="tel"
+            className={fieldClass}
+            value={values.phone}
+            onChange={(e) => onChange({ ...values, phone: e.target.value })}
+          />
+        </label>
+        <DublinStartPicker
+          value={values.startsAtLocal}
+          onChange={(startsAtLocal) => onChange({ ...values, startsAtLocal })}
+        />
+        <label className="text-sm">
+          Visit type
+          <select
+            className={fieldClass}
+            value={values.serviceType}
+            onChange={(e) => onChange({ ...values, serviceType: e.target.value })}
+          >
+            {typeOptions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm">
+          Service
+          <select
+            className={fieldClass}
+            value={values.serviceLabel}
+            onChange={(e) => onChange({ ...values, serviceLabel: e.target.value })}
+          >
+            {serviceOptions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm sm:col-span-2">
+          Location
+          <select
+            className={fieldClass}
+            value={values.locationLabel}
+            onChange={(e) => onChange({ ...values, locationLabel: e.target.value })}
+          >
+            {locationOptions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={values.smsOptIn}
+            onChange={(e) => onChange({ ...values, smsOptIn: e.target.checked })}
+          />
+          Patient asked for SMS
+        </label>
+        <div className="flex gap-2 sm:col-span-2">
+          <button
+            type="submit"
+            disabled={busy}
+            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white disabled:opacity-50"
+          >
+            {busy ? 'Confirming…' : 'Confirm appointment'}
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+            onClick={onCancel}
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    </form>
+  )
+}
+
 export function HoursEditor({
   hours,
   onChange,

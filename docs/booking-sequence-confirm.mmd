@@ -9,7 +9,7 @@ sequenceDiagram
   participant Twilio
   participant Patient
 
-  Owner->>Portal: Confirm + exact Ireland start
+  Owner->>Portal: Confirm or Add appointment + exact Ireland start
   alt Still time (before day-before 09:00)
     Portal->>Resend: Appointment confirmed + invite.ics
     Resend->>Patient: Confirmation email + calendar invite

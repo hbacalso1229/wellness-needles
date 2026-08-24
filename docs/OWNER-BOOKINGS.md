@@ -1,8 +1,8 @@
-# How website bookings work
+# How bookings work
 
-For the clinic owner. This is only for requests sent through the **website booking form**. Phone, Calendly, and Fresha bookings do not appear in Appointments.
+For the clinic owner. Website form requests land in **Pending**. Phone and walk-in bookings you take yourself use **Add appointment** — they go straight to **Confirmed** and send the same patient card and calendar invite. Calendly and Fresha still do not appear in Appointments.
 
-![Website booking process for the clinic owner](owner-booking-process.png)
+![Booking process for the clinic owner](owner-booking-process.png)
 
 Technical architecture and Confirm order: [ARCHITECTURE.md](ARCHITECTURE.md). Sequence diagrams (request, Confirm/reminder, Reschedule, Cancel): [PORTAL.md](PORTAL.md#sequence-diagrams).
 
@@ -13,6 +13,8 @@ flowchart TD
   inbox[Request appears in portal Appointments]
   clinicMail[You also get an email at info@]
   decide{You Confirm or Cancel}
+  walkin[You take a phone or walk-in booking]
+  add[Add appointment in the portal]
   pickTime[You choose the exact start time]
   tooSoon{Is the appointment tomorrow or today?}
   confirmed[Patient gets confirmation plus calendar invite]
@@ -28,6 +30,7 @@ flowchart TD
   request --> clinicMail
   inbox --> decide
   decide -->|Confirm| pickTime --> tooSoon
+  walkin --> add --> pickTime
   tooSoon -->|No: still time| confirmed --> zoho
   confirmed --> reminder
   tooSoon -->|Yes: last minute| seeYou --> zoho
@@ -48,6 +51,19 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 4. **Reschedule** from the **Confirmed** tab if you need a new Ireland time, service, or clinic. The patient gets an “Appointment updated” email and a replacement calendar invite. Zoho gets the same invite.
 5. **Cancel** if you cannot take them. If you already Confirmed, the calendar invite is cancelled too. The row moves to the **Cancelled** tab so you can look it up. You cannot restore it from there.
 
+## Phone and walk-in
+
+When you book someone by phone or in person (not the website form):
+
+1. Open **Appointments** and choose **Add appointment**.
+2. Enter their name, email, phone, visit type, location, service, and the exact Ireland start.
+3. Tick **Patient asked for SMS** only if they want texts (and Patient SMS is published On).
+4. Choose **Confirm appointment**. They get the same confirmation card and calendar invite as a website Confirm. The row appears under **Confirmed**. Reschedule and Cancel work as usual.
+
+Do not send a “request received” note for these — the slot is already agreed. Calendly and Fresha are not imported.
+
+If Confirm appointment does not finish, look under **Pending** and Confirm from there. Do not click Add appointment again or you will get a duplicate.
+
 Confirm and day-before reminder emails are a scannable card (status line, then **See you soon/tomorrow, {name}!**, then “Hi {name}, we look forward to seeing you.”):
 
 - Service, Date + Time, and Location
@@ -65,6 +81,7 @@ The calendar block uses the duration published in Pricing when the service name 
 |------|-------|---------|
 | They submit the form | Request received (not a confirmed slot) | Appointment request received — Wellness Needles |
 | You Confirm in good time | Appointment card + calendar invite | Wellness Needles — appointment confirmed |
+| You Add appointment (phone / walk-in) | Same confirmation card + calendar invite (no “request received”) | Wellness Needles — appointment confirmed |
 | You Confirm late (day before after 9:00am, or same day) | Same card — “See you soon, {name}!” No second reminder | Confirmed, see you then |
 | You Reschedule a confirmed appointment | Same card — “See you soon, {name}!” + replacement invite | Wellness Needles — appointment updated |
 | The calendar day before, from 9:00am | Same card as a reminder, “See you tomorrow, {name}!” (no extra calendar file) | Reminder — your appointment is tomorrow |
@@ -76,7 +93,7 @@ Not sent today: same-day reminder.
 **SMS** is extra. It is a short labeled text (not the HTML card), and only if:
 
 - Settings → **Patient SMS** is On, then **Publish**
-- the patient ticked **Text me appointment updates** on the form
+- the patient ticked **Text me appointment updates** on the form, or you ticked **Patient asked for SMS** on Add appointment
 
 If either is off, they still get email.
 

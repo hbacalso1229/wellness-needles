@@ -45,6 +45,7 @@ import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import {
   Card,
   CompactEuroField,
+  AddAppointmentPanel,
   DublinStartPicker,
   DurationMinutesField,
   FullWidthDateField,
@@ -59,6 +60,7 @@ import {
   durationPhrase,
   formatYmdDisplay,
   snapshotsEqual,
+  type AddAppointmentValues,
   type ReviewStatusTab,
 } from './portal-ui'
 import { AddressSearch } from './AddressSearch'
@@ -73,6 +75,21 @@ import {
 
 type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 type BookingInboxTab = 'pending' | 'confirmed' | 'cancelled'
+
+function emptyAddAppointment(site: SiteSnapshot): AddAppointmentValues {
+  const serviceType = publishedServiceTypes(site)[0] || SERVICE_TYPE_IN_CLINIC
+  return {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    serviceType,
+    locationLabel: publishedLocationOptions(site)[0] || '',
+    serviceLabel: publishedServiceLabels(site, serviceType)[0] || '',
+    startsAtLocal: '',
+    smsOptIn: false,
+  }
+}
 
 type BookingRow = {
   id: string
@@ -576,6 +593,11 @@ export function PortalApp() {
   const [rescheduleServiceType, setRescheduleServiceType] = useState(SERVICE_TYPE_IN_CLINIC)
   const [rescheduleLocation, setRescheduleLocation] = useState('')
   const [rescheduleService, setRescheduleService] = useState('')
+  const [addingAppointment, setAddingAppointment] = useState(false)
+  const [creatingAppointment, setCreatingAppointment] = useState(false)
+  const [addAppointment, setAddAppointment] = useState<AddAppointmentValues>(() =>
+    emptyAddAppointment(SITE_DEFAULTS)
+  )
   const [newReviewName, setNewReviewName] = useState('')
   const [newReviewRating, setNewReviewRating] = useState<number | null>(null)
   const [newReviewCondition, setNewReviewCondition] = useState('')
@@ -816,6 +838,45 @@ export function PortalApp() {
     }
   }
 
+  const openAddAppointment = () => {
+    setConfirmId(null)
+    setRescheduleId(null)
+    setAddAppointment(emptyAddAppointment(published))
+    setAddingAppointment(true)
+  }
+
+  const createAppointment = async () => {
+    try {
+      const startsAt = snapDateTimeLocalToQuarterHour(addAppointment.startsAtLocal)
+      setAddAppointment((prev) => ({ ...prev, startsAtLocal: startsAt }))
+      setCreatingAppointment(true)
+      await api('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          startsAtLocal: startsAt,
+          firstName: addAppointment.firstName,
+          lastName: addAppointment.lastName,
+          email: addAppointment.email,
+          phone: addAppointment.phone,
+          serviceType: addAppointment.serviceType,
+          locationLabel: addAppointment.locationLabel,
+          serviceLabel: addAppointment.serviceLabel,
+          smsOptIn: addAppointment.smsOptIn,
+        }),
+      })
+      setAddingAppointment(false)
+      setBookingTab('confirmed')
+      show('Booking confirmed')
+      await load()
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Create failed')
+    } finally {
+      setCreatingAppointment(false)
+    }
+  }
+
   const logout = () => {
     window.location.href = '/cdn-cgi/access/logout'
   }
@@ -904,7 +965,7 @@ export function PortalApp() {
         {tab === 'appointments' && (
           <section className="space-y-4">
             <PageHeader
-              description={`Inbox for ${draft.email.address}. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
+              description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
             />
             <div className="flex flex-col gap-2 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
               <nav className="flex gap-1 overflow-x-auto">
@@ -937,17 +998,53 @@ export function PortalApp() {
                   </button>
                 ))}
               </nav>
-              <label className="block pb-2 sm:w-64 sm:shrink-0">
-                <span className="sr-only">Search appointments</span>
-                <input
-                  type="search"
-                  value={bookingQuery}
-                  onChange={(e) => setBookingQuery(e.target.value)}
-                  placeholder="Search name, phone, email…"
-                  className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </label>
+              <div className="flex flex-col gap-2 pb-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                  onClick={openAddAppointment}
+                >
+                  Add appointment
+                </button>
+                <label className="block sm:w-64 sm:shrink-0">
+                  <span className="sr-only">Search appointments</span>
+                  <input
+                    type="search"
+                    value={bookingQuery}
+                    onChange={(e) => setBookingQuery(e.target.value)}
+                    placeholder="Search name, phone, email…"
+                    className="w-full rounded-md border border-black/10 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </label>
+              </div>
             </div>
+            {addingAppointment ? (
+              <AddAppointmentPanel
+                values={addAppointment}
+                typeOptions={publishedServiceTypes(published)}
+                serviceOptions={publishedServiceLabels(
+                  published,
+                  addAppointment.serviceType
+                )}
+                locationOptions={publishedLocationOptions(published)}
+                busy={creatingAppointment}
+                onChange={(next) => {
+                  if (next.serviceType !== addAppointment.serviceType) {
+                    const labels = publishedServiceLabels(published, next.serviceType)
+                    setAddAppointment({
+                      ...next,
+                      serviceLabel: labels.includes(next.serviceLabel)
+                        ? next.serviceLabel
+                        : labels[0] || '',
+                    })
+                    return
+                  }
+                  setAddAppointment(next)
+                }}
+                onSubmit={() => void createAppointment()}
+                onCancel={() => setAddingAppointment(false)}
+              />
+            ) : null}
             {bookingTab === 'pending' ? (
               bookings.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-accent/40 bg-white p-6 text-sm">

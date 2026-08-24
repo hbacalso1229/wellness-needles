@@ -10,7 +10,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha come from portal Settings
 - Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → **Public website overlay** is published. API failure keeps the baked site. Patient SMS is a separate Settings switch (default off). Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Owner process: [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md). Portal ops: [docs/PORTAL.md](docs/PORTAL.md).
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
-- Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`). Overlay Confirm / combined / reschedule / day-before reminder use the same branded card (date, time, location, Add to Calendar, Get Directions, Call Wellness Needles) plus a calendar invite on Confirm and Reschedule. Subjects and headings: [docs/PORTAL.md](docs/PORTAL.md#patient-messages)
+- Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`). Overlay Confirm / combined / reschedule / day-before reminder use the same branded card (date, time, location, Add to Calendar, Get Directions, Call Wellness Needles) plus a calendar invite on Confirm and Reschedule. Portal **Add appointment** uses that Confirm card only (no request-received thank-you). The booking form checks email format and, on live www, MX via `/api/booking-email-check`. Subjects and headings: [docs/PORTAL.md](docs/PORTAL.md#patient-messages)
 - Feature defaults in `contact-config.ts` (marketing `/admin` removed)
 - SEO-ready meta tags and semantic HTML
 
@@ -74,7 +74,7 @@ npm run build:e2e
 npm run test:e2e
 ```
 
-Booking email helpers (ICS, Dublin times, duration, 15-minute snap): `npm run test:unit`.
+Booking email helpers (ICS, Dublin times, duration, 15-minute snap, email check, Add appointment): `npm run test:unit`.
 
 Optional UI mode: `npm run test:e2e:ui`.
 
@@ -82,8 +82,8 @@ Optional UI mode: `npm run test:e2e:ui`.
 
 | Doc | Audience |
 |-----|----------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtimes (www, portal, D1, KV, Worker), Confirm/Reschedule pipeline (patient email → D1 → clinic ICS `waitUntil`), shared modules |
-| [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md) | Clinic-owner process |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtimes (www, portal, D1, KV, Worker), Confirm/Add appointment/Reschedule pipeline (patient email → D1 → clinic ICS `waitUntil`), shared modules |
+| [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md) | Clinic-owner process (website Pending + phone/walk-in Add appointment) |
 | [docs/PORTAL.md](docs/PORTAL.md) | Overlay, Settings, sequence diagrams, deploy |
 | [docs/CAPTCHA_ROLLBACK.md](docs/CAPTCHA_ROLLBACK.md) | Turnstile ↔ hCaptcha without a new Release |
 
@@ -114,14 +114,16 @@ src/
 functions/
 ├── _lib/
 │   ├── email-brand.ts         # Shared thank-you / confirm HTML tokens
-│   └── notify.ts              # Confirm / reschedule / reminder / cancel + ICS
-├── api/                       # booking-* on www; public BFF when overlay kill switch is true. /api/admin never on www
+│   ├── notify.ts              # Confirm / reschedule / reminder / cancel + ICS
+│   └── confirm-booking.ts     # Shared Confirm helper; portal Add appointment create
+├── api/                       # booking-* on www (includes booking-email-check); public BFF when overlay kill switch is true. /api/admin never on www
 portal/                        # Owner UI static export
 workers/booking-reminders/     # Day-before reminder cron (09:00 Europe/Dublin)
 shared/
 ├── site-snapshot.ts           # Published overlay JSON
 ├── quarter-hour.ts            # Confirm/reschedule slot snap :00/:15/:30/:45
-└── booking-options.ts         # Allowed service/location catalogs
+├── booking-options.ts         # Allowed service/location catalogs
+└── email-check.ts             # Booking-form format / typo suggestion / MX helper
 d1/schema.sql
 d1/alter-bookings-ics-sequence.sql
 docs/
@@ -161,7 +163,7 @@ In-clinic and home visit **must stay on different prices**. Overlay-off (and API
 
 Do not hand-write a Release for production. After CI is green on `main`, run **Create Production Release**. That workflow bumps the patch on the latest `v*` tag (`v1.1.3` → tag `v1.1.4`, title `Release v1.1.4`), fills the notes with GitHub's generated changelog (What's Changed, New Contributors, Full Changelog), then starts **Deploy — Production**. PR titles appear in What's Changed — use `[TICKET] description` on PRs if you want that ticket-style look.
 
-**Live booking rule:** enable only one of Fresha / Calendly / legacy form. Overlay-off uses `contact-config.ts`. Overlay-on uses portal Settings (then Publish). Patient SMS is off until Settings → Patient SMS is published on; Twilio secrets live on the portal and reminder Worker, not www.
+**Live booking rule:** enable only one of Fresha / Calendly / legacy form. Overlay-off uses `contact-config.ts`. Overlay-on uses portal Settings (then Publish). Phone and walk-in that you take yourself use portal **Add appointment** (not Calendly/Fresha import). Patient SMS is off until Settings → Patient SMS is published on; Twilio secrets live on the portal and reminder Worker, not www.
 
 Overlay kill switch is `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/deploy-production.yml` (build **and** deploy). `"true"` allows www to fetch `/api/bff/site`. `"false"` restores baked www + booking Functions only. Do not set this in the Cloudflare dashboard. Off-ramps: [docs/PORTAL.md](docs/PORTAL.md).
 

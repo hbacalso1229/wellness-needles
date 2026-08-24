@@ -1,4 +1,5 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../../_lib/http'
+import { confirmBookingRow } from '../../../_lib/confirm-booking'
 import {
   bookingDurationMinutes,
   dublinLocalToUtcIso,
@@ -73,59 +74,22 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   const site = await readPublishedSite(context.env)
 
   if (action === 'confirm') {
-    const local = snapDateTimeLocalToQuarterHour(asString(body?.startsAtLocal))
-    const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(local)
-    if (!match) {
-      return jsonResponse(400, { ok: false, error: 'startsAtLocal required (YYYY-MM-DDTHH:mm)' })
-    }
-    const startsAt = dublinLocalToUtcIso(match[1], match[2])
-    const remindAt = remindAtMorningBefore(startsAt)
-    const combined = reminderWindowStarted(remindAt)
-    const kind = combined ? 'combined' : 'confirm'
-    const whenLabel = formatDublin(startsAt)
-    const smsOptIn = Boolean(row.sms_opt_in) && site.features.smsEnabled
-    const patientName = `${row.first_name} ${row.last_name}`.trim()
-    const sent = await sendPatientBookingMessage({
+    const confirmed = await confirmBookingRow({
       env: context.env,
-      kind,
-      toEmail: row.email,
-      toPhone: row.phone,
-      smsOptIn,
-      whenLabel,
-      locationLabel: row.location_label || '',
+      waitUntil: context.waitUntil,
       site,
-      bookingId: row.id,
-      patientName,
-      firstName: row.first_name,
-      serviceLabel: row.service_label || undefined,
-      startsAtIso: startsAt,
-      durationMinutes: bookingDurationMinutes(row.service_label, site),
+      row,
+      startsAtLocal: asString(body?.startsAtLocal),
     })
-
-    await context.env.DB.prepare(
-      `UPDATE bookings SET
-         status = 'confirmed',
-         starts_at = ?,
-         remind_at = ?,
-         confirm_email_sent = ?,
-         confirm_sms_sent = ?,
-         reminder_email_sent = ?,
-         reminder_sms_sent = ?
-       WHERE id = ?`
-    )
-      .bind(
-        startsAt,
-        remindAt,
-        (sent.email || row.confirm_email_sent) ? 1 : 0,
-        (sent.sms || row.confirm_sms_sent) ? 1 : 0,
-        combined && sent.email ? 1 : row.reminder_email_sent,
-        combined && sent.sms ? 1 : row.reminder_sms_sent,
-        id
-      )
-      .run()
-
-    await enqueueClinicCalendarCopy(context.waitUntil, context.env, sent.clinicCopy)
-    return jsonResponse(200, { ok: true, startsAt, combined, sent: sentFlags(sent) })
+    if (!confirmed.ok) {
+      return jsonResponse(400, { ok: false, error: confirmed.error })
+    }
+    return jsonResponse(200, {
+      ok: true,
+      startsAt: confirmed.result.startsAt,
+      combined: confirmed.result.combined,
+      sent: confirmed.result.sent,
+    })
   }
 
   if (action === 'reschedule') {
