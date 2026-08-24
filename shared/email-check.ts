@@ -103,7 +103,13 @@ export function checkEmailLocal(value: string): EmailLocalCheck {
 }
 
 export function isValidEmailFormat(value: string): boolean {
-  return checkEmailLocal(value).ok
+  return parseEmailAddress(value) !== null
+}
+
+export function emailTypoSuggestion(value: string): string | null {
+  const result = checkEmailLocal(value)
+  if (!result.ok && result.reason === 'typo') return result.suggestion
+  return null
 }
 
 export function emailCheckMessage(result: {

@@ -3,6 +3,7 @@ import { describe, it } from 'node:test'
 import {
   checkEmailLocal,
   emailCheckMessage,
+  emailTypoSuggestion,
   isValidEmailFormat,
   levenshtein,
   parseEmailAddress,
@@ -48,6 +49,12 @@ describe('checkEmailLocal', () => {
     if (gmial.ok === false && gmial.reason === 'typo') {
       assert.equal(gmial.suggestion, 'mary@gmail.com')
     }
+    assert.equal(emailTypoSuggestion('mary@gamil.com'), 'mary@gmail.com')
+    assert.equal(isValidEmailFormat('mary@gamil.com'), true)
+    assert.equal(
+      emailTypoSuggestion('hbacalso1229@yohoo.com'),
+      'hbacalso1229@yahoo.com'
+    )
   })
 
   it('returns format for empty-like junk', () => {
