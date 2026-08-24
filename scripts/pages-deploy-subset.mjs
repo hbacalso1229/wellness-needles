@@ -56,13 +56,14 @@ if (mode === 'www') {
     'booking-request.ts',
     'booking-thank-you.ts',
     'booking-captcha.ts',
+    'booking-email-check.ts',
     'review-submit.ts',
     'reviews.ts',
   ]) {
     cpSync(join(root, 'functions', 'api', name), join(functionsDest, name))
   }
+  copyLibAndShared()
   if (overlayLive) {
-    copyLibAndShared()
     copyPublicBff()
   }
 } else {

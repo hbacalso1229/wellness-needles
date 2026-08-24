@@ -28,6 +28,7 @@ import {
   visitTypeDisplay,
   type KnownLocation,
 } from '../_lib/email-brand'
+import { isValidEmailFormat } from '../../shared/email-check'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -63,10 +64,6 @@ const PHONE_DISPLAY = '+353 86 054 3085'
 const PHONE_HREF = 'tel:+353860543085'
 const EMAIL_HREF =
   'mailto:info@wellnessneedles.ie?subject=Appointment%20enquiry'
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-}
 
 function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
@@ -283,7 +280,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const time = typeof body.time === 'string' ? body.time.trim() : ''
   const serviceType = typeof body.serviceType === 'string' ? body.serviceType.trim() : ''
 
-  if (!firstName || !email || !isValidEmail(email) || !date || !time || !serviceType) {
+  if (!firstName || !email || !isValidEmailFormat(email) || !date || !time || !serviceType) {
     return jsonResponse(400, { ok: false, error: 'Missing required booking fields' })
   }
 
