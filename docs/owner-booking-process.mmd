@@ -4,6 +4,8 @@ flowchart TD
   inbox[Request appears in portal Appointments]
   clinicMail[You also get an email at info@]
   decide{You Confirm or Cancel}
+  walkin[You take a phone or walk-in booking]
+  add[Add appointment in the portal]
   pickTime[You choose the exact start time]
   tooSoon{Is the appointment tomorrow or today?}
   confirmed[Patient gets confirmation plus calendar invite]
@@ -19,6 +21,7 @@ flowchart TD
   request --> clinicMail
   inbox --> decide
   decide -->|Confirm| pickTime --> tooSoon
+  walkin --> add --> pickTime
   tooSoon -->|No: still time| confirmed --> zoho
   confirmed --> reminder
   tooSoon -->|Yes: last minute| seeYou --> zoho

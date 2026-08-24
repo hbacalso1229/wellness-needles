@@ -1,13 +1,13 @@
 # Architecture
 
-System shape for the public site, owner portal, and website-form bookings. Clinic-owner wording: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Portal operations: [PORTAL.md](PORTAL.md).
+System shape for the public site, owner portal, website-form bookings, and portal Add appointment. Clinic-owner wording: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Portal operations: [PORTAL.md](PORTAL.md).
 
 ## Runtimes
 
 | Piece | Where | Role |
 |-------|--------|------|
 | www | Cloudflare Pages `wellness-needles` → `www.wellnessneedles.ie` | Static Next export + booking/thank-you Functions. Public BFF only when the overlay kill switch is `"true"`. |
-| Portal | Cloudflare Pages `wellness-needles-portal` → `portal.wellnessneedles.ie` | Owner UI behind Access. `/api/admin` lives **only** here. Confirm, Reschedule, Cancel, Publish overlay, Patient SMS switch. |
+| Portal | Cloudflare Pages `wellness-needles-portal` → `portal.wellnessneedles.ie` | Owner UI behind Access. `/api/admin` lives **only** here. Add appointment, Confirm, Reschedule, Cancel, Publish overlay, Patient SMS switch. |
 | Reminders | Worker `wellness-needles-reminders` cron `*/15` | Day-before reminder email (and SMS if enabled). No ICS. |
 | D1 `wellness-needles` | EU, binding `DB` | Bookings, reviews, site draft/published JSON, publish history. Bound on **www, portal, and Worker**. |
 | KV `SITE_CACHE` | Binding `SITE_CACHE` | Published site snapshot for www overlay. Portal writes; www reads. Not required on the Worker. |
@@ -49,7 +49,7 @@ flowchart LR
   Portal --> D1
   Portal --> KV
   WWW -->|overlay on: /api/bff/site| KV
-  Portal -->|Confirm Reschedule Cancel| Resend
+  Portal -->|Confirm Add appointment Reschedule Cancel| Resend
   Resend --> Zoho
   Worker --> D1
   Worker --> Resend
@@ -73,11 +73,12 @@ Patient SMS is a separate Published switch (default off).
 
 ## Booking lifecycle
 
-Only the **website booking form** enters D1. Phone, Calendly, and Fresha do not.
+Website form (overlay persist) and portal **Add appointment** (phone/walk-in) both write D1. Calendly and Fresha do not.
 
 ```mermaid
 stateDiagram-v2
   [*] --> pending: overlay persist after clinic email succeeds
+  [*] --> confirmed: portal Add appointment create plus Confirm pipeline
   pending --> confirmed: owner Confirm + exact Dublin start
   pending --> cancelled: owner Cancel
   confirmed --> confirmed: owner Reschedule
@@ -86,8 +87,8 @@ stateDiagram-v2
 
 | Status | Inbox | Mail |
 |--------|--------|------|
-| `pending` | Appointments → Pending | Thank-you already sent at submit. Confirm or Cancel next. |
-| `confirmed` | Appointments → Confirmed | Patient card + `invite.ics`. Reschedule sends **Appointment updated** + replacement ICS (`SEQUENCE` + 1). Day-before reminder unless already in the reminder window. |
+| `pending` | Appointments → Pending | Website thank-you already sent at submit. Confirm or Cancel next. Portal create can land here if Confirm fails after INSERT — Confirm from Pending; do not Add appointment again. |
+| `confirmed` | Appointments → Confirmed | Patient card + `invite.ics`. Portal create uses this path immediately. Reschedule sends **Appointment updated** + replacement ICS (`SEQUENCE` + 1). Day-before reminder unless already in the reminder window. |
 | `cancelled` | Appointments → Cancelled (look-up only) | Pending: could not confirm (no ICS). Confirmed: cancel notice + `METHOD:CANCEL` at `ics_sequence + 1`. No restore. |
 
 `starts_at` is UTC ISO for the exact Europe/Dublin slot. `remind_at` is 09:00 Europe/Dublin on the **calendar day before** `starts_at`. Combined Confirm (already `remind_at <= now`) sets reminder sent flags so the Worker does not send again.
@@ -104,7 +105,7 @@ Critical path is **patient first, then D1, then clinic copy in the background**.
 
 ```mermaid
 flowchart TD
-  start[Owner Confirm + Europe/Dublin start snapped to 15 min]
+  start[Owner Confirm or Add appointment + Europe/Dublin start snapped to 15 min]
   mail[Await patient email + invite.ics]
   sms{Patient SMS On and opted in?}
   twilio[Await Twilio SMS]
@@ -126,7 +127,7 @@ flowchart TD
 
 Mermaid source: [architecture-confirm-pipeline.mmd](architecture-confirm-pipeline.mmd). Numbered sequence: [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd).
 
-Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`.
+Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`. Website Confirm body stays `{ action: 'confirm', startsAtLocal }`. Phone/walk-in use `POST /api/admin/bookings` `{ action: 'create', startsAtLocal, firstName, lastName, email, phone, serviceType, locationLabel, serviceLabel, smsOptIn }` then the same Confirm helper (no request-received thank-you).
 
 Cancel uses the same order: patient mail → D1 `cancelled` → `waitUntil` clinic CANCEL copy when the row was already confirmed.
 
@@ -169,6 +170,7 @@ If the new `remind_at` is still in the future, reminder flags are cleared so the
 | Event | HTML | ICS | Clinic |
 |-------|------|-----|--------|
 | Submit thank-you | Request received (www `/api/booking-thank-you`) | None | Request already arrived via Web3Forms |
+| Portal create (phone/walk-in) | Same Confirm card (no request-received mail) | Same REQUEST SEQUENCE 0 | Same `waitUntil` copy |
 | Confirm (still before day-before 09:00) | Card, status **Appointment confirmed**, title **See you soon, {first}!** | `METHOD:REQUEST` UID `{bookingId}@wellnessneedles.ie` **SEQUENCE 0** | `waitUntil` copy, same UID |
 | Combined (day-before after 09:00, or same day) | Same card (inbox subject still `Confirmed, see you then`) | Same REQUEST SEQUENCE 0 | Same |
 | Reschedule | Card, status **Appointment updated**, title **See you soon, {first}!** | Same UID, **SEQUENCE = ics_sequence + 1** | Same |
@@ -194,10 +196,12 @@ Not built: same-day reminder.
 |--------|---------|---------|
 | `functions/_lib/email-brand.ts` | www thank-you, portal/Worker notify | Colours, rows, pills, maps, location parse (Celbridge street `56 The Orchard, Oldtown Mill`) |
 | `functions/_lib/notify.ts` | Portal Confirm/Reschedule/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
-| `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule API | 15-minute snap + Dublin datetime-local |
-| `shared/twelve-hour.ts` | Portal hours + Confirm/Reschedule pickers | 12-hour AM/PM UI; stored values stay 24-hour |
+| `functions/_lib/confirm-booking.ts` | Portal Confirm and Add appointment | Shared Confirm helper. Create validates published lists then INSERT pending and runs the same pipeline |
+| `shared/email-check.ts` | www booking form, `/api/booking-email-check`, portal create email | Format parse, typo suggestion, MX via Cloudflare DoH (fail-open). Typo does not block submit |
+| `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule/create API | 15-minute snap + Dublin datetime-local |
+| `shared/twelve-hour.ts` | Portal hours + Confirm/Reschedule/Add appointment pickers | 12-hour AM/PM UI; stored values stay 24-hour |
 | `shared/preferred-time-windows.ts` | www booking form | Clip preferred-time cards to published hours |
-| `shared/booking-options.ts` | Portal Confirmed tab, Reschedule API | Allowed service/location catalogs |
+| `shared/booking-options.ts` | Portal Confirmed tab, Reschedule and Add appointment APIs | Allowed service/location catalogs |
 | `shared/site-snapshot.ts` | www overlay, portal Settings | Published clinic JSON (`serviceCopy`, cupping/moxibustion flags) |
 | `src/lib/overlay-public.ts` | www `/bookings/` | Overlay catalog names, prices, add-on flags |
 
@@ -207,9 +211,9 @@ Unit tests: `npm run test:unit`.
 
 | Audience | Doc | Diagrams |
 |----------|-----|----------|
-| Clinic owner | [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md) | Owner flowchart + [owner-booking-process.mmd](owner-booking-process.mmd) |
+| Clinic owner | [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md) | Owner flowchart (website + Add appointment) + [owner-booking-process.mmd](owner-booking-process.mmd) |
 | Technical request | [PORTAL.md](PORTAL.md#patient-booking-request-flow-technical) | [booking-sequence-request.mmd](booking-sequence-request.mmd) |
-| Technical Confirm / reminder | same | [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd) |
+| Technical Confirm / Add appointment / reminder | same | [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd) (create INSERT then this pipeline) |
 | Technical Reschedule | same | [booking-sequence-reschedule.mmd](booking-sequence-reschedule.mmd) |
 | Technical Cancel | same | [booking-sequence-cancel.mmd](booking-sequence-cancel.mmd) |
 
@@ -219,7 +223,8 @@ Request persist is fire-and-forget after Web3Forms success. Persist failure does
 
 | Change | Deploy |
 |--------|--------|
-| Confirm / Reschedule / Cancel card + ICS + snap | **Portal** (run D1 `ALTER` for `ics_sequence` first) |
+| Confirm / Add appointment / Reschedule / Cancel card + ICS + snap | **Portal** (run D1 `ALTER` for `ics_sequence` first) |
+| Website email check (`/api/booking-email-check`) | **www** (production Release) |
 | Day-before reminder card | **Worker** `wellness-needles-reminders` |
 | Thank-you / `email-brand.ts` | **www** (production Release) |
 | Overlay kill switch | `NEXT_PUBLIC_SITE_OVERLAY_ENABLED` in `.github/workflows/deploy-production.yml` (build **and** deploy), then Release. Not the Cloudflare dashboard. |
