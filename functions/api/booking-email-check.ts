@@ -52,19 +52,30 @@ export const onRequestPost: PagesFunction = async (context) => {
       : ''
 
   const local = checkEmailLocal(email)
-  if (!local.ok) {
-    const parsed = parseEmailAddress(email)
+  const parsed = local.ok
+    ? { domain: local.domain }
+    : parseEmailAddress(email)
+
+  if (!local.ok && local.reason === 'format') {
     console.info('[booking-email-check]', local.reason, parsed?.domain || 'invalid')
-    if (local.reason === 'typo') return fail('typo', local.suggestion)
     return fail('format')
   }
 
-  const mx = await domainHasMx(local.domain)
+  if (!parsed) {
+    console.info('[booking-email-check]', 'format', 'invalid')
+    return fail('format')
+  }
+
+  if (!local.ok && local.reason === 'typo') {
+    console.info('[booking-email-check]', 'typo', parsed.domain)
+  }
+
+  const mx = await domainHasMx(parsed.domain)
   if (mx === false) {
-    console.info('[booking-email-check]', 'mx', local.domain)
+    console.info('[booking-email-check]', 'mx', parsed.domain)
     return fail('mx')
   }
 
-  console.info('[booking-email-check]', 'ok', local.domain)
+  console.info('[booking-email-check]', 'ok', parsed.domain)
   return jsonResponse(200, { ok: true })
 }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
+import { Building2, Calendar, ChevronDown, ClipboardList, Home, Leaf, Lightbulb, Lock, MapPin, User, type LucideIcon } from 'lucide-react'
 import { PhoneFlagIcon } from '@/features/ui/PhoneFlagIcon'
 import { contactConfig } from '@/lib/contact-config'
 import {
@@ -35,7 +35,7 @@ import {
   normalizeNameParts,
   splitFullName,
 } from '@/lib/person-name'
-import { checkEmailLocal, emailCheckMessage } from '../../shared/email-check'
+import { emailCheckMessage, emailTypoSuggestion, checkEmailLocal } from '../../shared/email-check'
 import {
   OptionalAddOns,
   ClinicLocationCards,
@@ -82,7 +82,7 @@ function skipRemoteEmailCheck(): boolean {
 function localEmailError(value: string): string | null {
   if (!value.trim()) return 'Please enter your email address.'
   const result = checkEmailLocal(value)
-  if (result.ok) return null
+  if (result.ok || result.reason === 'typo') return null
   return emailCheckMessage(result)
 }
 
@@ -100,8 +100,8 @@ async function lookupEmailDeliverability(email: string): Promise<string | null> 
       reason?: 'format' | 'typo' | 'mx'
       suggestion?: string
     }
-    if (data.ok) return null
-    if (data.reason === 'format' || data.reason === 'typo' || data.reason === 'mx') {
+    if (data.ok || data.reason === 'typo') return null
+    if (data.reason === 'format' || data.reason === 'mx') {
       return emailCheckMessage({ reason: data.reason, suggestion: data.suggestion })
     }
     return null
@@ -199,6 +199,44 @@ function FieldInlineError({
     >
       {message}
     </p>
+  )
+}
+
+function EmailTypoSuggestion({
+  suggestion,
+  onApply,
+}: {
+  suggestion: string
+  onApply: (value: string) => void
+}) {
+  return (
+    <div id="email-suggestion" className="mt-2 space-y-2" role="status">
+      <p className="flex items-start gap-2 text-sm text-[var(--text-dark)]">
+        <Lightbulb
+          className="mt-0.5 h-4 w-4 shrink-0 text-gold"
+          strokeWidth={2}
+          aria-hidden
+        />
+        <span>
+          Did you mean{' '}
+          <button
+            type="button"
+            className="font-medium text-accent underline decoration-accent/50 underline-offset-2 hover:text-primary"
+            onClick={() => onApply(suggestion)}
+          >
+            {suggestion}
+          </button>
+          ?
+        </span>
+      </p>
+      <button
+        type="button"
+        onClick={() => onApply(suggestion)}
+        className="inline-flex rounded-lg border border-accent/40 bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-dark)] hover:border-accent hover:bg-accent/5"
+      >
+        Use suggested email
+      </button>
+    </div>
   )
 }
 
@@ -469,6 +507,7 @@ export default function BookingForm() {
 
   const hasFieldError = (key: FieldErrorKey) => fieldErrors.has(key)
   const fieldErrorMessage = (key: FieldErrorKey) => fieldErrorMessages[key]
+  const emailSuggestion = emailTypoSuggestion(formData.email)
 
   const clearFieldError = (key: FieldErrorKey) => {
     setFieldErrors((prev) => {
@@ -488,6 +527,11 @@ export default function BookingForm() {
   const clearAllFieldErrors = () => {
     setFieldErrors(new Set())
     setFieldErrorMessages({})
+  }
+
+  const applyEmailSuggestion = (suggestion: string) => {
+    setFormData((prev) => ({ ...prev, email: suggestion }))
+    clearFieldError('email')
   }
 
   const reportValidationErrors = (error: {
@@ -1361,14 +1405,16 @@ export default function BookingForm() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    onBlur={() => {
+                    onBlur={(e) => {
+                      const value = e.currentTarget.value
                       void (async () => {
-                        const local = localEmailError(formData.email)
+                        const local = localEmailError(value)
                         if (local) {
                           reportValidationErrors({ fields: ['email'], messages: [local] })
                           return
                         }
-                        const remote = await lookupEmailDeliverability(formData.email)
+                        if (emailTypoSuggestion(value)) return
+                        const remote = await lookupEmailDeliverability(value)
                         if (remote) {
                           reportValidationErrors({ fields: ['email'], messages: [remote] })
                         }
@@ -1377,10 +1423,21 @@ export default function BookingForm() {
                     placeholder="Enter your email address"
                     aria-invalid={hasFieldError('email')}
                     aria-describedby={
-                      fieldErrorMessage('email') ? 'email-error' : undefined
+                      [
+                        fieldErrorMessage('email') ? 'email-error' : '',
+                        emailSuggestion ? 'email-suggestion' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ') || undefined
                     }
                     className={hasFieldError('email') ? fieldErrorClassName : inputClassName}
                   />
+                  {emailSuggestion ? (
+                    <EmailTypoSuggestion
+                      suggestion={emailSuggestion}
+                      onApply={applyEmailSuggestion}
+                    />
+                  ) : null}
                   <FieldInlineError id="email-error" message={fieldErrorMessage('email')} />
                 </div>
                 <div className="min-w-0">
