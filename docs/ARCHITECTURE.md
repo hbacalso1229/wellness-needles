@@ -127,7 +127,7 @@ flowchart TD
 
 Mermaid source: [architecture-confirm-pipeline.mmd](architecture-confirm-pipeline.mmd). Numbered sequence: [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd).
 
-Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`. Website Confirm body stays `{ action: 'confirm', startsAtLocal }`. Phone/walk-in use `POST /api/admin/bookings` `{ action: 'create', startsAtLocal, firstName, lastName, email, phone, serviceType, locationLabel, serviceLabel, smsOptIn }` then the same Confirm helper (no request-received thank-you).
+Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`. Starts before now (Europe/Dublin) are rejected. Website Confirm body stays `{ action: 'confirm', startsAtLocal }`. Phone/walk-in use `POST /api/admin/bookings` `{ action: 'create', startsAtLocal, firstName, lastName, email, phone, serviceType, locationLabel, serviceLabel, smsOptIn }` then the same Confirm helper (no request-received thank-you). Create phone must pass the same Irish-mobile / country checks as the website form.
 
 Cancel uses the same order: patient mail → D1 `cancelled` → `waitUntil` clinic CANCEL copy when the row was already confirmed.
 
@@ -161,7 +161,7 @@ flowchart TD
 
 Mermaid source: [architecture-reschedule-pipeline.mmd](architecture-reschedule-pipeline.mmd). Numbered sequence: [booking-sequence-reschedule.mmd](booking-sequence-reschedule.mmd).
 
-`POST /api/admin/bookings/:id` `{ action: 'reschedule', startsAtLocal, serviceType, locationLabel, serviceLabel }` — confirmed rows only. Confirm body stays `{ action: 'confirm', startsAtLocal }`.
+`POST /api/admin/bookings/:id` `{ action: 'reschedule', startsAtLocal, serviceType, locationLabel, serviceLabel }` — confirmed rows only. Confirm body stays `{ action: 'confirm', startsAtLocal }`. Past Europe/Dublin starts are rejected.
 
 If the new `remind_at` is still in the future, reminder flags are cleared so the Worker can send. If already in the window, flags are set and there is no extra “See you tomorrow”.
 
@@ -198,7 +198,8 @@ Not built: same-day reminder.
 | `functions/_lib/notify.ts` | Portal Confirm/Reschedule/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
 | `functions/_lib/confirm-booking.ts` | Portal Confirm and Add appointment | Shared Confirm helper. Create validates published lists then INSERT pending and runs the same pipeline |
 | `shared/email-check.ts` | www booking form, `/api/booking-email-check`, portal create email | Format parse, typo suggestion, MX via Cloudflare DoH (fail-open). Typo does not block submit |
-| `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule/create API | 15-minute snap + Dublin datetime-local |
+| `shared/irish-phone.ts` / `shared/phone-countries.ts` | www booking form, portal Add appointment + Settings, create API | Country dial codes, Irish 08x mobile, E.164 |
+| `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule/create API | 15-minute snap + Dublin datetime-local; past starts rejected |
 | `shared/twelve-hour.ts` | Portal hours + Confirm/Reschedule/Add appointment pickers | 12-hour AM/PM UI; stored values stay 24-hour |
 | `shared/preferred-time-windows.ts` | www booking form | Clip preferred-time cards to published hours |
 | `shared/booking-options.ts` | Portal Confirmed tab, Reschedule and Add appointment APIs | Allowed service/location catalogs |

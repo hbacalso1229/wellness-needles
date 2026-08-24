@@ -65,7 +65,11 @@ import {
 } from './portal-ui'
 import { AddressSearch } from './AddressSearch'
 import { LocationPreview } from './LocationPreview'
-import { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from '../../../shared/quarter-hour'
+import {
+  isDublinDateTimeLocalPast,
+  snapDateTimeLocalToQuarterHour,
+  utcIsoToDublinDateTimeLocal,
+} from '../../../shared/quarter-hour'
 import {
   SERVICE_TYPE_IN_CLINIC,
   publishedLocationOptions,
@@ -772,6 +776,10 @@ export function PortalApp() {
     try {
       const startsAt = snapDateTimeLocalToQuarterHour(startsAtLocal)
       setStartsAtLocal(startsAt)
+      if (isDublinDateTimeLocalPast(startsAt)) {
+        show('Choose a start that is not in the past.')
+        return
+      }
       await api(`/api/admin/bookings/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -818,6 +826,10 @@ export function PortalApp() {
     try {
       const startsAt = snapDateTimeLocalToQuarterHour(startsAtLocal)
       setStartsAtLocal(startsAt)
+      if (isDublinDateTimeLocalPast(startsAt)) {
+        show('Choose a start that is not in the past.')
+        return
+      }
       await api(`/api/admin/bookings/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -849,6 +861,10 @@ export function PortalApp() {
     try {
       const startsAt = snapDateTimeLocalToQuarterHour(addAppointment.startsAtLocal)
       setAddAppointment((prev) => ({ ...prev, startsAtLocal: startsAt }))
+      if (isDublinDateTimeLocalPast(startsAt)) {
+        show('Choose a start that is not in the past.')
+        return
+      }
       setCreatingAppointment(true)
       await api('/api/admin/bookings', {
         method: 'POST',

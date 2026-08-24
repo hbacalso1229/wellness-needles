@@ -56,7 +56,7 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 When you book someone by phone or in person (not the website form):
 
 1. Open **Appointments** and choose **Add appointment**.
-2. Enter their name, email, phone, visit type, location, service, and the exact Ireland start.
+2. Enter their name, email, phone (same checks as the website form), visit type, location, service, and the exact Ireland start (not a past date).
 3. Tick **Patient asked for SMS** only if they want texts (and Patient SMS is published On).
 4. Choose **Confirm appointment**. They get the same confirmation card and calendar invite as a website Confirm. The row appears under **Confirmed**. Reschedule and Cancel work as usual.
 

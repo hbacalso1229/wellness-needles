@@ -22,6 +22,23 @@ export function snapDateTimeLocalToQuarterHour(value: string): string {
   return `${ymd}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
 
+/** Current Europe/Dublin wall clock as `YYYY-MM-DDTHH:mm`. */
+export function dublinNowDateTimeLocal(now = new Date()): string {
+  return utcIsoToDublinDateTimeLocal(now.toISOString())
+}
+
+/** Today's calendar date in Europe/Dublin (`YYYY-MM-DD`). */
+export function dublinTodayYmd(now = new Date()): string {
+  return dublinNowDateTimeLocal(now).slice(0, 10)
+}
+
+/** True when the snapped Dublin local start is before now in Europe/Dublin. */
+export function isDublinDateTimeLocalPast(value: string, now = new Date()): boolean {
+  const snapped = snapDateTimeLocalToQuarterHour(value)
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(snapped)) return false
+  return snapped < dublinNowDateTimeLocal(now)
+}
+
 /** UTC ISO → `YYYY-MM-DDTHH:mm` in Europe/Dublin for datetime-local. */
 export function utcIsoToDublinDateTimeLocal(iso: string): string {
   const date = new Date(iso)

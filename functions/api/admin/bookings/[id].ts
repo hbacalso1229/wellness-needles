@@ -11,6 +11,7 @@ import {
   snapDateTimeLocalToQuarterHour,
 } from '../../../_lib/notify'
 import { readPublishedSite } from '../../../_lib/site'
+import { isDublinDateTimeLocalPast } from '../../../../shared/quarter-hour'
 import {
   isAllowedLocation,
   isAllowedService,
@@ -112,6 +113,9 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     }
     if (!isAllowedService(site, serviceType, serviceLabel, row.service_label)) {
       return jsonResponse(400, { ok: false, error: 'invalid-service' })
+    }
+    if (isDublinDateTimeLocalPast(local)) {
+      return jsonResponse(400, { ok: false, error: 'starts-in-past' })
     }
     const startsAt = dublinLocalToUtcIso(match[1], match[2])
     const remindAt = remindAtMorningBefore(startsAt)

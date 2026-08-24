@@ -18,7 +18,7 @@ const validCreate = {
   serviceType: 'In Clinic',
   locationLabel: publishedLocationOptions(SITE_DEFAULTS)[0] || '',
   serviceLabel: 'Initial Consultation & First Treatment',
-  startsAtLocal: '2026-09-02T14:00',
+  startsAtLocal: '2099-06-15T14:00',
   smsOptIn: false,
 }
 
@@ -65,6 +65,26 @@ describe('validateCreateBookingInput', () => {
     assert.equal(
       validateCreateBookingInput({ ...validCreate, serviceType: 'Phone' }, SITE_DEFAULTS),
       'invalid-service-type'
+    )
+  })
+
+  it('rejects junk that is not a phone number', () => {
+    assert.equal(
+      validateCreateBookingInput(
+        { ...validCreate, phone: 'dsfsertertertdfert' },
+        SITE_DEFAULTS
+      ),
+      'invalid-phone'
+    )
+  })
+
+  it('rejects a start that is already in the past', () => {
+    assert.equal(
+      validateCreateBookingInput(
+        { ...validCreate, startsAtLocal: '2020-01-01T10:00' },
+        SITE_DEFAULTS
+      ),
+      'starts-in-past'
     )
   })
 })

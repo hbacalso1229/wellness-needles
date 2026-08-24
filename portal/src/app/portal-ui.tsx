@@ -1,10 +1,25 @@
 'use client'
 
-import { useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { RatingStars } from '../../../src/features/ui/RatingStars'
+import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import { CONDITION_MAX_LEN } from '../../../shared/review-rating'
-import { snapDateTimeLocalToQuarterHour } from '../../../shared/quarter-hour'
+import {
+  dublinTodayYmd,
+  isDublinDateTimeLocalPast,
+  snapDateTimeLocalToQuarterHour,
+} from '../../../shared/quarter-hour'
+import {
+  DEFAULT_PHONE_COUNTRY_ID,
+  getPhoneCountry,
+} from '../../../src/lib/phone-countries'
+import {
+  formatLocalPhoneInput,
+  isValidBookingPhone,
+  subscriberDigits,
+  toE164,
+} from '../../../src/lib/irish-phone'
 import {
   euroPrice,
   formatHourLabel,
@@ -421,6 +436,7 @@ export function DublinStartPicker({
   onChange: (next: string) => void
   label?: string
 }) {
+  const minDate = dublinTodayYmd()
   const parts = datetimeLocalTo12(value ? snapDateTimeLocalToQuarterHour(value) : '')
   const commit = (patch: Partial<typeof parts>) => {
     const next = { ...parts, ...patch }
@@ -428,6 +444,7 @@ export function DublinStartPicker({
       onChange('')
       return
     }
+    if (next.date < minDate) next.date = minDate
     onChange(snapDateTimeLocalToQuarterHour(datetimeLocalFrom12(next)))
   }
   return (
@@ -436,6 +453,7 @@ export function DublinStartPicker({
       <span className="mt-1 flex flex-wrap items-center gap-2">
         <input
           type="date"
+          min={minDate}
           className={`${selectClass} [color-scheme:light]`}
           aria-label={`${label} date`}
           value={parts.date}
@@ -511,11 +529,52 @@ export function AddAppointmentPanel({
   onCancel: () => void
 }) {
   const fieldClass = 'mt-1 block w-full rounded border px-2 py-1 text-sm'
+  const [phoneCountryId, setPhoneCountryId] = useState(DEFAULT_PHONE_COUNTRY_ID)
+  const [phoneError, setPhoneError] = useState('')
+  const [startError, setStartError] = useState('')
+  const phoneCountry = getPhoneCountry(phoneCountryId)
+  const enforceIrishMobile = phoneCountry.id === 'IE'
+
+  useEffect(() => {
+    if (!values.phone && !values.firstName && !values.lastName && !values.email) {
+      setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
+      setPhoneError('')
+      setStartError('')
+    }
+  }, [values.phone, values.firstName, values.lastName, values.email])
+
   return (
     <form
       className="rounded-xl border border-accent/20 bg-white p-4"
       onSubmit={(e) => {
         e.preventDefault()
+        const phone = values.phone.trim()
+        if (!phone) {
+          setPhoneError('Enter a phone number.')
+          return
+        }
+        if (
+          !isValidBookingPhone(phone, phoneCountry, {
+            strictIrishMobile: enforceIrishMobile,
+          })
+        ) {
+          setPhoneError(
+            phoneCountry.id === 'IE'
+              ? 'Enter a valid Irish mobile number (e.g. 86 054 3085).'
+              : `Enter a valid ${phoneCountry.name} phone number.`
+          )
+          return
+        }
+        setPhoneError('')
+        if (!values.startsAtLocal.trim()) {
+          setStartError('Choose an exact start.')
+          return
+        }
+        if (isDublinDateTimeLocalPast(values.startsAtLocal)) {
+          setStartError('Choose a start that is not in the past.')
+          return
+        }
+        setStartError('')
         onSubmit()
       }}
     >
@@ -560,19 +619,50 @@ export function AddAppointmentPanel({
         </label>
         <label className="text-sm">
           Phone
-          <input
-            required
-            type="tel"
-            autoComplete="tel"
-            className={fieldClass}
-            value={values.phone}
-            onChange={(e) => onChange({ ...values, phone: e.target.value })}
-          />
+          <span
+            className={`mt-1 flex overflow-hidden rounded border bg-white ${
+              phoneError ? 'border-red-500' : 'border-black/15'
+            }`}
+          >
+            <PhoneCountrySelect
+              value={phoneCountry}
+              onChange={(nextCountry) => {
+                const local = subscriberDigits(values.phone, phoneCountry)
+                setPhoneCountryId(nextCountry.id)
+                setPhoneError('')
+                onChange({ ...values, phone: toE164(local, nextCountry) })
+              }}
+            />
+            <input
+              required
+              type="tel"
+              inputMode={enforceIrishMobile ? 'numeric' : 'tel'}
+              autoComplete="tel-national"
+              placeholder={phoneCountry.placeholder}
+              className="min-w-0 flex-1 border-0 px-2 py-1 text-sm outline-none"
+              value={formatLocalPhoneInput(values.phone, phoneCountry)}
+              onChange={(e) => {
+                setPhoneError('')
+                onChange({ ...values, phone: toE164(e.target.value, phoneCountry) })
+              }}
+            />
+          </span>
+          {phoneError ? (
+            <span className="mt-1 block text-xs text-red-600">{phoneError}</span>
+          ) : null}
         </label>
-        <DublinStartPicker
-          value={values.startsAtLocal}
-          onChange={(startsAtLocal) => onChange({ ...values, startsAtLocal })}
-        />
+        <div>
+          <DublinStartPicker
+            value={values.startsAtLocal}
+            onChange={(startsAtLocal) => {
+              setStartError('')
+              onChange({ ...values, startsAtLocal })
+            }}
+          />
+          {startError ? (
+            <span className="mt-1 block text-xs text-red-600">{startError}</span>
+          ) : null}
+        </div>
         <label className="text-sm">
           Visit type
           <select
