@@ -902,8 +902,8 @@ export function PortalApp() {
       }
       unpublishedDetail={
         tab === 'pricing'
-          ? 'Publish to update prices on your booking page.'
-          : 'Publish to update the live website.'
+          ? 'Not live on the booking page yet.'
+          : 'Not live on the website yet.'
       }
       successDetail={
         tab === 'pricing'
@@ -963,7 +963,11 @@ export function PortalApp() {
         </div>
       ) : null}
 
-      <main className="mx-auto max-w-5xl px-4 py-8 pb-28">
+      <main
+        className={`mx-auto max-w-5xl px-4 py-8 ${
+          dirty || unpublished || publishSuccess ? 'pb-52 sm:pb-40' : 'pb-28'
+        }`}
+      >
         {loading ? <p className="text-sm text-secondary">Loading…</p> : null}
 
         {tab === 'appointments' && (
@@ -974,45 +978,45 @@ export function PortalApp() {
                   description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
                 />
                 <div className="flex flex-col gap-3 border-b border-black/[0.08] pt-6">
-                  <nav className="no-scrollbar order-2 flex min-w-0 gap-1 overflow-x-auto sm:overflow-visible">
-                    {(
-                      [
-                        { id: 'pending', label: 'Pending', count: bookings.length },
-                        { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
-                        { id: 'cancelled', label: 'Cancelled', count: cancelledBookings.length },
-                      ] as const
-                    ).map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          setBookingTab(item.id)
-                          setConfirmId(null)
-                          setRescheduleId(null)
-                          setOpenBookingId(null)
-                        }}
-                        className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
-                          bookingTab === item.id
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
-                        }`}
-                      >
-                        {item.label}
-                        <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
-                          {item.count}
-                        </span>
-                      </button>
-                    ))}
-                  </nav>
-                  <div className="order-1 flex flex-col items-stretch gap-2">
-                    <button
-                      type="button"
-                      className={`${PORTAL_PILL_TOOLBAR} self-end`}
-                      onClick={openAddAppointment}
-                    >
-                      Add appointment
-                    </button>
-                    <label className="w-full min-w-0">
+                  <button
+                    type="button"
+                    className={`${PORTAL_PILL_TOOLBAR} self-end sm:self-start`}
+                    onClick={openAddAppointment}
+                  >
+                    Add appointment
+                  </button>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <nav className="no-scrollbar flex min-w-0 gap-1 overflow-x-auto sm:overflow-visible">
+                      {(
+                        [
+                          { id: 'pending', label: 'Pending', count: bookings.length },
+                          { id: 'confirmed', label: 'Confirmed', count: confirmedBookings.length },
+                          { id: 'cancelled', label: 'Cancelled', count: cancelledBookings.length },
+                        ] as const
+                      ).map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setBookingTab(item.id)
+                            setConfirmId(null)
+                            setRescheduleId(null)
+                            setOpenBookingId(null)
+                          }}
+                          className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+                            bookingTab === item.id
+                              ? 'border-primary text-primary'
+                              : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
+                          }`}
+                        >
+                          {item.label}
+                          <span className="ml-1.5 tabular-nums text-[var(--text-dark)]/45">
+                            {item.count}
+                          </span>
+                        </button>
+                      ))}
+                    </nav>
+                    <label className="block w-full min-w-0 pb-2 sm:w-64 sm:shrink-0 sm:pb-0">
                       <span className="sr-only">Search appointments</span>
                       <input
                         type="search"
