@@ -73,6 +73,14 @@ export async function mockAdminApi(page: Page) {
       })
       return
     }
+    if (path.endsWith('/api/admin/places')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ suggestions: [] }),
+      })
+      return
+    }
 
     await route.fulfill({
       status: 404,

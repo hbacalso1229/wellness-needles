@@ -32,6 +32,8 @@ Do not set this in the Cloudflare dashboard — `NEXT_PUBLIC_*` is baked at buil
 
 Footer tagline, footer description, emergency note, and About insurance paragraphs are not edited in the portal (baked copy). Clinic name, **Contact details phone** (country + number), hours, locations, insurance **logos** (add / remove / website URL), and pricing (including names, descriptions, durations, Cupping, and Moxibustion) are.
 
+On Business Info, **Contact details** sits above **Locations**. **Find address** uses OpenStreetMap and is filtered to the **clinic phone country** (Ireland by default). The Eircode hint is Ireland-only. Changing country does not rewrite existing location rows until you pick a new suggestion and Publish.
+
 After **Publish**, clinic phone country and number drive www (footer, Contact, Need help Call us, website thank-you email). Save draft does not. On **production** (`www.wellnessneedles.ie`) the booking country list is locked to that published country (local number still typed). Ireland still uses ComReg 08x mobile rules; other countries use length checks. Staging and local keep the country picker. Overlay off (or BFF failure) keeps baked Irish contact and Ireland lock.
 
 Hours and Confirm / Reschedule / Add appointment exact-start pickers are **12-hour AM/PM**; stored values stay 24-hour `HH:mm` / `YYYY-MM-DDTHH:mm`. The date control does not offer days before today (Europe/Dublin). Add appointment **patient** phone is separate: the owner still picks a country; validation follows that country (08x when Ireland), not a second clinic-number field.
