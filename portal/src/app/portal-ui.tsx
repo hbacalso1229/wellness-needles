@@ -1231,17 +1231,17 @@ export function ReviewCard({
                   {phraseError}
                 </p>
               ) : null}
-              <button
-                type="button"
-                className={PORTAL_PILL}
-                onClick={onSuggestEmphasis}
-              >
-                Suggest from review
-              </button>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className={PORTAL_PILL}
+                  className={PORTAL_PILL_OUTLINE}
+                  onClick={onSuggestEmphasis}
+                >
+                  Suggest from review
+                </button>
+                <button
+                  type="button"
+                  className={PORTAL_PILL_OUTLINE}
                   onClick={saveEdits}
                 >
                   Save tag & highlight
@@ -1250,7 +1250,7 @@ export function ReviewCard({
                   <>
                     <button
                       type="button"
-                      className={PORTAL_PILL}
+                      className={PORTAL_PILL_OUTLINE}
                       onClick={() => {
                         if (phraseError) return
                         onConfirm()
@@ -1260,7 +1260,7 @@ export function ReviewCard({
                     </button>
                     <button
                       type="button"
-                      className={PORTAL_PILL}
+                      className={PORTAL_PILL_OUTLINE}
                       onClick={onReject}
                     >
                       Reject
@@ -1270,14 +1270,14 @@ export function ReviewCard({
                   <>
                     <button
                       type="button"
-                      className={PORTAL_PILL}
+                      className={PORTAL_PILL_OUTLINE}
                       onClick={onUnpublish}
                     >
                       Unpublish
                     </button>
                     <button
                       type="button"
-                      className={PORTAL_PILL}
+                      className={PORTAL_PILL_OUTLINE}
                       onClick={onReject}
                     >
                       Reject
@@ -1291,7 +1291,7 @@ export function ReviewCard({
             <div className="mt-3 border-t border-black/[0.06] pt-3">
               <button
                 type="button"
-                className={PORTAL_PILL}
+                className={PORTAL_PILL_OUTLINE}
                 onClick={onRestore}
               >
                 Restore
