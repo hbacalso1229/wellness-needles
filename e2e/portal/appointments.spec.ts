@@ -11,12 +11,15 @@ test.describe('portal appointments', () => {
     await expect(page.getByPlaceholder(/Search name, phone, email/)).toBeVisible()
     const add = page.getByRole('button', { name: 'Add appointment' })
     const search = page.getByPlaceholder(/Search name, phone, email/)
+    const pending = page.getByRole('button', { name: /^Pending/ })
     const addBox = await add.boundingBox()
     const searchBox = await search.boundingBox()
-    expect(addBox && searchBox).toBeTruthy()
-    expect(addBox!.y).toBeLessThan(searchBox!.y)
-    expect(addBox!.x).toBeGreaterThan(searchBox!.x)
-    expect(searchBox!.width).toBeGreaterThan(500)
+    const pendingBox = await pending.boundingBox()
+    expect(addBox && searchBox && pendingBox).toBeTruthy()
+    expect(addBox!.y).toBeLessThan(pendingBox!.y)
+    expect(Math.abs(pendingBox!.y - searchBox!.y)).toBeLessThan(24)
+    expect(searchBox!.x).toBeGreaterThan(pendingBox!.x)
+    expect(Math.abs(addBox!.x - pendingBox!.x)).toBeLessThan(16)
     const card = page.getByRole('button', { name: /Aoife Murphy/ })
     await expect(card).toBeVisible()
     await expect(card.getByText('Pending', { exact: true })).toBeVisible()
@@ -27,6 +30,17 @@ test.describe('portal appointments', () => {
     await page.getByRole('button', { name: 'Add appointment' }).click()
     await expect(page.getByRole('heading', { name: 'Add appointment' })).toBeVisible()
     await expect(page.getByText(/Phone or walk-in/i)).toBeVisible()
+    const sms = page.getByText('Patient asked for SMS')
+    const back = page.getByRole('button', { name: 'Back' })
+    const confirm = page.getByRole('button', { name: 'Confirm appointment' })
+    await expect(back).toBeVisible()
+    await expect(confirm).toBeVisible()
+    const smsBox = await sms.boundingBox()
+    const backBox = await back.boundingBox()
+    const confirmBox = await confirm.boundingBox()
+    expect(smsBox && backBox && confirmBox).toBeTruthy()
+    expect(backBox!.y - (smsBox!.y + smsBox!.height)).toBeGreaterThanOrEqual(16)
+    expect(backBox!.x).toBeLessThan(confirmBox!.x)
   })
 
   test('pending card phone is a tel link and Confirm stays visible', async ({ page }) => {
@@ -57,7 +71,7 @@ test.describe('portal appointments', () => {
 test.describe('portal appointments mobile toolbar', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
-  test('pill sits top-right above full-width search, then Pending tabs', async ({ page }) => {
+  test('pill then Pending tabs then full-width search', async ({ page }) => {
     await page.goto('/')
     const add = page.getByRole('button', { name: 'Add appointment' })
     const search = page.getByPlaceholder(/Search name, phone, email/)
@@ -70,11 +84,11 @@ test.describe('portal appointments mobile toolbar', () => {
     const introBox = await intro.boundingBox()
     expect(addBox && searchBox && pendingBox && introBox).toBeTruthy()
     expect(addBox!.y - (introBox!.y + introBox!.height)).toBeGreaterThanOrEqual(24)
-    expect(addBox!.y).toBeLessThan(searchBox!.y)
+    expect(addBox!.y).toBeLessThan(pendingBox!.y)
+    expect(pendingBox!.y).toBeLessThan(searchBox!.y)
     expect(addBox!.x).toBeGreaterThan(searchBox!.x)
     expect(Math.abs(addBox!.x + addBox!.width - (searchBox!.x + searchBox!.width))).toBeLessThan(16)
     expect(searchBox!.width).toBeGreaterThan(300)
-    expect(searchBox!.y).toBeLessThan(pendingBox!.y)
   })
 
   test('expanded card Email and Visit sit on the same row', async ({ page }) => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronLeft } from 'lucide-react'
 import { RatingStars } from '../../../src/features/ui/RatingStars'
 import { PhoneCountrySelect } from '../../../src/features/ui/PhoneCountrySelect'
 import { CONDITION_MAX_LEN } from '../../../shared/review-rating'
@@ -786,20 +786,22 @@ export function AddAppointmentPanel({
           />
           Patient asked for SMS
         </label>
-        <div className="fixed inset-x-0 bottom-0 z-20 flex flex-wrap gap-2 border-t border-black/[0.08] bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:col-span-2 sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
+        <div className="h-5 sm:hidden" aria-hidden />
+        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t border-black/[0.08] bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:col-span-2 sm:z-auto sm:mt-5 sm:border-0 sm:bg-transparent sm:p-0">
+          <button
+            type="button"
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-black/15 bg-transparent text-[var(--text-dark)] hover:bg-black/[0.04]"
+            aria-label="Back"
+            onClick={onCancel}
+          >
+            <ChevronLeft className="size-5" strokeWidth={2.25} aria-hidden />
+          </button>
           <button
             type="submit"
             disabled={busy}
             className={PORTAL_PILL}
           >
             {busy ? 'Confirming…' : 'Confirm appointment'}
-          </button>
-          <button
-            type="button"
-            className={PORTAL_PILL}
-            onClick={onCancel}
-          >
-            Back
           </button>
         </div>
       </div>
@@ -981,7 +983,10 @@ export function UnsavedBar({
   const busy = saving || publishing
   const showSuccess = success && !dirty
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/[0.06] bg-[#f4f2ec]/95 px-4 py-3 backdrop-blur">
+    <div
+      data-testid="publish-bar"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-black/[0.06] bg-[#f4f2ec]/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur"
+    >
       <div className="mx-auto max-w-5xl space-y-2">
         {lastPublishedAt && !showSuccess ? (
           <p className="text-xs text-[var(--text-dark)]/55">
@@ -1033,21 +1038,19 @@ export function UnsavedBar({
             </div>
           </div>
         ) : unpublished ? (
-          <div className="flex flex-col gap-3 rounded-lg border border-black/10 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[var(--text-dark)]">Saved — not published</p>
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-black/10 bg-white px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[var(--text-dark)]">Draft saved</p>
               <p className="text-sm text-[var(--text-dark)]/60">{unpublishedDetail}</p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                className={PORTAL_PILL}
-                disabled={busy}
-                onClick={onPublish}
-              >
-                {publishing ? 'Publishing…' : 'Publish changes'}
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`${PORTAL_PILL} shrink-0`}
+              disabled={busy}
+              onClick={onPublish}
+            >
+              {publishing ? 'Publishing…' : 'Publish'}
+            </button>
           </div>
         ) : null}
       </div>
