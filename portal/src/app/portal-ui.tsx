@@ -47,6 +47,12 @@ export const DISPLAY_DAYS: ReadonlyArray<[label: string, key: Weekday]> = [
 
 const COPY_DAYS = DISPLAY_DAYS.filter(([, key]) => key !== 'monday')
 
+export const PORTAL_PILL =
+  'rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60'
+
+export const PORTAL_PILL_TOOLBAR =
+  'shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-white sm:px-4 sm:py-2'
+
 export function PageHeader({ title, description }: { title?: string; description?: string }) {
   if (!title && !description) return null
   return (
@@ -211,7 +217,7 @@ export function BookingCardDetails({
           </span>
         </span>
         {when.trim() ? (
-          <span className="mt-0.5 block w-full whitespace-nowrap text-xs font-medium text-[var(--text-dark)]">
+          <span className="mt-0.5 block w-full whitespace-nowrap text-[13px] font-semibold text-[var(--text-dark)]">
             {when}
           </span>
         ) : null}
@@ -781,13 +787,13 @@ export function AddAppointmentPanel({
           <button
             type="submit"
             disabled={busy}
-            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white disabled:opacity-50"
+            className={PORTAL_PILL}
           >
             {busy ? 'Confirming…' : 'Confirm appointment'}
           </button>
           <button
             type="button"
-            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+            className={PORTAL_PILL}
             onClick={onCancel}
           >
             Back
@@ -845,7 +851,7 @@ export function HoursEditor({
           ))}
           <button
             type="button"
-            className="rounded-md border border-primary/20 px-2.5 py-1 text-xs font-medium text-primary hover:bg-accent/15"
+            className={PORTAL_PILL}
             onClick={applyMonday}
           >
             Apply
@@ -1007,7 +1013,7 @@ export function UnsavedBar({
               </button>
               <button
                 type="button"
-                className="rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[var(--text-dark)] disabled:opacity-60"
+                className={PORTAL_PILL}
                 disabled={busy}
                 onClick={onSaveDraft}
               >
@@ -1015,7 +1021,7 @@ export function UnsavedBar({
               </button>
               <button
                 type="button"
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                className={PORTAL_PILL}
                 disabled={busy}
                 onClick={onPublish}
               >
@@ -1032,7 +1038,7 @@ export function UnsavedBar({
             <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                className={PORTAL_PILL}
                 disabled={busy}
                 onClick={onPublish}
               >
@@ -1221,7 +1227,7 @@ export function ReviewCard({
               ) : null}
               <button
                 type="button"
-                className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                className={PORTAL_PILL}
                 onClick={onSuggestEmphasis}
               >
                 Suggest from review
@@ -1229,7 +1235,7 @@ export function ReviewCard({
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  className={PORTAL_PILL}
                   onClick={saveEdits}
                 >
                   Save tag & highlight
@@ -1238,7 +1244,7 @@ export function ReviewCard({
                   <>
                     <button
                       type="button"
-                      className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white"
+                      className={PORTAL_PILL}
                       onClick={() => {
                         if (phraseError) return
                         onConfirm()
@@ -1248,7 +1254,7 @@ export function ReviewCard({
                     </button>
                     <button
                       type="button"
-                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      className={PORTAL_PILL}
                       onClick={onReject}
                     >
                       Reject
@@ -1258,14 +1264,14 @@ export function ReviewCard({
                   <>
                     <button
                       type="button"
-                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      className={PORTAL_PILL}
                       onClick={onUnpublish}
                     >
                       Unpublish
                     </button>
                     <button
                       type="button"
-                      className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                      className={PORTAL_PILL}
                       onClick={onReject}
                     >
                       Reject
@@ -1279,7 +1285,7 @@ export function ReviewCard({
             <div className="mt-3 border-t border-black/[0.06] pt-3">
               <button
                 type="button"
-                className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                className={PORTAL_PILL}
                 onClick={onRestore}
               >
                 Restore

@@ -60,6 +60,8 @@ import {
   durationPhrase,
   formatYmdDisplay,
   snapshotsEqual,
+  PORTAL_PILL,
+  PORTAL_PILL_TOOLBAR,
   type AddAppointmentValues,
   type ReviewStatusTab,
 } from './portal-ui'
@@ -399,21 +401,21 @@ function UnifiedExtrasEditor({
       <div className="flex flex-wrap gap-2 pt-1">
         <button
           type="button"
-          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          className={PORTAL_PILL}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('service')])}
         >
           Add service
         </button>
         <button
           type="button"
-          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          className={PORTAL_PILL}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('package')])}
         >
           Add package
         </button>
         <button
           type="button"
-          className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+          className={PORTAL_PILL}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('addon')])}
         >
           Add add-on
@@ -1004,7 +1006,7 @@ export function PortalApp() {
                   <div className="order-1 flex items-center gap-2 sm:order-2">
                     <button
                       type="button"
-                      className="shrink-0 rounded-full bg-primary px-3 py-2.5 text-sm text-white sm:py-1.5"
+                      className={PORTAL_PILL_TOOLBAR}
                       onClick={openAddAppointment}
                     >
                       Add appointment
@@ -1084,7 +1086,7 @@ export function PortalApp() {
                           />
                           <button
                             type="button"
-                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            className={PORTAL_PILL}
                             onClick={() => void confirmBooking(row.id)}
                           >
                             Confirm
@@ -1094,7 +1096,7 @@ export function PortalApp() {
                         <div className="mt-3 flex gap-2">
                           <button
                             type="button"
-                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            className={PORTAL_PILL}
                             onClick={() => {
                               setRescheduleId(null)
                               setConfirmId(row.id)
@@ -1104,7 +1106,7 @@ export function PortalApp() {
                           </button>
                           <button
                             type="button"
-                            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                            className={PORTAL_PILL}
                             onClick={() => void cancelBooking(row.id)}
                           >
                             Cancel
@@ -1209,14 +1211,14 @@ export function PortalApp() {
                           <div className="flex gap-2 sm:col-span-2">
                             <button
                               type="button"
-                              className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                              className={PORTAL_PILL}
                               onClick={() => void rescheduleBooking(row.id)}
                             >
                               Save new time
                             </button>
                             <button
                               type="button"
-                              className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                              className={PORTAL_PILL}
                               onClick={() => setRescheduleId(null)}
                             >
                               Back
@@ -1227,14 +1229,14 @@ export function PortalApp() {
                         <div className="mt-3 flex gap-2">
                           <button
                             type="button"
-                            className="rounded-full bg-primary px-3 py-1.5 text-sm text-white"
+                            className={PORTAL_PILL}
                             onClick={() => openReschedule(row)}
                           >
                             Reschedule
                           </button>
                           <button
                             type="button"
-                            className="rounded-full border border-primary px-3 py-1.5 text-sm text-primary"
+                            className={PORTAL_PILL}
                             onClick={() => void cancelBooking(row.id)}
                           >
                             Cancel
@@ -1387,7 +1389,7 @@ export function PortalApp() {
                 value={newReviewEmphasis}
                 onChange={(e) => setNewReviewEmphasis(e.target.value)}
               />
-              <button type="submit" className="rounded-full bg-primary px-3 py-1.5 text-sm text-white">
+              <button type="submit" className={PORTAL_PILL}>
                 Save to Awaiting review
               </button>
             </form>
@@ -1811,7 +1813,7 @@ export function PortalApp() {
                   })}
                   <button
                     type="button"
-                    className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                    className={PORTAL_PILL}
                     onClick={() => {
                       const sortOrder =
                         draft.insurers.reduce((max, row) => Math.max(max, row.sortOrder), -1) + 1
@@ -2005,7 +2007,7 @@ export function PortalApp() {
                 })}
                 <button
                   type="button"
-                  className="rounded-md border border-black/10 px-3 py-1.5 text-sm"
+                  className={PORTAL_PILL}
                   onClick={() => {
                     setDraft({
                       ...draft,
