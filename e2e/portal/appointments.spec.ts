@@ -9,6 +9,14 @@ test.describe('portal appointments', () => {
     await expect(page.getByRole('button', { name: /^Cancelled/ })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Add appointment' })).toBeVisible()
     await expect(page.getByPlaceholder(/Search name, phone, email/)).toBeVisible()
+    const add = page.getByRole('button', { name: 'Add appointment' })
+    const search = page.getByPlaceholder(/Search name, phone, email/)
+    const addBox = await add.boundingBox()
+    const searchBox = await search.boundingBox()
+    expect(addBox && searchBox).toBeTruthy()
+    expect(addBox!.y + addBox!.height).toBeLessThanOrEqual(searchBox!.y + 2)
+    expect(addBox!.x).toBeGreaterThan(searchBox!.x)
+    expect(searchBox!.width).toBeGreaterThan(500)
     const card = page.getByRole('button', { name: /Aoife Murphy/ })
     await expect(card).toBeVisible()
     await expect(card.getByText('Pending', { exact: true })).toBeVisible()
@@ -49,7 +57,7 @@ test.describe('portal appointments', () => {
 test.describe('portal appointments mobile toolbar', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
-  test('pill and search sit above Pending Confirmed Cancelled', async ({ page }) => {
+  test('pill sits top-right above full-width search, then Pending tabs', async ({ page }) => {
     await page.goto('/')
     const add = page.getByRole('button', { name: 'Add appointment' })
     const search = page.getByPlaceholder(/Search name, phone, email/)
@@ -62,8 +70,11 @@ test.describe('portal appointments mobile toolbar', () => {
     const introBox = await intro.boundingBox()
     expect(addBox && searchBox && pendingBox && introBox).toBeTruthy()
     expect(addBox!.y - (introBox!.y + introBox!.height)).toBeGreaterThanOrEqual(24)
-    expect(Math.abs(addBox!.y - searchBox!.y)).toBeLessThan(24)
-    expect(addBox!.y).toBeLessThan(pendingBox!.y)
+    expect(addBox!.y + addBox!.height).toBeLessThanOrEqual(searchBox!.y + 2)
+    expect(addBox!.x).toBeGreaterThan(searchBox!.x)
+    expect(Math.abs(addBox!.x + addBox!.width - (searchBox!.x + searchBox!.width))).toBeLessThan(8)
+    expect(searchBox!.width).toBeGreaterThan(300)
+    expect(searchBox!.y).toBeLessThan(pendingBox!.y)
   })
 
   test('expanded card Email and Visit sit on the same row', async ({ page }) => {

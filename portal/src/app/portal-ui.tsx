@@ -53,6 +53,9 @@ export const PORTAL_PILL =
 export const PORTAL_PILL_TOOLBAR =
   'shrink-0 rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-white sm:px-4 sm:py-2'
 
+export const PORTAL_PILL_OUTLINE =
+  'whitespace-nowrap rounded-full border border-black/10 bg-[#f4f2ec] px-2.5 py-1 text-xs font-medium text-[var(--text-dark)] sm:px-3 sm:py-1.5 sm:text-sm'
+
 export function PageHeader({ title, description }: { title?: string; description?: string }) {
   if (!title && !description) return null
   return (
@@ -851,7 +854,7 @@ export function HoursEditor({
           ))}
           <button
             type="button"
-            className={PORTAL_PILL}
+            className={PORTAL_PILL_OUTLINE}
             onClick={applyMonday}
           >
             Apply
@@ -1075,7 +1078,7 @@ export function ReviewStatusTabs({
 }) {
   return (
     <div className="flex flex-col gap-2 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
-      <nav className="flex gap-1 overflow-x-auto">
+      <nav className="no-scrollbar flex min-w-0 gap-1 overflow-x-auto sm:overflow-visible">
         {REVIEW_STATUS_TABS.map((item) => (
           <button
             key={item.id}
