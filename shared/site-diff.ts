@@ -89,6 +89,7 @@ const FIELD_LABELS: Record<string, string> = {
   'phone.formatted': 'Phone formatted',
   'phone.displayText': 'Phone display',
   'phone.href': 'Phone link',
+  'phone.countryId': 'Phone country',
   'email.address': 'Email',
   'email.href': 'Email link',
   'social.facebookUrl': 'Facebook URL',

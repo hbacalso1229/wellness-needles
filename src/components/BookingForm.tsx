@@ -13,6 +13,7 @@ import {
 } from '@/lib/phone-countries'
 import {
   formatLocalPhoneInput,
+  inferPhoneCountry,
   isValidBookingPhone,
   shouldShowIrishMobileInvalidModal,
   subscriberDigits,
@@ -357,18 +358,20 @@ export default function BookingForm() {
     setIsLocalHost(isLocalDevHost())
     if (isProductionSiteHost()) {
       setProductionHostLocked(true)
-      setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
     }
   }, [])
 
-  /** Country lock only — 08x checks use `enforceIrishMobile` below. */
-  const lockIrelandPhone =
+  /** Hide country picker on production host, or when E2E bakes the Ireland lock. */
+  const lockCountryPicker =
     productionHostLocked || features.strictIrishPhoneEnabled
+  const clinicCountryId = overlayEnabled
+    ? inferPhoneCountry(site.phone).id
+    : DEFAULT_PHONE_COUNTRY_ID
 
   useEffect(() => {
-    if (!lockIrelandPhone) return
-    setPhoneCountryId(DEFAULT_PHONE_COUNTRY_ID)
-  }, [lockIrelandPhone])
+    if (!lockCountryPicker) return
+    setPhoneCountryId(clinicCountryId)
+  }, [lockCountryPicker, clinicCountryId])
 
   useEffect(() => {
     if (!buildTimeTurnstile) return
@@ -1454,7 +1457,7 @@ export default function BookingForm() {
                     <div className="relative flex shrink-0 items-center border-r border-accent/30 bg-white">
                       <div
                         className={`pointer-events-none flex items-center gap-2 py-3 pl-3 ${
-                          lockIrelandPhone ? 'pr-3' : 'pr-7'
+                          lockCountryPicker ? 'pr-3' : 'pr-7'
                         }`}
                       >
                         <PhoneFlagIcon countryId={phoneCountry.id} />
@@ -1462,9 +1465,9 @@ export default function BookingForm() {
                           {phoneCountry.dial}
                         </span>
                       </div>
-                      {lockIrelandPhone ? (
+                      {lockCountryPicker ? (
                         <span className="sr-only">
-                          Ireland country code +353, locked
+                          {phoneCountry.name} country code {phoneCountry.dial}, locked
                         </span>
                       ) : (
                         <>

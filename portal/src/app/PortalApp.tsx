@@ -26,12 +26,12 @@ import {
 } from '../../../shared/site-snapshot'
 import {
   DEFAULT_PHONE_COUNTRY_ID,
-  PHONE_COUNTRIES,
   getPhoneCountry,
   type PhoneCountry,
 } from '../../../src/lib/phone-countries'
 import {
   formatLocalPhoneInput,
+  inferPhoneCountry,
   subscriberDigits,
   toE164,
 } from '../../../src/lib/irish-phone'
@@ -483,21 +483,6 @@ function bookingMatchesQuery(row: BookingRow, query: string): boolean {
     .includes(q)
 }
 
-function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
-  const hay = `${phone.href} ${phone.displayText} ${phone.number}`
-  const digits = hay.replace(/\D/g, '')
-  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
-  let best = 0
-  for (const country of PHONE_COUNTRIES) {
-    const code = country.dial.replace(/\D/g, '')
-    if (digits.startsWith(code) && code.length > best) {
-      match = country
-      best = code.length
-    }
-  }
-  return match
-}
-
 function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['phone'] {
   const local = subscriberDigits(rawLocal, country)
   const grouped = formatLocalPhoneInput(local, country)
@@ -505,7 +490,7 @@ function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['p
   const href = local ? `tel:+${country.dial.replace(/\D/g, '')}${local}` : ''
   const number = country.id === 'IE' && local ? `0${local}` : local
   const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
-  return { number, formatted, displayText, href }
+  return { number, formatted, displayText, href, countryId: country.id }
 }
 
 function looksLikeEircode(value: string): boolean {

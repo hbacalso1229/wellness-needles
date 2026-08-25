@@ -1,8 +1,36 @@
 import {
+  DEFAULT_PHONE_COUNTRY_ID,
   PHONE_COUNTRIES,
   getPhoneCountry,
   type PhoneCountry,
 } from './phone-countries'
+
+export type PhoneSnapshotBits = {
+  countryId?: string
+  href?: string
+  displayText?: string
+  number?: string
+}
+
+/** Prefer stored countryId; otherwise longest dial match in href/display/number. */
+export function inferPhoneCountry(phone: PhoneSnapshotBits): PhoneCountry {
+  const rawId = (phone.countryId || '').trim()
+  if (rawId && PHONE_COUNTRIES.some((country) => country.id === rawId)) {
+    return getPhoneCountry(rawId)
+  }
+  const hay = `${phone.href || ''} ${phone.displayText || ''} ${phone.number || ''}`
+  const digits = hay.replace(/\D/g, '')
+  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
+  let best = 0
+  for (const country of PHONE_COUNTRIES) {
+    const code = country.dial.replace(/\D/g, '')
+    if (digits.startsWith(code) && code.length > best) {
+      match = country
+      best = code.length
+    }
+  }
+  return match
+}
 
 /** ComReg 08x mobiles after dropping the trunk 0: 082, 083, 085, 086, 087, 089. */
 const IRISH_MOBILE_SUBSCRIBER = /^(?:82|83|85|86|87|89)\d{7}$/

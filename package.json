@@ -10,7 +10,7 @@
     "build:portal": "npm --prefix portal ci && npm --prefix portal run build",
     "start": "next start",
     "lint": "next lint",
-    "test:unit": "npx --yes tsx --test shared/quarter-hour.test.ts shared/twelve-hour.test.ts shared/preferred-time-windows.test.ts shared/booking-options.test.ts shared/email-check.test.ts functions/_lib/email-brand.test.ts functions/_lib/notify.test.ts functions/_lib/confirm-booking.test.ts",
+    "test:unit": "npx --yes tsx --test shared/quarter-hour.test.ts shared/twelve-hour.test.ts shared/preferred-time-windows.test.ts shared/booking-options.test.ts shared/email-check.test.ts shared/phone-country.test.ts functions/_lib/email-brand.test.ts functions/_lib/notify.test.ts functions/_lib/confirm-booking.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:portal": "playwright test --config=playwright.portal.config.ts",
     "test:e2e:ui": "playwright test --ui"

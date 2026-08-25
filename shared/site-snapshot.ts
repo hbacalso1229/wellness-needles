@@ -1,4 +1,5 @@
 import { DEFAULT_REVIEWS, type DefaultReview } from './default-reviews'
+import { inferPhoneCountry } from './irish-phone'
 
 export const WEEKDAYS = [
   'sunday',
@@ -380,6 +381,7 @@ export type SiteSnapshot = {
     formatted: string
     displayText: string
     href: string
+    countryId: string
   }
   email: {
     address: string
@@ -459,6 +461,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     formatted: '086 054 3085',
     displayText: '+353 86 054 3085',
     href: 'tel:+353860543085',
+    countryId: 'IE',
   },
   email: {
     address: 'info@wellnessneedles.ie',
@@ -902,6 +905,13 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       formatted: asString(value.phone.formatted, SITE_DEFAULTS.phone.formatted),
       displayText: asString(value.phone.displayText, SITE_DEFAULTS.phone.displayText),
       href: asString(value.phone.href, SITE_DEFAULTS.phone.href),
+      countryId: inferPhoneCountry({
+        countryId:
+          typeof value.phone.countryId === 'string' ? value.phone.countryId : undefined,
+        number: asString(value.phone.number, SITE_DEFAULTS.phone.number),
+        displayText: asString(value.phone.displayText, SITE_DEFAULTS.phone.displayText),
+        href: asString(value.phone.href, SITE_DEFAULTS.phone.href),
+      }).id,
     },
     email: {
       address: asString(value.email.address, SITE_DEFAULTS.email.address),

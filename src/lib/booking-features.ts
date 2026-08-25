@@ -24,8 +24,9 @@ export type BookingFeatureFlags = {
   /** Inbox that should receive booking requests */
   bookingEmailTo: string
   /**
-   * Country lock: hide the phone country picker and keep +353.
-   * Staging + production bake this on via NEXT_PUBLIC_STRICT_IRISH_PHONE.
+   * Country lock: hide the phone country picker.
+   * Production also locks via hostname (www.wellnessneedles.ie) to the published
+   * clinic country. E2E bakes this on via NEXT_PUBLIC_STRICT_IRISH_PHONE.
    * 08x mobile validation is separate — it runs whenever Ireland is selected.
    */
   strictIrishPhoneEnabled: boolean
