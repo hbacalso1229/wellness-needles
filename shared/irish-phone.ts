@@ -12,15 +12,10 @@ export type PhoneSnapshotBits = {
   number?: string
 }
 
-/** Prefer stored countryId; otherwise longest dial match in href/display/number. */
-export function inferPhoneCountry(phone: PhoneSnapshotBits): PhoneCountry {
-  const rawId = (phone.countryId || '').trim()
-  if (rawId && PHONE_COUNTRIES.some((country) => country.id === rawId)) {
-    return getPhoneCountry(rawId)
-  }
-  const hay = `${phone.href || ''} ${phone.displayText || ''} ${phone.number || ''}`
-  const digits = hay.replace(/\D/g, '')
-  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
+function matchDialPrefix(raw: string): PhoneCountry | null {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return null
+  let match: PhoneCountry | null = null
   let best = 0
   for (const country of PHONE_COUNTRIES) {
     const code = country.dial.replace(/\D/g, '')
@@ -30,6 +25,20 @@ export function inferPhoneCountry(phone: PhoneSnapshotBits): PhoneCountry {
     }
   }
   return match
+}
+
+/** Prefer stored countryId; otherwise href, then display, then number. */
+export function inferPhoneCountry(phone: PhoneSnapshotBits): PhoneCountry {
+  const rawId = (phone.countryId || '').trim()
+  if (rawId && PHONE_COUNTRIES.some((country) => country.id === rawId)) {
+    return getPhoneCountry(rawId)
+  }
+  return (
+    matchDialPrefix(phone.href || '') ||
+    matchDialPrefix(phone.displayText || '') ||
+    matchDialPrefix(phone.number || '') ||
+    getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
+  )
 }
 
 /** ComReg 08x mobiles after dropping the trunk 0: 082, 083, 085, 086, 087, 089. */

@@ -29,6 +29,17 @@ describe('inferPhoneCountry', () => {
   it('falls back to Ireland when digits are empty', () => {
     assert.equal(inferPhoneCountry({ href: '', displayText: '', number: '' }).id, 'IE')
   })
+
+  it('uses displayText when href is empty', () => {
+    assert.equal(
+      inferPhoneCountry({
+        href: '',
+        displayText: '+44 7700 900123',
+        number: '',
+      }).id,
+      'GB'
+    )
+  })
 })
 
 describe('parseSiteSnapshot phone.countryId', () => {
@@ -74,5 +85,20 @@ describe('parseSiteSnapshot phone.countryId', () => {
       },
     })
     assert.equal(parsed?.phone.countryId, 'IE')
+  })
+
+  it('does not fill Irish tel defaults over a GB display-only phone', () => {
+    const parsed = parseSiteSnapshot({
+      ...SITE_DEFAULTS,
+      phone: {
+        number: '',
+        formatted: '',
+        displayText: '+44 7700 900123',
+        href: '',
+      },
+    })
+    assert.equal(parsed?.phone.countryId, 'GB')
+    assert.equal(parsed?.phone.displayText, '+44 7700 900123')
+    assert.equal(parsed?.phone.href, '')
   })
 })

@@ -123,6 +123,37 @@ function joinPersonName(firstName: string, lastName: string): string {
   return collapseRepeatedFullName(`${first} ${last}`)
 }
 
+function phoneField(phone: unknown, key: string): string {
+  if (!phone || typeof phone !== 'object') return ''
+  const value = (phone as Record<string, unknown>)[key]
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+/** Prefer a full snapshot; still read locations/phone if hours or other fields fail parse. */
+export function contactFromPublishedJson(data: unknown): PublishedBits {
+  const parsed = parseSiteSnapshot(data)
+  if (parsed) {
+    const extra = parsed.locations
+      .map(asLocationRow)
+      .filter((item): item is KnownLocation => Boolean(item))
+    return {
+      locations: extra.length ? extra : BAKED_LOCATIONS,
+      phoneDisplay: parsed.phone.displayText.trim() || FALLBACK_PHONE_DISPLAY,
+      phoneHref: parsed.phone.href.trim() || FALLBACK_PHONE_HREF,
+    }
+  }
+  if (!data || typeof data !== 'object') return BAKED_CONTACT
+  const rec = data as Record<string, unknown>
+  const extra = Array.isArray(rec.locations)
+    ? rec.locations.map(asLocationRow).filter((item): item is KnownLocation => Boolean(item))
+    : []
+  return {
+    locations: extra.length ? extra : BAKED_LOCATIONS,
+    phoneDisplay: phoneField(rec.phone, 'displayText') || FALLBACK_PHONE_DISPLAY,
+    phoneHref: phoneField(rec.phone, 'href') || FALLBACK_PHONE_HREF,
+  }
+}
+
 async function publishedContact(env: Env): Promise<PublishedBits> {
   try {
     const fromKv = await env.SITE_CACHE?.get('public:site:v1', 'text')
@@ -134,16 +165,7 @@ async function publishedContact(env: Env): Promise<PublishedBits> {
       raw = row?.published_json || ''
     }
     if (!raw) return BAKED_CONTACT
-    const parsed = parseSiteSnapshot(JSON.parse(raw))
-    if (!parsed) return BAKED_CONTACT
-    const extra = parsed.locations
-      .map(asLocationRow)
-      .filter((item): item is KnownLocation => Boolean(item))
-    return {
-      locations: extra.length ? extra : BAKED_LOCATIONS,
-      phoneDisplay: parsed.phone.displayText.trim() || FALLBACK_PHONE_DISPLAY,
-      phoneHref: parsed.phone.href.trim() || FALLBACK_PHONE_HREF,
-    }
+    return contactFromPublishedJson(JSON.parse(raw))
   } catch {
     return BAKED_CONTACT
   }

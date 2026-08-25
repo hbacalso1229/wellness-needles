@@ -900,19 +900,28 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
     clinicName: asString(value.clinicName, SITE_DEFAULTS.clinicName),
     tagline: asString(value.tagline, SITE_DEFAULTS.tagline),
     description: asString(value.description, SITE_DEFAULTS.description),
-    phone: {
-      number: asString(value.phone.number, SITE_DEFAULTS.phone.number),
-      formatted: asString(value.phone.formatted, SITE_DEFAULTS.phone.formatted),
-      displayText: asString(value.phone.displayText, SITE_DEFAULTS.phone.displayText),
-      href: asString(value.phone.href, SITE_DEFAULTS.phone.href),
-      countryId: inferPhoneCountry({
-        countryId:
-          typeof value.phone.countryId === 'string' ? value.phone.countryId : undefined,
-        number: asString(value.phone.number, SITE_DEFAULTS.phone.number),
-        displayText: asString(value.phone.displayText, SITE_DEFAULTS.phone.displayText),
-        href: asString(value.phone.href, SITE_DEFAULTS.phone.href),
-      }).id,
-    },
+    phone: (() => {
+      const number = asString(value.phone.number, '')
+      const formatted = asString(value.phone.formatted, '')
+      const displayText = asString(value.phone.displayText, '')
+      const href = asString(value.phone.href, '')
+      const countryIdRaw =
+        typeof value.phone.countryId === 'string' ? value.phone.countryId.trim() : ''
+      const inferred = inferPhoneCountry({
+        countryId: countryIdRaw || undefined,
+        number,
+        displayText,
+        href,
+      })
+      const useDefaults = !number && !formatted && !displayText && !href && !countryIdRaw
+      return {
+        number: useDefaults ? SITE_DEFAULTS.phone.number : number,
+        formatted: useDefaults ? SITE_DEFAULTS.phone.formatted : formatted,
+        displayText: useDefaults ? SITE_DEFAULTS.phone.displayText : displayText,
+        href: useDefaults ? SITE_DEFAULTS.phone.href : href,
+        countryId: inferred.id,
+      }
+    })(),
     email: {
       address: asString(value.email.address, SITE_DEFAULTS.email.address),
       href: asString(value.email.href, SITE_DEFAULTS.email.href),
