@@ -16,6 +16,21 @@ export const E2E_PENDING = {
   createdAt: '2026-08-24T10:00:00.000Z',
 }
 
+export const E2E_CANCELLED = {
+  id: 'e2e-cancelled-1',
+  firstName: 'Niamh',
+  lastName: 'Byrne',
+  email: 'niamh@example.com',
+  phone: '+353 86 054 3085',
+  serviceType: 'In Clinic',
+  locationLabel: 'Celbridge — 56 The Orchard Oldtown Mill Celbridge, Co.Kildare W23 K603',
+  serviceLabel: 'Initial Consultation & First Treatment',
+  preferredDate: '2026-09-04',
+  preferredTime: 'Morning (9:00 AM – 12:00 PM)',
+  smsOptIn: 0,
+  createdAt: '2026-08-24T10:00:00.000Z',
+}
+
 /** Intercept portal /api/admin so Appointments can render without Wrangler. */
 export async function mockAdminApi(page: Page) {
   await page.route('**/api/admin/**', async (route) => {
@@ -49,7 +64,8 @@ export async function mockAdminApi(page: Page) {
     }
     if (path.endsWith('/api/admin/bookings')) {
       const status = url.searchParams.get('status') || 'pending'
-      const bookings = status === 'pending' ? [E2E_PENDING] : []
+      const bookings =
+        status === 'pending' ? [E2E_PENDING] : status === 'cancelled' ? [E2E_CANCELLED] : []
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

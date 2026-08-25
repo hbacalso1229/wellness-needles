@@ -1072,6 +1072,7 @@ export function PortalApp() {
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
                         smsOptIn={row.smsOptIn}
+                        status="pending"
                         open={openAppointmentId === row.id}
                         onToggle={() => toggleBooking(row.id)}
                       >
@@ -1146,6 +1147,7 @@ export function PortalApp() {
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
                         smsOptIn={row.smsOptIn}
+                        status="confirmed"
                         open={openAppointmentId === row.id}
                         onToggle={() => toggleBooking(row.id)}
                       >
@@ -1271,13 +1273,10 @@ export function PortalApp() {
                         serviceLabel={row.serviceLabel}
                         serviceType={row.serviceType}
                         locationLabel={row.locationLabel}
+                        status="cancelled"
                         open={openAppointmentId === row.id}
                         onToggle={() => toggleBooking(row.id)}
-                      >
-                      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/55">
-                        Cancelled
-                      </p>
-                      </BookingCardDetails>
+                      />
                     </li>
                   )
                 })}

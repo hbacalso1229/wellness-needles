@@ -124,7 +124,7 @@ function BookingDetailRow({
   if (!text) return null
   const isExternal = /^https?:\/\//i.test(href || '')
   return (
-    <p>
+    <p className="min-w-0">
       <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-dark)]/50">
         {label}
       </span>
@@ -146,6 +146,18 @@ function BookingDetailRow({
   )
 }
 
+const BOOKING_STATUS_LABEL = {
+  pending: 'Pending',
+  confirmed: 'Confirmed',
+  cancelled: 'Cancelled',
+} as const
+
+const BOOKING_STATUS_CLASS = {
+  pending: 'border-black/15 text-[var(--text-dark)]/55',
+  confirmed: 'border-primary/30 bg-accent/20 text-primary',
+  cancelled: 'border-black/15 text-[var(--text-dark)]/55',
+} as const
+
 export function BookingCardDetails({
   firstName,
   lastName,
@@ -156,6 +168,7 @@ export function BookingCardDetails({
   serviceType,
   locationLabel,
   smsOptIn,
+  status,
   open,
   onToggle,
   children,
@@ -169,11 +182,14 @@ export function BookingCardDetails({
   serviceType?: string
   locationLabel?: string
   smsOptIn?: number
+  status: 'pending' | 'confirmed' | 'cancelled'
   open: boolean
   onToggle: () => void
   children?: ReactNode
 }) {
   const panelId = useId()
+  const statusLabel = BOOKING_STATUS_LABEL[status]
+  const displayName = `${firstName} ${lastName}`.trim()
   return (
     <div>
       <button
@@ -181,6 +197,7 @@ export function BookingCardDetails({
         className="flex w-full items-start justify-between gap-3 text-left"
         aria-expanded={open}
         aria-controls={panelId}
+        aria-label={`${displayName}, ${statusLabel}`}
         onClick={onToggle}
       >
         <span className="min-w-0">
@@ -193,25 +210,29 @@ export function BookingCardDetails({
             </span>
           ) : null}
         </span>
-        <ChevronDown
-          className={`mt-0.5 h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
-            open ? 'rotate-180' : ''
-          }`}
-          aria-hidden
-        />
+        <span className="mt-0.5 flex shrink-0 items-center gap-1.5">
+          <span
+            role="status"
+            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${BOOKING_STATUS_CLASS[status]}`}
+          >
+            {statusLabel}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
+              open ? 'rotate-180' : ''
+            }`}
+            aria-hidden
+          />
+        </span>
       </button>
       {open ? (
         <div id={panelId}>
           <div className="space-y-4 pt-3">
-            <div className="grid grid-cols-2 gap-x-3">
-              <div className="min-w-0 space-y-4">
-                <BookingDetailRow label="Phone" value={phone} href={phone ? telHref(phone) : null} />
-                <BookingDetailRow label="Email" value={email} href={email ? mailtoHref(email) : null} />
-              </div>
-              <div className="min-w-0 space-y-4">
-                <BookingDetailRow label="Service" value={serviceLabel} />
-                <BookingDetailRow label="Visit" value={serviceType} />
-              </div>
+            <div className="grid grid-cols-2 items-start gap-x-3 gap-y-4">
+              <BookingDetailRow label="Phone" value={phone} href={phone ? telHref(phone) : null} />
+              <BookingDetailRow label="Service" value={serviceLabel} />
+              <BookingDetailRow label="Email" value={email} href={email ? mailtoHref(email) : null} />
+              <BookingDetailRow label="Visit" value={serviceType} />
             </div>
             <BookingDetailRow
               label="Location"
