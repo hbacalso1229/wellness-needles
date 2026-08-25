@@ -20,8 +20,12 @@ type Suggestion = {
 
 export function AddressSearch({
   onPick,
+  countryId,
+  countryName,
 }: {
   onPick: (address: PickedAddress) => void
+  countryId: string
+  countryName: string
 }) {
   const listId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -48,20 +52,33 @@ export function AddressSearch({
   }, [])
 
   useEffect(() => {
+    setSuggestions([])
+    setOpen(false)
+    setError('')
+  }, [countryId])
+
+  useEffect(() => {
     if (!available) return
     const text = query.trim()
     if (text.length < 3) {
       setSuggestions([])
       setError('')
+      setLoading(false)
       return
     }
+    const controller = new AbortController()
     const handle = window.setTimeout(() => {
       setLoading(true)
-      fetch(`/api/admin/places?q=${encodeURIComponent(text)}`, {
-        credentials: 'include',
-        headers: { Accept: 'application/json' },
-      })
+      fetch(
+        `/api/admin/places?q=${encodeURIComponent(text)}&country=${encodeURIComponent(countryId)}`,
+        {
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        }
+      )
         .then(async (res) => {
+          if (controller.signal.aborted) return
           if (res.status === 503) {
             setAvailable(false)
             return
@@ -72,14 +89,22 @@ export function AddressSearch({
           setOpen(true)
           setError('')
         })
-        .catch(() => {
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return
+          if (error instanceof Error && error.name === 'AbortError') return
           setSuggestions([])
           setError('Could not search addresses. Try again or type the address below.')
         })
-        .finally(() => setLoading(false))
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false)
+        })
     }, 500)
-    return () => window.clearTimeout(handle)
-  }, [available, query])
+    return () => {
+      window.clearTimeout(handle)
+      controller.abort()
+      setLoading(false)
+    }
+  }, [available, query, countryId])
 
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
@@ -135,7 +160,7 @@ export function AddressSearch({
           onFocus={() => {
             if (suggestions.length) setOpen(true)
           }}
-          placeholder="Search Ireland — pick a suggestion"
+          placeholder={`Search ${countryName} — pick a suggestion`}
           autoComplete="off"
           role="combobox"
           aria-expanded={open}

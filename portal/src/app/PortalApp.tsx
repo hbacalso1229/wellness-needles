@@ -26,12 +26,12 @@ import {
 } from '../../../shared/site-snapshot'
 import {
   DEFAULT_PHONE_COUNTRY_ID,
-  PHONE_COUNTRIES,
   getPhoneCountry,
   type PhoneCountry,
 } from '../../../src/lib/phone-countries'
 import {
   formatLocalPhoneInput,
+  inferPhoneCountry,
   subscriberDigits,
   toE164,
 } from '../../../src/lib/irish-phone'
@@ -483,21 +483,6 @@ function bookingMatchesQuery(row: BookingRow, query: string): boolean {
     .includes(q)
 }
 
-function inferPhoneCountry(phone: SiteSnapshot['phone']): PhoneCountry {
-  const hay = `${phone.href} ${phone.displayText} ${phone.number}`
-  const digits = hay.replace(/\D/g, '')
-  let match = getPhoneCountry(DEFAULT_PHONE_COUNTRY_ID)
-  let best = 0
-  for (const country of PHONE_COUNTRIES) {
-    const code = country.dial.replace(/\D/g, '')
-    if (digits.startsWith(code) && code.length > best) {
-      match = country
-      best = code.length
-    }
-  }
-  return match
-}
-
 function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['phone'] {
   const local = subscriberDigits(rawLocal, country)
   const grouped = formatLocalPhoneInput(local, country)
@@ -505,7 +490,7 @@ function phoneSnapshot(country: PhoneCountry, rawLocal: string): SiteSnapshot['p
   const href = local ? `tel:+${country.dial.replace(/\D/g, '')}${local}` : ''
   const number = country.id === 'IE' && local ? `0${local}` : local
   const formatted = country.id === 'IE' && local ? `0${grouped}` : grouped
-  return { number, formatted, displayText, href }
+  return { number, formatted, displayText, href, countryId: country.id }
 }
 
 function looksLikeEircode(value: string): boolean {
@@ -985,7 +970,7 @@ export function PortalApp() {
                 <PageHeader
                   description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
                 />
-                <div className="flex flex-col gap-3 border-b border-black/[0.08] sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-b border-black/[0.08] pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <nav className="order-2 flex gap-1 overflow-x-auto sm:order-1">
                     {(
                       [
@@ -1842,6 +1827,64 @@ export function PortalApp() {
                 </div>
               </div>
             </Card>
+            <Card title="Contact details">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">
+                  Phone
+                  <span className="relative mt-1 flex rounded-md border border-black/10 bg-white">
+                    <PhoneCountrySelect
+                      value={phoneCountry}
+                      onChange={(nextCountry) => {
+                        const local = subscriberDigits(
+                          draft.phone.displayText || draft.phone.number,
+                          phoneCountry
+                        )
+                        setPhoneCountryId(nextCountry.id)
+                        setDraft({
+                          ...draft,
+                          phone: phoneSnapshot(nextCountry, local),
+                        })
+                      }}
+                    />
+                    <input
+                      type="tel"
+                      className="min-w-0 flex-1 border-0 px-2 py-1.5 outline-none"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      aria-label="Phone number"
+                      placeholder={phoneCountry.placeholder}
+                      value={formatLocalPhoneInput(
+                        draft.phone.displayText || draft.phone.number,
+                        phoneCountry
+                      )}
+                      onChange={(e) => {
+                        setDraft({
+                          ...draft,
+                          phone: phoneSnapshot(phoneCountry, e.target.value),
+                        })
+                      }}
+                    />
+                  </span>
+                </label>
+                <label className="block text-sm font-medium">
+                  Email
+                  <input
+                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
+                    value={draft.email.address}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        email: {
+                          ...draft.email,
+                          address: e.target.value,
+                          href: `mailto:${e.target.value}`,
+                        },
+                      })
+                    }
+                  />
+                </label>
+              </div>
+            </Card>
             <Card title="Locations">
               <div className="space-y-5">
                 {draft.locations.map((loc, index) => {
@@ -1879,6 +1922,8 @@ export function PortalApp() {
                       />
                     </label>
                     <AddressSearch
+                      countryId={phoneCountry.id}
+                      countryName={phoneCountry.name}
                       onPick={(address) => {
                         const locations = [...draft.locations]
                         locations[index] = composeLocation({
@@ -1946,7 +1991,7 @@ export function PortalApp() {
                         Add a street and city so Google Maps can find this clinic.
                       </p>
                     ) : null}
-                    {loc.postcode.trim() && !looksLikeEircode(loc.postcode) ? (
+                    {phoneCountry.id === 'IE' && loc.postcode.trim() && !looksLikeEircode(loc.postcode) ? (
                       <p className="text-xs text-[var(--text-dark)]/55">
                         Check this looks like an Eircode (e.g. W23 K603).
                       </p>
@@ -1981,64 +2026,6 @@ export function PortalApp() {
                 >
                   Add location
                 </button>
-              </div>
-            </Card>
-            <Card title="Contact details">
-              <div className="space-y-4">
-                <label className="block text-sm font-medium">
-                  Phone
-                  <span className="relative mt-1 flex rounded-md border border-black/10 bg-white">
-                    <PhoneCountrySelect
-                      value={phoneCountry}
-                      onChange={(nextCountry) => {
-                        const local = subscriberDigits(
-                          draft.phone.displayText || draft.phone.number,
-                          phoneCountry
-                        )
-                        setPhoneCountryId(nextCountry.id)
-                        setDraft({
-                          ...draft,
-                          phone: phoneSnapshot(nextCountry, local),
-                        })
-                      }}
-                    />
-                    <input
-                      type="tel"
-                      className="min-w-0 flex-1 border-0 px-2 py-1.5 outline-none"
-                      inputMode="numeric"
-                      autoComplete="tel-national"
-                      aria-label="Phone number"
-                      placeholder={phoneCountry.placeholder}
-                      value={formatLocalPhoneInput(
-                        draft.phone.displayText || draft.phone.number,
-                        phoneCountry
-                      )}
-                      onChange={(e) => {
-                        setDraft({
-                          ...draft,
-                          phone: phoneSnapshot(phoneCountry, e.target.value),
-                        })
-                      }}
-                    />
-                  </span>
-                </label>
-                <label className="block text-sm font-medium">
-                  Email
-                  <input
-                    className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5"
-                    value={draft.email.address}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        email: {
-                          ...draft.email,
-                          address: e.target.value,
-                          href: `mailto:${e.target.value}`,
-                        },
-                      })
-                    }
-                  />
-                </label>
               </div>
             </Card>
             <Card title="Social links">

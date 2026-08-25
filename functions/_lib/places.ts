@@ -1,3 +1,14 @@
+import { DEFAULT_PHONE_COUNTRY_ID, PHONE_COUNTRIES } from '../../shared/phone-countries'
+
+const ALLOWED_COUNTRY_IDS = new Set(PHONE_COUNTRIES.map((country) => country.id))
+
+/** Allowlisted ISO id → Nominatim countrycodes (lowercase). Unknown values fall back to Ireland. */
+export function nominatimCountryCode(countryId?: string | null): string {
+  const id = (countryId || '').trim().toUpperCase()
+  if (id && ALLOWED_COUNTRY_IDS.has(id)) return id.toLowerCase()
+  return DEFAULT_PHONE_COUNTRY_ID.toLowerCase()
+}
+
 export type PlaceSuggestion = {
   id: string
   label: string
@@ -82,9 +93,13 @@ function suggestionFromRow(row: unknown): PlaceSuggestion | null {
   return { id, label, ...parsed }
 }
 
-export async function autocompletePlaces(input: string): Promise<PlaceSuggestion[]> {
+export async function autocompletePlaces(
+  input: string,
+  countryId?: string | null
+): Promise<PlaceSuggestion[]> {
+  const countrycodes = nominatimCountryCode(countryId)
   const json = await nominatimGet(
-    `/search?format=jsonv2&addressdetails=1&countrycodes=ie&limit=6&q=${encodeURIComponent(input)}`
+    `/search?format=jsonv2&addressdetails=1&countrycodes=${countrycodes}&limit=6&q=${encodeURIComponent(input)}`
   )
   const rows = Array.isArray(json) ? json : []
   const out: PlaceSuggestion[] = []

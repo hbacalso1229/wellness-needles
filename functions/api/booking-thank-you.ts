@@ -29,6 +29,7 @@ import {
   type KnownLocation,
 } from '../_lib/email-brand'
 import { isValidEmailFormat } from '../../shared/email-check'
+import { parseSiteSnapshot } from '../../shared/site-snapshot'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -60,10 +61,22 @@ type Env = {
 }
 
 const FROM = 'Wellness Needles <info@wellnessneedles.ie>'
-const PHONE_DISPLAY = '+353 86 054 3085'
-const PHONE_HREF = 'tel:+353860543085'
+const FALLBACK_PHONE_DISPLAY = '+353 86 054 3085'
+const FALLBACK_PHONE_HREF = 'tel:+353860543085'
 const EMAIL_HREF =
   'mailto:info@wellnessneedles.ie?subject=Appointment%20enquiry'
+
+type PublishedBits = {
+  locations: KnownLocation[]
+  phoneDisplay: string
+  phoneHref: string
+}
+
+const BAKED_CONTACT: PublishedBits = {
+  locations: BAKED_LOCATIONS,
+  phoneDisplay: FALLBACK_PHONE_DISPLAY,
+  phoneHref: FALLBACK_PHONE_HREF,
+}
 
 function formatDisplayDate(isoDate: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate)
@@ -110,7 +123,38 @@ function joinPersonName(firstName: string, lastName: string): string {
   return collapseRepeatedFullName(`${first} ${last}`)
 }
 
-async function publishedLocations(env: Env): Promise<KnownLocation[]> {
+function phoneField(phone: unknown, key: string): string {
+  if (!phone || typeof phone !== 'object') return ''
+  const value = (phone as Record<string, unknown>)[key]
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+/** Prefer a full snapshot; still read locations/phone if hours or other fields fail parse. */
+export function contactFromPublishedJson(data: unknown): PublishedBits {
+  const parsed = parseSiteSnapshot(data)
+  if (parsed) {
+    const extra = parsed.locations
+      .map(asLocationRow)
+      .filter((item): item is KnownLocation => Boolean(item))
+    return {
+      locations: extra.length ? extra : BAKED_LOCATIONS,
+      phoneDisplay: parsed.phone.displayText.trim() || FALLBACK_PHONE_DISPLAY,
+      phoneHref: parsed.phone.href.trim() || FALLBACK_PHONE_HREF,
+    }
+  }
+  if (!data || typeof data !== 'object') return BAKED_CONTACT
+  const rec = data as Record<string, unknown>
+  const extra = Array.isArray(rec.locations)
+    ? rec.locations.map(asLocationRow).filter((item): item is KnownLocation => Boolean(item))
+    : []
+  return {
+    locations: extra.length ? extra : BAKED_LOCATIONS,
+    phoneDisplay: phoneField(rec.phone, 'displayText') || FALLBACK_PHONE_DISPLAY,
+    phoneHref: phoneField(rec.phone, 'href') || FALLBACK_PHONE_HREF,
+  }
+}
+
+async function publishedContact(env: Env): Promise<PublishedBits> {
   try {
     const fromKv = await env.SITE_CACHE?.get('public:site:v1', 'text')
     let raw = fromKv || ''
@@ -120,21 +164,19 @@ async function publishedLocations(env: Env): Promise<KnownLocation[]> {
       ).first<{ published_json: string }>()
       raw = row?.published_json || ''
     }
-    if (!raw) return BAKED_LOCATIONS
-    const parsed = JSON.parse(raw) as { locations?: unknown }
-    const extra = Array.isArray(parsed.locations)
-      ? parsed.locations.map(asLocationRow).filter((item): item is KnownLocation => Boolean(item))
-      : []
-    return extra.length ? extra : BAKED_LOCATIONS
+    if (!raw) return BAKED_CONTACT
+    return contactFromPublishedJson(JSON.parse(raw))
   } catch {
-    return BAKED_LOCATIONS
+    return BAKED_CONTACT
   }
 }
 
 function buildHtml(
   body: Required<Pick<ThankYouBody, 'firstName' | 'email' | 'date' | 'time' | 'serviceType'>> &
     ThankYouBody,
-  known: KnownLocation[] = BAKED_LOCATIONS
+  known: KnownLocation[] = BAKED_LOCATIONS,
+  phoneDisplay = FALLBACK_PHONE_DISPLAY,
+  phoneHref = FALLBACK_PHONE_HREF
 ): string {
   const fullName = joinPersonName(body.firstName, body.lastName || '')
   const logoUrl = `${SITE}/logo_wellness_transparent.png`
@@ -228,8 +270,8 @@ function buildHtml(
                     <div style="font-family:${SANS};font-size:16px;line-height:1.55;color:${TEXT_MUTED};margin-bottom:16px;">
                       Have questions about your request? We're happy to help.
                     </div>
-                    ${fullWidthPill(PHONE_HREF, 'Call us', 'gold', 'phone')}
-                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;font-weight:600;color:${TEXT};margin:6px 0 0;text-align:center;">${brandedLink(PHONE_HREF, PHONE_DISPLAY, TEXT, 'font-weight:600;')}</div>
+                    ${fullWidthPill(phoneHref, 'Call us', 'gold', 'phone')}
+                    <div style="font-family:${SANS};font-size:16px;line-height:1.5;font-weight:600;color:${TEXT};margin:6px 0 0;text-align:center;">${brandedLink(phoneHref, phoneDisplay, TEXT, 'font-weight:600;')}</div>
                     ${orDivider()}
                     ${fullWidthPill(EMAIL_HREF, 'Send a message', 'outline', 'mail')}
                     <div style="font-family:${SANS};font-size:16px;line-height:1.5;color:${TEXT_MUTED};margin-top:6px;text-align:center;">We reply within 24 hours</div>
@@ -284,7 +326,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'Missing required booking fields' })
   }
 
-  const known = await publishedLocations(context.env)
+  const published = await publishedContact(context.env)
   const html = buildHtml({
     firstName,
     lastName: typeof body.lastName === 'string' ? body.lastName.trim() : undefined,
@@ -297,7 +339,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     time,
     serviceType,
     message: typeof body.message === 'string' ? body.message.trim() : undefined,
-  }, known)
+  }, published.locations, published.phoneDisplay, published.phoneHref)
 
   const resendResponse = await fetch('https://api.resend.com/emails', {
     method: 'POST',

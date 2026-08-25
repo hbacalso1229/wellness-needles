@@ -127,7 +127,7 @@ flowchart TD
 
 Mermaid source: [architecture-confirm-pipeline.mmd](architecture-confirm-pipeline.mmd). Numbered sequence: [booking-sequence-confirm.mmd](booking-sequence-confirm.mmd).
 
-Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`. Starts before now (Europe/Dublin) are rejected. Website Confirm body stays `{ action: 'confirm', startsAtLocal }`. Phone/walk-in use `POST /api/admin/bookings` `{ action: 'create', startsAtLocal, firstName, lastName, email, phone, serviceType, locationLabel, serviceLabel, smsOptIn }` then the same Confirm helper (no request-received thank-you). Create phone must pass the same Irish-mobile / country checks as the website form.
+Portal picker, Confirm click, and `POST /api/admin/bookings/:id` all snap `YYYY-MM-DDTHH:mm` to `:00 / :15 / :30 / :45` (`shared/quarter-hour.ts`). `23:53` becomes the **next calendar day** `00:00`. Starts before now (Europe/Dublin) are rejected. Website Confirm body stays `{ action: 'confirm', startsAtLocal }`. Phone/walk-in use `POST /api/admin/bookings` `{ action: 'create', startsAtLocal, firstName, lastName, email, phone, serviceType, locationLabel, serviceLabel, smsOptIn }` then the same Confirm helper (no request-received thank-you). Create phone uses `shared/irish-phone.ts` (08x when Ireland, length otherwise). On production www the booking country list is locked to published `phone.countryId`; staging/local keep the picker.
 
 Cancel uses the same order: patient mail → D1 `cancelled` → `waitUntil` clinic CANCEL copy when the row was already confirmed.
 
@@ -198,12 +198,12 @@ Not built: same-day reminder.
 | `functions/_lib/notify.ts` | Portal Confirm/Reschedule/Cancel, reminder Worker | Card copy, ICS, Resend, Twilio, Dublin `remind_at` |
 | `functions/_lib/confirm-booking.ts` | Portal Confirm and Add appointment | Shared Confirm helper. Create validates published lists then INSERT pending and runs the same pipeline |
 | `shared/email-check.ts` | www booking form, `/api/booking-email-check`, portal create email | Format parse, typo suggestion, MX via Cloudflare DoH (fail-open). Typo does not block submit |
-| `shared/irish-phone.ts` / `shared/phone-countries.ts` | www booking form, portal Add appointment + Settings, create API | Country dial codes, Irish 08x mobile, E.164 |
+| `shared/irish-phone.ts` / `shared/phone-countries.ts` | www booking form, portal Add appointment + Contact details, create API | Dial codes, `phone.countryId` infer, Irish 08x, E.164 |
+| `shared/site-snapshot.ts` | www overlay, portal Settings, thank-you Function | Published clinic JSON (`phone.countryId`, `serviceCopy`, cupping/moxibustion flags) |
 | `shared/quarter-hour.ts` | Portal UI, Confirm/Reschedule/create API | 15-minute snap + Dublin datetime-local; past starts rejected |
 | `shared/twelve-hour.ts` | Portal hours + Confirm/Reschedule/Add appointment pickers | 12-hour AM/PM UI; stored values stay 24-hour |
 | `shared/preferred-time-windows.ts` | www booking form | Clip preferred-time cards to published hours |
 | `shared/booking-options.ts` | Portal Confirmed tab, Reschedule and Add appointment APIs | Allowed service/location catalogs |
-| `shared/site-snapshot.ts` | www overlay, portal Settings | Published clinic JSON (`serviceCopy`, cupping/moxibustion flags) |
 | `src/lib/overlay-public.ts` | www `/bookings/` | Overlay catalog names, prices, add-on flags |
 
 Unit tests: `npm run test:unit`.

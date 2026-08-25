@@ -1,4 +1,5 @@
 import { DEFAULT_REVIEWS, type DefaultReview } from './default-reviews'
+import { inferPhoneCountry, subscriberDigits, toE164 } from './irish-phone'
 
 export const WEEKDAYS = [
   'sunday',
@@ -380,6 +381,7 @@ export type SiteSnapshot = {
     formatted: string
     displayText: string
     href: string
+    countryId: string
   }
   email: {
     address: string
@@ -459,6 +461,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     formatted: '086 054 3085',
     displayText: '+353 86 054 3085',
     href: 'tel:+353860543085',
+    countryId: 'IE',
   },
   email: {
     address: 'info@wellnessneedles.ie',
@@ -864,6 +867,41 @@ function parseLocation(value: unknown): SiteLocation | null {
   }
 }
 
+function parseSnapshotPhone(value: Record<string, unknown>): SiteSnapshot['phone'] {
+  const number = asString(value.number, '')
+  const formatted = asString(value.formatted, '')
+  const displayText = asString(value.displayText, '')
+  const href = asString(value.href, '')
+  const countryIdRaw = typeof value.countryId === 'string' ? value.countryId.trim() : ''
+  const inferred = inferPhoneCountry({
+    countryId: countryIdRaw || undefined,
+    number,
+    displayText,
+    href,
+  })
+  const hasAny = Boolean(number || formatted || displayText || href || countryIdRaw)
+  if (!hasAny) return { ...SITE_DEFAULTS.phone }
+
+  if (inferred.id === 'IE') {
+    return {
+      number: number || SITE_DEFAULTS.phone.number,
+      formatted: formatted || SITE_DEFAULTS.phone.formatted,
+      displayText: displayText || SITE_DEFAULTS.phone.displayText,
+      href: href || SITE_DEFAULTS.phone.href,
+      countryId: 'IE',
+    }
+  }
+
+  const local = subscriberDigits(href || displayText || number, inferred)
+  return {
+    number: number || local,
+    formatted: formatted || local,
+    displayText: displayText || toE164(local, inferred),
+    href: href || (local ? `tel:+${inferred.dial.replace(/\D/g, '')}${local}` : ''),
+    countryId: inferred.id,
+  }
+}
+
 export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
   if (!isRecord(value)) return null
   const hours = parseWeekHours(value.hours)
@@ -897,12 +935,7 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
     clinicName: asString(value.clinicName, SITE_DEFAULTS.clinicName),
     tagline: asString(value.tagline, SITE_DEFAULTS.tagline),
     description: asString(value.description, SITE_DEFAULTS.description),
-    phone: {
-      number: asString(value.phone.number, SITE_DEFAULTS.phone.number),
-      formatted: asString(value.phone.formatted, SITE_DEFAULTS.phone.formatted),
-      displayText: asString(value.phone.displayText, SITE_DEFAULTS.phone.displayText),
-      href: asString(value.phone.href, SITE_DEFAULTS.phone.href),
-    },
+    phone: parseSnapshotPhone(value.phone),
     email: {
       address: asString(value.email.address, SITE_DEFAULTS.email.address),
       href: asString(value.email.href, SITE_DEFAULTS.email.href),

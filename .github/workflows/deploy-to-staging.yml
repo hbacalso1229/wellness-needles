@@ -1,6 +1,7 @@
 name: Deploy — Staging
 
-# Check — Quality is the only lint / typecheck / e2e gate.
+# Check — Quality is the lint / typecheck / www e2e gate.
+# This workflow also runs portal E2E (mocked /api/admin) before the Vercel upload.
 # After Quality succeeds on a push to `dev`, it starts this workflow, which
 # only builds the staging export and deploys it. Manual workflow_dispatch
 # still works. Does not run for PRs or merge to main.
@@ -51,8 +52,9 @@ jobs:
           # Booking on staging stays hCaptcha (provider above). Widget host must include
           # wellness-needles.vercel.app in the Cloudflare Turnstile widget settings.
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAEPCqhDUf9aLTuLx"
-          # Country lock: hide phone country picker, keep +353.
-          NEXT_PUBLIC_STRICT_IRISH_PHONE: "true"
+          # Staging keeps the country picker. Production locks it via hostname
+          # (www.wellnessneedles.ie) to the published portal Contact details country.
+          NEXT_PUBLIC_STRICT_IRISH_PHONE: "false"
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
           VERCEL_GIT_COMMIT_REF: dev
         run: npx next build
@@ -63,6 +65,23 @@ jobs:
           test -f out/bookings/unable-to-process/index.html
           test -f out/bookings/index.html
           test ! -d out/admin
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        timeout-minutes: 3
+        run: npx playwright install chromium
+
+      - name: Build portal export
+        run: npm run build:portal
+
+      - name: Portal end-to-end tests
+        timeout-minutes: 4
+        run: npm run test:e2e:portal
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

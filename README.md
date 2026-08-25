@@ -136,7 +136,7 @@ docs/
 
 - Colors: `src/app/globals.css`
 - Baked clinic details / booking defaults: `src/lib/contact-config.ts` (used when overlay is off or the overlay API fails)
-- Live clinic details, hours, locations, prices, reviews, insurance logos: owner portal, then Publish (see [docs/PORTAL.md](docs/PORTAL.md))
+- Live clinic details (including **clinic phone country and number**), hours, locations, prices, reviews, insurance logos: owner portal, then Publish (see [docs/PORTAL.md](docs/PORTAL.md))
 - Booking prices when overlay is off: [`src/lib/booking-catalog.ts`](src/lib/booking-catalog.ts)
 - Images: `public/`
 

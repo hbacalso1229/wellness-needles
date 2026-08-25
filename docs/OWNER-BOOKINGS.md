@@ -56,7 +56,7 @@ Mermaid source: [owner-booking-process.mmd](owner-booking-process.mmd).
 When you book someone by phone or in person (not the website form):
 
 1. Open **Appointments** and choose **Add appointment**.
-2. Enter their name, email, phone (same checks as the website form), visit type, location, service, and the exact Ireland start (not a past date).
+2. Enter their name, email, and **their** phone (you pick the country; Ireland still needs an 08x mobile), visit type, location, service, and the exact Ireland start (not a past date). The clinic Call us number on the website is Settings → Contact details, then Publish — not this field.
 3. Tick **Patient asked for SMS** only if they want texts (and Patient SMS is published On).
 4. Choose **Confirm appointment**. They get the same confirmation card and calendar invite as a website Confirm. The row appears under **Confirmed**. Reschedule and Cancel work as usual.
 
@@ -111,3 +111,4 @@ If you later move them to Friday 11:00am (or change clinic/service), they get �
 
 - **Public website overlay** On and Published — otherwise the form still emails you, but the request will **not** show in Appointments.
 - **Patient SMS** On and Published — otherwise no SMS (email still works).
+- Clinic phone on www (Need help, footer, Contact, thank-you email) and the production booking country lock follow Contact details after **Publish**. Save draft does not change the live site.

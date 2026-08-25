@@ -1,5 +1,6 @@
 export {
   formatLocalPhoneInput,
+  inferPhoneCountry,
   isValidBookingPhone,
   isValidIrishMobile,
   isValidIrishPhoneLenient,

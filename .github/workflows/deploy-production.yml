@@ -50,9 +50,8 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
-      # E2E already ran on Check — Quality for this commit (required before
-      # Create Production Release). Do not reinstall Playwright here — that
-      # download has hung production deploys for 13–35 minutes.
+      # www E2E already ran on Check — Quality. Portal Chromium install can hang,
+      # so portal E2E runs after www upload and still gates the portal upload.
 
       - name: Build static export for production
         env:
@@ -131,6 +130,9 @@ jobs:
           fi
           echo "Production export: Turnstile default + hCaptcha rollback key/sitekey baked."
 
+      - name: Build portal export
+        run: npm run build:portal
+
       # Pages Production (Settings → Variables and secrets):
       #   Secrets: RESEND_API_KEY, TURNSTILE_SECRET_KEY, WEB3FORMS_ACCESS_KEY
       #   Text: BOOKING_CAPTCHA_PROVIDER = turnstile | hcaptcha (runtime rollback, no Release)
@@ -189,15 +191,25 @@ jobs:
           echo "deployment=$deployment" >> "$GITHUB_OUTPUT"
           echo "url=https://www.wellnessneedles.ie" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy owner portal (non-blocking)
-        continue-on-error: true
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        timeout-minutes: 3
+        run: npx playwright install chromium
+
+      - name: Portal end-to-end tests
+        timeout-minutes: 4
+        run: npm run test:e2e:portal
+
+      - name: Deploy owner portal
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          npm --prefix portal ci
-          npm --prefix portal run build
-          node scripts/pages-deploy-subset.mjs portal
+        run: node scripts/pages-deploy-subset.mjs portal
 
       - name: Deploy reminder Cron Worker (non-blocking)
         continue-on-error: true
