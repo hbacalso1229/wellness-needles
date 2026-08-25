@@ -61,6 +61,7 @@ import {
   formatYmdDisplay,
   snapshotsEqual,
   PORTAL_PILL,
+  PORTAL_PILL_OUTLINE,
   PORTAL_PILL_TOOLBAR,
   type AddAppointmentValues,
   type ReviewStatusTab,
@@ -365,7 +366,7 @@ function UnifiedExtrasEditor({
                       categoryOn ? '' : 'opacity-50'
                     }`}
                   >
-                    <p className="mb-2 text-xs font-medium text-[var(--text-dark)]/60">
+                    <p className="mb-2 text-xs font-semibold text-[var(--text-dark)]/60">
                       {channel === 'inClinic' ? 'In clinic' : 'Home visit'}
                     </p>
                     <div className="space-y-2">
@@ -398,24 +399,24 @@ function UnifiedExtrasEditor({
           </div>
         )
       })}
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex flex-nowrap gap-2 pt-1">
         <button
           type="button"
-          className={PORTAL_PILL}
+          className={`min-w-0 flex-1 sm:flex-none ${PORTAL_PILL_OUTLINE}`}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('service')])}
         >
           Add service
         </button>
         <button
           type="button"
-          className={PORTAL_PILL}
+          className={`min-w-0 flex-1 sm:flex-none ${PORTAL_PILL_OUTLINE}`}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('package')])}
         >
           Add package
         </button>
         <button
           type="button"
-          className={PORTAL_PILL}
+          className={`min-w-0 flex-1 sm:flex-none ${PORTAL_PILL_OUTLINE}`}
           onClick={() => writeExtras([...unifiedExtras, createUnifiedPricingExtra('addon')])}
         >
           Add add-on
@@ -938,7 +939,7 @@ export function PortalApp() {
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2">
+        <nav className="no-scrollbar mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2">
           {TABS.map((item) => (
             <button
               key={item.id}
@@ -972,8 +973,8 @@ export function PortalApp() {
                 <PageHeader
                   description={`Inbox for ${draft.email.address}. Website requests land in Pending. Phone and walk-in use Add appointment. Confirm sets the exact Europe/Dublin start. Reschedule from Confirmed. Cancelled is look-up only.`}
                 />
-                <div className="flex flex-col gap-3 border-b border-black/[0.08] pt-6 sm:flex-row sm:items-center sm:justify-between">
-                  <nav className="order-2 flex gap-1 overflow-x-auto sm:order-1">
+                <div className="flex flex-col gap-3 border-b border-black/[0.08] pt-6">
+                  <nav className="no-scrollbar order-2 flex min-w-0 gap-1 overflow-x-auto sm:overflow-visible">
                     {(
                       [
                         { id: 'pending', label: 'Pending', count: bookings.length },
@@ -1003,15 +1004,15 @@ export function PortalApp() {
                       </button>
                     ))}
                   </nav>
-                  <div className="order-1 flex items-center gap-2 sm:order-2">
+                  <div className="order-1 flex flex-col items-stretch gap-2">
                     <button
                       type="button"
-                      className={PORTAL_PILL_TOOLBAR}
+                      className={`${PORTAL_PILL_TOOLBAR} self-end`}
                       onClick={openAddAppointment}
                     >
                       Add appointment
                     </button>
-                    <label className="min-w-0 flex-1 sm:w-64 sm:shrink-0 sm:flex-none">
+                    <label className="w-full min-w-0">
                       <span className="sr-only">Search appointments</span>
                       <input
                         type="search"
@@ -1650,7 +1651,7 @@ export function PortalApp() {
                               categoryOn ? '' : 'opacity-50'
                             }`}
                           >
-                            <p className="mb-2 text-xs font-medium text-[var(--text-dark)]/60">
+                            <p className="mb-2 text-xs font-semibold text-[var(--text-dark)]/60">
                               {kind === 'inClinic' ? 'In clinic' : 'Home visit'}
                             </p>
                             <div className="space-y-2">
@@ -1813,7 +1814,7 @@ export function PortalApp() {
                   })}
                   <button
                     type="button"
-                    className={PORTAL_PILL}
+                    className={PORTAL_PILL_OUTLINE}
                     onClick={() => {
                       const sortOrder =
                         draft.insurers.reduce((max, row) => Math.max(max, row.sortOrder), -1) + 1
@@ -2007,7 +2008,7 @@ export function PortalApp() {
                 })}
                 <button
                   type="button"
-                  className={PORTAL_PILL}
+                  className={PORTAL_PILL_OUTLINE}
                   onClick={() => {
                     setDraft({
                       ...draft,
