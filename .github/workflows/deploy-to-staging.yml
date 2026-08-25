@@ -1,6 +1,7 @@
 name: Deploy — Staging
 
-# Check — Quality is the only lint / typecheck / e2e gate.
+# Check — Quality is the lint / typecheck / www e2e gate.
+# This workflow also runs portal E2E (mocked /api/admin) before the Vercel upload.
 # After Quality succeeds on a push to `dev`, it starts this workflow, which
 # only builds the staging export and deploys it. Manual workflow_dispatch
 # still works. Does not run for PRs or merge to main.
@@ -63,6 +64,23 @@ jobs:
           test -f out/bookings/unable-to-process/index.html
           test -f out/bookings/index.html
           test ! -d out/admin
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        timeout-minutes: 3
+        run: npx playwright install chromium
+
+      - name: Build portal export
+        run: npm run build:portal
+
+      - name: Portal end-to-end tests
+        timeout-minutes: 4
+        run: npm run test:e2e:portal
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
