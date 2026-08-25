@@ -99,6 +99,22 @@ describe('parseSiteSnapshot phone.countryId', () => {
     })
     assert.equal(parsed?.phone.countryId, 'GB')
     assert.equal(parsed?.phone.displayText, '+44 7700 900123')
-    assert.equal(parsed?.phone.href, '')
+    assert.equal(parsed?.phone.href, 'tel:+447700900123')
+  })
+
+  it('keeps Irish baked tel when an Irish national number has no href', () => {
+    const parsed = parseSiteSnapshot({
+      ...SITE_DEFAULTS,
+      phone: {
+        number: '0860543085',
+        formatted: '',
+        displayText: '',
+        href: '',
+      },
+    })
+    assert.equal(parsed?.phone.countryId, 'IE')
+    assert.equal(parsed?.phone.number, '0860543085')
+    assert.equal(parsed?.phone.href, SITE_DEFAULTS.phone.href)
+    assert.equal(parsed?.phone.displayText, SITE_DEFAULTS.phone.displayText)
   })
 })
