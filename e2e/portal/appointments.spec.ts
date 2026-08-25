@@ -85,6 +85,6 @@ test.describe('portal appointments mobile toolbar', () => {
     await expect(when).toBeVisible()
     const box = await when.boundingBox()
     expect(box).toBeTruthy()
-    expect(box!.height).toBeLessThan(22)
+    expect(box!.height).toBeLessThan(24)
   })
 })

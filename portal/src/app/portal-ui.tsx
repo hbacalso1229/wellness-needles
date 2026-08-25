@@ -211,7 +211,7 @@ export function BookingCardDetails({
           </span>
         </span>
         {when.trim() ? (
-          <span className="mt-0.5 block w-full whitespace-nowrap text-xs font-medium text-[var(--text-dark)]">
+          <span className="mt-0.5 block w-full whitespace-nowrap text-[13px] font-semibold text-[var(--text-dark)]">
             {when}
           </span>
         ) : null}
