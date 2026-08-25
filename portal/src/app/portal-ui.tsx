@@ -152,12 +152,6 @@ const BOOKING_STATUS_LABEL = {
   cancelled: 'Cancelled',
 } as const
 
-const BOOKING_STATUS_CLASS = {
-  pending: 'border-black/15 text-[var(--text-dark)]/55',
-  confirmed: 'border-primary/30 bg-accent/20 text-primary',
-  cancelled: 'border-black/15 text-[var(--text-dark)]/55',
-} as const
-
 export function BookingCardDetails({
   firstName,
   lastName,
@@ -194,36 +188,33 @@ export function BookingCardDetails({
     <div>
       <button
         type="button"
-        className="flex w-full items-start justify-between gap-3 text-left"
+        className="flex w-full flex-col text-left"
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={`${displayName}, ${statusLabel}`}
         onClick={onToggle}
       >
-        <span className="min-w-0">
-          <span className="block text-base font-semibold text-[var(--text-dark)]">
+        <span className="flex w-full items-start justify-between gap-2">
+          <span className="min-w-0 text-base font-semibold text-[var(--text-dark)]">
             {firstName} {lastName}
           </span>
-          {when.trim() ? (
-            <span className="mt-0.5 block text-sm font-semibold text-[var(--text-dark)]">
-              {when}
+          <span className="mt-0.5 flex shrink-0 items-center gap-1.5">
+            <span className="shrink-0 rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-medium text-[var(--text-dark)]/55">
+              {statusLabel}
             </span>
-          ) : null}
-        </span>
-        <span className="mt-0.5 flex shrink-0 items-center gap-1.5">
-          <span
-            role="status"
-            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${BOOKING_STATUS_CLASS[status]}`}
-          >
-            {statusLabel}
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
+                open ? 'rotate-180' : ''
+              }`}
+              aria-hidden
+            />
           </span>
-          <ChevronDown
-            className={`h-4 w-4 shrink-0 text-[var(--text-dark)]/45 transition-transform ${
-              open ? 'rotate-180' : ''
-            }`}
-            aria-hidden
-          />
         </span>
+        {when.trim() ? (
+          <span className="mt-0.5 block w-full whitespace-nowrap text-xs font-medium text-[var(--text-dark)]">
+            {when}
+          </span>
+        ) : null}
       </button>
       {open ? (
         <div id={panelId}>
