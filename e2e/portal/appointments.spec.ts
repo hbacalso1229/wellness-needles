@@ -78,4 +78,13 @@ test.describe('portal appointments mobile toolbar', () => {
     expect(emailBox && visitBox).toBeTruthy()
     expect(Math.abs(emailBox!.y - visitBox!.y)).toBeLessThan(4)
   })
+
+  test('appointment time stays on one line', async ({ page }) => {
+    await page.goto('/')
+    const when = page.getByText(/Morning \(9:00 AM/)
+    await expect(when).toBeVisible()
+    const box = await when.boundingBox()
+    expect(box).toBeTruthy()
+    expect(box!.height).toBeLessThan(22)
+  })
 })
