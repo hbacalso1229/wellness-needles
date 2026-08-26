@@ -171,7 +171,7 @@ export function TimeRangeCards({
         return (
           <label
             key={range.id}
-            className={`booking-select-card relative block min-w-0 box-border rounded-xl border p-2.5 md:p-3 lg:p-4 ${
+            className={`booking-select-card relative block min-w-0 box-border overflow-visible rounded-xl border p-2.5 md:p-3 lg:p-4 ${
               past
                 ? 'cursor-not-allowed border-accent/20 bg-accent/[0.04]'
                 : selected
@@ -206,7 +206,7 @@ export function TimeRangeCards({
               ) : null}
             </span>
             <div
-              className={`pointer-events-none relative z-0 flex flex-col items-start gap-2 pr-6 lg:gap-3 ${
+              className={`pointer-events-none relative z-0 flex min-w-0 flex-col items-start gap-2 lg:gap-3 ${
                 past ? 'opacity-60' : ''
               }`}
             >
@@ -222,27 +222,29 @@ export function TimeRangeCards({
                 <Icon className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
               </span>
               <div className="min-w-0 w-full">
-                <h4
-                  className={`text-sm font-semibold leading-snug lg:text-base ${
-                    past ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]'
-                  }`}
-                >
-                  {range.label}
-                </h4>
-                <p
-                  className={`mt-0.5 text-[11px] leading-tight tabular-nums md:whitespace-nowrap lg:text-sm lg:leading-relaxed ${
-                    past ? 'text-secondary/80' : 'text-[var(--text-dark)]'
-                  }`}
-                >
-                  {range.window}
-                </p>
+                <div className="min-w-0 w-full pr-6">
+                  <h4
+                    className={`text-sm font-semibold leading-snug lg:text-base ${
+                      past ? 'text-[var(--text-dark)]/70' : 'text-[var(--text-dark)]'
+                    }`}
+                  >
+                    {range.label}
+                  </h4>
+                  <p
+                    className={`mt-0.5 text-[11px] leading-tight tabular-nums md:whitespace-nowrap lg:text-sm lg:leading-relaxed ${
+                      past ? 'text-secondary/80' : 'text-[var(--text-dark)]'
+                    }`}
+                  >
+                    {range.window}
+                  </p>
+                </div>
                 {past ? (
-                  <span className="mt-1 inline-flex max-w-full items-center rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-secondary md:whitespace-nowrap lg:mt-1.5 lg:text-xs">
+                  <span className="mt-1 inline-block max-w-full min-w-0 rounded-md bg-accent/15 px-2 py-0.5 text-center text-[10px] font-semibold uppercase leading-snug tracking-wide text-secondary md:inline-flex md:items-center md:rounded-full md:whitespace-nowrap lg:mt-1.5 lg:text-xs">
                     Unavailable
                   </span>
                 ) : (
                   <span
-                    className={`mt-1 inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-snug md:whitespace-nowrap lg:mt-1.5 lg:text-xs ${
+                    className={`mt-1 inline-block max-w-full min-w-0 rounded-md px-2 py-0.5 text-center text-[10px] font-semibold leading-snug md:inline-flex md:items-center md:rounded-full md:whitespace-nowrap lg:mt-1.5 lg:text-xs ${
                       selected ? 'bg-white text-primary' : 'bg-accent/20 text-primary'
                     }`}
                   >
