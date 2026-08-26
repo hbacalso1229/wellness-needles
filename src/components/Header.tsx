@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Calendar } from 'lucide-react'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { headerGoldCtaClassName, headerGoldCtaMobileClassName } from '@/features/ui/CTAButton'
+import { useBrandLogos } from '@/hooks/useBrandLogos'
 
 const HEADER_CLASS =
   'fixed inset-x-0 top-0 z-[150] w-full overflow-visible border-b border-white/40 shadow-sm bg-white/90 backdrop-blur-md max-xl:supports-[backdrop-filter]:bg-white/80 xl:bg-white/40 xl:backdrop-blur-[2px] xl:supports-[backdrop-filter]:bg-white/30'
@@ -35,6 +36,7 @@ export default function Header() {
   const menuToggleRef = useRef<HTMLInputElement>(null)
   const pathname = normalizePathname(usePathname())
   const pathnameReadyRef = useRef(false)
+  const { wordmark } = useBrandLogos()
   const {
     href: bookHref,
     isExternal: bookExternal,
@@ -176,7 +178,7 @@ export default function Header() {
             >
               <span className="relative block h-10 w-[5.5rem] sm:h-11 sm:w-24 xl:h-11 xl:w-24">
                 <Image
-                  src="/logo_wellness_transparent.png"
+                  src={wordmark}
                   alt=""
                   fill
                   sizes="96px"

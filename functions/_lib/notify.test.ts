@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { NEW_ICON, ORIGINAL_WORDMARK } from '../../shared/brand-logos'
 import { SITE_DEFAULTS } from '../../shared/site-snapshot'
+import { SITE } from './email-brand'
 import {
   appointmentCopy,
   bookingDurationMinutes,
+  buildAppointmentEmail,
   buildBookingIcs,
   dublinLocalToUtcIso,
   formatDublinSmsDate,
@@ -190,5 +193,36 @@ describe('ICS', () => {
     assert.match(second || '', /SEQUENCE:2/)
     assert.match(cancel || '', /SEQUENCE:3/)
     assert.match(updated || '', /UID:booking-abc123@wellnessneedles.ie/)
+  })
+})
+
+describe('buildAppointmentEmail logo', () => {
+  const base = {
+    kind: 'confirm' as const,
+    clinic: 'Wellness Needles',
+    firstName: 'Ada',
+    dateLabel: 'Monday 1 September',
+    timeLabel: '10:00',
+    locationLabel: 'Celbridge',
+    durationMinutes: 60,
+  }
+
+  it('uses the original wordmark when overlay or the flag is off', () => {
+    const html = buildAppointmentEmail({ ...base, site: SITE_DEFAULTS }).html
+    assert.match(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
+    assert.doesNotMatch(html, new RegExp(NEW_ICON.replace(/\./g, '\\.')))
+  })
+
+  it('uses the new clinic icon when overlay and the flag are both on', () => {
+    const html = buildAppointmentEmail({
+      ...base,
+      site: {
+        ...SITE_DEFAULTS,
+        websiteOverlayEnabled: true,
+        features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
+      },
+    }).html
+    assert.match(html, new RegExp(`${SITE}${NEW_ICON}`.replace(/\./g, '\\.')))
+    assert.doesNotMatch(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
   })
 })

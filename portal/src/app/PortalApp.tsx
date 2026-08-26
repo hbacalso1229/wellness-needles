@@ -921,12 +921,21 @@ export function PortalApp() {
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-x-2.5">
-            <p className="shrink-0 font-serif text-xl font-semibold leading-tight text-primary">
-              Wellness Needles
-            </p>
-            <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
-              Admin Portal
-            </p>
+            <img
+              src="/logo_wellness_new_icon.png"
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 object-contain"
+            />
+            <div className="min-w-0">
+              <p className="shrink-0 font-serif text-xl font-semibold leading-tight text-primary">
+                Wellness Needles
+              </p>
+              <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
+                Admin Portal
+              </p>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="text-[var(--text-dark)]/65">{email || 'Signed in'}</span>
@@ -2129,6 +2138,29 @@ export function PortalApp() {
                       setDraft({
                         ...draft,
                         features: { ...draft.features, smsEnabled },
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex items-start justify-between gap-4 border-t border-black/[0.06] pt-4">
+                  <div>
+                    <p className="text-sm font-medium">New clinic logo</p>
+                    <p className="mt-1 text-sm text-[var(--text-dark)]/65">
+                      Use the new lotus wordmark and icon on the public website and in
+                      emails. Off keeps the original live logos. Overlay must be on.
+                    </p>
+                  </div>
+                  <OnOffSwitch
+                    checked={draft.features.newClinicLogoEnabled}
+                    ariaLabel={
+                      draft.features.newClinicLogoEnabled
+                        ? 'Turn off New clinic logo'
+                        : 'Turn on New clinic logo'
+                    }
+                    onChange={(newClinicLogoEnabled) =>
+                      setDraft({
+                        ...draft,
+                        features: { ...draft.features, newClinicLogoEnabled },
                       })
                     }
                   />

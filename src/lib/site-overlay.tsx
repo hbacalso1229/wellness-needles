@@ -99,7 +99,6 @@ export function SiteOverlayProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (overlayKillSwitchOff()) return
-    if (process.env.NEXT_PUBLIC_E2E === 'true') return
     let cancelled = false
 
     fetch('/api/bff/site', { headers: { Accept: 'application/json' } })

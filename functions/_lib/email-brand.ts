@@ -1,5 +1,7 @@
 /** Shared Resend HTML — keep confirm/reminder aligned with /bookings/thank-you. */
 
+import { brandLogos } from '../../shared/brand-logos'
+
 export const SITE = 'https://www.wellnessneedles.ie'
 export const PRIMARY = '#2d5016'
 export const SECONDARY = '#4a7c2a'
@@ -333,8 +335,9 @@ export function emailShell(options: {
   rowsHtml: string
   actionsHtml?: string
   footerNote?: string
+  logoUrl?: string
 }): string {
-  const logoUrl = `${SITE}/logo_wellness_transparent.png`
+  const logoUrl = options.logoUrl || `${SITE}${brandLogos(false).email}`
   const statusRow = options.status
     ? `<tr>
             <td align="center" style="padding-bottom:16px;font-family:${SANS};font-size:12px;line-height:1.3;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:${PRIMARY};">

@@ -2,8 +2,10 @@
 
 import Image from 'next/image'
 import { PulsingLeaf } from '@/features/ui/PulsingLeaf'
+import { useBrandLogos } from '@/hooks/useBrandLogos'
 
 export default function LoadingComponent() {
+  const { icon } = useBrandLogos()
   return (
     <div className="min-h-screen jungle-gradient flex flex-col items-center justify-center pt-14">
       {/* Main Loading Content */}
@@ -49,9 +51,9 @@ export default function LoadingComponent() {
 
         {/* Logo */}
         <div className="relative z-10">
-          <div className="relative w-24 h-24 mb-4">
+          <div className="relative mx-auto mb-4 h-20 w-20">
             <Image
-              src="/logo_wellness_transparent.png"
+              src={icon}
               alt="Wellness Needles Logo"
               fill
               className="object-contain animate-pulse"

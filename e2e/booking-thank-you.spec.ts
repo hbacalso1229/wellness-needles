@@ -25,6 +25,9 @@ test.describe('booking thank-you', () => {
     await expect(
       page.getByRole('link', { name: /Wellness Needles/i }).first()
     ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: /Wellness Needles/i }).first().locator('img')
+    ).toHaveAttribute('src', /logo_wellness_transparent\.png/)
     await expect(page.getByRole('heading', { name: /Need help/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /Call us/i })).toBeVisible()
 
