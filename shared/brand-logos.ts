@@ -1,7 +1,7 @@
 export const ORIGINAL_WORDMARK = '/logo_wellness_transparent.png'
 export const ORIGINAL_ICON = '/logo_wellness_icon.png'
-export const CHATGPT_WORDMARK = '/logo_wellness_chatgpt.png'
-export const CHATGPT_ICON = '/logo_wellness_chatgpt_icon.png'
+export const NEW_WORDMARK = '/logo_wellness_new.png'
+export const NEW_ICON = '/logo_wellness_new_icon.png'
 
 export type BrandLogos = {
   wordmark: string
@@ -9,19 +9,19 @@ export type BrandLogos = {
   email: string
 }
 
-export function chatgptLogoActive(
+export function newClinicLogoActive(
   overlayEnabled: boolean,
-  chatgptLogoEnabled: boolean
+  newClinicLogoEnabled: boolean
 ): boolean {
-  return overlayEnabled && chatgptLogoEnabled
+  return overlayEnabled && newClinicLogoEnabled
 }
 
-export function brandLogos(chatgptEnabled: boolean): BrandLogos {
-  if (chatgptEnabled) {
+export function brandLogos(newLogoEnabled: boolean): BrandLogos {
+  if (newLogoEnabled) {
     return {
-      wordmark: CHATGPT_WORDMARK,
-      icon: CHATGPT_ICON,
-      email: CHATGPT_ICON,
+      wordmark: NEW_WORDMARK,
+      icon: NEW_ICON,
+      email: NEW_ICON,
     }
   }
   return {

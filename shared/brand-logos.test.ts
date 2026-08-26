@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import {
-  CHATGPT_ICON,
-  CHATGPT_WORDMARK,
+  NEW_ICON,
+  NEW_WORDMARK,
   ORIGINAL_ICON,
   ORIGINAL_WORDMARK,
   brandLogos,
-  chatgptLogoActive,
+  newClinicLogoActive,
 } from './brand-logos'
 import { parseSiteSnapshot, SITE_DEFAULTS } from './site-snapshot'
 
@@ -18,31 +18,31 @@ describe('brandLogos', () => {
     assert.equal(logos.email, ORIGINAL_WORDMARK)
   })
 
-  it('returns ChatGPT wordmark and icon when on', () => {
+  it('returns new clinic wordmark and icon when on', () => {
     const logos = brandLogos(true)
-    assert.equal(logos.wordmark, CHATGPT_WORDMARK)
-    assert.equal(logos.icon, CHATGPT_ICON)
-    assert.equal(logos.email, CHATGPT_ICON)
+    assert.equal(logos.wordmark, NEW_WORDMARK)
+    assert.equal(logos.icon, NEW_ICON)
+    assert.equal(logos.email, NEW_ICON)
   })
 })
 
-describe('chatgptLogoActive', () => {
+describe('newClinicLogoActive', () => {
   it('requires overlay and the feature flag', () => {
-    assert.equal(chatgptLogoActive(false, false), false)
-    assert.equal(chatgptLogoActive(false, true), false)
-    assert.equal(chatgptLogoActive(true, false), false)
-    assert.equal(chatgptLogoActive(true, true), true)
+    assert.equal(newClinicLogoActive(false, false), false)
+    assert.equal(newClinicLogoActive(false, true), false)
+    assert.equal(newClinicLogoActive(true, false), false)
+    assert.equal(newClinicLogoActive(true, true), true)
   })
 })
 
-describe('parseSiteSnapshot chatgptLogoEnabled', () => {
+describe('parseSiteSnapshot newClinicLogoEnabled', () => {
   it('defaults to false when the published snapshot omits the field', () => {
-    const { chatgptLogoEnabled: _omitted, ...features } = SITE_DEFAULTS.features
+    const { newClinicLogoEnabled: _omitted, ...features } = SITE_DEFAULTS.features
     const parsed = parseSiteSnapshot({
       ...SITE_DEFAULTS,
       features,
     })
     assert.ok(parsed)
-    assert.equal(parsed.features.chatgptLogoEnabled, false)
+    assert.equal(parsed.features.newClinicLogoEnabled, false)
   })
 })

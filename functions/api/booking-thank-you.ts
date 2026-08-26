@@ -30,7 +30,7 @@ import {
 } from '../_lib/email-brand'
 import { isValidEmailFormat } from '../../shared/email-check'
 import { parseSiteSnapshot } from '../../shared/site-snapshot'
-import { brandLogos, chatgptLogoActive } from '../../shared/brand-logos'
+import { brandLogos, newClinicLogoActive } from '../../shared/brand-logos'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -71,14 +71,14 @@ type PublishedBits = {
   locations: KnownLocation[]
   phoneDisplay: string
   phoneHref: string
-  chatgptLogoEnabled: boolean
+  newClinicLogoEnabled: boolean
 }
 
 const BAKED_CONTACT: PublishedBits = {
   locations: BAKED_LOCATIONS,
   phoneDisplay: FALLBACK_PHONE_DISPLAY,
   phoneHref: FALLBACK_PHONE_HREF,
-  chatgptLogoEnabled: false,
+  newClinicLogoEnabled: false,
 }
 
 function formatDisplayDate(isoDate: string): string {
@@ -143,9 +143,9 @@ export function contactFromPublishedJson(data: unknown): PublishedBits {
       locations: extra.length ? extra : BAKED_LOCATIONS,
       phoneDisplay: parsed.phone.displayText.trim() || FALLBACK_PHONE_DISPLAY,
       phoneHref: parsed.phone.href.trim() || FALLBACK_PHONE_HREF,
-      chatgptLogoEnabled: chatgptLogoActive(
+      newClinicLogoEnabled: newClinicLogoActive(
         parsed.websiteOverlayEnabled,
-        parsed.features.chatgptLogoEnabled
+        parsed.features.newClinicLogoEnabled
       ),
     }
   }
@@ -158,7 +158,7 @@ export function contactFromPublishedJson(data: unknown): PublishedBits {
     locations: extra.length ? extra : BAKED_LOCATIONS,
     phoneDisplay: phoneField(rec.phone, 'displayText') || FALLBACK_PHONE_DISPLAY,
     phoneHref: phoneField(rec.phone, 'href') || FALLBACK_PHONE_HREF,
-    chatgptLogoEnabled: false,
+    newClinicLogoEnabled: false,
   }
 }
 
@@ -185,10 +185,10 @@ function buildHtml(
   known: KnownLocation[] = BAKED_LOCATIONS,
   phoneDisplay = FALLBACK_PHONE_DISPLAY,
   phoneHref = FALLBACK_PHONE_HREF,
-  chatgptLogoEnabled = false
+  newClinicLogoEnabled = false
 ): string {
   const fullName = joinPersonName(body.firstName, body.lastName || '')
-  const logoUrl = `${SITE}${brandLogos(chatgptLogoEnabled).email}`
+  const logoUrl = `${SITE}${brandLogos(newClinicLogoEnabled).email}`
   const visit = visitTypeDisplay(body.serviceType, body.locationLabel, known)
   const rows = [
     row('user', 'Name', fullName),
@@ -348,7 +348,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     time,
     serviceType,
     message: typeof body.message === 'string' ? body.message.trim() : undefined,
-  }, published.locations, published.phoneDisplay, published.phoneHref, published.chatgptLogoEnabled)
+  }, published.locations, published.phoneDisplay, published.phoneHref, published.newClinicLogoEnabled)
 
   const resendResponse = await fetch('https://api.resend.com/emails', {
     method: 'POST',

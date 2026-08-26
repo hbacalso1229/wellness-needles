@@ -2,10 +2,10 @@ import type { Page } from '@playwright/test'
 import { test, expect } from './fixtures'
 import { SITE_DEFAULTS } from '../shared/site-snapshot'
 
-const chatgptOn = {
+const newLogoOn = {
   ...SITE_DEFAULTS,
   websiteOverlayEnabled: true,
-  features: { ...SITE_DEFAULTS.features, chatgptLogoEnabled: true },
+  features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
 }
 
 async function mockPublishedSite(page: Page, site: typeof SITE_DEFAULTS) {
@@ -18,12 +18,12 @@ async function mockPublishedSite(page: Page, site: typeof SITE_DEFAULTS) {
   })
 }
 
-test.describe('ChatGPT clinic logo overlay', () => {
+test.describe('New clinic logo overlay', () => {
   test('header, footer, thank-you, and unable-to-process all switch together', async ({
     page,
   }) => {
     test.setTimeout(60_000)
-    await mockPublishedSite(page, chatgptOn)
+    await mockPublishedSite(page, newLogoOn)
 
     const overlayFetch = page
       .waitForRequest((request) => request.url().includes('/api/bff/site'), {
@@ -35,7 +35,7 @@ test.describe('ChatGPT clinic logo overlay', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     test.skip(
       !(await overlayFetch),
-      'This build does not fetch the public overlay, so the ChatGPT srcs cannot be asserted here.'
+      'This build does not fetch the public overlay, so the new clinic logo srcs cannot be asserted here.'
     )
 
     await expect(
@@ -43,27 +43,27 @@ test.describe('ChatGPT clinic logo overlay', () => {
     ).toBeVisible({ timeout: 15_000 })
     await expect(
       page.getByRole('banner').locator('img').first()
-    ).toHaveAttribute('src', /logo_wellness_chatgpt\.png/, { timeout: 10_000 })
+    ).toHaveAttribute('src', /logo_wellness_new\.png/, { timeout: 10_000 })
     await expect(
       page.getByRole('contentinfo').locator('img').first()
-    ).toHaveAttribute('src', /logo_wellness_chatgpt_icon\.png/)
+    ).toHaveAttribute('src', /logo_wellness_new_icon\.png/)
 
     await page.goto('/bookings/thank-you/')
     await expect(
       page.getByRole('link', { name: /Wellness Needles/i }).first().locator('img')
-    ).toHaveAttribute('src', /logo_wellness_chatgpt\.png/)
+    ).toHaveAttribute('src', /logo_wellness_new\.png/)
 
     await page.goto('/bookings/unable-to-process/')
     await expect(
       page.getByRole('link', { name: /Wellness Needles/i }).first().locator('img')
-    ).toHaveAttribute('src', /logo_wellness_chatgpt_icon\.png/)
+    ).toHaveAttribute('src', /logo_wellness_new_icon\.png/)
   })
 
   test('flag on with overlay off keeps original logos', async ({ page }) => {
     await mockPublishedSite(page, {
       ...SITE_DEFAULTS,
       websiteOverlayEnabled: false,
-      features: { ...SITE_DEFAULTS.features, chatgptLogoEnabled: true },
+      features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
     })
 
     await page.goto('/')

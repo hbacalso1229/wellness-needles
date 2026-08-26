@@ -16,7 +16,7 @@ import {
   SITE,
   type KnownLocation,
 } from './email-brand'
-import { brandLogos, chatgptLogoActive } from '../../shared/brand-logos'
+import { brandLogos, newClinicLogoActive } from '../../shared/brand-logos'
 
 export { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from '../../shared/quarter-hour'
 
@@ -331,9 +331,9 @@ export function buildAppointmentEmail(options: {
         ? undefined
         : 'A calendar invite is also attached for Apple and Outlook.',
     logoUrl: `${SITE}${brandLogos(
-      chatgptLogoActive(
+      newClinicLogoActive(
         options.site.websiteOverlayEnabled,
-        options.site.features.chatgptLogoEnabled
+        options.site.features.newClinicLogoEnabled
       )
     ).email}`,
   })

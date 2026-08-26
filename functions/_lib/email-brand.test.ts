@@ -7,7 +7,7 @@ import {
   emailShell,
   SITE,
 } from './email-brand'
-import { ORIGINAL_WORDMARK, CHATGPT_ICON } from '../../shared/brand-logos'
+import { ORIGINAL_WORDMARK, NEW_ICON } from '../../shared/brand-logos'
 
 describe('parseLocationDisplay', () => {
   it('formats Celbridge as street then town, county, Eircode', () => {
@@ -44,14 +44,14 @@ describe('emailShell logo', () => {
   it('defaults to the original live wordmark', () => {
     const html = emailShell(shellArgs)
     assert.match(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
-    assert.doesNotMatch(html, new RegExp(CHATGPT_ICON.replace(/\./g, '\\.')))
+    assert.doesNotMatch(html, new RegExp(NEW_ICON.replace(/\./g, '\\.')))
   })
 
-  it('uses the ChatGPT icon when logoUrl is passed', () => {
+  it('uses the new clinic icon when logoUrl is passed', () => {
     const html = emailShell({
       ...shellArgs,
-      logoUrl: `${SITE}${CHATGPT_ICON}`,
+      logoUrl: `${SITE}${NEW_ICON}`,
     })
-    assert.match(html, new RegExp(`${SITE}${CHATGPT_ICON}`.replace(/\./g, '\\.')))
+    assert.match(html, new RegExp(`${SITE}${NEW_ICON}`.replace(/\./g, '\\.')))
   })
 })

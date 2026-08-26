@@ -104,7 +104,7 @@ const FIELD_LABELS: Record<string, string> = {
   'features.freshaEnabled': 'Fresha',
   'features.smsEnabled': 'Patient SMS',
   'features.bookingMaintenanceEnabled': 'Booking maintenance',
-  'features.chatgptLogoEnabled': 'ChatGPT clinic logo',
+  'features.newClinicLogoEnabled': 'New clinic logo',
   'calendly.schedulingUrl': 'Calendly scheduling URL',
   'calendly.initialConsultationUrl': 'Calendly initial URL',
   'calendly.followUpUrl': 'Calendly follow-up URL',

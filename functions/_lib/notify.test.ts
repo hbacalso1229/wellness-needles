@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { CHATGPT_ICON, ORIGINAL_WORDMARK } from '../../shared/brand-logos'
+import { NEW_ICON, ORIGINAL_WORDMARK } from '../../shared/brand-logos'
 import { SITE_DEFAULTS } from '../../shared/site-snapshot'
 import { SITE } from './email-brand'
 import {
@@ -210,19 +210,19 @@ describe('buildAppointmentEmail logo', () => {
   it('uses the original wordmark when overlay or the flag is off', () => {
     const html = buildAppointmentEmail({ ...base, site: SITE_DEFAULTS }).html
     assert.match(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
-    assert.doesNotMatch(html, new RegExp(CHATGPT_ICON.replace(/\./g, '\\.')))
+    assert.doesNotMatch(html, new RegExp(NEW_ICON.replace(/\./g, '\\.')))
   })
 
-  it('uses the ChatGPT icon when overlay and the flag are both on', () => {
+  it('uses the new clinic icon when overlay and the flag are both on', () => {
     const html = buildAppointmentEmail({
       ...base,
       site: {
         ...SITE_DEFAULTS,
         websiteOverlayEnabled: true,
-        features: { ...SITE_DEFAULTS.features, chatgptLogoEnabled: true },
+        features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
       },
     }).html
-    assert.match(html, new RegExp(`${SITE}${CHATGPT_ICON}`.replace(/\./g, '\\.')))
+    assert.match(html, new RegExp(`${SITE}${NEW_ICON}`.replace(/\./g, '\\.')))
     assert.doesNotMatch(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
   })
 })

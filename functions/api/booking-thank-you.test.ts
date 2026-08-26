@@ -17,23 +17,23 @@ describe('contactFromPublishedJson', () => {
     assert.equal(contact.phoneDisplay, '+44 7700 900123')
     assert.equal(contact.phoneHref, 'tel:+447700900123')
     assert.ok(contact.locations.length > 0)
-    assert.equal(contact.chatgptLogoEnabled, false)
+    assert.equal(contact.newClinicLogoEnabled, false)
   })
 
-  it('enables ChatGPT email logo only when overlay and the flag are both on', () => {
+  it('enables new clinic email logo only when overlay and the flag are both on', () => {
     const on = contactFromPublishedJson({
       ...SITE_DEFAULTS,
       websiteOverlayEnabled: true,
-      features: { ...SITE_DEFAULTS.features, chatgptLogoEnabled: true },
+      features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
     })
-    assert.equal(on.chatgptLogoEnabled, true)
+    assert.equal(on.newClinicLogoEnabled, true)
 
     const overlayOff = contactFromPublishedJson({
       ...SITE_DEFAULTS,
       websiteOverlayEnabled: false,
-      features: { ...SITE_DEFAULTS.features, chatgptLogoEnabled: true },
+      features: { ...SITE_DEFAULTS.features, newClinicLogoEnabled: true },
     })
-    assert.equal(overlayOff.chatgptLogoEnabled, false)
+    assert.equal(overlayOff.newClinicLogoEnabled, false)
   })
 
   it('still reads phone when the snapshot fails full parse', () => {

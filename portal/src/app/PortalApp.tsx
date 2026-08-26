@@ -922,7 +922,7 @@ export function PortalApp() {
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-x-2.5">
             <img
-              src="/logo_wellness_chatgpt_icon.png"
+              src="/logo_wellness_new_icon.png"
               alt=""
               width={40}
               height={40}
@@ -2144,23 +2144,23 @@ export function PortalApp() {
                 </div>
                 <div className="flex items-start justify-between gap-4 border-t border-black/[0.06] pt-4">
                   <div>
-                    <p className="text-sm font-medium">ChatGPT clinic logo</p>
+                    <p className="text-sm font-medium">New clinic logo</p>
                     <p className="mt-1 text-sm text-[var(--text-dark)]/65">
                       Use the new lotus wordmark and icon on the public website and in
                       emails. Off keeps the original live logos. Overlay must be on.
                     </p>
                   </div>
                   <OnOffSwitch
-                    checked={draft.features.chatgptLogoEnabled}
+                    checked={draft.features.newClinicLogoEnabled}
                     ariaLabel={
-                      draft.features.chatgptLogoEnabled
-                        ? 'Turn off ChatGPT clinic logo'
-                        : 'Turn on ChatGPT clinic logo'
+                      draft.features.newClinicLogoEnabled
+                        ? 'Turn off New clinic logo'
+                        : 'Turn on New clinic logo'
                     }
-                    onChange={(chatgptLogoEnabled) =>
+                    onChange={(newClinicLogoEnabled) =>
                       setDraft({
                         ...draft,
-                        features: { ...draft.features, chatgptLogoEnabled },
+                        features: { ...draft.features, newClinicLogoEnabled },
                       })
                     }
                   />
