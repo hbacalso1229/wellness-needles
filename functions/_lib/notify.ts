@@ -13,8 +13,10 @@ import {
   lightField,
   lightFieldPair,
   parseLocationDisplay,
+  SITE,
   type KnownLocation,
 } from './email-brand'
+import { brandLogos, chatgptLogoActive } from '../../shared/brand-logos'
 
 export { snapDateTimeLocalToQuarterHour, utcIsoToDublinDateTimeLocal } from '../../shared/quarter-hour'
 
@@ -253,7 +255,7 @@ export function appointmentCopy(options: {
   }
 }
 
-function buildAppointmentEmail(options: {
+export function buildAppointmentEmail(options: {
   kind: 'confirm' | 'combined' | 'reminder' | 'reschedule'
   clinic: string
   firstName: string
@@ -328,6 +330,12 @@ function buildAppointmentEmail(options: {
       options.kind === 'reminder' || !calendarUrl
         ? undefined
         : 'A calendar invite is also attached for Apple and Outlook.',
+    logoUrl: `${SITE}${brandLogos(
+      chatgptLogoActive(
+        options.site.websiteOverlayEnabled,
+        options.site.features.chatgptLogoEnabled
+      )
+    ).email}`,
   })
 
   const textLines = [

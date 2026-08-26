@@ -5,9 +5,11 @@ import Image from 'next/image'
 import { contactConfig } from '../lib/contact-config'
 import ContactInfo from './ContactInfo'
 import { useSiteOverlay } from '@/lib/site-overlay'
+import { useBrandLogos } from '@/hooks/useBrandLogos'
 
 export default function Footer() {
   const { overlayEnabled, site } = useSiteOverlay()
+  const { icon } = useBrandLogos()
   const clinicName = overlayEnabled ? site.clinicName : contactConfig.businessInfo.name
   const tagline = contactConfig.businessInfo.tagline
   const description = contactConfig.businessInfo.description
@@ -23,18 +25,24 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2.5 mb-2.5 md:mb-4">
-              <Image
-                src="/logo_wellness_icon.png"
-                alt=""
-                width={44}
-                height={22}
-                className="h-6 w-auto md:h-8 object-contain"
-              />
-              <span className="font-serif text-lg md:text-xl font-semibold text-cream">
+            <Link
+              href="/"
+              className="mb-2.5 inline-flex items-center gap-2.5 outline-none transition-opacity hover:opacity-90 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-cream/50 focus-visible:ring-offset-2 focus-visible:ring-offset-primary md:mb-4"
+              aria-label={`${clinicName} home`}
+            >
+              <span className="relative block h-10 w-10 shrink-0 md:h-12 md:w-12">
+                <Image
+                  src={icon}
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-contain"
+                />
+              </span>
+              <span className="font-serif text-lg font-semibold text-cream md:text-xl">
                 {clinicName}
               </span>
-            </div>
+            </Link>
             <p className="mb-3 max-w-md text-base leading-relaxed text-cream/65 md:mb-6">
               {tagline} {description}
             </p>

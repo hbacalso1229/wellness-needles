@@ -17,6 +17,9 @@ test.describe('booking unable-to-process', () => {
 
     await expect(page.getByRole('banner')).toHaveCount(0)
     await expect(page.getByRole('contentinfo')).toHaveCount(0)
+    await expect(
+      page.getByRole('link', { name: /Wellness Needles/i }).first().locator('img')
+    ).toHaveAttribute('src', /logo_wellness_icon\.png/)
 
     const back = page.getByRole('link', {
       name: /Back to bookings|Close and return to booking/i,
