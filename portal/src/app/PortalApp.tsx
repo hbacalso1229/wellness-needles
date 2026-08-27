@@ -920,22 +920,15 @@ export function PortalApp() {
     <div className="min-h-screen overflow-x-hidden">
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-x-2.5">
+          <div className="flex min-w-0 items-center gap-x-3">
             <img
-              src="/logo_wellness_new_icon.png"
-              alt=""
-              width={40}
-              height={40}
-              className="h-10 w-10 shrink-0 object-contain"
+              src="/logo_wellness_new.png"
+              alt="Wellness Needles"
+              className="h-14 w-auto max-w-[7.5rem] shrink-0 object-contain object-left sm:h-16 sm:max-w-[9rem]"
             />
-            <div className="min-w-0">
-              <p className="shrink-0 font-serif text-xl font-semibold leading-tight text-primary">
-                Wellness Needles
-              </p>
-              <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/50">
-                Admin Portal
-              </p>
-            </div>
+            <p className="text-sm font-medium tracking-wide text-[var(--text-dark)]/55">
+              Admin Portal
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="text-[var(--text-dark)]/65">{email || 'Signed in'}</span>
