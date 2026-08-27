@@ -141,8 +141,8 @@ function BookingStepIntro({
 
   return (
     <div className="text-center">
-      <span className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 sm:mb-3 sm:h-14 sm:w-14">
-        <Icon className="h-5 w-5 text-primary sm:h-7 sm:w-7" aria-hidden strokeWidth={1.75} />
+      <span className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 sm:mb-3">
+        <Icon className="h-5 w-5 text-primary" aria-hidden strokeWidth={1.75} />
       </span>
       {titleNode ? (
         <p className="whitespace-nowrap font-sans text-sm font-semibold text-[var(--text-dark)] sm:text-lg">

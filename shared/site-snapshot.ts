@@ -78,6 +78,19 @@ export type PriceList = {
   moxibustion: string
 }
 
+export type TravelPolicy = {
+  includedKm: number
+  perKm: string
+  flatFee: string
+}
+
+/** Baked Home Visit travel-fee copy (10 km / €0.50 / €15). */
+export const DEFAULT_TRAVEL_POLICY: TravelPolicy = {
+  includedKm: 10,
+  perKm: '€0.50',
+  flatFee: '€15',
+}
+
 export type PriceItemKey = keyof PriceList
 
 export type PriceListEnabled = Record<PriceItemKey, boolean>
@@ -428,6 +441,7 @@ export type SiteSnapshot = {
     homeVisitExtras: PricingExtra[]
     removedItems: PriceItemKey[]
     serviceCopy: ServiceCopy
+    travelPolicy: TravelPolicy
   }
   insuranceParagraphs: [string, string, string]
   insurers: SiteInsurer[]
@@ -563,6 +577,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     homeVisitExtras: [],
     removedItems: [],
     serviceCopy: DEFAULT_SERVICE_COPY,
+    travelPolicy: { ...DEFAULT_TRAVEL_POLICY },
   },
   insuranceParagraphs: [
     'We are a registered professional acupuncture clinic',
@@ -631,6 +646,29 @@ export function euroPrice(value: string): string {
   const amount = priceDigits(value)
   if (!amount || amount === '.') return ''
   return `€${amount}`
+}
+
+/** Public copy: `€15` not `€15.00`; keep cents such as `€0.50`. */
+export function formatEuroCopy(value: string): string {
+  const amount = priceDigits(value)
+  if (!amount || amount === '.') return '€0'
+  const dot = amount.indexOf('.')
+  if (dot === -1) return `€${amount}`
+  const whole = amount.slice(0, dot) || '0'
+  const fraction = amount.slice(dot + 1)
+  if (!fraction || /^0+$/.test(fraction)) return `€${whole}`
+  return `€${whole}.${fraction}`
+}
+
+export function publicTravelPolicy(
+  overlayEnabled: boolean,
+  site: Pick<SiteSnapshot, 'pricing'>
+): TravelPolicy {
+  if (!overlayEnabled) return { ...DEFAULT_TRAVEL_POLICY }
+  return {
+    ...DEFAULT_TRAVEL_POLICY,
+    ...site.pricing.travelPolicy,
+  }
 }
 
 function priceAmount(value: string): number | null {
@@ -772,6 +810,27 @@ function parsePriceList(
     package10: pick('package10'),
     cupping: pick('cupping'),
     moxibustion: asEuroOrFree(pick('moxibustion')),
+  }
+}
+
+function parseIncludedKm(value: unknown, fallback: number): number {
+  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  if (!Number.isFinite(n) || n < 0) return fallback
+  return Math.min(999, Math.round(n))
+}
+
+function parseEuroAmount(value: unknown, fallback: string): string {
+  if (typeof value !== 'string' || !value.trim()) return fallback
+  const next = euroPrice(value)
+  return next || fallback
+}
+
+export function parseTravelPolicy(value: unknown): TravelPolicy {
+  const rec = isRecord(value) ? value : {}
+  return {
+    includedKm: parseIncludedKm(rec.includedKm, DEFAULT_TRAVEL_POLICY.includedKm),
+    perKm: parseEuroAmount(rec.perKm, DEFAULT_TRAVEL_POLICY.perKm),
+    flatFee: parseEuroAmount(rec.flatFee, DEFAULT_TRAVEL_POLICY.flatFee),
   }
 }
 
@@ -1056,6 +1115,7 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       homeVisitExtras: parsePricingExtras(value.pricing.homeVisitExtras),
       removedItems: parseRemovedPriceItems(value.pricing.removedItems),
       serviceCopy: parseServiceCopy(value.pricing.serviceCopy),
+      travelPolicy: parseTravelPolicy(value.pricing.travelPolicy),
     },
     insuranceParagraphs: [
       asString(paragraphs[0], SITE_DEFAULTS.insuranceParagraphs[0]),
@@ -1156,6 +1216,10 @@ export function deepMergeSite(
           ...defaults.pricing.serviceCopy.moxibustion,
           ...incoming.pricing.serviceCopy?.moxibustion,
         },
+      },
+      travelPolicy: {
+        ...defaults.pricing.travelPolicy,
+        ...incoming.pricing.travelPolicy,
       },
     },
     hours: incoming.hours,

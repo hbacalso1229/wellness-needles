@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   SITE_DEFAULTS,
+  DEFAULT_TRAVEL_POLICY,
   buildHoursDisplay,
   composeLocation,
   createUnifiedPricingExtra,
@@ -1538,6 +1539,87 @@ export function PortalApp() {
                 })}
               </div>
             </div>
+            <Card title="Home visit travel fees">
+              <p className="mb-3 text-xs text-[var(--text-dark)]/55">
+                Patients see this on the Home Visit booking step.
+              </p>
+              <div
+                className={`grid gap-3 sm:grid-cols-3 ${
+                  draft.pricing.homeVisitEnabled ? '' : 'opacity-50'
+                }`}
+              >
+                <label className="block min-w-0 text-xs font-medium text-[var(--text-dark)]/45">
+                  Included distance
+                  <span className="mt-1 flex min-w-0 rounded-md border border-black/10 bg-white">
+                    <input
+                      className="min-w-0 flex-1 rounded-l-md border-0 px-2 py-1.5 text-sm text-[var(--text-dark)]/70 outline-none"
+                      type="number"
+                      min={0}
+                      max={999}
+                      step={1}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      aria-label="Included distance in km"
+                      value={
+                        (draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).includedKm
+                      }
+                      onChange={(e) => {
+                        const n = Number(e.target.value)
+                        const current =
+                          draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                        setDraft({
+                          ...draft,
+                          pricing: {
+                            ...draft.pricing,
+                            travelPolicy: {
+                              ...current,
+                              includedKm:
+                                Number.isFinite(n) && n >= 0 ? Math.min(999, Math.round(n)) : 0,
+                            },
+                          },
+                        })
+                      }}
+                    />
+                    <span
+                      className="select-none px-2 py-1.5 text-sm text-[var(--text-dark)]/40"
+                      aria-hidden
+                    >
+                      km
+                    </span>
+                  </span>
+                </label>
+                <CompactEuroField
+                  label="Per km"
+                  emphasis="muted"
+                  value={(draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).perKm}
+                  onChange={(next) => {
+                    const current = draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                    setDraft({
+                      ...draft,
+                      pricing: {
+                        ...draft.pricing,
+                        travelPolicy: { ...current, perKm: next },
+                      },
+                    })
+                  }}
+                />
+                <CompactEuroField
+                  label="Flat travel fee"
+                  emphasis="strong"
+                  value={(draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).flatFee}
+                  onChange={(next) => {
+                    const current = draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                    setDraft({
+                      ...draft,
+                      pricing: {
+                        ...draft.pricing,
+                        travelPolicy: { ...current, flatFee: next },
+                      },
+                    })
+                  }}
+                />
+              </div>
+            </Card>
             <div className="space-y-4">
               {PRICE_ROWS.filter(
                 ([key]) => !isPriceItemRemoved(draft.pricing.removedItems, key)

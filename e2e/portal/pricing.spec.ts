@@ -41,3 +41,16 @@ test.describe('portal pricing unpublished bar', () => {
     expect(addBox!.y + addBox!.height).toBeLessThanOrEqual(barBox!.y + 2)
   })
 })
+
+test.describe('portal pricing travel fees', () => {
+  test('Home visit travel fees uses km and CompactEuro fields', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Pricing' }).click()
+
+    await expect(page.getByRole('heading', { name: 'Home visit travel fees' })).toBeVisible()
+    await expect(page.getByText('Patients see this on the Home Visit booking step.')).toBeVisible()
+    await expect(page.getByLabel('Included distance in km')).toHaveValue('10')
+    await expect(page.getByLabel('Per km in euro')).toHaveValue('0.50')
+    await expect(page.getByLabel('Flat travel fee in euro')).toHaveValue('15')
+  })
+})

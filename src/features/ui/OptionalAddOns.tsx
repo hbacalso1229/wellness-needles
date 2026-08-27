@@ -59,7 +59,7 @@ export function OptionalAddOns({ addOns, selectedIds, onToggle }: OptionalAddOns
                 aria-label={addOn.name}
               />
               <span
-                className={`booking-select-card__icon pointer-events-none relative z-0 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                className={`booking-select-card__icon pointer-events-none relative z-0 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
                   selected ? 'bg-primary text-cream' : 'bg-accent/15 text-primary'
                 }`}
               >
