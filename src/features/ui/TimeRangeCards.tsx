@@ -211,7 +211,7 @@ export function TimeRangeCards({
               }`}
             >
               <span
-                className={`booking-select-card__icon flex h-8 w-8 shrink-0 items-center justify-center rounded-full lg:h-11 lg:w-11 ${
+                className={`booking-select-card__icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
                   selected && !past
                     ? 'bg-primary text-cream'
                     : past
@@ -219,7 +219,7 @@ export function TimeRangeCards({
                       : 'bg-accent/15 text-primary'
                 }`}
               >
-                <Icon className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
+                <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 w-full">
                 <div className="min-w-0 w-full pr-6">

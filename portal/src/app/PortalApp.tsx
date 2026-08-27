@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   SITE_DEFAULTS,
+  DEFAULT_TRAVEL_POLICY,
   buildHoursDisplay,
   composeLocation,
   createUnifiedPricingExtra,
@@ -919,35 +920,40 @@ export function PortalApp() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <header className="sticky top-0 z-10 border-b border-black/[0.08] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-x-3">
+        <div className="mx-auto flex max-w-5xl items-start justify-between gap-2 px-3 py-2 sm:items-center sm:px-4 sm:py-3">
+          <div className="flex min-w-0 items-center gap-x-2 sm:gap-x-3">
             <img
               src="/logo_wellness_new.png"
               alt="Wellness Needles"
-              className="h-14 w-auto max-w-[7.5rem] shrink-0 object-contain object-left sm:h-16 sm:max-w-[9rem]"
+              className="h-9 w-auto max-w-[5.25rem] shrink-0 object-contain object-left sm:h-16 sm:max-w-[9rem]"
             />
-            <p className="text-sm font-medium tracking-wide text-[var(--text-dark)]/55">
+            <p className="text-xs font-medium tracking-wide text-[var(--text-dark)]/55 sm:text-sm">
               Admin Portal
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-[var(--text-dark)]/65">{email || 'Signed in'}</span>
+          <div className="flex min-w-0 flex-col items-end gap-0.5 text-xs sm:flex-row sm:items-center sm:gap-3 sm:text-sm">
+            <span
+              className="max-w-[11rem] truncate text-right text-[var(--text-dark)]/65 sm:max-w-[14rem]"
+              title={email || 'Signed in'}
+            >
+              {email || 'Signed in'}
+            </span>
             <button
               type="button"
-              className="font-medium text-primary hover:underline"
+              className="shrink-0 font-medium text-primary hover:underline"
               onClick={logout}
             >
               Log out
             </button>
           </div>
         </div>
-        <nav className="no-scrollbar mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2">
+        <nav className="no-scrollbar mx-auto flex max-w-5xl gap-0.5 overflow-x-auto px-2 sm:gap-1">
           {TABS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${
+              className={`whitespace-nowrap border-b-2 px-2.5 py-1.5 text-xs font-medium sm:px-3 sm:py-2.5 sm:text-sm ${
                 tab === item.id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-[var(--text-dark)]/60 hover:text-primary'
@@ -966,7 +972,7 @@ export function PortalApp() {
       ) : null}
 
       <main
-        className={`mx-auto max-w-5xl px-4 py-8 ${
+        className={`mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-8 ${
           dirty || unpublished || publishSuccess ? 'pb-52 sm:pb-40' : 'pb-28'
         }`}
       >
@@ -1300,7 +1306,7 @@ export function PortalApp() {
               description="Visitor submissions from the website land in Awaiting review. Confirm to publish on the live site, or reject to keep them off."
             />
             <form
-              className="space-y-2 rounded-lg border border-black/[0.08] bg-white p-4"
+              className="space-y-2 rounded-lg border border-black/[0.08] bg-white p-3 sm:p-4"
               onSubmit={async (e) => {
                 e.preventDefault()
                 const rating = parseHalfStarRating(newReviewRating)
@@ -1396,7 +1402,7 @@ export function PortalApp() {
                 value={newReviewEmphasis}
                 onChange={(e) => setNewReviewEmphasis(e.target.value)}
               />
-              <button type="submit" className={PORTAL_PILL}>
+              <button type="submit" className={`${PORTAL_PILL} w-full rounded-lg sm:w-auto sm:rounded-full`}>
                 Save to Awaiting review
               </button>
             </form>
@@ -1533,6 +1539,87 @@ export function PortalApp() {
                 })}
               </div>
             </div>
+            <Card title="Home visit travel fees">
+              <p className="mb-3 text-xs text-[var(--text-dark)]/55">
+                Patients see this on the Home Visit booking step.
+              </p>
+              <div
+                className={`grid gap-3 sm:grid-cols-3 ${
+                  draft.pricing.homeVisitEnabled ? '' : 'opacity-50'
+                }`}
+              >
+                <label className="block min-w-0 text-xs font-medium text-[var(--text-dark)]/45">
+                  Included distance
+                  <span className="mt-1 flex min-w-0 rounded-md border border-black/10 bg-white">
+                    <input
+                      className="min-w-0 flex-1 rounded-l-md border-0 px-2 py-1.5 text-sm text-[var(--text-dark)]/70 outline-none"
+                      type="number"
+                      min={0}
+                      max={999}
+                      step={1}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      aria-label="Included distance in km"
+                      value={
+                        (draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).includedKm
+                      }
+                      onChange={(e) => {
+                        const n = Number(e.target.value)
+                        const current =
+                          draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                        setDraft({
+                          ...draft,
+                          pricing: {
+                            ...draft.pricing,
+                            travelPolicy: {
+                              ...current,
+                              includedKm:
+                                Number.isFinite(n) && n >= 0 ? Math.min(999, Math.round(n)) : 0,
+                            },
+                          },
+                        })
+                      }}
+                    />
+                    <span
+                      className="select-none px-2 py-1.5 text-sm text-[var(--text-dark)]/40"
+                      aria-hidden
+                    >
+                      km
+                    </span>
+                  </span>
+                </label>
+                <CompactEuroField
+                  label="Per km"
+                  emphasis="muted"
+                  value={(draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).perKm}
+                  onChange={(next) => {
+                    const current = draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                    setDraft({
+                      ...draft,
+                      pricing: {
+                        ...draft.pricing,
+                        travelPolicy: { ...current, perKm: next },
+                      },
+                    })
+                  }}
+                />
+                <CompactEuroField
+                  label="Flat travel fee"
+                  emphasis="strong"
+                  value={(draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY).flatFee}
+                  onChange={(next) => {
+                    const current = draft.pricing.travelPolicy ?? DEFAULT_TRAVEL_POLICY
+                    setDraft({
+                      ...draft,
+                      pricing: {
+                        ...draft.pricing,
+                        travelPolicy: { ...current, flatFee: next },
+                      },
+                    })
+                  }}
+                />
+              </div>
+            </Card>
             <div className="space-y-4">
               {PRICE_ROWS.filter(
                 ([key]) => !isPriceItemRemoved(draft.pricing.removedItems, key)

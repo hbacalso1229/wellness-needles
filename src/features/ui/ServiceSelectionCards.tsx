@@ -83,7 +83,7 @@ export function ServiceSelectionCards({
             </span>
             <div className="pointer-events-none relative z-0 flex items-start gap-3 pr-8">
               <span
-                className={`booking-select-card__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
+                className={`booking-select-card__icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
                   selected ? 'bg-primary text-cream' : 'bg-primary/10 text-primary'
                 }`}
               >

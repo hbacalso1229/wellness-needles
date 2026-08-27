@@ -2,9 +2,16 @@
 
 import { useState } from 'react'
 import { CheckCircle, ChevronDown, Info, MapPin } from 'lucide-react'
+import { formatEuroCopy, publicTravelPolicy } from '../../../shared/site-snapshot'
+import { useSiteOverlay } from '@/lib/site-overlay'
 
 export function TravelPolicyNotice({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false)
+  const { overlayEnabled, site } = useSiteOverlay()
+  const policy = publicTravelPolicy(overlayEnabled, site)
+  const km = String(policy.includedKm)
+  const perKm = formatEuroCopy(policy.perKm)
+  const flatFee = formatEuroCopy(policy.flatFee)
 
   return (
     <aside
@@ -35,7 +42,7 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
                     open ? 'opacity-0' : 'opacity-100'
                   }`}
                 >
-                  Travel fees may apply beyond 10 km
+                  Travel fees may apply beyond {km} km
                 </span>
               </span>
             </span>
@@ -64,21 +71,21 @@ export function TravelPolicyNotice({ className = '' }: { className?: string }) {
             }`}
           >
             <p className="text-base leading-relaxed text-secondary mb-3">
-              Home visits beyond 10 km may incur an additional travel fee.
+              Home visits beyond {km} km may incur an additional travel fee.
             </p>
             <p className="text-sm font-semibold text-primary mb-2">How is this calculated?</p>
             <ul className="text-base leading-relaxed text-secondary space-y-2">
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" aria-hidden />
-                <span>Within 10 km included</span>
+                <span>Within {km} km included</span>
               </li>
               <li className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" aria-hidden />
                 <span>
-                  Beyond 10 km:{' '}
-                  <span className="font-semibold text-primary">+€0.50</span>
+                  Beyond {km} km:{' '}
+                  <span className="font-semibold text-primary">+{perKm}</span>
                   /km or flat{' '}
-                  <span className="font-semibold text-primary">€15</span>
+                  <span className="font-semibold text-primary">{flatFee}</span>
                   {' '}travel fee
                 </span>
               </li>
