@@ -206,6 +206,29 @@ export function joinLocationLabels(labels: string[]): string {
   return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`
 }
 
+const LOCATION_COUNT_WORDS = [
+  '',
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+] as const
+
+/** Contact "Visit Us" subtitle from the enabled clinic count. */
+export function visitLocationsSubtitle(count: number): string {
+  if (count <= 0) return ''
+  if (count === 1) return 'A convenient location to support your care.'
+  const word = LOCATION_COUNT_WORDS[count]
+  const n = word ?? String(count)
+  return `${n} convenient locations to support your care.`
+}
+
 export function formatOverlayDayHours(
   hours: SiteSnapshot['hours'],
   day: Weekday
