@@ -87,6 +87,15 @@ test.describe('smoke', () => {
     await expect(
       page.getByRole('heading', { name: /Start Your Journey With Us/i })
     ).toBeVisible()
+    await expect(page.getByText('Celbridge and Carlow')).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Visit Us in Person' })
+    ).toBeVisible()
+    await expect(
+      page.getByText('Two convenient locations to support your care.')
+    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Celbridge' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Carlow' })).toBeVisible()
   })
 
   test('bookings page is reachable', async ({ page }) => {

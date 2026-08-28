@@ -7,7 +7,7 @@ import { BookingSection } from '../../features/home/BookingSection'
 import { contactConfig } from '../../lib/contact-config'
 import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { usePublicContact } from '@/lib/site-overlay'
-import { formatOverlayDayHours, joinLocationLabels } from '@/lib/overlay-public'
+import { formatOverlayDayHours, joinLocationLabels, visitLocationsSubtitle } from '@/lib/overlay-public'
 import type { Weekday } from '../../../shared/site-snapshot'
 
 const interactiveCardClass =
@@ -82,9 +82,7 @@ export default function Contact() {
   const mapIntegrationEnabled = overlayEnabled
     ? site.features.mapIntegrationEnabled
     : contactConfig.features.mapIntegrationEnabled
-  const clinicLabels = overlayEnabled
-    ? joinLocationLabels(locations.map((loc) => loc.label))
-    : ''
+  const clinicLabels = joinLocationLabels(locations.map((loc) => loc.label))
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -351,17 +349,11 @@ export default function Contact() {
                       {mapIntegrationEnabled ? (
                         <>
                           <p className="text-[var(--text-dark)]/70 text-base mb-2">Visit us in person</p>
-                          <p className="mb-2 text-[var(--text-dark)]">
-                            {clinicLabels ? (
+                          {clinicLabels ? (
+                            <p className="mb-2 text-[var(--text-dark)]">
                               <span className="font-semibold">{clinicLabels}</span>
-                            ) : (
-                              <>
-                                <span className="font-semibold">Celbridge</span>
-                                {' and '}
-                                <span className="font-semibold">Carlow</span>
-                              </>
-                            )}
-                          </p>
+                            </p>
+                          ) : null}
                           <a
                             href="#find-us"
                             className="text-sm font-medium text-accent hover:text-primary transition-colors"
@@ -545,7 +537,7 @@ export default function Contact() {
       </section>
 
       {/* Map Section */}
-      {mapIntegrationEnabled && (
+      {mapIntegrationEnabled && locations.length > 0 && (
         <section
           id="find-us"
           className={`scroll-mt-20 ${glassGreenBandClassName} pb-8 pt-8 md:pb-10 md:pt-12`}
@@ -553,16 +545,14 @@ export default function Contact() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
               title="Visit Us in Person"
-              subtitle={
-                locations.length === 1
-                  ? 'A convenient location to support your care.'
-                  : locations.length === 2
-                    ? 'Two convenient locations to support your care.'
-                    : 'Convenient locations to support your care.'
-              }
+              subtitle={visitLocationsSubtitle(locations.length)}
             />
 
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-6">
+            <div
+              className={`grid grid-cols-1 gap-2.5 md:gap-6 ${
+                locations.length > 1 ? 'md:grid-cols-2' : ''
+              }`}
+            >
               {locations.map((location) => (
                 <ClinicVisitCard
                   key={location.id}
