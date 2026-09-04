@@ -5,6 +5,7 @@ import {
   ClinicalMetricCard,
   HeroSection,
   SectionHeading,
+  RatingStars,
   SnapCarousel,
   TestimonialCard,
   reviewSlideClassName,
@@ -18,6 +19,7 @@ import { ShareExperienceCta } from '@/components/ShareExperienceCta'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { useSiteOverlay } from '@/lib/site-overlay'
+import { parseReviewRating } from '../../../shared/review-rating'
 import { useEffect, useMemo, useState } from 'react'
 import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
@@ -46,23 +48,25 @@ export default function Testimonials() {
         if (cancelled) return
         const rows = Array.isArray(json.reviews) ? json.reviews : []
         setPublishedReviews(
-          rows
-            .filter((row) => typeof row.id === 'string' && typeof row.name === 'string')
-            .map((row) => {
-              const reviewedAt = typeof row.reviewedAt === 'string' ? row.reviewedAt : ''
-              const date = reviewedAt
-                ? new Date(`${reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })
-                : ''
-              return {
-                id: row.id as string,
-                name: row.name as string,
+          rows.flatMap((row) => {
+            if (typeof row.id !== 'string' || typeof row.name !== 'string') return []
+            const rating = parseReviewRating(row.rating)
+            if (rating == null) return []
+            const reviewedAt = typeof row.reviewedAt === 'string' ? row.reviewedAt : ''
+            const date = reviewedAt
+              ? new Date(`${reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })
+              : ''
+            return [
+              {
+                id: row.id,
+                name: row.name,
                 condition: typeof row.condition === 'string' ? row.condition : '',
                 date,
-                rating: typeof row.rating === 'number' ? row.rating : 5,
+                rating,
                 source: typeof row.source === 'string' ? row.source : 'Verified patient review',
                 emphasis:
                   typeof row.emphasis === 'string'
@@ -76,8 +80,9 @@ export default function Testimonials() {
                     : typeof row.excerpt === 'string'
                       ? row.excerpt
                       : '',
-              }
-            })
+              },
+            ]
+          })
         )
       })
       .catch(() => {
@@ -190,9 +195,13 @@ export default function Testimonials() {
     },
   ]
 
-  const overlayTestimonials =
-    overlayEnabled && site.reviews.length > 0
-      ? site.reviews.map((review) => ({
+  const overlayTestimonials = (() => {
+    if (!overlayEnabled || site.reviews.length === 0) return null
+    const parsed = site.reviews.flatMap((review) => {
+      const rating = parseReviewRating(review.rating)
+      if (rating == null) return []
+      return [
+        {
           id: review.id,
           name: review.name,
           condition: review.condition,
@@ -201,12 +210,15 @@ export default function Testimonials() {
             month: 'long',
             year: 'numeric',
           }),
-          rating: review.rating,
+          rating,
           source: review.source,
           emphasis: review.emphasis || review.excerpt,
           text: review.body || review.excerpt,
-        }))
-      : null
+        },
+      ]
+    })
+    return parsed.length > 0 ? parsed : null
+  })()
 
   const testimonials = useMemo(() => {
     if (overlayTestimonials) return overlayTestimonials
@@ -282,12 +294,8 @@ export default function Testimonials() {
       >
         <div className="mx-auto mt-3 flex max-w-2xl flex-col items-center gap-3 sm:mt-4 sm:gap-4">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-cream/95 sm:text-base">
-            <span className="inline-flex items-center gap-0.5" aria-hidden>
-              {[0, 1, 2, 3, 4].map((i) => (
-                <Star key={i} className="h-4 w-4 fill-gold text-gold" />
-              ))}
-            </span>
-            <span>5-star verified Google reviews</span>
+            <RatingStars rating={ratingAverage} className="h-4 w-4" />
+            <span>5-Star Google Reviews from Verified Patients</span>
           </div>
           <ul className="flex flex-wrap justify-center gap-2">
             {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
@@ -312,15 +320,11 @@ export default function Testimonials() {
             In their own words — verified reviews from people treated at Wellness Needles.
           </p>
           <div className="mx-auto mt-3 flex justify-center sm:mt-3.5">
-            <span className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-white px-3.5 py-1.5">
-              <span className="text-sm font-bold text-primary">5.0</span>
-              <span className="inline-flex items-center gap-0.5" aria-hidden>
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
-                ))}
-              </span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-white px-3.5 py-1.5">
+              <span className="text-sm font-bold text-primary">{ratingAverageLabel}</span>
+              <RatingStars rating={ratingAverage} className="h-3.5 w-3.5" />
               <span className="text-sm text-[var(--text-dark)]/70">Google Reviews</span>
-            </span>
+            </div>
           </div>
         </div>
       </section>
@@ -448,16 +452,12 @@ export default function Testimonials() {
           />
 
           <div className="mb-5 flex flex-col items-center gap-1 text-center text-base text-secondary/80 md:mb-6">
-            <p className="inline-flex items-center gap-1.5">
-              <span className="inline-flex" aria-hidden>
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
-                ))}
-              </span>
+            <div className="inline-flex items-center gap-1.5">
+              <RatingStars rating={ratingAverage} className="h-3.5 w-3.5" />
               <span className="font-medium text-[var(--text-dark)]">
                 {ratingAverageLabel}/5 average
               </span>
-            </p>
+            </div>
             <p>
               from {reviewCount} verified patient{' '}
               {reviewCount === 1 ? 'review' : 'reviews'}
