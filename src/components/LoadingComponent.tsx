@@ -5,7 +5,7 @@ import { PulsingLeaf } from '@/features/ui/PulsingLeaf'
 import { useBrandLogos } from '@/hooks/useBrandLogos'
 
 export default function LoadingComponent() {
-  const { icon } = useBrandLogos()
+  const { wordmark } = useBrandLogos()
   return (
     <div className="min-h-screen jungle-gradient flex flex-col items-center justify-center pt-14">
       {/* Main Loading Content */}
@@ -49,21 +49,17 @@ export default function LoadingComponent() {
           />
         </div>
 
-        {/* Logo */}
+        {/* Logo — wordmark only (same asset as the header; not a link) */}
         <div className="relative z-10">
-          <div className="relative mx-auto mb-4 h-20 w-20">
+          <div className="relative mx-auto mb-4 h-14 w-[8.5rem] sm:h-16 sm:w-44 lg:h-[4.5rem] lg:w-52">
             <Image
-              src={icon}
+              src={wordmark}
               alt="Wellness Needles Logo"
               fill
-              className="object-contain animate-pulse"
+              sizes="(max-width: 639px) 136px, (max-width: 1023px) 176px, 208px"
+              className="object-contain object-center animate-pulse"
             />
           </div>
-          
-          {/* Brand Name */}
-          <h2 className="text-2xl font-serif font-semibold text-cream text-center">
-            Wellness Needles
-          </h2>
         </div>
 
         {/* Loading Text */}

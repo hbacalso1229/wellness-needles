@@ -48,6 +48,9 @@ test.describe('smoke', () => {
     await expect(
       page.getByRole('link', { name: /Book your appointment|Book Appointment/i }).first()
     ).toBeVisible()
+    const homeHero = page.locator('[data-home-hero="true"]')
+    await expect(homeHero.getByText(/Rated [\d.]+\/5 by verified clients/)).toBeVisible()
+    await expect(homeHero.getByLabel(/[\d.]+ out of 5 stars$/)).toBeVisible()
   })
 
   test('header nav links reach each page', async ({ page }) => {

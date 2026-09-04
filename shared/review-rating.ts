@@ -6,6 +6,99 @@ export function parseHalfStarRating(value: unknown): number | null {
   return Math.round(n * 2) / 2
 }
 
+export type ReviewRatingRow = {
+  name: string
+  reviewedAt: string
+  rating: number
+}
+
+export function averageReviewRating(ratings: number[]): {
+  average: number
+  count: number
+  label: string
+} {
+  const valid = ratings.filter((n) => Number.isFinite(n))
+  const count = valid.length
+  if (count === 0) return { average: 0, count: 0, label: '0.0' }
+  const average = valid.reduce((sum, n) => sum + n, 0) / count
+  return { average, count, label: average.toFixed(1) }
+}
+
+/** Individual review score for averaging. Accepts 1–5, including string JSON from D1. */
+export function parseReviewRating(value: unknown): number | null {
+  const half = parseHalfStarRating(value)
+  if (half != null) return half
+  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  if (!Number.isFinite(n) || n < 1 || n > 5) return null
+  return n
+}
+
+export function formatReviewDateKey(reviewedAt: string): string {
+  if (!reviewedAt) return ''
+  return new Date(`${reviewedAt}T12:00:00`).toLocaleDateString('en-IE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function reviewIdentity(row: ReviewRatingRow): string {
+  return `${row.name}|${formatReviewDateKey(row.reviewedAt)}`.toLowerCase()
+}
+
+/** Overlay list wins; otherwise baked Google cards plus unique approved extras. */
+export function mergePublishedReviewRatings(
+  overlayReviews: ReviewRatingRow[] | null,
+  baked: ReviewRatingRow[],
+  extra: ReviewRatingRow[],
+): number[] {
+  if (overlayReviews && overlayReviews.length > 0) {
+    return overlayReviews.map((row) => row.rating)
+  }
+  const seen = new Set(baked.map(reviewIdentity))
+  const extras = extra.filter((row) => {
+    const key = reviewIdentity(row)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+  return [...baked, ...extras].map((row) => row.rating)
+}
+
+export function publishedReviewSummary(
+  overlayReviews: ReviewRatingRow[] | null,
+  baked: ReviewRatingRow[],
+  extra: ReviewRatingRow[],
+) {
+  return averageReviewRating(mergePublishedReviewRatings(overlayReviews, baked, extra))
+}
+
+/**
+ * Home rating follows the public website overlay, same as phone/hours/logo.
+ * Overlay off → baked Google cards only. Overlay on with published reviews →
+ * those ratings. Overlay on with an empty list → baked again.
+ */
+export function resolvePublicReviewRatings(
+  overlayEnabled: boolean,
+  overlayReviews: ReviewRatingRow[],
+  baked: ReviewRatingRow[],
+): number[] {
+  if (!overlayEnabled) return baked.map((row) => row.rating)
+  const overlayRatings = overlayReviews.flatMap((row) => {
+    const rating = parseReviewRating(row.rating)
+    return rating == null ? [] : [rating]
+  })
+  return overlayRatings.length > 0 ? overlayRatings : baked.map((row) => row.rating)
+}
+
+export function publicReviewSummary(
+  overlayEnabled: boolean,
+  overlayReviews: ReviewRatingRow[],
+  baked: ReviewRatingRow[],
+) {
+  return averageReviewRating(resolvePublicReviewRatings(overlayEnabled, overlayReviews, baked))
+}
+
 export const CONDITION_MAX_LEN = 40
 export const REVIEW_BODY_MAX_LEN = 1000
 export const REVIEW_NAME_MAX_LEN = 80

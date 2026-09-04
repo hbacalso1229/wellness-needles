@@ -1,12 +1,16 @@
 'use client'
 
 import Image from 'next/image'
-import { Calendar, Leaf, Star } from 'lucide-react'
+import { Calendar, Leaf } from 'lucide-react'
 import { CTAButton } from '../ui/CTAButton'
+import { RatingStars } from '../ui/RatingStars'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { usePublishedReviewSummary } from '@/hooks/usePublishedReviewSummary'
 
 export function HeroSection() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
+  const { average, label } = usePublishedReviewSummary()
+  const caption = `Rated ${label}/5 by verified clients`
 
   return (
     <section
@@ -111,16 +115,16 @@ export function HeroSection() {
             </a>
           </div>
 
-          <p className="mt-5 flex items-center justify-center gap-1.5 text-base text-cream/85 sm:mt-6 sm:justify-start">
-            <span className="inline-flex items-center gap-0.5 text-gold" aria-hidden>
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <Star className="h-3.5 w-3.5 fill-current" />
+          <div
+            className="mt-5 flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 text-base font-normal leading-none text-cream sm:mt-6 sm:justify-start"
+            aria-label={caption}
+          >
+            <RatingStars rating={average} className="h-3.5 w-3.5" />
+            <span>
+              Rated <span className="tabular-nums">{label}</span>/5 by verified
+              clients
             </span>
-            <span>Rated 5.0 by verified clients</span>
-          </p>
+          </div>
         </div>
       </div>
     </section>

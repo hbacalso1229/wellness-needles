@@ -21,8 +21,8 @@ export function RatingStars({
   const label = formatStarRating(clamped)
   return (
     <div
-      className="flex items-center"
-      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+      className="flex shrink-0 flex-nowrap items-center"
+      style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center' }}
       aria-label={`${label} out of 5 stars`}
     >
       {[1, 2, 3, 4, 5].map((star) => {
