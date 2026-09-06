@@ -24,6 +24,12 @@ export function averageReviewRating(ratings: number[]): {
   return { average, count, label: average.toFixed(1) }
 }
 
+/** Display label: 5.0 → "5", 4.9 → "4.9". Does not change averageReviewRating().label. */
+export function formatAverageRatingLabel(average: number): string {
+  if (!Number.isFinite(average)) return '0'
+  return average.toFixed(1).replace(/\.0$/, '')
+}
+
 /** Individual review score for averaging. Accepts 1–5, including string JSON from D1. */
 export function parseReviewRating(value: unknown): number | null {
   const half = parseHalfStarRating(value)

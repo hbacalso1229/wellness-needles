@@ -6,11 +6,13 @@ import { CTAButton } from '../ui/CTAButton'
 import { RatingStars } from '../ui/RatingStars'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
 import { usePublishedReviewSummary } from '@/hooks/usePublishedReviewSummary'
+import { formatAverageRatingLabel } from '../../../shared/review-rating'
 
 export function HeroSection() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
-  const { average, label } = usePublishedReviewSummary()
-  const caption = `Rated ${label}/5 by verified clients`
+  const { average } = usePublishedReviewSummary()
+  const shown = formatAverageRatingLabel(average)
+  const caption = `${shown}/5 · Verified patient reviews`
 
   return (
     <section
@@ -120,10 +122,9 @@ export function HeroSection() {
             aria-label={caption}
           >
             <RatingStars rating={average} className="h-3.5 w-3.5" />
-            <span>
-              Rated <span className="tabular-nums">{label}</span>/5 by verified
-              clients
-            </span>
+            <span className="tabular-nums">{shown}/5</span>
+            <span aria-hidden>·</span>
+            <span>Verified patient reviews</span>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { describe, it } from 'node:test'
 import { DEFAULT_REVIEWS } from './default-reviews'
 import {
   averageReviewRating,
+  formatAverageRatingLabel,
   mergePublishedReviewRatings,
   parseReviewRating,
   publishedReviewSummary,
@@ -48,6 +49,20 @@ describe('averageReviewRating', () => {
       count: 13,
       label: '4.8',
     })
+  })
+})
+
+describe('formatAverageRatingLabel', () => {
+  it('drops trailing .0 for whole means', () => {
+    assert.equal(formatAverageRatingLabel(5), '5')
+    assert.equal(formatAverageRatingLabel(5.0), '5')
+    assert.equal(formatAverageRatingLabel(4.0), '4')
+    assert.equal(formatAverageRatingLabel(3), '3')
+  })
+
+  it('keeps one decimal when the mean is not whole', () => {
+    assert.equal(formatAverageRatingLabel(4.9), '4.9')
+    assert.equal(formatAverageRatingLabel(4.6), '4.6')
   })
 })
 
