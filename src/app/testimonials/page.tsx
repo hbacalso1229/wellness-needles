@@ -18,14 +18,17 @@ import { BookingCtaButton } from '@/components/BookingCtaButton'
 import { ShareExperienceCta } from '@/components/ShareExperienceCta'
 import { BookingSection } from '../../features/home/BookingSection'
 import { useBookingCtaHref } from '@/hooks/useBookingCtaHref'
+import { usePublishedReviewSummary } from '@/hooks/usePublishedReviewSummary'
 import { useSiteOverlay } from '@/lib/site-overlay'
-import { parseReviewRating } from '../../../shared/review-rating'
+import { formatAverageRatingLabel, parseReviewRating } from '../../../shared/review-rating'
 import { useEffect, useMemo, useState } from 'react'
 import { BadgeCheck, Calendar, HeartHandshake, Star, ArrowRight } from 'lucide-react'
 
 export default function Testimonials() {
   const { href: bookHref, isExternal, target, rel } = useBookingCtaHref()
   const { overlayEnabled, site } = useSiteOverlay()
+  const { average, count } = usePublishedReviewSummary()
+  const shown = formatAverageRatingLabel(average)
   const [publishedReviews, setPublishedReviews] = useState<Array<{
     id: string
     name: string
@@ -233,12 +236,6 @@ export default function Testimonials() {
     })
     return [...bakedTestimonials, ...extra]
   }, [overlayTestimonials, publishedReviews])
-  const reviewCount = testimonials.length
-  const ratingAverage =
-    reviewCount === 0
-      ? 0
-      : testimonials.reduce((sum, t) => sum + t.rating, 0) / reviewCount
-  const ratingAverageLabel = ratingAverage.toFixed(1)
 
   const photoResultCases = [
     {
@@ -294,8 +291,8 @@ export default function Testimonials() {
       >
         <div className="mx-auto mt-3 flex max-w-2xl flex-col items-center gap-3 sm:mt-4 sm:gap-4">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-cream/95 sm:text-base">
-            <RatingStars rating={ratingAverage} className="h-4 w-4" />
-            <span>5-Star Google Reviews from Verified Patients</span>
+            <RatingStars rating={average} className="h-4 w-4" />
+            <span>{shown}-Star Google Reviews from Verified Patients</span>
           </div>
           <ul className="flex flex-wrap justify-center gap-2">
             {['Back pain', 'Stress & anxiety', 'Sleep issues', 'Digestion'].map((category) => (
@@ -321,8 +318,8 @@ export default function Testimonials() {
           </p>
           <div className="mx-auto mt-3 flex justify-center sm:mt-3.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-white px-3.5 py-1.5">
-              <span className="text-sm font-bold text-primary">{ratingAverageLabel}</span>
-              <RatingStars rating={ratingAverage} className="h-3.5 w-3.5" />
+              <span className="text-sm font-bold text-primary">{shown}</span>
+              <RatingStars rating={average} className="h-3.5 w-3.5" />
               <span className="text-sm text-[var(--text-dark)]/70">Google Reviews</span>
             </div>
           </div>
@@ -453,14 +450,14 @@ export default function Testimonials() {
 
           <div className="mb-5 flex flex-col items-center gap-1 text-center text-base text-secondary/80 md:mb-6">
             <div className="inline-flex items-center gap-1.5">
-              <RatingStars rating={ratingAverage} className="h-3.5 w-3.5" />
+              <RatingStars rating={average} className="h-3.5 w-3.5" />
               <span className="font-medium text-[var(--text-dark)]">
-                {ratingAverageLabel}/5 average
+                {shown}/5
               </span>
             </div>
             <p>
-              from {reviewCount} verified patient{' '}
-              {reviewCount === 1 ? 'review' : 'reviews'}
+              Based on {count} verified patient{' '}
+              {count === 1 ? 'review' : 'reviews'}
             </p>
           </div>
 
