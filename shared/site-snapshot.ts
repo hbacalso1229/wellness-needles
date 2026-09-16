@@ -419,6 +419,7 @@ export type SiteSnapshot = {
     smsEnabled: boolean
     bookingMaintenanceEnabled: boolean
     newClinicLogoEnabled: boolean
+    patientRecordRetentionMonths: number
   }
   calendly: {
     schedulingUrl: string
@@ -526,6 +527,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     smsEnabled: false,
     bookingMaintenanceEnabled: false,
     newClinicLogoEnabled: false,
+    patientRecordRetentionMonths: 96,
   },
   calendly: {
     schedulingUrl: 'https://calendly.com/hbacalso1229/scheduled-booking',
@@ -838,6 +840,13 @@ function asBool(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
+function parseRetentionMonths(value: unknown): number {
+  const fallback = SITE_DEFAULTS.features.patientRecordRetentionMonths
+  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  if (!Number.isFinite(n)) return fallback
+  return Math.min(240, Math.max(12, Math.round(n)))
+}
+
 function parsePriceItemFlags(value: unknown, packagesEnabled: boolean): PriceListEnabled {
   const fallback = defaultPriceItemFlags(packagesEnabled)
   const rec = isRecord(value) ? value : {}
@@ -1052,6 +1061,9 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       newClinicLogoEnabled: asBool(
         value.features.newClinicLogoEnabled,
         SITE_DEFAULTS.features.newClinicLogoEnabled
+      ),
+      patientRecordRetentionMonths: parseRetentionMonths(
+        value.features.patientRecordRetentionMonths
       ),
     },
     calendly: {

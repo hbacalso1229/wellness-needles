@@ -226,3 +226,28 @@ describe('buildAppointmentEmail logo', () => {
     assert.doesNotMatch(html, new RegExp(`${SITE}${ORIGINAL_WORDMARK}`.replace(/\./g, '\\.')))
   })
 })
+
+describe('appointment mail never includes clinical chart fields', () => {
+  it('keeps notify copy free of intake and visit JSON keys', () => {
+    const html = buildAppointmentEmail({
+      kind: 'confirm',
+      clinic: 'Wellness Needles',
+      firstName: 'Ada',
+      dateLabel: 'Monday 1 September',
+      timeLabel: '10:00',
+      locationLabel: 'Celbridge',
+      durationMinutes: 60,
+      site: SITE_DEFAULTS,
+    }).html
+    for (const name of [
+      'chiefComplaint',
+      'medicalHistory',
+      'tongue',
+      'diagnosis',
+      'acupuncturePoints',
+      'contraindications',
+    ]) {
+      assert.equal(html.includes(name), false, name)
+    }
+  })
+})

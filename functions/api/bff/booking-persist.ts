@@ -1,4 +1,5 @@
 import { asString, jsonResponse, readJsonBody, type PagesEnv } from '../../_lib/http'
+import { findPatientIdByEmail } from '../../_lib/patients'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
@@ -36,12 +37,18 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
 
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
+  let patientId: string | null = null
+  try {
+    patientId = await findPatientIdByEmail(context.env.DB, email)
+  } catch (error) {
+    console.error('[bff/booking-persist] patient match', error)
+  }
   try {
     await context.env.DB.prepare(
       `INSERT INTO bookings (
         id, status, first_name, last_name, email, phone, service_type, location_label,
-        service_label, preferred_date, preferred_time, sms_opt_in, created_at
-      ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        service_label, preferred_date, preferred_time, sms_opt_in, created_at, patient_id
+      ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         id,
@@ -55,12 +62,38 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
         asString(body.date),
         asString(body.time),
         body.smsOptIn ? 1 : 0,
-        now
+        now,
+        patientId
       )
       .run()
-    return jsonResponse(200, { ok: true, id })
+    return jsonResponse(200, { ok: true, id, patientId })
   } catch (error) {
-    console.error('[bff/booking-persist]', error)
-    return jsonResponse(200, { ok: true, skipped: 'd1-error' })
+    try {
+      await context.env.DB.prepare(
+        `INSERT INTO bookings (
+          id, status, first_name, last_name, email, phone, service_type, location_label,
+          service_label, preferred_date, preferred_time, sms_opt_in, created_at
+        ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+        .bind(
+          id,
+          firstName,
+          lastName,
+          email,
+          phone,
+          asString(body.serviceType),
+          asString(body.locationLabel),
+          asString(body.serviceLabel),
+          asString(body.date),
+          asString(body.time),
+          body.smsOptIn ? 1 : 0,
+          now
+        )
+        .run()
+      return jsonResponse(200, { ok: true, id })
+    } catch (fallbackError) {
+      console.error('[bff/booking-persist]', error, fallbackError)
+      return jsonResponse(200, { ok: true, skipped: 'd1-error' })
+    }
   }
 }

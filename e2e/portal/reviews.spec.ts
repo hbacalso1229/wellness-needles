@@ -52,6 +52,5 @@ test.describe('portal reviews card actions', () => {
       expect(box!.height).toBeLessThan(36)
       await expect(button).toHaveCSS('background-color', 'rgb(244, 242, 236)')
     }
-    await page.screenshot({ path: 'tmp-reviews-actions.png' })
   })
 })
