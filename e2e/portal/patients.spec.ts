@@ -51,6 +51,8 @@ test.describe('portal patients', () => {
     await page.getByRole('button', { name: /Aoife Murphy/ }).click()
     await page.getByRole('button', { name: 'Files', exact: true }).click()
     await expect(page.getByText(/PDF, JPEG, PNG/)).toBeVisible()
+    await expect(page.getByRole('radio', { name: 'Initial' })).toBeChecked()
+    await expect(page.getByRole('radio', { name: 'Follow-up' })).toBeVisible()
   })
 
   test('appointment card can open the linked chart', async ({ page }) => {

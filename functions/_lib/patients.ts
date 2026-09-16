@@ -11,9 +11,12 @@ import {
   type PatientStatus,
   type VisitNoteBody,
   type YesNo,
-  isLegacyPatientFileKey,
+  isUuidFileObjectName,
+  namedObjectForLegacyFile,
+  needsNamedFileObject,
   patientFileFolderName,
   patientFileR2Key,
+  r2ObjectName,
 } from '../../shared/patient-chart'
 
 export type StaffContext = { data?: { email?: string } }
@@ -574,6 +577,20 @@ export async function listFiles(db: D1Database, patientId: string): Promise<File
   return results || []
 }
 
+export async function listFileKeyRows(
+  db: D1Database,
+  patientId: string
+): Promise<Array<{ id: string; originalName: string; mime: string; r2Key: string }>> {
+  const { results } = await db
+    .prepare(
+      `SELECT id, original_name as originalName, mime, r2_key as r2Key
+       FROM patient_files WHERE patient_id = ?`
+    )
+    .bind(patientId)
+    .all<{ id: string; originalName: string; mime: string; r2Key: string }>()
+  return results || []
+}
+
 export async function getFileRow(
   db: D1Database,
   patientId: string,
@@ -642,18 +659,22 @@ export async function relocateUuidFolderFiles(
   const db = env.DB
   const bucket = env.PATIENT_FILES
   if (!db || !bucket) return
-  const { results } = await db
-    .prepare('SELECT id, r2_key as r2Key FROM patient_files WHERE patient_id = ?')
-    .bind(patient.id)
-    .all<{ id: string; r2Key: string }>()
-  const legacy = (results || []).filter((row) => isLegacyPatientFileKey(row.r2Key, patient.id))
-  if (!legacy.length) return
-  const nameClash = await otherPatientHasSameName(db, patient.id, patient.first_name, patient.last_name)
+  const rows = await listFileKeyRows(db, patient.id)
+  const nameClash = await otherPatientHasSameName(
+    db,
+    patient.id,
+    patient.first_name,
+    patient.last_name
+  )
   const folder = patientFileFolderName(patient.first_name, patient.last_name, patient.id, nameClash)
-  const prefix = `patients/${patient.id}/`
-  for (const row of legacy) {
-    const fileId = row.r2Key.slice(prefix.length) || row.id
-    const nextKey = patientFileR2Key(folder, fileId)
+  const assigned = rows.map((row) => row.r2Key)
+  for (const row of rows) {
+    if (!needsNamedFileObject(row.r2Key, patient.id)) continue
+    const currentName = r2ObjectName(row.r2Key)
+    const objectName = isUuidFileObjectName(currentName)
+      ? namedObjectForLegacyFile(row.originalName, row.mime, assigned)
+      : currentName
+    const nextKey = patientFileR2Key(folder, objectName)
     if (nextKey === row.r2Key) continue
     const object = await bucket.get(row.r2Key)
     if (!object) continue
@@ -665,6 +686,9 @@ export async function relocateUuidFolderFiles(
       .bind(nextKey, row.id, patient.id)
       .run()
     await bucket.delete(row.r2Key)
+    const idx = assigned.indexOf(row.r2Key)
+    if (idx >= 0) assigned[idx] = nextKey
+    else assigned.push(nextKey)
   }
 }
 
