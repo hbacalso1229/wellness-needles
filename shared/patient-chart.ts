@@ -427,12 +427,80 @@ export function patientFileFolderName(
   return `${slug}-${patientId.slice(0, 8)}`
 }
 
-export function patientFileR2Key(folder: string, fileId: string): string {
-  return `patients/${folder}/${fileId}`
+export function patientFileR2Key(folder: string, objectName: string): string {
+  return `patients/${folder}/${objectName}`
+}
+
+export type PatientFileKind = 'initial' | 'follow-up'
+
+export function parsePatientFileKind(value: unknown): PatientFileKind | '' {
+  return value === 'initial' || value === 'follow-up' ? value : ''
+}
+
+const UUID_OBJECT =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export function r2ObjectName(r2Key: string): string {
+  const parts = r2Key.split('/').filter(Boolean)
+  return parts[parts.length - 1] || ''
+}
+
+export function isUuidFileObjectName(name: string): boolean {
+  return UUID_OBJECT.test(name)
 }
 
 export function isLegacyPatientFileKey(r2Key: string, patientId: string): boolean {
   return Boolean(patientId) && r2Key.startsWith(`patients/${patientId}/`)
+}
+
+export function needsNamedFileObject(r2Key: string, patientId: string): boolean {
+  return isLegacyPatientFileKey(r2Key, patientId) || isUuidFileObjectName(r2ObjectName(r2Key))
+}
+
+export function patientFileExtension(originalName: string, mime: string): string {
+  const fromName = originalName.split('.').pop()?.toLowerCase() || ''
+  if (fromName && fromName !== originalName.toLowerCase()) {
+    if (fromName === 'jpeg' || fromName === 'jpg') return 'jpg'
+    if (fromName === 'png' || fromName === 'webp' || fromName === 'pdf') return fromName
+    if (fromName === 'heic' || fromName === 'heif') return 'heic'
+  }
+  if (mime === 'application/pdf') return 'pdf'
+  if (mime === 'image/jpeg') return 'jpg'
+  if (mime === 'image/png') return 'png'
+  if (mime === 'image/webp') return 'webp'
+  if (mime === 'image/heic' || mime === 'image/heif') return 'heic'
+  return 'pdf'
+}
+
+export function nextFollowUpNumber(existingKeys: string[]): number {
+  let max = 0
+  for (const key of existingKeys) {
+    const match = r2ObjectName(key).match(/^follow-up-(\d+)\.[a-z0-9]+$/i)
+    if (match) max = Math.max(max, Number(match[1]))
+  }
+  return max + 1
+}
+
+export function patientFileObjectName(
+  kind: PatientFileKind,
+  existingKeys: string[],
+  originalName: string,
+  mime: string
+): string {
+  const ext = patientFileExtension(originalName, mime)
+  if (kind === 'initial') return `initial.${ext}`
+  return `follow-up-${nextFollowUpNumber(existingKeys)}.${ext}`
+}
+
+export function namedObjectForLegacyFile(
+  originalName: string,
+  mime: string,
+  existingKeys: string[]
+): string {
+  const ext = patientFileExtension(originalName, mime)
+  const initialTaken = existingKeys.some((key) => /^initial\./i.test(r2ObjectName(key)))
+  if (/initial/i.test(originalName) && !initialTaken) return `initial.${ext}`
+  return `follow-up-${nextFollowUpNumber(existingKeys)}.${ext}`
 }
 
 export function clampRetentionMonths(value: unknown): number {

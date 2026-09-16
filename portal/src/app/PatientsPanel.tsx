@@ -141,6 +141,7 @@ export function PatientsPanel({
   const [followUpType, setFollowUpType] = useState('')
   const [followUpLocation, setFollowUpLocation] = useState('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [fileKind, setFileKind] = useState<'initial' | 'follow-up'>('initial')
 
   const loadList = useCallback(async () => {
     setLoadingList(true)
@@ -354,6 +355,7 @@ export function PatientsPanel({
     if (!selectedId) return
     const form = new FormData()
     form.append('file', file)
+    form.append('kind', fileKind)
     setSaving(true)
     try {
       const data = await api<{ files: FileRow[] }>(`/api/admin/patients/${selectedId}/files`, {
@@ -712,8 +714,22 @@ export function PatientsPanel({
         {chartTab === 'files' ? (
           <Card title="Private files">
             <p className="mb-3 text-sm text-[var(--text-dark)]/65">
-              PDF, JPEG, PNG, WebP, or HEIC. Max 10MB. Downloads stay behind portal login.
+              PDF, JPEG, PNG, WebP, or HEIC. Max 10MB. Stored as initial or follow-up-1, follow-up-2, …
             </p>
+            <fieldset className="mb-3 flex flex-wrap gap-4 text-sm print:hidden">
+              <legend className="sr-only">File type</legend>
+              {(['initial', 'follow-up'] as const).map((kind) => (
+                <label key={kind} className="flex items-center gap-1.5 capitalize">
+                  <input
+                    type="radio"
+                    name="patient-file-kind"
+                    checked={fileKind === kind}
+                    onChange={() => setFileKind(kind)}
+                  />
+                  {kind === 'follow-up' ? 'Follow-up' : 'Initial'}
+                </label>
+              ))}
+            </fieldset>
             <input
               type="file"
               accept="application/pdf,image/jpeg,image/png,image/webp,image/heic,image/heif"

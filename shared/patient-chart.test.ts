@@ -8,7 +8,13 @@ import {
   emptyIntake,
   isAllowedPatientFileMime,
   isLegacyPatientFileKey,
+  isUuidFileObjectName,
   isWithinRetention,
+  namedObjectForLegacyFile,
+  nextFollowUpNumber,
+  parsePatientFileKind,
+  patientFileExtension,
+  patientFileObjectName,
   normalizePatientEmail,
   parseConsentAnswers,
   parseIntake,
@@ -116,6 +122,25 @@ describe('files and retention', () => {
       true
     )
     assert.equal(isLegacyPatientFileKey('patients/Aoife-Murphy/f1', '5ede956d-df61-4306-84b0-266acc66a0a3'), false)
+    assert.equal(isUuidFileObjectName('1e4b2582-baff-4e59-8bdd-9738c73b2c57'), true)
+    assert.equal(isUuidFileObjectName('initial.pdf'), false)
+    assert.equal(parsePatientFileKind('follow-up'), 'follow-up')
+    assert.equal(patientFileExtension('Initial PDF with logo.pdf', 'application/pdf'), 'pdf')
+    assert.equal(patientFileObjectName('initial', [], 'scan.pdf', 'application/pdf'), 'initial.pdf')
+    assert.equal(patientFileObjectName('follow-up', [], 'note.jpg', 'image/jpeg'), 'follow-up-1.jpg')
+    assert.equal(
+      nextFollowUpNumber(['patients/Aoife-Murphy/follow-up-2.pdf', 'patients/Aoife-Murphy/initial.pdf']),
+      3
+    )
+    assert.equal(
+      namedObjectForLegacyFile('Initial PDF with logo.pdf', 'application/pdf', []),
+      'initial.pdf'
+    )
+    assert.equal(namedObjectForLegacyFile('scan.png', 'image/png', []), 'follow-up-1.png')
+    assert.equal(
+      namedObjectForLegacyFile('Initial copy.pdf', 'application/pdf', ['patients/Aoife-Murphy/initial.pdf']),
+      'follow-up-1.pdf'
+    )
   })
 
   it('blocks erase while inside retention unless last seen is old', () => {

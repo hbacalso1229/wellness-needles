@@ -3,6 +3,7 @@ import {
   actorEmail,
   getPatient,
   insertFileRow,
+  listFileKeyRows,
   listFiles,
   otherPatientHasSameName,
   relocateUuidFolderFiles,
@@ -11,8 +12,12 @@ import {
 import {
   PATIENT_FILE_MAX_BYTES,
   isAllowedPatientFileMime,
+  isUuidFileObjectName,
+  parsePatientFileKind,
   patientFileFolderName,
+  patientFileObjectName,
   patientFileR2Key,
+  r2ObjectName,
 } from '../../../../../shared/patient-chart'
 
 type PagesFunction<Env = unknown> = (context: {
@@ -47,7 +52,9 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   }
   const form = await context.request.formData()
   const file = form.get('file')
+  const kind = parsePatientFileKind(form.get('kind'))
   if (!(file instanceof File)) return jsonResponse(400, { ok: false, error: 'file required' })
+  if (!kind) return jsonResponse(400, { ok: false, error: 'choose Initial or Follow-up' })
   if (file.size > PATIENT_FILE_MAX_BYTES) {
     return jsonResponse(400, { ok: false, error: 'file too large (max 10MB)' })
   }
@@ -63,12 +70,32 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     row.last_name
   )
   const folder = patientFileFolderName(row.first_name, row.last_name, id, nameClash)
-  const key = patientFileR2Key(folder, fileId)
+  const existing = await listFileKeyRows(context.env.DB, id)
+  const objectName = patientFileObjectName(
+    kind,
+    existing.map((item) => item.r2Key),
+    file.name || 'upload',
+    mime
+  )
+  const key = patientFileR2Key(folder, objectName)
   const buf = await file.arrayBuffer()
   await context.env.PATIENT_FILES.put(key, buf, {
     httpMetadata: { contentType: mime },
   })
   const actor = actorEmail(context)
+  if (kind === 'initial') {
+    for (const item of existing) {
+      const name = r2ObjectName(item.r2Key)
+      const replace =
+        /^initial\./i.test(name) ||
+        (isUuidFileObjectName(name) && /initial/i.test(item.originalName))
+      if (!replace) continue
+      await context.env.DB.prepare('DELETE FROM patient_files WHERE id = ? AND patient_id = ?')
+        .bind(item.id, id)
+        .run()
+      if (item.r2Key !== key) await context.env.PATIENT_FILES.delete(item.r2Key)
+    }
+  }
   await insertFileRow(context.env.DB, {
     id: fileId,
     patientId: id,
