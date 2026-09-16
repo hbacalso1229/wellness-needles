@@ -4,7 +4,7 @@ test.describe('portal patients', () => {
   test('Patients tab lists charts and opens intake', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Patients' }).click()
-    await expect(page.getByRole('heading', { name: 'Patients' })).toBeVisible()
+    await expect(page.getByText(/Staff-only charts/)).toBeVisible()
     await expect(page.getByRole('button', { name: 'Create chart' })).toBeVisible()
     await expect(page.getByRole('button', { name: /Aoife Murphy/ })).toBeVisible()
     await expect(page.getByText('Unsigned consent')).toBeVisible()
