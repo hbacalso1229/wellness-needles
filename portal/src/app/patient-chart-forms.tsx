@@ -92,6 +92,15 @@ export function TextArea({
   )
 }
 
+export function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <p className="text-sm">
+      <span className="block text-[var(--text-dark)]/55">{label}</span>
+      <span className="mt-0.5 block font-medium text-[var(--text-dark)]">{value || '—'}</span>
+    </p>
+  )
+}
+
 export function YesNoField({
   label,
   value,
@@ -123,9 +132,13 @@ export function YesNoField({
 export function IntakeForm({
   intake,
   onChange,
+  patientName,
+  practitionerName,
 }: {
   intake: PatientIntake
   onChange: (next: PatientIntake) => void
+  patientName: string
+  practitionerName: string
 }) {
   const set = <K extends keyof PatientIntake>(key: K, value: PatientIntake[K]) =>
     onChange({ ...intake, [key]: value })
@@ -226,6 +239,67 @@ export function IntakeForm({
           onChange={(v) => set('complexion', v)}
         />
       </ChartSection>
+      <ChartSection title="Tongue, diagnosis and first treatment" hint="From the initial form, not the follow-up sheet">
+        <TextArea label="Tongue" value={intake.tongue} onChange={(v) => set('tongue', v)} />
+        <TextArea label="Diagnosis" value={intake.diagnosis} onChange={(v) => set('diagnosis', v)} />
+        <TextArea
+          label="Treatment principle"
+          value={intake.treatmentPrinciple}
+          onChange={(v) => set('treatmentPrinciple', v)}
+        />
+        <TextArea
+          label="Acupuncture points and justification"
+          value={intake.acupuncturePoints}
+          onChange={(v) => set('acupuncturePoints', v)}
+        />
+        <TextArea label="Treatment plan" value={intake.treatmentPlan} onChange={(v) => set('treatmentPlan', v)} />
+        <TextField
+          label="Frequency of treatment"
+          value={intake.frequency}
+          onChange={(v) => set('frequency', v)}
+        />
+        <TextField
+          label="How many treatments agreed?"
+          value={intake.treatmentsAgreed}
+          onChange={(v) => set('treatmentsAgreed', v)}
+        />
+        <TextArea
+          label="Agreed treatment strategy"
+          value={intake.agreedStrategy}
+          onChange={(v) => set('agreedStrategy', v)}
+        />
+      </ChartSection>
+      <ChartSection title="Advice sheet" hint="ACUPUNCTURE CLINIC: ADVICE SHEET — filled with the initial visit">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ReadOnlyField label="Patient name" value={patientName} />
+          <FullWidthDateField
+            label="Date"
+            value={intake.adviceSheetDate}
+            onChange={(adviceSheetDate) => set('adviceSheetDate', adviceSheetDate)}
+          />
+          <ReadOnlyField label="Practitioner" value={practitionerName} />
+        </div>
+        <TextArea
+          label="Additional herbal remedies / supplements (e.g. herbal teas)"
+          value={intake.herbalRemedies}
+          onChange={(v) => set('herbalRemedies', v)}
+        />
+        <TextArea
+          label="Nutritional advice"
+          value={intake.nutritionalAdvice}
+          onChange={(v) => set('nutritionalAdvice', v)}
+        />
+        <TextArea
+          label="Naturopathic / lifestyle advice"
+          value={intake.naturopathicLifestyleAdvice}
+          onChange={(v) => set('naturopathicLifestyleAdvice', v)}
+        />
+        <TextField
+          label="Practitioner signature"
+          value={intake.advicePractitionerSignedName}
+          onChange={(v) => set('advicePractitionerSignedName', v)}
+        />
+      </ChartSection>
     </div>
   )
 }
@@ -282,9 +356,19 @@ export function ConsentForm({
 export function VisitForm({
   visit,
   onChange,
+  patientName,
+  dateOfBirth,
+  practitionerName,
+  visitDate,
+  onVisitDateChange,
 }: {
   visit: VisitNoteBody
   onChange: (next: VisitNoteBody) => void
+  patientName: string
+  dateOfBirth: string
+  practitionerName: string
+  visitDate: string
+  onVisitDateChange: (next: string) => void
 }) {
   const setPulse = (side: 'left' | 'right', key: keyof VisitNoteBody['pulse']['left'], value: string) =>
     onChange({
@@ -293,8 +377,24 @@ export function VisitForm({
     })
   return (
     <div className="space-y-3">
-      <ChartSection title="Tongue, pulse, vital signs" defaultOpen>
-        <TextArea label="Tongue" value={visit.tongue} onChange={(tongue) => onChange({ ...visit, tongue })} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ReadOnlyField label="Patient name" value={patientName} />
+        <ReadOnlyField label="Date of birth" value={dateOfBirth} />
+        <FullWidthDateField label="Visit date" value={visitDate} onChange={onVisitDateChange} />
+        <ReadOnlyField label="Practitioner" value={practitionerName} />
+      </div>
+      <ChartSection
+        title="Review of complaints"
+        hint="How was the client after the last treatment? MYMOP / changes since last appointment"
+        defaultOpen
+      >
+        <TextArea
+          label="Review of complaints"
+          value={visit.reviewOfComplaints}
+          onChange={(reviewOfComplaints) => onChange({ ...visit, reviewOfComplaints })}
+        />
+      </ChartSection>
+      <ChartSection title="Pulse, vital signs and comments" defaultOpen>
         <div className="grid gap-3 sm:grid-cols-2">
           {(['left', 'right'] as const).map((side) => (
             <div key={side} className="space-y-2 rounded-md border border-black/[0.06] p-3">
@@ -316,6 +416,11 @@ export function VisitForm({
             </div>
           ))}
         </div>
+        <TextArea
+          label="Other comments"
+          value={visit.otherComments}
+          onChange={(otherComments) => onChange({ ...visit, otherComments })}
+        />
         <div className="grid gap-3 sm:grid-cols-2">
           <TextField
             label="Blood pressure"
@@ -328,13 +433,8 @@ export function VisitForm({
             onChange={(peakFlow) => onChange({ ...visit, peakFlow })}
           />
         </div>
-        <TextArea
-          label="Other comments"
-          value={visit.otherComments}
-          onChange={(otherComments) => onChange({ ...visit, otherComments })}
-        />
       </ChartSection>
-      <ChartSection title="Diagnosis and points" defaultOpen>
+      <ChartSection title="Diagnosis, points and advice" defaultOpen>
         <TextArea
           label="Diagnosis"
           value={visit.diagnosis}
@@ -350,27 +450,10 @@ export function VisitForm({
           value={visit.acupuncturePoints}
           onChange={(acupuncturePoints) => onChange({ ...visit, acupuncturePoints })}
         />
-      </ChartSection>
-      <ChartSection title="Treatment plan and follow-up" defaultOpen>
         <TextArea
-          label="Treatment plan"
-          value={visit.treatmentPlan}
-          onChange={(treatmentPlan) => onChange({ ...visit, treatmentPlan })}
-        />
-        <TextField
-          label="Frequency of treatment"
-          value={visit.frequency}
-          onChange={(frequency) => onChange({ ...visit, frequency })}
-        />
-        <TextField
-          label="How many treatments agreed?"
-          value={visit.treatmentsAgreed}
-          onChange={(treatmentsAgreed) => onChange({ ...visit, treatmentsAgreed })}
-        />
-        <TextArea
-          label="Agreed treatment strategy"
-          value={visit.agreedStrategy}
-          onChange={(agreedStrategy) => onChange({ ...visit, agreedStrategy })}
+          label="Additional / naturopathic advice"
+          value={visit.naturopathicAdvice}
+          onChange={(naturopathicAdvice) => onChange({ ...visit, naturopathicAdvice })}
         />
         <FullWidthDateField
           label="Next follow-up date"
