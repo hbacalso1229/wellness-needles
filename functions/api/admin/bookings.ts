@@ -6,10 +6,12 @@ import {
   validateCreateBookingInput,
   type BookingConfirmRow,
 } from '../../_lib/confirm-booking'
+import { actorEmail, findOrCreatePatient } from '../../_lib/patients'
 
 type PagesFunction<Env = unknown> = (context: {
   request: Request
   env: Env
+  data?: { email?: string }
   waitUntil?: (promise: Promise<unknown>) => void
 }) => Response | Promise<Response>
 
@@ -20,19 +22,32 @@ export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
   const status =
     requested === 'confirmed' || requested === 'cancelled' ? requested : 'pending'
   const orderSql = status === 'confirmed' ? 'starts_at IS NULL, starts_at DESC' : 'created_at DESC'
-  const { results } = await context.env.DB.prepare(
-    `SELECT id, status, first_name as firstName, last_name as lastName, email, phone,
+  const selectSql = `SELECT id, status, first_name as firstName, last_name as lastName, email, phone,
             service_type as serviceType, location_label as locationLabel, service_label as serviceLabel,
             preferred_date as preferredDate, preferred_time as preferredTime, starts_at as startsAt,
-            sms_opt_in as smsOptIn, created_at as createdAt
+            sms_opt_in as smsOptIn, created_at as createdAt, patient_id as patientId
      FROM bookings
      WHERE status = ?
      ORDER BY ${orderSql}
      LIMIT 200`
-  )
-    .bind(status)
-    .all()
-  return jsonResponse(200, { bookings: results || [] })
+  try {
+    const { results } = await context.env.DB.prepare(selectSql).bind(status).all()
+    return jsonResponse(200, { bookings: results || [] })
+  } catch {
+    const { results } = await context.env.DB.prepare(
+      `SELECT id, status, first_name as firstName, last_name as lastName, email, phone,
+              service_type as serviceType, location_label as locationLabel, service_label as serviceLabel,
+              preferred_date as preferredDate, preferred_time as preferredTime, starts_at as startsAt,
+              sms_opt_in as smsOptIn, created_at as createdAt
+       FROM bookings
+       WHERE status = ?
+       ORDER BY ${orderSql}
+       LIMIT 200`
+    )
+      .bind(status)
+      .all()
+    return jsonResponse(200, { bookings: results || [] })
+  }
 }
 
 export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
@@ -75,27 +90,68 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
 
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
-  await context.env.DB.prepare(
-    `INSERT INTO bookings (
-       id, status, first_name, last_name, email, phone, service_type, location_label,
-       service_label, preferred_date, preferred_time, sms_opt_in, created_at
-     ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  )
-    .bind(
-      id,
-      input.firstName,
-      input.lastName,
-      input.email,
-      input.phone,
-      input.serviceType,
-      input.locationLabel,
-      input.serviceLabel,
-      slot.ymd,
-      slot.hm,
-      input.smsOptIn ? 1 : 0,
-      now
+  let patientId: string | null = null
+  try {
+    const linked = await findOrCreatePatient(
+      context.env.DB,
+      {
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email,
+        phoneMobile: input.phone,
+      },
+      actorEmail(context)
     )
-    .run()
+    patientId = linked.row.id
+  } catch (error) {
+    console.error('[admin/bookings] patient chart', error)
+  }
+  try {
+    await context.env.DB.prepare(
+      `INSERT INTO bookings (
+         id, status, first_name, last_name, email, phone, service_type, location_label,
+         service_label, preferred_date, preferred_time, sms_opt_in, created_at, patient_id
+       ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+      .bind(
+        id,
+        input.firstName,
+        input.lastName,
+        input.email,
+        input.phone,
+        input.serviceType,
+        input.locationLabel,
+        input.serviceLabel,
+        slot.ymd,
+        slot.hm,
+        input.smsOptIn ? 1 : 0,
+        now,
+        patientId
+      )
+      .run()
+  } catch {
+    await context.env.DB.prepare(
+      `INSERT INTO bookings (
+         id, status, first_name, last_name, email, phone, service_type, location_label,
+         service_label, preferred_date, preferred_time, sms_opt_in, created_at
+       ) VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+      .bind(
+        id,
+        input.firstName,
+        input.lastName,
+        input.email,
+        input.phone,
+        input.serviceType,
+        input.locationLabel,
+        input.serviceLabel,
+        slot.ymd,
+        slot.hm,
+        input.smsOptIn ? 1 : 0,
+        now
+      )
+      .run()
+  }
 
   const row = await context.env.DB.prepare('SELECT * FROM bookings WHERE id = ?')
     .bind(id)
@@ -116,6 +172,7 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   return jsonResponse(200, {
     ok: true,
     id,
+    patientId,
     startsAt: confirmed.result.startsAt,
     sent: confirmed.result.sent,
   })

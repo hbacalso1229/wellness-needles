@@ -12,5 +12,8 @@ test.describe('portal settings', () => {
 
     await toggle.click()
     await expect(toggle).toHaveAttribute('aria-checked', 'true')
+
+    await expect(page.getByText('Patient records', { exact: true })).toBeVisible()
+    await expect(page.getByLabel('Retention (months after last visit)')).toHaveValue('96')
   })
 })

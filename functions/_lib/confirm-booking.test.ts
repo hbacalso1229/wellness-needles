@@ -102,3 +102,15 @@ describe('Confirm contract', () => {
     assert.match(listSrc, /confirmBookingRow\(/)
   })
 })
+
+describe('Follow-up from chart', () => {
+  it('confirms with Follow-up Sessions and does not put clinical JSON on the booking row', () => {
+    const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+    const src = readFileSync(join(root, 'api/admin/patients/[id]/follow-up.ts'), 'utf8')
+    assert.match(src, /followUpServiceLabel\(/)
+    assert.match(src, /confirmBookingRow\(/)
+    assert.match(src, /patient_id/)
+    assert.equal(src.includes('chiefComplaint'), false)
+    assert.equal(src.includes('diagnosis'), false)
+  })
+})

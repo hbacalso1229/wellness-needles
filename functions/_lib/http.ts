@@ -1,6 +1,7 @@
 export type PagesEnv = {
   DB?: D1Database
   SITE_CACHE?: KVNamespace
+  PATIENT_FILES?: R2Bucket
   RESEND_API_KEY?: string
   TURNSTILE_SECRET_KEY?: string
   CF_ACCESS_AUD?: string

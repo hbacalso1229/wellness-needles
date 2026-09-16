@@ -15,6 +15,10 @@ export const BOOKABLE_SERVICE_NAMES: Record<BookablePriceKey, string> = {
   package10: 'Treatment Package (10 sessions)',
 }
 
+export function followUpServiceLabel(site: SiteSnapshot): string {
+  return site.pricing.serviceCopy?.followUp?.name?.trim() || BOOKABLE_SERVICE_NAMES.followUp
+}
+
 function same(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase() && Boolean(a.trim())
 }

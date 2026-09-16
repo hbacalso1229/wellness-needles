@@ -42,12 +42,13 @@ Hours and Confirm / Reschedule / Add appointment exact-start pickers are **12-ho
 
 1. D1 database (EU), bind as `DB` on **both** Pages projects **and** Worker `wellness-needles-reminders`
 2. KV namespace, bind as `SITE_CACHE` on both Pages projects (not required on the Worker)
-3. Pages project `wellness-needles-portal` (Git disconnected), custom domain `portal.wellnessneedles.ie`
+3. Private R2 bucket (EU, public access off), bind as `PATIENT_FILES` on the **portal** Pages project only. Never bind it on www.
+4. Pages project `wellness-needles-portal` (Git disconnected), custom domain `portal.wellnessneedles.ie`
 4. Zero Trust Access on `portal.wellnessneedles.ie` and `*.wellness-needles-portal.pages.dev`
 5. Portal secrets: `CF_ACCESS_AUD`, `CF_ACCESS_TEAM_DOMAIN`, `RESEND_API_KEY` (same key as www)
 6. Worker `wellness-needles-reminders` secret: `RESEND_API_KEY` (day-before email)
 7. Optional Twilio (patient SMS): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` on **portal** and **the Worker**. `TWILIO_FROM` is the Twilio number (E.164). A branded name needs a ComReg-registered alphanumeric Sender ID (max 11 characters — “Wellness Needles” is too long). Do not put Twilio on www.
-8. Apply schema: `npx wrangler d1 execute wellness-needles --file=d1/schema.sql` (re-run after schema changes; `site_change_history` is portal-only). System Settings shows published FROM → TO history (not draft typing). Do **not** re-run schema to enable overlay, SMS, or reminders.
+8. Apply schema: `npx wrangler d1 execute wellness-needles --file=d1/schema.sql` (re-run after schema changes; `site_change_history` is portal-only). Existing production D1 also needs `npx wrangler d1 execute wellness-needles --file=d1/patient-charts.sql` **once** before charts work (`bookings.patient_id` plus patient tables). Do not re-run `patient-charts.sql` after that — the `ALTER TABLE` will fail if the column already exists. System Settings shows published FROM → TO history (not draft typing). Do **not** re-run schema to enable overlay, SMS, or reminders. Booking, Confirm, and reminders keep working if this migration has not been applied yet.
 
 Do **not** change apex, www, or Zoho MX. Do **not** put Access on www.
 
@@ -60,7 +61,12 @@ npm --prefix portal run dev # portal UI on :3001 (APIs need wrangler pages dev)
 npm run test:unit           # ICS, Dublin times, duration, 15-minute snap, email check, Add appointment
 ```
 
-## How bookings work (clinic owner)
+## Patient charts
+
+Staff-only **Patients** tab. Charts, consent, visit notes, and files are health data: portal Access only, EU D1 + private R2, never in appointment email. After an initial visit, **Book follow-up** from the chart (Follow-up Sessions, same Confirm pipeline). Website Follow-up booking still exists and attaches `patient_id` when the email already has a chart.
+
+Retention months live in Settings → Patient records (default 96). Archive from the chart; erase is blocked while inside retention unless a legal exception is confirmed.
+
 
 Plain-language process: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Architecture: [ARCHITECTURE.md](ARCHITECTURE.md). Appointments inbox, Confirm (exact Ireland time), Add appointment for phone/walk-in, Reschedule on Confirmed, automatic day-before reminder, optional SMS.
 

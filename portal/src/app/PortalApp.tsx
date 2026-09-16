@@ -69,6 +69,7 @@ import {
 } from './portal-ui'
 import { AddressSearch } from './AddressSearch'
 import { LocationPreview } from './LocationPreview'
+import { PatientsPanel } from './PatientsPanel'
 import {
   isDublinDateTimeLocalPast,
   snapDateTimeLocalToQuarterHour,
@@ -81,7 +82,7 @@ import {
   publishedServiceTypes,
 } from '../../../shared/booking-options'
 
-type TabId = 'appointments' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
+type TabId = 'appointments' | 'patients' | 'reviews' | 'pricing' | 'contact' | 'settings' | 'history'
 type BookingInboxTab = 'pending' | 'confirmed' | 'cancelled'
 
 function emptyAddAppointment(site: SiteSnapshot): AddAppointmentValues {
@@ -113,6 +114,7 @@ type BookingRow = {
   startsAt?: string
   smsOptIn?: number
   createdAt?: string
+  patientId?: string | null
 }
 
 type ReviewRow = {
@@ -142,6 +144,7 @@ type HistoryRow = {
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'appointments', label: 'Appointments' },
+  { id: 'patients', label: 'Patients' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'contact', label: 'Business Info' },
@@ -588,6 +591,9 @@ export function PortalApp() {
   const [rescheduleService, setRescheduleService] = useState('')
   const [addingAppointment, setAddingAppointment] = useState(false)
   const [creatingAppointment, setCreatingAppointment] = useState(false)
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null)
+  const [patientChartTab, setPatientChartTab] = useState<'intake' | 'visits' | 'files' | 'consent'>('intake')
+  const [bookingToLink, setBookingToLink] = useState<string | null>(null)
   const [addAppointment, setAddAppointment] = useState<AddAppointmentValues>(() =>
     emptyAddAppointment(SITE_DEFAULTS)
   )
@@ -886,6 +892,68 @@ export function PortalApp() {
     window.location.href = '/cdn-cgi/access/logout'
   }
 
+  const openPatientChart = (
+    patientId: string,
+    chartTab: 'intake' | 'visits' | 'files' | 'consent' = 'intake',
+    bookingId?: string
+  ) => {
+    setSelectedPatientId(patientId)
+    setPatientChartTab(chartTab)
+    setBookingToLink(bookingId || null)
+    setTab('patients')
+  }
+
+  const createChartFromBooking = async (row: BookingRow) => {
+    try {
+      const created = await api<{ id: string }>('/api/admin/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: row.firstName,
+          lastName: row.lastName,
+          email: row.email,
+          phone: row.phone,
+          bookingId: row.id,
+        }),
+      })
+      show('Chart ready')
+      openPatientChart(created.id, 'intake', row.id)
+      await load()
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Could not create chart')
+    }
+  }
+
+  const chartButtons = (row: BookingRow) =>
+    row.patientId ? (
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          className={PORTAL_PILL_OUTLINE}
+          onClick={() => openPatientChart(row.patientId!, 'intake')}
+        >
+          Open chart
+        </button>
+        <button
+          type="button"
+          className={PORTAL_PILL_OUTLINE}
+          onClick={() => openPatientChart(row.patientId!, 'visits', row.id)}
+        >
+          Add visit note
+        </button>
+      </div>
+    ) : (
+      <div className="mt-3">
+        <button
+          type="button"
+          className={PORTAL_PILL_OUTLINE}
+          onClick={() => void createChartFromBooking(row)}
+        >
+          Create chart
+        </button>
+      </div>
+    )
+
   const unsavedBar = (
     <UnsavedBar
       dirty={dirty}
@@ -1126,6 +1194,7 @@ export function PortalApp() {
                           </button>
                         </div>
                       )}
+                      {chartButtons(row)}
                       </BookingCardDetails>
                     </li>
                   ))}
@@ -1256,6 +1325,7 @@ export function PortalApp() {
                           </button>
                         </div>
                       )}
+                      {chartButtons(row)}
                       </BookingCardDetails>
                     </li>
                   )
@@ -1291,13 +1361,31 @@ export function PortalApp() {
                         status="cancelled"
                         open={openAppointmentId === row.id}
                         onToggle={() => toggleBooking(row.id)}
-                      />
+                      >
+                        {chartButtons(row)}
+                      </BookingCardDetails>
                     </li>
                   )
                 })}
               </ul>
             )}
           </section>
+        )}
+
+        {tab === 'patients' && (
+          <PatientsPanel
+            published={published}
+            selectedId={selectedPatientId}
+            initialTab={patientChartTab}
+            bookingToLink={bookingToLink}
+            onSelect={setSelectedPatientId}
+            onToast={show}
+            onBookedFollowUp={() => {
+              void load()
+              setTab('appointments')
+              setBookingTab('confirmed')
+            }}
+          />
         )}
 
         {tab === 'reviews' && (
@@ -2268,6 +2356,36 @@ export function PortalApp() {
                       })
                     }
                   />
+                </div>
+                <div className="space-y-3 border-t border-black/[0.06] pt-4">
+                  <p className="text-sm font-medium">Patient records</p>
+                  <p className="text-sm text-[var(--text-dark)]/65">
+                    Charts, visit notes, and uploaded files are special-category health data.
+                    Keep Cloudflare Access limited to staff. Do not email clinical notes or
+                    files. Publish to apply retention to erase.
+                  </p>
+                  <label className="block max-w-xs text-sm">
+                    Retention (months after last visit)
+                    <input
+                      type="number"
+                      min={12}
+                      max={240}
+                      className="mt-1 block w-full rounded-md border border-black/10 px-3 py-2 text-sm"
+                      value={draft.features.patientRecordRetentionMonths}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          features: {
+                            ...draft.features,
+                            patientRecordRetentionMonths: Math.min(
+                              240,
+                              Math.max(12, Number(e.target.value) || 96)
+                            ),
+                          },
+                        })
+                      }
+                    />
+                  </label>
                 </div>
                 <div className="space-y-3 border-t border-black/[0.06] pt-4">
                   <p className="text-sm font-medium">Booking method</p>
