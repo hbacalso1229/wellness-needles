@@ -246,6 +246,9 @@ describe('appointment mail never includes clinical chart fields', () => {
       'diagnosis',
       'acupuncturePoints',
       'contraindications',
+      'herbalRemedies',
+      'reviewOfComplaints',
+      'naturopathicAdvice',
     ]) {
       assert.equal(html.includes(name), false, name)
     }

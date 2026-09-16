@@ -16,6 +16,24 @@ test.describe('portal patients', () => {
     await expect(page.getByRole('button', { name: 'Consent', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Book follow-up' }).first()).toBeVisible()
     await expect(page.getByLabel('Chief complaint(s)')).toHaveValue('Low back pain')
+    await page.getByRole('button', { name: /Tongue, diagnosis and first treatment/ }).click()
+    await expect(page.getByLabel('Treatment plan')).toBeVisible()
+    await page.getByRole('button', { name: /Advice sheet/ }).click()
+    await expect(
+      page.getByLabel('Additional herbal remedies / supplements (e.g. herbal teas)')
+    ).toBeVisible()
+    await expect(page.getByLabel('Nutritional advice')).toBeVisible()
+  })
+
+  test('Visits tab shows the follow-up form', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Patients' }).click()
+    await page.getByRole('button', { name: /Aoife Murphy/ }).click()
+    await page.getByRole('button', { name: 'Visits', exact: true }).click()
+    await expect(page.getByLabel('Review of complaints')).toBeVisible()
+    await expect(page.getByLabel('Additional / naturopathic advice')).toBeVisible()
+    await expect(page.getByText('Date of birth')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Book follow-up' }).first()).toBeVisible()
   })
 
   test('Book follow-up prefills Follow-up Sessions', async ({ page }) => {

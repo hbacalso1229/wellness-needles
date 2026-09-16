@@ -6,6 +6,8 @@ import {
   emptyConsentAnswers,
   emptyIntake,
   emptyVisitNote,
+  parseIntake,
+  parseVisitNote,
   type ConsentAnswers,
   type PatientIntake,
   type VisitNoteBody,
@@ -168,7 +170,7 @@ export function PatientsPanel({
         files: FileRow[]
       }>(`/api/admin/patients/${id}`)
       setIdentity(data.patient)
-      setIntake(data.intake || emptyIntake())
+      setIntake(parseIntake(data.intake))
       setConsent(data.consent)
       setConsentDraft(data.consent?.answers || emptyConsentAnswers())
       setVisits(data.visits || [])
@@ -181,8 +183,14 @@ export function PatientsPanel({
   useEffect(() => {
     if (!selectedId) {
       setIdentity(null)
+      setEditingVisitId(null)
+      setEditingVisit(emptyVisitNote())
+      setVisitAt('')
       return
     }
+    setEditingVisitId(null)
+    setEditingVisit(emptyVisitNote())
+    setVisitAt('')
     void loadChart(selectedId).catch((error) =>
       onToast(error instanceof Error ? error.message : 'Could not open chart')
     )
@@ -231,7 +239,11 @@ export function PatientsPanel({
     setSaving(true)
     try {
       const payload = {
-        visitAt: visitAt || new Date().toISOString(),
+        visitAt: visitAt
+          ? visitAt.includes('T')
+            ? visitAt
+            : `${visitAt}T10:00:00.000Z`
+          : new Date().toISOString(),
         bookingId: bookingToLink || undefined,
         document: editingVisit,
       }
@@ -252,6 +264,7 @@ export function PatientsPanel({
       await loadChart(selectedId)
       setEditingVisitId(null)
       setEditingVisit(emptyVisitNote())
+      setVisitAt('')
     } catch (error) {
       onToast(error instanceof Error ? error.message : 'Could not save visit')
     } finally {
@@ -611,7 +624,14 @@ export function PatientsPanel({
                 </div>
               </div>
             </Card>
-            <IntakeForm intake={intake} onChange={setIntake} />
+            <IntakeForm
+              intake={intake}
+              onChange={setIntake}
+              patientName={`${identity.firstName} ${identity.lastName}`.trim()}
+              practitionerName={
+                consent?.practitionerName || consentDraft.practitionerSignedName || 'Arkinth Garcia'
+              }
+            />
             <div className="print:hidden">
               <button
                 type="button"
@@ -627,8 +647,18 @@ export function PatientsPanel({
 
         {chartTab === 'visits' ? (
           <div className="space-y-4">
-            <Card title={editingVisitId ? 'Edit visit note' : 'New visit note'}>
-              <VisitForm visit={editingVisit} onChange={setEditingVisit} />
+            <Card title={editingVisitId ? 'Edit follow-up' : 'New follow-up'}>
+              <VisitForm
+                visit={editingVisit}
+                onChange={setEditingVisit}
+                patientName={`${identity.firstName} ${identity.lastName}`.trim()}
+                dateOfBirth={identity.dateOfBirth}
+                practitionerName={
+                  consent?.practitionerName || consentDraft.practitionerSignedName || 'Arkinth Garcia'
+                }
+                visitDate={visitAt.slice(0, 10)}
+                onVisitDateChange={setVisitAt}
+              />
               <div className="mt-4 flex flex-wrap gap-2 print:hidden">
                 <button type="button" className={PORTAL_PILL} disabled={saving} onClick={() => void saveVisit()}>
                   Save visit note
@@ -647,6 +677,7 @@ export function PatientsPanel({
                     onClick={() => {
                       setEditingVisitId(null)
                       setEditingVisit(emptyVisitNote())
+                      setVisitAt('')
                     }}
                   >
                     New note
@@ -662,7 +693,7 @@ export function PatientsPanel({
                     className="w-full rounded-lg border border-black/[0.08] bg-white px-4 py-3 text-left text-sm"
                     onClick={() => {
                       setEditingVisitId(visit.id)
-                      setEditingVisit(visit.document)
+                      setEditingVisit(parseVisitNote(visit.document))
                       setVisitAt(visit.visitAt)
                       setChartTab('visits')
                     }}

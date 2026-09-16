@@ -96,6 +96,19 @@ export type PatientIntake = {
   emotions: string
   dizzinessMemory: string
   complexion: string
+  tongue: string
+  diagnosis: string
+  treatmentPrinciple: string
+  acupuncturePoints: string
+  treatmentPlan: string
+  frequency: string
+  treatmentsAgreed: string
+  agreedStrategy: string
+  adviceSheetDate: string
+  herbalRemedies: string
+  nutritionalAdvice: string
+  naturopathicLifestyleAdvice: string
+  advicePractitionerSignedName: string
 }
 
 export type PulseSide = {
@@ -106,6 +119,7 @@ export type PulseSide = {
 }
 
 export type VisitNoteBody = {
+  reviewOfComplaints: string
   tongue: string
   pulse: { left: PulseSide; right: PulseSide }
   bloodPressure: string
@@ -114,6 +128,7 @@ export type VisitNoteBody = {
   diagnosis: string
   treatmentPrinciple: string
   acupuncturePoints: string
+  naturopathicAdvice: string
   treatmentPlan: string
   frequency: string
   treatmentsAgreed: string
@@ -138,6 +153,10 @@ export const CLINICAL_FIELD_NAMES = [
   'treatmentPrinciple',
   'acupuncturePoints',
   'contraindications',
+  'herbalRemedies',
+  'nutritionalAdvice',
+  'reviewOfComplaints',
+  'naturopathicAdvice',
 ] as const
 
 export function emptyIdentity(): PatientIdentity {
@@ -200,6 +219,19 @@ export function emptyIntake(): PatientIntake {
     emotions: '',
     dizzinessMemory: '',
     complexion: '',
+    tongue: '',
+    diagnosis: '',
+    treatmentPrinciple: '',
+    acupuncturePoints: '',
+    treatmentPlan: '',
+    frequency: '',
+    treatmentsAgreed: '',
+    agreedStrategy: '',
+    adviceSheetDate: '',
+    herbalRemedies: '',
+    nutritionalAdvice: '',
+    naturopathicLifestyleAdvice: '',
+    advicePractitionerSignedName: '',
   }
 }
 
@@ -209,6 +241,7 @@ export function emptyPulseSide(): PulseSide {
 
 export function emptyVisitNote(): VisitNoteBody {
   return {
+    reviewOfComplaints: '',
     tongue: '',
     pulse: { left: emptyPulseSide(), right: emptyPulseSide() },
     bloodPressure: '',
@@ -217,6 +250,7 @@ export function emptyVisitNote(): VisitNoteBody {
     diagnosis: '',
     treatmentPrinciple: '',
     acupuncturePoints: '',
+    naturopathicAdvice: '',
     treatmentPlan: '',
     frequency: '',
     treatmentsAgreed: '',
@@ -299,6 +333,19 @@ export function parseIntake(value: unknown): PatientIntake {
     emotions: asText(rec.emotions),
     dizzinessMemory: asText(rec.dizzinessMemory),
     complexion: asText(rec.complexion) || base.complexion,
+    tongue: asText(rec.tongue),
+    diagnosis: asText(rec.diagnosis),
+    treatmentPrinciple: asText(rec.treatmentPrinciple),
+    acupuncturePoints: asText(rec.acupuncturePoints),
+    treatmentPlan: asText(rec.treatmentPlan),
+    frequency: asText(rec.frequency),
+    treatmentsAgreed: asText(rec.treatmentsAgreed),
+    agreedStrategy: asText(rec.agreedStrategy),
+    adviceSheetDate: asText(rec.adviceSheetDate),
+    herbalRemedies: asText(rec.herbalRemedies),
+    nutritionalAdvice: asText(rec.nutritionalAdvice),
+    naturopathicLifestyleAdvice: asText(rec.naturopathicLifestyleAdvice),
+    advicePractitionerSignedName: asText(rec.advicePractitionerSignedName),
   }
 }
 
@@ -317,6 +364,7 @@ export function parseVisitNote(value: unknown): VisitNoteBody {
   const pulseRec =
     rec.pulse && typeof rec.pulse === 'object' ? (rec.pulse as Record<string, unknown>) : {}
   return {
+    reviewOfComplaints: asText(rec.reviewOfComplaints),
     tongue: asText(rec.tongue),
     pulse: {
       left: parsePulseSide(pulseRec.left),
@@ -328,6 +376,7 @@ export function parseVisitNote(value: unknown): VisitNoteBody {
     diagnosis: asText(rec.diagnosis),
     treatmentPrinciple: asText(rec.treatmentPrinciple),
     acupuncturePoints: asText(rec.acupuncturePoints),
+    naturopathicAdvice: asText(rec.naturopathicAdvice),
     treatmentPlan: asText(rec.treatmentPlan),
     frequency: asText(rec.frequency),
     treatmentsAgreed: asText(rec.treatmentsAgreed),

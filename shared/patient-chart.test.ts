@@ -30,7 +30,29 @@ describe('intake and consent parsing', () => {
     const parsed = parseIntake({ chiefComplaint: 'Low back pain', extra: 1 })
     assert.equal(parsed.chiefComplaint, 'Low back pain')
     assert.equal(parsed.medicalHistory, '')
+    assert.equal(parsed.herbalRemedies, '')
+    assert.equal(parsed.tongue, '')
     assert.equal(emptyIntake().chiefComplaint, '')
+    assert.equal(emptyIntake().nutritionalAdvice, '')
+  })
+
+  it('parses first-visit close and advice sheet on intake', () => {
+    const parsed = parseIntake({
+      tongue: 'Red tip',
+      diagnosis: 'Liver Qi stagnation',
+      herbalRemedies: 'Chamomile tea',
+      nutritionalAdvice: 'Warm cooked foods',
+      naturopathicLifestyleAdvice: 'Rest after treatment',
+      adviceSheetDate: '2026-09-16',
+      advicePractitionerSignedName: 'Arkinth Garcia',
+    })
+    assert.equal(parsed.tongue, 'Red tip')
+    assert.equal(parsed.diagnosis, 'Liver Qi stagnation')
+    assert.equal(parsed.herbalRemedies, 'Chamomile tea')
+    assert.equal(parsed.nutritionalAdvice, 'Warm cooked foods')
+    assert.equal(parsed.naturopathicLifestyleAdvice, 'Rest after treatment')
+    assert.equal(parsed.adviceSheetDate, '2026-09-16')
+    assert.equal(parsed.advicePractitionerSignedName, 'Arkinth Garcia')
   })
 
   it('stores consent version and contraindication answers', () => {
@@ -48,6 +70,27 @@ describe('intake and consent parsing', () => {
     const visit = parseVisitNote({ diagnosis: 'Qi stagnation', nextFollowUpDate: '2026-09-22' })
     assert.equal(visit.diagnosis, 'Qi stagnation')
     assert.equal(visit.nextFollowUpDate, '2026-09-22')
+    assert.equal(visit.reviewOfComplaints, '')
+    assert.equal(visit.naturopathicAdvice, '')
+  })
+
+  it('keeps older visit keys when a follow-up note is re-parsed', () => {
+    const visit = parseVisitNote({
+      tongue: 'Pale',
+      treatmentPlan: 'Weekly for 4 weeks',
+      frequency: 'weekly',
+      treatmentsAgreed: '4',
+      agreedStrategy: 'Reduce pain',
+      reviewOfComplaints: 'Sleep improved',
+      naturopathicAdvice: 'Warm foods',
+    })
+    assert.equal(visit.tongue, 'Pale')
+    assert.equal(visit.treatmentPlan, 'Weekly for 4 weeks')
+    assert.equal(visit.frequency, 'weekly')
+    assert.equal(visit.treatmentsAgreed, '4')
+    assert.equal(visit.agreedStrategy, 'Reduce pain')
+    assert.equal(visit.reviewOfComplaints, 'Sleep improved')
+    assert.equal(visit.naturopathicAdvice, 'Warm foods')
   })
 })
 
