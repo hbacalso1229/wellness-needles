@@ -407,8 +407,32 @@ export function isAllowedPatientFileMime(mime: string): mime is PatientFileMime 
   return (PATIENT_FILE_MIME as readonly string[]).includes(mime)
 }
 
-export function patientFileR2Key(patientId: string, fileId: string): string {
-  return `patients/${patientId}/${fileId}`
+export function sanitizePatientFolderName(firstName: string, lastName: string): string {
+  const joined = `${firstName} ${lastName}`.trim().replace(/\s+/g, '-')
+  const slug = joined
+    .replace(/[^A-Za-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  return slug || 'patient'
+}
+
+export function patientFileFolderName(
+  firstName: string,
+  lastName: string,
+  patientId: string,
+  nameClash: boolean
+): string {
+  const slug = sanitizePatientFolderName(firstName, lastName)
+  if (!nameClash) return slug
+  return `${slug}-${patientId.slice(0, 8)}`
+}
+
+export function patientFileR2Key(folder: string, fileId: string): string {
+  return `patients/${folder}/${fileId}`
+}
+
+export function isLegacyPatientFileKey(r2Key: string, patientId: string): boolean {
+  return Boolean(patientId) && r2Key.startsWith(`patients/${patientId}/`)
 }
 
 export function clampRetentionMonths(value: unknown): number {

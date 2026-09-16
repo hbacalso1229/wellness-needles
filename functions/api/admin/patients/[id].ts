@@ -9,6 +9,7 @@ import {
   listVisits,
   publicPatient,
   readIntake,
+  relocateUuidFolderFiles,
   saveIntake,
   updatePatientIdentity,
   writeAudit,
@@ -29,6 +30,11 @@ export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
   if (!row) return jsonResponse(404, { ok: false, error: 'not-found' })
   const actor = actorEmail(context)
   await writeAudit(context.env.DB, id, 'view', actor)
+  try {
+    await relocateUuidFolderFiles(context.env, row)
+  } catch {
+    /* keep opening the chart even if a copy/delete fails */
+  }
   const [intake, consent, visits, files, audit] = await Promise.all([
     readIntake(context.env.DB, id),
     latestConsent(context.env.DB, id),

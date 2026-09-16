@@ -11,6 +11,9 @@ import {
   type PatientStatus,
   type VisitNoteBody,
   type YesNo,
+  isLegacyPatientFileKey,
+  patientFileFolderName,
+  patientFileR2Key,
 } from '../../shared/patient-chart'
 
 export type StaffContext = { data?: { email?: string } }
@@ -137,6 +140,25 @@ export async function writeAudit(
 
 export async function getPatient(db: D1Database, id: string): Promise<PatientRow | null> {
   return db.prepare('SELECT * FROM patients WHERE id = ?').bind(id).first<PatientRow>()
+}
+
+export async function otherPatientHasSameName(
+  db: D1Database,
+  patientId: string,
+  firstName: string,
+  lastName: string
+): Promise<boolean> {
+  const row = await db
+    .prepare(
+      `SELECT id FROM patients
+       WHERE id != ?
+         AND lower(first_name) = lower(?)
+         AND lower(last_name) = lower(?)
+       LIMIT 1`
+    )
+    .bind(patientId, firstName.trim(), lastName.trim())
+    .first<{ id: string }>()
+  return Boolean(row?.id)
 }
 
 export async function findPatientIdByEmail(
@@ -611,6 +633,39 @@ export async function deleteFileRow(
     .bind(fileId, patientId)
     .run()
   return row.r2Key
+}
+
+export async function relocateUuidFolderFiles(
+  env: PagesEnv,
+  patient: PatientRow
+): Promise<void> {
+  const db = env.DB
+  const bucket = env.PATIENT_FILES
+  if (!db || !bucket) return
+  const { results } = await db
+    .prepare('SELECT id, r2_key as r2Key FROM patient_files WHERE patient_id = ?')
+    .bind(patient.id)
+    .all<{ id: string; r2Key: string }>()
+  const legacy = (results || []).filter((row) => isLegacyPatientFileKey(row.r2Key, patient.id))
+  if (!legacy.length) return
+  const nameClash = await otherPatientHasSameName(db, patient.id, patient.first_name, patient.last_name)
+  const folder = patientFileFolderName(patient.first_name, patient.last_name, patient.id, nameClash)
+  const prefix = `patients/${patient.id}/`
+  for (const row of legacy) {
+    const fileId = row.r2Key.slice(prefix.length) || row.id
+    const nextKey = patientFileR2Key(folder, fileId)
+    if (nextKey === row.r2Key) continue
+    const object = await bucket.get(row.r2Key)
+    if (!object) continue
+    await bucket.put(nextKey, object.body, {
+      httpMetadata: object.httpMetadata,
+    })
+    await db
+      .prepare('UPDATE patient_files SET r2_key = ? WHERE id = ? AND patient_id = ?')
+      .bind(nextKey, row.id, patient.id)
+      .run()
+    await bucket.delete(row.r2Key)
+  }
 }
 
 export async function listAudit(db: D1Database, patientId: string, limit = 50) {
