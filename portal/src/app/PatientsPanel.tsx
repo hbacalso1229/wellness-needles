@@ -755,10 +755,7 @@ export function PatientsPanel({
 
   return (
     <section className="space-y-4">
-      <PageHeader
-        title="Patients"
-        description="Staff-only charts. Intake, visit notes, and files stay in the portal. Do not email clinical notes."
-      />
+      <PageHeader description="Staff-only charts. Intake, visit notes, and files stay in the portal. Do not email clinical notes." />
       <Card title="New chart">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm">
