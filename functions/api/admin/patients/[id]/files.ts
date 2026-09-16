@@ -4,11 +4,14 @@ import {
   getPatient,
   insertFileRow,
   listFiles,
+  otherPatientHasSameName,
+  relocateUuidFolderFiles,
   writeAudit,
 } from '../../../../_lib/patients'
 import {
   PATIENT_FILE_MAX_BYTES,
   isAllowedPatientFileMime,
+  patientFileFolderName,
   patientFileR2Key,
 } from '../../../../../shared/patient-chart'
 
@@ -24,6 +27,11 @@ export const onRequestGet: PagesFunction<PagesEnv> = async (context) => {
   const id = context.params.id
   const row = await getPatient(context.env.DB, id)
   if (!row) return jsonResponse(404, { ok: false, error: 'not-found' })
+  try {
+    await relocateUuidFolderFiles(context.env, row)
+  } catch {
+    /* keep listing even if a copy/delete fails */
+  }
   return jsonResponse(200, { files: await listFiles(context.env.DB, id) })
 }
 
@@ -48,7 +56,14 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
     return jsonResponse(400, { ok: false, error: 'pdf, jpeg, png, webp, or heic only' })
   }
   const fileId = crypto.randomUUID()
-  const key = patientFileR2Key(id, fileId)
+  const nameClash = await otherPatientHasSameName(
+    context.env.DB,
+    id,
+    row.first_name,
+    row.last_name
+  )
+  const folder = patientFileFolderName(row.first_name, row.last_name, id, nameClash)
+  const key = patientFileR2Key(folder, fileId)
   const buf = await file.arrayBuffer()
   await context.env.PATIENT_FILES.put(key, buf, {
     httpMetadata: { contentType: mime },

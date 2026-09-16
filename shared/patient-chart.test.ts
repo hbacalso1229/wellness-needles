@@ -7,12 +7,15 @@ import {
   emailsMatch,
   emptyIntake,
   isAllowedPatientFileMime,
+  isLegacyPatientFileKey,
   isWithinRetention,
   normalizePatientEmail,
   parseConsentAnswers,
   parseIntake,
   parseVisitNote,
   patientFileR2Key,
+  patientFileFolderName,
+  sanitizePatientFolderName,
   payloadLooksClinical,
 } from './patient-chart'
 
@@ -99,7 +102,20 @@ describe('files and retention', () => {
     assert.equal(isAllowedPatientFileMime('image/jpeg'), true)
     assert.equal(isAllowedPatientFileMime('application/pdf'), true)
     assert.equal(isAllowedPatientFileMime('text/html'), false)
-    assert.equal(patientFileR2Key('p1', 'f1'), 'patients/p1/f1')
+    assert.equal(sanitizePatientFolderName('Aoife', 'Murphy'), 'Aoife-Murphy')
+    assert.equal(sanitizePatientFolderName("Mary Ann", "O'Brien"), 'Mary-Ann-OBrien')
+    assert.equal(sanitizePatientFolderName('  ', ''), 'patient')
+    assert.equal(patientFileFolderName('Aoife', 'Murphy', '5ede956d-df61-4306-84b0-266acc66a0a3', false), 'Aoife-Murphy')
+    assert.equal(
+      patientFileFolderName('Aoife', 'Murphy', '5ede956d-df61-4306-84b0-266acc66a0a3', true),
+      'Aoife-Murphy-5ede956d'
+    )
+    assert.equal(patientFileR2Key('Aoife-Murphy', 'f1'), 'patients/Aoife-Murphy/f1')
+    assert.equal(
+      isLegacyPatientFileKey('patients/5ede956d-df61-4306-84b0-266acc66a0a3/f1', '5ede956d-df61-4306-84b0-266acc66a0a3'),
+      true
+    )
+    assert.equal(isLegacyPatientFileKey('patients/Aoife-Murphy/f1', '5ede956d-df61-4306-84b0-266acc66a0a3'), false)
   })
 
   it('blocks erase while inside retention unless last seen is old', () => {
