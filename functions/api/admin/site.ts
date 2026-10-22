@@ -32,7 +32,8 @@ export const onRequestPut: PagesFunction<PagesEnv> = async (context) => {
   if (
     !parsed.features.bookingFormEnabled &&
     !parsed.features.calendlyEnabled &&
-    !parsed.features.freshaEnabled
+    !parsed.features.freshaEnabled &&
+    !parsed.features.janeEnabled
   ) {
     return jsonResponse(400, {
       ok: false,
@@ -61,7 +62,8 @@ export const onRequestPost: PagesFunction<PagesEnv> = async (context) => {
   if (
     !parsed.features.bookingFormEnabled &&
     !parsed.features.calendlyEnabled &&
-    !parsed.features.freshaEnabled
+    !parsed.features.freshaEnabled &&
+    !parsed.features.janeEnabled
   ) {
     return jsonResponse(400, { ok: false, error: 'booking-channel-required' })
   }

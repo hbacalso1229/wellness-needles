@@ -7,6 +7,7 @@ export type BookingFeatureFlags = {
   calendlyEnabled: boolean
   bookingFormEnabled: boolean
   freshaEnabled: boolean
+  janeEnabled: boolean
   /** Show 5/10 session treatment packages on the bookings page. */
   treatmentPackagesEnabled: boolean
   /** Fallback Calendly URL (packages / unknown service). */
@@ -17,6 +18,8 @@ export type BookingFeatureFlags = {
   calendlyFollowUpUrl: string
   /** Fresha public booking page URL. */
   freshaBookingUrl: string
+  /** Jane App online booking URL, including the staff-member hash. */
+  janeBookingUrl: string
   /** Send legacy form submissions by email (Web3Forms). */
   bookingEmailEnabled: boolean
   /** Web3Forms access key from https://web3forms.com */
@@ -137,11 +140,13 @@ export function getDefaultBookingFeatures(): BookingFeatureFlags {
     calendlyEnabled: contactConfig.features.calendlyEnabled,
     bookingFormEnabled: contactConfig.features.bookingFormEnabled,
     freshaEnabled: contactConfig.features.freshaEnabled,
+    janeEnabled: contactConfig.features.janeEnabled,
     treatmentPackagesEnabled: contactConfig.features.treatmentPackagesEnabled,
     calendlySchedulingUrl: contactConfig.calendly.schedulingUrl,
     calendlyInitialUrl: contactConfig.calendly.initialConsultationUrl,
     calendlyFollowUpUrl: contactConfig.calendly.followUpUrl,
     freshaBookingUrl: contactConfig.fresha.bookingUrl,
+    janeBookingUrl: contactConfig.jane.bookingUrl,
     // Shared deploys: env key or Turnstile production (Function holds the access key).
     bookingEmailEnabled: Boolean(envAccessKey) || isTurnstileCaptchaEnabled(),
     bookingEmailAccessKey: envAccessKey,
@@ -159,10 +164,15 @@ export function bookingFeaturesFromOverlay(
   site: SiteSnapshot,
   base: BookingFeatureFlags
 ): BookingFeatureFlags {
-  const freshaEnabled = Boolean(site.features.freshaEnabled)
+  const janeEnabled = Boolean(site.features.janeEnabled)
+  let freshaEnabled = Boolean(site.features.freshaEnabled)
   let bookingFormEnabled = Boolean(site.features.bookingFormEnabled)
   let calendlyEnabled = Boolean(site.features.calendlyEnabled)
-  if (freshaEnabled) {
+  if (janeEnabled) {
+    freshaEnabled = false
+    bookingFormEnabled = false
+    calendlyEnabled = false
+  } else if (freshaEnabled) {
     bookingFormEnabled = false
     calendlyEnabled = false
   } else if (bookingFormEnabled) {
@@ -184,6 +194,7 @@ export function bookingFeaturesFromOverlay(
   return {
     ...base,
     freshaEnabled,
+    janeEnabled,
     bookingFormEnabled,
     calendlyEnabled,
     treatmentPackagesEnabled: Boolean(site.features.treatmentPackagesEnabled),
@@ -191,6 +202,7 @@ export function bookingFeaturesFromOverlay(
     calendlyInitialUrl,
     calendlyFollowUpUrl,
     freshaBookingUrl: site.fresha.bookingUrl.trim() || base.freshaBookingUrl,
+    janeBookingUrl: site.jane.bookingUrl.trim() || base.janeBookingUrl,
   }
 }
 
@@ -209,6 +221,19 @@ export function isValidCalendlySchedulingUrl(url: string): boolean {
       (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
       parsed.hostname === 'calendly.com' &&
       parsed.pathname.split('/').filter(Boolean).length >= 2
+    )
+  } catch {
+    return false
+  }
+}
+
+export function isValidJaneBookingUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url.trim())
+    const host = parsed.hostname.toLowerCase()
+    return (
+      parsed.protocol === 'https:' &&
+      (host === 'janeapp.com' || host.endsWith('.janeapp.com'))
     )
   } catch {
     return false
@@ -273,8 +298,11 @@ export function resolveCalendlyUrlForService(
   return features.calendlySchedulingUrl
 }
 
-/** Book Now CTA target: Fresha when enabled + valid URL, otherwise /bookings. */
+/** Book Now CTA target: Jane or Fresha when that channel is on and the URL is valid, otherwise /bookings. */
 export function getBookingCtaHref(features: BookingFeatureFlags): string {
+  if (features.janeEnabled && isValidJaneBookingUrl(features.janeBookingUrl)) {
+    return features.janeBookingUrl.trim()
+  }
   if (features.freshaEnabled && isValidFreshaBookingUrl(features.freshaBookingUrl)) {
     return features.freshaBookingUrl.trim()
   }
@@ -324,6 +352,10 @@ export function readBookingFeatures(): BookingFeatureFlags {
       parsed.freshaBookingUrl,
       defaults.freshaBookingUrl
     )
+    const janeBookingUrl = readFreshaUrl(
+      parsed.janeBookingUrl,
+      defaults.janeBookingUrl
+    )
     const parsedKey =
       typeof parsed.bookingEmailAccessKey === 'string'
         ? parsed.bookingEmailAccessKey
@@ -358,20 +390,27 @@ export function readBookingFeatures(): BookingFeatureFlags {
 
     // When Admin UI is on (dev), honor stored mode toggles with mutual exclusivity.
     // When Admin UI is off (main), force contact-config defaults (legacy form).
+    let janeEnabled: boolean
     let freshaEnabled: boolean
     let bookingFormEnabled: boolean
     let calendlyEnabled: boolean
     if (isAdminUiEnabled()) {
+      janeEnabled = Boolean(parsed.janeEnabled)
       freshaEnabled = Boolean(parsed.freshaEnabled)
       bookingFormEnabled = Boolean(parsed.bookingFormEnabled)
       calendlyEnabled = Boolean(parsed.calendlyEnabled)
-      if (freshaEnabled) {
+      if (janeEnabled) {
+        freshaEnabled = false
+        bookingFormEnabled = false
+        calendlyEnabled = false
+      } else if (freshaEnabled) {
         bookingFormEnabled = false
         calendlyEnabled = false
       } else if (bookingFormEnabled) {
         calendlyEnabled = false
       }
     } else {
+      janeEnabled = defaults.janeEnabled
       freshaEnabled = defaults.freshaEnabled
       bookingFormEnabled = defaults.bookingFormEnabled
       calendlyEnabled = defaults.calendlyEnabled
@@ -394,11 +433,13 @@ export function readBookingFeatures(): BookingFeatureFlags {
       calendlyEnabled,
       bookingFormEnabled,
       freshaEnabled,
+      janeEnabled,
       treatmentPackagesEnabled,
       calendlySchedulingUrl: fallbackUrl,
       calendlyInitialUrl: initialUrl,
       calendlyFollowUpUrl: followUpUrl,
       freshaBookingUrl,
+      janeBookingUrl,
       bookingEmailEnabled,
       bookingEmailAccessKey: accessKeyForClient,
       bookingEmailTo: emailTo,
@@ -436,4 +477,8 @@ export function isBookingEmailConfigured(features: BookingFeatureFlags): boolean
 
 export function isFreshaBookingConfigured(features: BookingFeatureFlags): boolean {
   return features.freshaEnabled && isValidFreshaBookingUrl(features.freshaBookingUrl)
+}
+
+export function isJaneBookingConfigured(features: BookingFeatureFlags): boolean {
+  return features.janeEnabled && isValidJaneBookingUrl(features.janeBookingUrl)
 }

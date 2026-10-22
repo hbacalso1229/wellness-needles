@@ -26,7 +26,7 @@ Do not set this in the Cloudflare dashboard — `NEXT_PUBLIC_*` is baked at buil
 | Switch | Default | Effect after Publish |
 |--------|---------|----------------------|
 | Public website overlay | off until you turn it on | www uses portal hours, contact, pricing, locations, insurers, booking mode |
-| Booking form / Calendly / Fresha | one channel required | mutually exclusive |
+| Booking form / Calendly / Fresha / Jane | one channel required | mutually exclusive. Jane is off and prefilled with `https://wellnessneedles.janeapp.com/#staff_member/1` |
 | Patient SMS | **off** | Shows the booking-form **Appointment reminders** checkbox (text me appointment updates) and the Add appointment **Patient asked for SMS** tick. Allows Twilio on confirm / reschedule / day-before reminder / cancel. Email still sends when this is off. |
 | Booking maintenance | **off** | Non-dismissable “Online Appointment Requests Unavailable” modal on `/bookings` (Need help card inside). Overlay must be on. Turn off and Publish to restore online booking. |
 
@@ -72,7 +72,7 @@ Plain-language process: [OWNER-BOOKINGS.md](OWNER-BOOKINGS.md). Architecture: [A
 
 ## Patient booking request flow (technical)
 
-Overlay-on **website booking form** fills Pending. Phone and walk-in use portal **Add appointment** (create + same Confirm pipeline; no request-received thank-you). Calendly / Fresha are not imported. Runtimes and Confirm order: [ARCHITECTURE.md](ARCHITECTURE.md).
+Overlay-on **website booking form** fills Pending. Phone and walk-in use portal **Add appointment** (create + same Confirm pipeline; no request-received thank-you). Calendly, Fresha, and Jane are not imported. Runtimes and Confirm order: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```mermaid
 flowchart TD
@@ -171,7 +171,7 @@ Not implemented: same-day reminder subject.
 
 Zoho: Calendar must be on for `info@`. The owner may need to tap **Add** on the first invite. Patient mail is To-only. Clinic calendar is a second Resend To `info@` with the same UID.
 
-Website booking-form requests persist to the portal Appointments inbox only when overlay is on and www has `/api/bff/booking-persist`. Phone and walk-in use portal **Add appointment** (not imported from Calendly or Fresha). Persist failure must not block the clinic email.
+Website booking-form requests persist to the portal Appointments inbox only when overlay is on and www has `/api/bff/booking-persist`. Phone and walk-in use portal **Add appointment** (not imported from Calendly, Fresha, or Jane). Persist failure must not block the clinic email.
 
 ## Deploy
 

@@ -73,7 +73,7 @@ Patient SMS is a separate Published switch (default off).
 
 ## Booking lifecycle
 
-Website form (overlay persist) and portal **Add appointment** (phone/walk-in) both write D1. Calendly and Fresha do not.
+Website form (overlay persist) and portal **Add appointment** (phone/walk-in) both write D1. Calendly, Fresha, and Jane do not.
 
 ```mermaid
 stateDiagram-v2

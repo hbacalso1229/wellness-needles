@@ -1,6 +1,6 @@
 # How bookings work
 
-For the clinic owner. Website form requests land in **Pending**. Phone and walk-in bookings you take yourself use **Add appointment** — they go straight to **Confirmed** and send the same patient card and calendar invite. Calendly and Fresha still do not appear in Appointments.
+For the clinic owner. Website form requests land in **Pending**. Phone and walk-in bookings you take yourself use **Add appointment** — they go straight to **Confirmed** and send the same patient card and calendar invite. Calendly, Fresha, and Jane still do not appear in Appointments.
 
 ![Booking process for the clinic owner](owner-booking-process.png)
 
@@ -60,7 +60,7 @@ When you book someone by phone or in person (not the website form):
 3. Tick **Patient asked for SMS** only if they want texts (and Patient SMS is published On).
 4. Choose **Confirm appointment**. They get the same confirmation card and calendar invite as a website Confirm. The row appears under **Confirmed**. Reschedule and Cancel work as usual.
 
-Do not send a “request received” note for these — the slot is already agreed. Calendly and Fresha are not imported.
+Do not send a “request received” note for these — the slot is already agreed. Calendly, Fresha, and Jane are not imported.
 
 If Confirm appointment does not finish, look under **Pending** and Confirm from there. Do not click Add appointment again or you will get a duplicate.
 

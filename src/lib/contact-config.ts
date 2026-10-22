@@ -99,6 +99,9 @@ export const contactConfig = {
     // Paste the real Fresha booking link here (marketing /admin removed).
     bookingUrl: 'https://www.fresha.com/a/YOUR-BUSINESS',
   },
+  jane: {
+    bookingUrl: 'https://wellnessneedles.janeapp.com/#staff_member/1',
+  },
   features: {
     contactFormEnabled: false,
     liveChatEnabled: false,
@@ -107,6 +110,7 @@ export const contactConfig = {
     calendlyEnabled: false,
     bookingFormEnabled: true,
     freshaEnabled: false,
+    janeEnabled: false,
     /** Country lock (picker hidden). Production hostname lock is separate. */
     strictIrishPhoneEnabled: false,
   }
