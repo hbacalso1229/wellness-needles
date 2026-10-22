@@ -7,7 +7,7 @@ import {
   isExternalBookingHref,
 } from '@/lib/booking-features'
 
-/** Book Now / booking CTA href that respects Fresha Admin toggle after hydrate. */
+/** Book Now / booking CTA href that respects Jane or Fresha after hydrate. */
 export function useBookingCtaHref() {
   const { features, hydrated } = useBookingFeatures()
   const href = hydrated ? getBookingCtaHref(features) : '/bookings/'

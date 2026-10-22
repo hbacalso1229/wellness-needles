@@ -22,6 +22,7 @@ import { useBookingFeatures } from '@/hooks/useBookingFeatures'
 import {
   getFreshaOpenAttrs,
   isFreshaBookingConfigured,
+  isJaneBookingConfigured,
   resolveCalendlyUrlForService,
 } from '@/lib/booking-features'
 import {
@@ -44,6 +45,8 @@ export default function Bookings() {
   const calendlyEnabled = features.calendlyEnabled
   const freshaEnabled = features.freshaEnabled
   const freshaReady = isFreshaBookingConfigured(features)
+  const janeEnabled = features.janeEnabled
+  const janeReady = isJaneBookingConfigured(features)
 
   const [activeTab, setActiveTab] = useState('in-clinic')
   const [selectedLocation, setSelectedLocation] = useState('celbridge')
@@ -172,7 +175,7 @@ export default function Bookings() {
                       titleClassName="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-dark)] mb-2 md:mb-3"
                       className="text-center mb-6"
                     />
-                    {!calendlyEnabled && !freshaEnabled && (
+                    {!calendlyEnabled && !freshaEnabled && !janeEnabled && (
                       <div className={`${panelClass} max-w-2xl mx-auto`}>
                         <h3 className="font-semibold text-primary mb-2 flex items-center justify-center">
                           <Phone className="w-5 h-5 mr-2" />
@@ -216,6 +219,35 @@ export default function Bookings() {
                           <p className="text-center text-sm text-red-700" role="alert">
                             Fresha is enabled but the booking URL is missing or invalid. Set the
                             Fresha booking URL in portal Settings, then Publish.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {janeEnabled && (
+                      <div className={`${panelClass} max-w-2xl mx-auto mt-6`}>
+                        <h3 className="font-semibold text-primary mb-2 text-center text-xl">
+                          Book on Jane
+                        </h3>
+                        <div className="mx-auto mb-3 h-0.5 w-10 rounded-full bg-gold" aria-hidden="true" />
+                        <p className="text-secondary text-base mb-4 text-center">
+                          Review services below, then continue to Jane to pick a time and
+                          confirm your booking.
+                        </p>
+                        {janeReady ? (
+                          <div className="flex justify-center">
+                            <a
+                              href={features.janeBookingUrl.trim()}
+                              {...getFreshaOpenAttrs()}
+                              className="bg-primary text-cream px-8 py-3 rounded-full text-lg font-semibold hover:bg-secondary transition-all duration-300 inline-flex items-center justify-center"
+                            >
+                              Continue to Jane
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-center text-sm text-red-700" role="alert">
+                            Jane is enabled but the booking URL is missing or invalid. Set the
+                            Jane booking URL in portal Settings, then Publish.
                           </p>
                         )}
                       </div>
@@ -333,7 +365,7 @@ export default function Bookings() {
                     </div>
                   </div>
 
-                  {calendlyEnabled && !freshaEnabled && (
+                  {calendlyEnabled && !freshaEnabled && !janeEnabled && (
                     <div className={`${panelClass} !p-3.5 sm:!p-5 md:!p-6`}>
                       <div className="text-center mb-5 max-w-xl mx-auto">
                         <h3 className="mb-2 text-xl font-semibold text-[var(--text-dark)] sm:text-2xl">

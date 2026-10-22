@@ -2404,7 +2404,9 @@ export function PortalApp() {
                           features: {
                             ...draft.features,
                             bookingFormEnabled: on,
-                            ...(on ? { calendlyEnabled: false, freshaEnabled: false } : {}),
+                            ...(on
+                              ? { calendlyEnabled: false, freshaEnabled: false, janeEnabled: false }
+                              : {}),
                           },
                         })
                       }
@@ -2426,7 +2428,11 @@ export function PortalApp() {
                             ...draft.features,
                             calendlyEnabled: on,
                             ...(on
-                              ? { bookingFormEnabled: false, freshaEnabled: false }
+                              ? {
+                                  bookingFormEnabled: false,
+                                  freshaEnabled: false,
+                                  janeEnabled: false,
+                                }
                               : {}),
                           },
                         })
@@ -2495,7 +2501,11 @@ export function PortalApp() {
                             ...draft.features,
                             freshaEnabled: on,
                             ...(on
-                              ? { bookingFormEnabled: false, calendlyEnabled: false }
+                              ? {
+                                  bookingFormEnabled: false,
+                                  calendlyEnabled: false,
+                                  janeEnabled: false,
+                                }
                               : {}),
                           },
                         })
@@ -2512,6 +2522,46 @@ export function PortalApp() {
                           setDraft({
                             ...draft,
                             fresha: { ...draft.fresha, bookingUrl: e.target.value },
+                          })
+                        }
+                      />
+                    </label>
+                  ) : null}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm">Jane</p>
+                    <OnOffSwitch
+                      checked={draft.features.janeEnabled}
+                      ariaLabel={
+                        draft.features.janeEnabled ? 'Turn off Jane' : 'Turn on Jane'
+                      }
+                      onChange={(on) =>
+                        setDraft({
+                          ...draft,
+                          features: {
+                            ...draft.features,
+                            janeEnabled: on,
+                            ...(on
+                              ? {
+                                  bookingFormEnabled: false,
+                                  calendlyEnabled: false,
+                                  freshaEnabled: false,
+                                }
+                              : {}),
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  {draft.features.janeEnabled ? (
+                    <label className="block text-xs font-medium text-[var(--text-dark)]/60">
+                      Booking URL
+                      <input
+                        className="mt-1 w-full rounded-md border border-black/10 px-2 py-1.5 text-sm"
+                        value={draft.jane.bookingUrl}
+                        onChange={(e) =>
+                          setDraft({
+                            ...draft,
+                            jane: { ...draft.jane, bookingUrl: e.target.value },
                           })
                         }
                       />

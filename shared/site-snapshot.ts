@@ -416,6 +416,7 @@ export type SiteSnapshot = {
     calendlyEnabled: boolean
     bookingFormEnabled: boolean
     freshaEnabled: boolean
+    janeEnabled: boolean
     smsEnabled: boolean
     bookingMaintenanceEnabled: boolean
     newClinicLogoEnabled: boolean
@@ -427,6 +428,9 @@ export type SiteSnapshot = {
     followUpUrl: string
   }
   fresha: {
+    bookingUrl: string
+  }
+  jane: {
     bookingUrl: string
   }
   pricing: {
@@ -524,6 +528,7 @@ export const SITE_DEFAULTS: SiteSnapshot = {
     calendlyEnabled: false,
     bookingFormEnabled: true,
     freshaEnabled: false,
+    janeEnabled: false,
     smsEnabled: false,
     bookingMaintenanceEnabled: false,
     newClinicLogoEnabled: false,
@@ -537,6 +542,9 @@ export const SITE_DEFAULTS: SiteSnapshot = {
   },
   fresha: {
     bookingUrl: 'https://www.fresha.com/a/YOUR-BUSINESS',
+  },
+  jane: {
+    bookingUrl: 'https://wellnessneedles.janeapp.com/#staff_member/1',
   },
   pricing: {
     inClinic: {
@@ -1053,6 +1061,10 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
         value.features.freshaEnabled,
         SITE_DEFAULTS.features.freshaEnabled
       ),
+      janeEnabled: asBool(
+        value.features.janeEnabled,
+        SITE_DEFAULTS.features.janeEnabled
+      ),
       smsEnabled: asBool(value.features.smsEnabled, SITE_DEFAULTS.features.smsEnabled),
       bookingMaintenanceEnabled: asBool(
         value.features.bookingMaintenanceEnabled,
@@ -1084,6 +1096,12 @@ export function parseSiteSnapshot(value: unknown): SiteSnapshot | null {
       bookingUrl: asString(
         isRecord(value.fresha) ? value.fresha.bookingUrl : '',
         SITE_DEFAULTS.fresha.bookingUrl
+      ),
+    },
+    jane: {
+      bookingUrl: asString(
+        isRecord(value.jane) ? value.jane.bookingUrl : '',
+        SITE_DEFAULTS.jane.bookingUrl
       ),
     },
     pricing: {
@@ -1179,6 +1197,7 @@ export function deepMergeSite(
     features: { ...defaults.features, ...incoming.features },
     calendly: { ...defaults.calendly, ...incoming.calendly },
     fresha: { ...defaults.fresha, ...incoming.fresha },
+    jane: { ...defaults.jane, ...incoming.jane },
     pricing: {
       inClinic: { ...defaults.pricing.inClinic, ...incoming.pricing.inClinic },
       homeVisit: { ...defaults.pricing.homeVisit, ...incoming.pricing.homeVisit },

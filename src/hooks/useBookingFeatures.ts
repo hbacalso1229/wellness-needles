@@ -63,9 +63,10 @@ export function useBookingFeatures() {
         freshaEnabled: enabled,
         calendlyEnabled: enabled ? false : features.calendlyEnabled,
         bookingFormEnabled: enabled ? false : features.bookingFormEnabled,
+        janeEnabled: enabled ? false : features.janeEnabled,
       })
     },
-    [features.calendlyEnabled, features.bookingFormEnabled, patchFeatures]
+    [features.calendlyEnabled, features.bookingFormEnabled, features.janeEnabled, patchFeatures]
   )
 
   const setCalendlyEnabled = useCallback(
@@ -74,9 +75,10 @@ export function useBookingFeatures() {
         calendlyEnabled: enabled,
         bookingFormEnabled: enabled ? false : features.bookingFormEnabled,
         freshaEnabled: enabled ? false : features.freshaEnabled,
+        janeEnabled: enabled ? false : features.janeEnabled,
       })
     },
-    [features.bookingFormEnabled, features.freshaEnabled, patchFeatures]
+    [features.bookingFormEnabled, features.freshaEnabled, features.janeEnabled, patchFeatures]
   )
 
   const setBookingFormEnabled = useCallback(
@@ -85,9 +87,29 @@ export function useBookingFeatures() {
         bookingFormEnabled: enabled,
         calendlyEnabled: enabled ? false : features.calendlyEnabled,
         freshaEnabled: enabled ? false : features.freshaEnabled,
+        janeEnabled: enabled ? false : features.janeEnabled,
       })
     },
-    [features.calendlyEnabled, features.freshaEnabled, patchFeatures]
+    [features.calendlyEnabled, features.freshaEnabled, features.janeEnabled, patchFeatures]
+  )
+
+  const setJaneEnabled = useCallback(
+    (enabled: boolean) => {
+      patchFeatures({
+        janeEnabled: enabled,
+        bookingFormEnabled: enabled ? false : features.bookingFormEnabled,
+        calendlyEnabled: enabled ? false : features.calendlyEnabled,
+        freshaEnabled: enabled ? false : features.freshaEnabled,
+      })
+    },
+    [features.bookingFormEnabled, features.calendlyEnabled, features.freshaEnabled, patchFeatures]
+  )
+
+  const setJaneBookingUrl = useCallback(
+    (url: string) => {
+      patchFeatures({ janeBookingUrl: url.trim() })
+    },
+    [patchFeatures]
   )
 
   const setCalendlySchedulingUrl = useCallback(
@@ -164,10 +186,12 @@ export function useBookingFeatures() {
     setFreshaEnabled,
     setCalendlyEnabled,
     setBookingFormEnabled,
+    setJaneEnabled,
     setCalendlySchedulingUrl,
     setCalendlyInitialUrl,
     setCalendlyFollowUpUrl,
     setFreshaBookingUrl,
+    setJaneBookingUrl,
     setTreatmentPackagesEnabled,
     setBookingEmailEnabled,
     setBookingEmailAccessKey,

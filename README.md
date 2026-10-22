@@ -7,7 +7,7 @@ A modern, professional website for an acupuncture and Traditional Chinese Medici
 - Modern tropical/jungle design system (CSS variables + Tailwind)
 - Fully responsive layout (mobile hamburger nav through desktop)
 - Dual clinic locations (Celbridge & Carlow) with Google Maps
-- Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha come from portal Settings
+- Bookings via **legacy stepper form** by default (`contact-config.ts`); with overlay on, form / Calendly / Fresha / Jane come from portal Settings. Jane is off until turned on.
 - Owner portal at **`https://portal.wellnessneedles.ie`** (Cloudflare Access). www stays baked until a Release with `NEXT_PUBLIC_SITE_OVERLAY_ENABLED=true` **and** Settings → **Public website overlay** is published. API failure keeps the baked site. Patient SMS is a separate Settings switch (default off). Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Owner process: [docs/OWNER-BOOKINGS.md](docs/OWNER-BOOKINGS.md). Portal ops: [docs/PORTAL.md](docs/PORTAL.md).
 - Clinic booking emails via **Web3Forms** (staging: browser + hCaptcha; production: Turnstile verify then browser Web3Forms)
 - Patient thank-you email via **Resend** (Cloudflare Pages Function `/api/booking-thank-you`, From `info@`). Overlay Confirm / combined / reschedule / day-before reminder use the same branded card (date, time, location, Add to Calendar, Get Directions, Call Wellness Needles) plus a calendar invite on Confirm and Reschedule. Portal **Add appointment** uses that Confirm card only (no request-received thank-you). The booking form checks email format and, on live www, MX via `/api/booking-email-check`. Subjects and headings: [docs/PORTAL.md](docs/PORTAL.md#patient-messages)
